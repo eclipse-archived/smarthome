@@ -44,7 +44,7 @@ public class ChannelType extends AbstractDescriptionType {
     private final URI configDescriptionURI;
 
     /**
-     * @deprecated Use the {@link ChannelTypeBuilder} instead.
+     * @deprecated Use the {@link GenericChannelTypeBuilder} instead.
      *
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *             or the the meta information is null

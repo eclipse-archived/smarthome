@@ -12,39 +12,71 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import java.net.URI;
+import java.util.Collection;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.internal.type.StateChannelTypeBuilderImpl;
-import org.eclipse.smarthome.core.thing.internal.type.TriggerChannelTypeBuilderImpl;
 
 /**
- * Builder for {@link ChannelType}s
+ * Interface for ChannelTypeBuilder
  *
- * @author Stefan Triller- Initial contribution
+ * @author Stefan Triller - Initial contribution
  *
  */
 @NonNullByDefault
-public class ChannelTypeBuilder {
+public interface ChannelTypeBuilder<T extends ChannelTypeBuilder<T>> {
+    /**
+     * Specify whether this is an advanced channel, default is false
+     *
+     * @param advanced true if this is an advanced {@link ChannelType}
+     * @return this Builder
+     */
+    T isAdvanced(boolean advanced);
 
     /**
-     * Create an instance of a ChannelTypeBuilder for {@link ChannelType}s of type STATE
+     * Sets the Description for the ChannelType
      *
-     * @param channelTypeUID UID of the ChannelType
-     * @param label Label for the ChannelType
-     * @param itemType ItemType that can be linked to the ChannelType
-     * @return ChannelTypeBuilder for {@link ChannelType}s of type STATE
+     * @param description StateDescription for the ChannelType
+     * @return this Builder
      */
-    public static StateChannelTypeBuilder state(ChannelTypeUID channelTypeUID, String label, String itemType) {
-        return new StateChannelTypeBuilderImpl(channelTypeUID, label, itemType);
-    }
+    T withDescription(String description);
 
     /**
-     * Create an instance of a ChannelTypeBuilder for {@link ChannelType}s of type TRIGGER
+     * Sets the Category for the ChannelType
      *
-     * @param channelTypeUID UID of the ChannelType
-     * @param label Label for the ChannelType
-     * @return ChannelTypeBuilder for {@link ChannelType}s of type TRGIGGER
+     * @param category Category for the ChannelType
+     * @return this Builder
      */
-    public static TriggerChannelTypeBuilder trigger(ChannelTypeUID channelTypeUID, String label) {
-        return new TriggerChannelTypeBuilderImpl(channelTypeUID, label);
-    }
+    T withCategory(String category);
+
+    /**
+     * Adds a tag to the ChannelType
+     *
+     * @param tag Tag to be added to the ChannelType
+     * @return this Builder
+     */
+    T withTag(String tag);
+
+    /**
+     * Sets the StateDescription for the ChannelType
+     *
+     * @param tags Collection of tags to be added to the ChannelType
+     * @return this Builder
+     */
+    T withTags(Collection<String> tags);
+
+    /**
+     * Sets the ConfigDescriptionURI for the ChannelType
+     *
+     * @param configDescriptionURI URI that references the ConfigDescription of the ChannelType
+     * @return this Builder
+     */
+    T withConfigDescriptionURI(URI configDescriptionURI);
+
+    /**
+     * Build the ChannelType with the given values
+     *
+     * @return the created ChannelType
+     */
+    ChannelType build();
 }

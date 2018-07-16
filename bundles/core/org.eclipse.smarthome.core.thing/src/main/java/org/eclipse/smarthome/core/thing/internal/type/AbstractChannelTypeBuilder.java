@@ -22,17 +22,18 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
+import org.eclipse.smarthome.core.thing.type.GenericChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
- * Abstract base class with common methods for {@link ChannelTypeBuilder}
+ * Abstract base class with common methods for {@link GenericChannelTypeBuilder}
  *
  * @author Stefan Triller - Initial contribution
  *
  */
 @NonNullByDefault
 @SuppressWarnings("unchecked")
-abstract class AbstractChannelTypeBuilder<T extends IChannelTypeBuilder<T>> implements IChannelTypeBuilder<T> {
+abstract class AbstractChannelTypeBuilder<T extends ChannelTypeBuilder<T>> implements ChannelTypeBuilder<T> {
 
     protected final ChannelTypeUID channelTypeUID;
     protected final String label;

@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests the {@link ChannelTypeBuilder}.
+ * Tests the {@link GenericChannelTypeBuilder}.
  *
  * @author Stefan Triller - initial contribution
  *
@@ -58,23 +58,23 @@ public class ChannelTypeBuilderTest {
     public void setup() throws URISyntaxException {
         CONFIGDESCRIPTION_URI = new URI("config:dummy");
         // set up a valid basic ChannelTypeBuilder
-        stateBuilder = ChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, ITEM_TYPE);
-        triggerBuilder = ChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, LABEL);
+        stateBuilder = GenericChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, ITEM_TYPE);
+        triggerBuilder = GenericChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, LABEL);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void whenLabelIsBlankForState_shouldFail() {
-        ChannelTypeBuilder.state(CHANNEL_TYPE_UID, "", ITEM_TYPE);
+        GenericChannelTypeBuilder.state(CHANNEL_TYPE_UID, "", ITEM_TYPE);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void whenItemTypeIsBlankForState_shouldFail() {
-        ChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, "");
+        GenericChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void whenLabelIsBlankForTrigger_shouldFail() {
-        ChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, "");
+        GenericChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, "");
     }
 
     @Test
