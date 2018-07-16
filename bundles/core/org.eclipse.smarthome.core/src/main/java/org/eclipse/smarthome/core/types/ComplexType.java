@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.types;
 import java.util.SortedMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A complex type consists out of a sorted list of primitive constituents.
@@ -32,6 +31,6 @@ public interface ComplexType extends Type {
      *
      * @return all constituents with their names
      */
-    public SortedMap<String, @Nullable PrimitiveType> getConstituents();
+    public SortedMap<String, PrimitiveType> getConstituents();
 
 }

@@ -161,8 +161,8 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
     }
 
     @Override
-    public SortedMap<String, @Nullable PrimitiveType> getConstituents() {
-        TreeMap<String, @Nullable PrimitiveType> map = new TreeMap<>();
+    public SortedMap<String, PrimitiveType> getConstituents() {
+        TreeMap<String, PrimitiveType> map = new TreeMap<>();
         map.put(KEY_HUE, getHue());
         map.put(KEY_SATURATION, getSaturation());
         map.put(KEY_BRIGHTNESS, getBrightness());
