@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -26,7 +27,8 @@ import org.eclipse.smarthome.core.thing.internal.firmware.FirmwareImpl;
  * The builder to create a {@link Firmware}.
  *
  * @author Thomas Höfer - Initial contribution
- * @author Dimitar Ivanov - Extracted as separate class for Firmware
+ * @author Dimitar Ivanov - Extracted as separate class for Firmware, introduced firmware restriction
+ *         function
  */
 @NonNullByDefault
 public final class FirmwareBuilder {
@@ -38,6 +40,7 @@ public final class FirmwareBuilder {
     private boolean modelRestricted;
     private @Nullable String description;
     private @Nullable String prerequisiteVersion;
+    private @Nullable FirmwareRestriction firmwareRestriction;
     private @Nullable String changelog;
     private @Nullable URL onlineChangelog;
     private @Nullable transient InputStream inputStream;
@@ -177,6 +180,21 @@ public final class FirmwareBuilder {
         return this;
     }
 
+    /**
+     * An additional restriction can be applied on the firmware by providing a
+     * {@link FirmwareRestriction} function.
+     *
+     * @param firmwareRestriction a {@link FirmwareRestriction} for applying an additional
+     *            restriction function on the firmware (not null)
+     * @return the updated builder
+     * @throws IllegalArgumentException if the given function is null
+     */
+    public FirmwareBuilder withFirmwareRestriction(FirmwareRestriction firmwareRestriction) {
+        checkNotNull(firmwareRestriction, "Firmware restriction function");
+        this.firmwareRestriction = firmwareRestriction;
+        return this;
+    }
+
     private void checkNotNull(@Nullable Object object, String argumentName) {
         if (object == null) {
             throw new IllegalArgumentException(argumentName + " must not be null.");
@@ -193,9 +211,15 @@ public final class FirmwareBuilder {
      * Builds the firmware.
      *
      * @return the firmware instance based on this builder
+     * @throws IllegalArgumentException when the model restricted property ({@link #withModelRestricted(boolean)}) is
+     *             set to true, but the model ({@link #withModel(String)}) is not set
      */
     public Firmware build() {
+        if (modelRestricted && StringUtils.isEmpty(model)) {
+            throw new IllegalArgumentException("Cannot create model restricted firmware without model");
+        }
+
         return new FirmwareImpl(thingTypeUID, vendor, model, modelRestricted, description, version, prerequisiteVersion,
-                changelog, onlineChangelog, inputStream, md5Hash, properties);
+                firmwareRestriction, changelog, onlineChangelog, inputStream, md5Hash, properties);
     }
 }

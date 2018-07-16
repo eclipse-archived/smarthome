@@ -12,8 +12,11 @@
  */
 package org.eclipse.smarthome.core.thing.binding.firmware;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -93,11 +96,13 @@ public class FirmwareTest extends JavaOSGiTest {
         String prerequisiteVersion = "0.0.9";
         String md5hash = "123abc";
         String vendor = "vendor";
+        FirmwareRestriction restrictionFunction = t -> true;
 
         Firmware firmware = FirmwareBuilder.create(sampleThingTypeUID, version).withModel(model)
                 .withModelRestricted(modelRestricted).withChangelog(changelog).withInputStream(inputStream)
                 .withDescription(description).withOnlineChangelog(onlineChangelog)
-                .withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor).withMd5Hash(md5hash).build();
+                .withPrerequisiteVersion(prerequisiteVersion).withFirmwareRestriction(restrictionFunction)
+                .withVendor(vendor).withMd5Hash(md5hash).build();
 
         assertThat(firmware, is(notNullValue()));
         assertThat(firmware.getThingTypeUID(), is(sampleThingTypeUID));
@@ -111,6 +116,14 @@ public class FirmwareTest extends JavaOSGiTest {
         assertThat(firmware.getPrerequisiteVersion(), is(prerequisiteVersion));
         assertThat(firmware.getVendor(), is(vendor));
         assertThat(firmware.getMd5Hash(), is(md5hash));
+        assertThat(firmware.getFirmwareRestriction(), is(restrictionFunction));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void modelRestrictedWithoutModel() {
+        ThingTypeUID sampleThingTypeUID = new ThingTypeUID("binding", "sampleThingType");
+        String version = "1.0.0";
+        FirmwareBuilder.create(sampleThingTypeUID, version).withModelRestricted(true).build();
     }
 
     @Test
@@ -236,6 +249,27 @@ public class FirmwareTest extends JavaOSGiTest {
     }
 
     @Test
+    public void firmwareRestrictedFirmwareIsSuitable() {
+        String label = "label";
+        Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1.2.3")
+                .withFirmwareRestriction(thing -> thing.getLabel().equals(label)).build();
+
+        Thing thing = ThingBuilder.create(thingTypeUID, "thing").withLabel(label).build();
+
+        assertThat(firmware.isSuitableFor(thing), is(true));
+    }
+
+    @Test
+    public void firmwareRestrictedFirmwareIsNotSuitable() {
+        Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1.2.3")
+                .withFirmwareRestriction(thing -> thing.getLabel().equals("label")).build();
+
+        Thing thing = ThingBuilder.create(thingTypeUID, "thing").withLabel("invalid_label").build();
+
+        assertThat(firmware.isSuitableFor(thing), is(false));
+    }
+
+    @Test
     public void assertThatColonCanBeUsedAsPartOfTheFirmwareVersion() {
         FirmwareBuilder.create(thingTypeUID, "1.2:3");
     }
@@ -293,6 +327,33 @@ public class FirmwareTest extends JavaOSGiTest {
 
         assertThat(firmware1.equals(firmware2), is(true));
         assertThat(firmware2.equals(firmware1), is(true));
+    }
+
+    @Test
+    public void duplicateFirmwaresHashWithoutRestrictions() throws IOException {
+        String changelog = "changelog";
+        String description = "description";
+        String model = "model";
+        boolean modelRestricted = true;
+        URL onlineChangelog = new URL("https://secure.com/changelog");
+        String prerequisiteVersion = "0.1";
+        String vendor = "vendor";
+        Map<String, String> properties = new HashMap<>();
+        properties.put("prop1", "val1");
+        properties.put("prop2", "val2");
+        InputStream openStream = bundleContext.getBundle().getResource(FILE_NAME).openStream();
+
+        Firmware firmware1 = FirmwareBuilder.create(thingTypeUID, "1").withInputStream(openStream)
+                .withChangelog(changelog).withDescription(description).withModel(model)
+                .withModelRestricted(modelRestricted).withOnlineChangelog(onlineChangelog)
+                .withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor).withProperties(properties).build();
+
+        Firmware firmware2 = FirmwareBuilder.create(thingTypeUID, "1").withInputStream(openStream)
+                .withChangelog(changelog).withDescription(description).withModel(model)
+                .withModelRestricted(modelRestricted).withOnlineChangelog(onlineChangelog)
+                .withPrerequisiteVersion(prerequisiteVersion).withVendor(vendor).withProperties(properties).build();
+
+        assertThat(firmware1.hashCode(), is(firmware2.hashCode()));
     }
 
     @Test(expected = IllegalArgumentException.class)
