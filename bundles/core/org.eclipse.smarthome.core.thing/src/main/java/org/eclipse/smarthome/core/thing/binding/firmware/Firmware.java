@@ -59,7 +59,7 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Dimitar Ivanov - Firmware is extracted as interface with default implementation, introduced firmware
- *         installation restrictions function
+ *         restriction function
  */
 @NonNullByDefault
 public interface Firmware extends Comparable<Firmware> {
@@ -124,11 +124,11 @@ public interface Firmware extends Comparable<Firmware> {
     public String getPrerequisiteVersion();
 
     /**
-     * Provides the custom restrictions function of the firmware as {@link FirmwareRestriction} function.
+     * Provides the restriction of the firmware as {@link FirmwareRestriction} function.
      *
-     * @return the custom restrictions of the firmware as {@link FirmwareRestriction} (not null)
+     * @return the restriction of the firmware as {@link FirmwareRestriction} function (not null)
      */
-    public FirmwareRestriction getCustomRestrictions();
+    public FirmwareRestriction getFirmwareRestriction();
 
     /**
      * Returns the changelog of the firmware.

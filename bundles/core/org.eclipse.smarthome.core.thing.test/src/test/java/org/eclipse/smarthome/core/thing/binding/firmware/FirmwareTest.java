@@ -101,7 +101,7 @@ public class FirmwareTest extends JavaOSGiTest {
         Firmware firmware = FirmwareBuilder.create(sampleThingTypeUID, version).withModel(model)
                 .withModelRestricted(modelRestricted).withChangelog(changelog).withInputStream(inputStream)
                 .withDescription(description).withOnlineChangelog(onlineChangelog)
-                .withPrerequisiteVersion(prerequisiteVersion).withCustomRestrictions(restrictionFunction)
+                .withPrerequisiteVersion(prerequisiteVersion).withFirmwareRestriction(restrictionFunction)
                 .withVendor(vendor).withMd5Hash(md5hash).build();
 
         assertThat(firmware, is(notNullValue()));
@@ -116,7 +116,7 @@ public class FirmwareTest extends JavaOSGiTest {
         assertThat(firmware.getPrerequisiteVersion(), is(prerequisiteVersion));
         assertThat(firmware.getVendor(), is(vendor));
         assertThat(firmware.getMd5Hash(), is(md5hash));
-        assertThat(firmware.getCustomRestrictions(), is(restrictionFunction));
+        assertThat(firmware.getFirmwareRestriction(), is(restrictionFunction));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -249,10 +249,10 @@ public class FirmwareTest extends JavaOSGiTest {
     }
 
     @Test
-    public void customRestrictedFirmwareIsSuitable() {
+    public void firmwareRestrictedFirmwareIsSuitable() {
         String label = "label";
         Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1.2.3")
-                .withCustomRestrictions(thing -> thing.getLabel().equals(label)).build();
+                .withFirmwareRestriction(thing -> thing.getLabel().equals(label)).build();
 
         Thing thing = ThingBuilder.create(thingTypeUID, "thing").withLabel(label).build();
 
@@ -260,9 +260,9 @@ public class FirmwareTest extends JavaOSGiTest {
     }
 
     @Test
-    public void customRestrictedFirmwareIsNotSuitable() {
+    public void firmwareRestrictedFirmwareIsNotSuitable() {
         Firmware firmware = FirmwareBuilder.create(thingTypeUID, "1.2.3")
-                .withCustomRestrictions(thing -> thing.getLabel().equals("label")).build();
+                .withFirmwareRestriction(thing -> thing.getLabel().equals("label")).build();
 
         Thing thing = ThingBuilder.create(thingTypeUID, "thing").withLabel("invalid_label").build();
 

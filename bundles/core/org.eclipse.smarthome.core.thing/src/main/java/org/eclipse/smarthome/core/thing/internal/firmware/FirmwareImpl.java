@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -57,7 +56,7 @@ public final class FirmwareImpl implements Firmware {
     private final @Nullable String description;
     private final Version version;
     private final @Nullable Version prerequisiteVersion;
-    private final FirmwareRestriction customRestrictions;
+    private final FirmwareRestriction firmwareRestriction;
     private final @Nullable String changelog;
     private final @Nullable URL onlineChangelog;
     private final @Nullable transient InputStream inputStream;
@@ -76,7 +75,7 @@ public final class FirmwareImpl implements Firmware {
      * @param description the description of the firmware (can be null)
      * @param version the version of the firmware (not null)
      * @param prerequisiteVersion the prerequisite version of the firmware (can be null)
-     * @param customRestrictions custom {@link FirmwareRestriction} for applying additional restrictions on
+     * @param firmwareRestriction {@link FirmwareRestriction} for applying an additional restriction on
      *            the firmware (can be null). If null, a default function will be used to return always true
      * @param changelog the changelog of the firmware (can be null)
      * @param onlineChangelog the URL the an online changelog of the firmware (can be null)
@@ -87,7 +86,7 @@ public final class FirmwareImpl implements Firmware {
      */
     public FirmwareImpl(ThingTypeUID thingTypeUID, @Nullable String vendor, @Nullable String model,
             boolean modelRestricted, @Nullable String description, String version, @Nullable String prerequisiteVersion,
-            @Nullable FirmwareRestriction customRestrictions, @Nullable String changelog,
+            @Nullable FirmwareRestriction firmwareRestriction, @Nullable String changelog,
             @Nullable URL onlineChangelog, @Nullable InputStream inputStream, @Nullable String md5Hash,
             @Nullable Map<String, String> properties) {
         ParameterChecks.checkNotNull(thingTypeUID, "ThingTypeUID");
@@ -99,7 +98,7 @@ public final class FirmwareImpl implements Firmware {
         this.modelRestricted = modelRestricted;
         this.description = description;
         this.prerequisiteVersion = prerequisiteVersion != null ? new Version(prerequisiteVersion) : null;
-        this.customRestrictions = customRestrictions != null ? customRestrictions : t -> true;
+        this.firmwareRestriction = firmwareRestriction != null ? firmwareRestriction : t -> true;
         this.changelog = changelog;
         this.onlineChangelog = onlineChangelog;
         this.inputStream = inputStream;
@@ -147,8 +146,8 @@ public final class FirmwareImpl implements Firmware {
     }
 
     @Override
-    public FirmwareRestriction getCustomRestrictions() {
-        return customRestrictions;
+    public FirmwareRestriction getFirmwareRestriction() {
+        return firmwareRestriction;
     }
 
     @Override
@@ -232,7 +231,7 @@ public final class FirmwareImpl implements Firmware {
     @Override
     public boolean isSuitableFor(Thing thing) {
         return hasSameThingType(thing) && hasRequiredModel(thing) && firmwareOnThingIsHighEnough(thing)
-                && customRestrictions.apply(thing);
+                && firmwareRestriction.apply(thing);
     }
 
     @Override
