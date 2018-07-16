@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.internal.type.IChannelTypeBuilder;
 import org.eclipse.smarthome.core.types.EventDescription;
 
 /**
@@ -23,7 +22,7 @@ import org.eclipse.smarthome.core.types.EventDescription;
  *
  */
 @NonNullByDefault
-public interface TriggerChannelTypeBuilder extends IChannelTypeBuilder<TriggerChannelTypeBuilder> {
+public interface TriggerChannelTypeBuilder extends ChannelTypeBuilder<TriggerChannelTypeBuilder> {
 
     /**
      * Sets the EventDescription for the ChannelType
