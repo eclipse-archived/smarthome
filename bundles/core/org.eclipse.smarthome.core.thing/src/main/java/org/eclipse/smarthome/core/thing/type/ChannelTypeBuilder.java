@@ -16,6 +16,8 @@ import java.net.URI;
 import java.util.Collection;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.thing.internal.type.StateChannelTypeBuilderImpl;
+import org.eclipse.smarthome.core.thing.internal.type.TriggerChannelTypeBuilderImpl;
 
 /**
  * Interface for ChannelTypeBuilder
@@ -79,4 +81,27 @@ public interface ChannelTypeBuilder<T extends ChannelTypeBuilder<T>> {
      * @return the created ChannelType
      */
     ChannelType build();
+
+    /**
+     * Create an instance of a ChannelTypeBuilder for {@link ChannelType}s of type STATE
+     *
+     * @param channelTypeUID UID of the ChannelType
+     * @param label Label for the ChannelType
+     * @param itemType ItemType that can be linked to the ChannelType
+     * @return ChannelTypeBuilder for {@link ChannelType}s of type STATE
+     */
+    static StateChannelTypeBuilder state(ChannelTypeUID channelTypeUID, String label, String itemType) {
+        return new StateChannelTypeBuilderImpl(channelTypeUID, label, itemType);
+    }
+
+    /**
+     * Create an instance of a ChannelTypeBuilder for {@link ChannelType}s of type TRIGGER
+     *
+     * @param channelTypeUID UID of the ChannelType
+     * @param label Label for the ChannelType
+     * @return ChannelTypeBuilder for {@link ChannelType}s of type TRGIGGER
+     */
+    static TriggerChannelTypeBuilder trigger(ChannelTypeUID channelTypeUID, String label) {
+        return new TriggerChannelTypeBuilderImpl(channelTypeUID, label);
+    }
 }

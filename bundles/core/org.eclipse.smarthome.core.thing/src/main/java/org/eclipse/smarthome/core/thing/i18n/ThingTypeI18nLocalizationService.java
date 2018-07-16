@@ -28,7 +28,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.GenericChannelTypeBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.StateChannelTypeBuilder;
@@ -108,7 +108,7 @@ public class ThingTypeI18nLocalizationService {
                 StateDescription state = createLocalizedStateDescription(bundle, channelType.getState(), channelTypeUID,
                         locale);
 
-                StateChannelTypeBuilder stateBuilder = GenericChannelTypeBuilder
+                StateChannelTypeBuilder stateBuilder = ChannelTypeBuilder
                         .state(channelTypeUID, label == null ? defaultLabel : label, channelType.getItemType())
                         .isAdvanced(channelType.isAdvanced()).withCategory(channelType.getCategory())
                         .withConfigDescriptionURI(channelType.getConfigDescriptionURI()).withTags(channelType.getTags())
@@ -118,7 +118,7 @@ public class ThingTypeI18nLocalizationService {
                 }
                 return stateBuilder.build();
             case TRIGGER:
-                TriggerChannelTypeBuilder triggerBuilder = GenericChannelTypeBuilder
+                TriggerChannelTypeBuilder triggerBuilder = ChannelTypeBuilder
                         .trigger(channelTypeUID, label == null ? defaultLabel : label)
                         .isAdvanced(channelType.isAdvanced()).withCategory(channelType.getCategory())
                         .withConfigDescriptionURI(channelType.getConfigDescriptionURI()).withTags(channelType.getTags())

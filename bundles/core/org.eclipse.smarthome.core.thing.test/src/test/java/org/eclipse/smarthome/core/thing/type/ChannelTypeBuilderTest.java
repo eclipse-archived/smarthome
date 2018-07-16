@@ -58,23 +58,23 @@ public class ChannelTypeBuilderTest {
     public void setup() throws URISyntaxException {
         CONFIGDESCRIPTION_URI = new URI("config:dummy");
         // set up a valid basic ChannelTypeBuilder
-        stateBuilder = GenericChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, ITEM_TYPE);
-        triggerBuilder = GenericChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, LABEL);
+        stateBuilder = ChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, ITEM_TYPE);
+        triggerBuilder = ChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, LABEL);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void whenLabelIsBlankForState_shouldFail() {
-        GenericChannelTypeBuilder.state(CHANNEL_TYPE_UID, "", ITEM_TYPE);
+        ChannelTypeBuilder.state(CHANNEL_TYPE_UID, "", ITEM_TYPE);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void whenItemTypeIsBlankForState_shouldFail() {
-        GenericChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, "");
+        ChannelTypeBuilder.state(CHANNEL_TYPE_UID, LABEL, "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void whenLabelIsBlankForTrigger_shouldFail() {
-        GenericChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, "");
+        ChannelTypeBuilder.trigger(CHANNEL_TYPE_UID, "");
     }
 
     @Test
