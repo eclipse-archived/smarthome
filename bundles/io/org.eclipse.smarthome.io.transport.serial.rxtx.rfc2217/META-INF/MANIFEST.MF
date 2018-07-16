@@ -12,5 +12,7 @@ Import-Package: gnu.io.rfc2217,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.transport.serial,
  org.eclipse.smarthome.io.transport.serial.rxtx
+Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
+ .smarthome.io.transport.serial.SerialPortProvider"
 Automatic-Module-Name: org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217
 Service-Component: OSGI-INF/*.xml

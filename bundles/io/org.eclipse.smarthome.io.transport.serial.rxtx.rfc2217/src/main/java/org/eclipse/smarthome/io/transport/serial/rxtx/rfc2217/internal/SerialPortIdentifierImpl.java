@@ -25,7 +25,7 @@ import gnu.io.rfc2217.TelnetSerialPort;
 /**
  * Specific serial port identifier implementation for RFC2217.
  *
- * @author atthias Steigenberger - Initial contribution
+ * @author Matthias Steigenberger - Initial contribution
  */
 @NonNullByDefault
 public class SerialPortIdentifierImpl implements SerialPortIdentifier {

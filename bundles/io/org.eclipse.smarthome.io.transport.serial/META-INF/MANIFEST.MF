@@ -18,3 +18,7 @@ Import-Package:
  org.slf4j
 Automatic-Module-Name: org.eclipse.smarthome.io.transport.serial
 Service-Component: OSGI-INF/*.xml
+Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
+ .smarthome.io.transport.serial.SerialPortManager"
+Require-Capability: osgi.service;objectClass:List<String>="org.eclipse
+ .smarthome.io.transport.serial.SerialPortProvider"
