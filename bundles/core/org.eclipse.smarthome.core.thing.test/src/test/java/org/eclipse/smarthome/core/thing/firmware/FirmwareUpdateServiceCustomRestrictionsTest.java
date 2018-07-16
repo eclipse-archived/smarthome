@@ -30,7 +30,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareBuilder;
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareInstallationRestrictions;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareRestriction;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -70,7 +70,7 @@ public class FirmwareUpdateServiceCustomRestrictionsTest extends JavaOSGiTest {
 
     @Test
     public void customRestrictionExactFirmwareVersion() {
-        FirmwareInstallationRestrictions firmwareRestrictionFunction = t -> t.getProperties()
+        FirmwareRestriction firmwareRestrictionFunction = t -> t.getProperties()
                 .get(Thing.PROPERTY_FIRMWARE_VERSION).equals(FIRMWARE_VERSION_1);
 
         Firmware firmware = FirmwareBuilder.create(thingTypeUID, FIRMWARE_VERSION_2)
@@ -83,7 +83,7 @@ public class FirmwareUpdateServiceCustomRestrictionsTest extends JavaOSGiTest {
 
     @Test
     public void customRestrictionExactHardwareVersion() {
-        FirmwareInstallationRestrictions hardwareRestrictionFunction = t -> t.getProperties()
+        FirmwareRestriction hardwareRestrictionFunction = t -> t.getProperties()
                 .get(Thing.PROPERTY_HARDWARE_VERSION).equals(HARDWARE_VERSION_A);
 
         Firmware firmware = FirmwareBuilder.create(thingTypeUID, FIRMWARE_VERSION_2)
@@ -96,7 +96,7 @@ public class FirmwareUpdateServiceCustomRestrictionsTest extends JavaOSGiTest {
 
     @Test
     public void customRestrictionExactFirmwareAndHardwareVersion() {
-        FirmwareInstallationRestrictions fwAndHwRestrictionFunction = t -> t.getProperties()
+        FirmwareRestriction fwAndHwRestrictionFunction = t -> t.getProperties()
                 .get(Thing.PROPERTY_HARDWARE_VERSION).equals(HARDWARE_VERSION_A)
                 && t.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION).equals(FIRMWARE_VERSION_1);
 
@@ -110,7 +110,7 @@ public class FirmwareUpdateServiceCustomRestrictionsTest extends JavaOSGiTest {
 
     @Test
     public void customRestrictionsAndRestrictedModel() {
-        FirmwareInstallationRestrictions firmwareRestrictionFunction = t -> t.getProperties()
+        FirmwareRestriction firmwareRestrictionFunction = t -> t.getProperties()
                 .get(Thing.PROPERTY_FIRMWARE_VERSION).equals(FIRMWARE_VERSION_1);
 
         Firmware firmware = FirmwareBuilder.create(thingTypeUID, FIRMWARE_VERSION_2).withModelRestricted(true)
@@ -123,7 +123,7 @@ public class FirmwareUpdateServiceCustomRestrictionsTest extends JavaOSGiTest {
 
     @Test
     public void customRestrictionsAndPrerequisiteVersion() {
-        FirmwareInstallationRestrictions firmwareRestrictionFunction = t -> t.getProperties()
+        FirmwareRestriction firmwareRestrictionFunction = t -> t.getProperties()
                 .get(Thing.PROPERTY_FIRMWARE_VERSION).equals(FIRMWARE_VERSION_1);
 
         Firmware firmware = FirmwareBuilder.create(thingTypeUID, FIRMWARE_VERSION_2).withPrerequisiteVersion("0.0.5")
@@ -149,11 +149,11 @@ public class FirmwareUpdateServiceCustomRestrictionsTest extends JavaOSGiTest {
         registerService(createFirmwareUpdateHandler(hwVersionTwoHighFwVersionThing));
 
         // Define restrictions for the hardware versions
-        FirmwareInstallationRestrictions hwVersion1Restriction = thg -> Integer
+        FirmwareRestriction hwVersion1Restriction = thg -> Integer
                 .parseInt(thg.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION)) < 14
                 || thg.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION).equals(FW_VERSION_32);
 
-        FirmwareInstallationRestrictions hwVersion2Restriction = thg -> Integer
+        FirmwareRestriction hwVersion2Restriction = thg -> Integer
                 .parseInt(thg.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION)) >= 14
                 && !thg.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION).equals(FW_VERSION_32);
 

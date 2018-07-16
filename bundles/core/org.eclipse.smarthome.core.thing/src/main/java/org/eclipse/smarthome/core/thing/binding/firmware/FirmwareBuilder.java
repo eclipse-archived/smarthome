@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.thing.internal.firmware.FirmwareImpl;
  * The builder to create a {@link Firmware}.
  *
  * @author Thomas Höfer - Initial contribution
- * @author Dimitar Ivanov - Extracted as separate class for Firmware, introduced firmware installation restrictions
+ * @author Dimitar Ivanov - Extracted as separate class for Firmware, introduced custom firmware restrictions
  *         function
  */
 @NonNullByDefault
@@ -40,7 +40,7 @@ public final class FirmwareBuilder {
     private boolean modelRestricted;
     private @Nullable String description;
     private @Nullable String prerequisiteVersion;
-    private @Nullable FirmwareInstallationRestrictions installationRestrictions;
+    private @Nullable FirmwareRestriction customRestrictions;
     private @Nullable String changelog;
     private @Nullable URL onlineChangelog;
     private @Nullable transient InputStream inputStream;
@@ -182,16 +182,16 @@ public final class FirmwareBuilder {
 
     /**
      * Additional restrictions can be applied on the firmware by providing
-     * {@link FirmwareInstallationRestrictions}.
+     * {@link FirmwareRestriction}.
      *
-     * @param firmwareInstallationRestriction a {@link FirmwareInstallationRestrictions} for applying additional
+     * @param customRestrictions a {@link FirmwareRestriction} for applying additional
      *            restrictions on the firmware (not null)
      * @return the updated builder
      * @throws IllegalArgumentException if the given function is null
      */
-    public FirmwareBuilder withCustomRestrictions(FirmwareInstallationRestrictions firmwareInstallationRestriction) {
-        checkNotNull(firmwareInstallationRestriction, "Firmware installation restrictions function");
-        this.installationRestrictions = firmwareInstallationRestriction;
+    public FirmwareBuilder withCustomRestrictions(FirmwareRestriction customRestrictions) {
+        checkNotNull(customRestrictions, "Firmware restrictions function");
+        this.customRestrictions = customRestrictions;
         return this;
     }
 
@@ -220,6 +220,6 @@ public final class FirmwareBuilder {
         }
 
         return new FirmwareImpl(thingTypeUID, vendor, model, modelRestricted, description, version, prerequisiteVersion,
-                installationRestrictions, changelog, onlineChangelog, inputStream, md5Hash, properties);
+                customRestrictions, changelog, onlineChangelog, inputStream, md5Hash, properties);
     }
 }

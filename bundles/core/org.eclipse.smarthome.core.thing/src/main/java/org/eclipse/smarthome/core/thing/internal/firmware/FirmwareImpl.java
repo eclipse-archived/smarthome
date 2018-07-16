@@ -32,7 +32,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
-import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareInstallationRestrictions;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareRestriction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public final class FirmwareImpl implements Firmware {
     private final @Nullable String description;
     private final Version version;
     private final @Nullable Version prerequisiteVersion;
-    private final FirmwareInstallationRestrictions customRestrictions;
+    private final FirmwareRestriction customRestrictions;
     private final @Nullable String changelog;
     private final @Nullable URL onlineChangelog;
     private final @Nullable transient InputStream inputStream;
@@ -76,7 +76,7 @@ public final class FirmwareImpl implements Firmware {
      * @param description the description of the firmware (can be null)
      * @param version the version of the firmware (not null)
      * @param prerequisiteVersion the prerequisite version of the firmware (can be null)
-     * @param customRestrictions custom {@link FirmwareInstallationRestrictions} for applying additional restrictions on
+     * @param customRestrictions custom {@link FirmwareRestriction} for applying additional restrictions on
      *            the firmware (can be null). If null, a default function will be used to return always true
      * @param changelog the changelog of the firmware (can be null)
      * @param onlineChangelog the URL the an online changelog of the firmware (can be null)
@@ -87,7 +87,7 @@ public final class FirmwareImpl implements Firmware {
      */
     public FirmwareImpl(ThingTypeUID thingTypeUID, @Nullable String vendor, @Nullable String model,
             boolean modelRestricted, @Nullable String description, String version, @Nullable String prerequisiteVersion,
-            @Nullable FirmwareInstallationRestrictions customRestrictions, @Nullable String changelog,
+            @Nullable FirmwareRestriction customRestrictions, @Nullable String changelog,
             @Nullable URL onlineChangelog, @Nullable InputStream inputStream, @Nullable String md5Hash,
             @Nullable Map<String, String> properties) {
         ParameterChecks.checkNotNull(thingTypeUID, "ThingTypeUID");
@@ -147,7 +147,7 @@ public final class FirmwareImpl implements Firmware {
     }
 
     @Override
-    public FirmwareInstallationRestrictions getCustomRestrictions() {
+    public FirmwareRestriction getCustomRestrictions() {
         return customRestrictions;
     }
 

@@ -25,7 +25,7 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareProvider;
  * <ul>
  * <li>the firmware with version 5 must only be installed if the device currently
  * has firmware version 1 installed;
- * <li>where the firmware with version 4 can only be installed if the device currently has firmware version 3 installed.
+ * <li>the firmware with version 4 can only be installed if the device currently has firmware version 3 installed.
  * </ul>
  * 
  * In such case the restrictions function can be defined as follows in the {@link FirmwareProvider}:
@@ -46,5 +46,5 @@ import org.eclipse.smarthome.core.thing.firmware.FirmwareProvider;
  * @author Dimitar Ivanov - Initial contribution
  *
  */
-public interface FirmwareInstallationRestrictions extends Function<Thing, Boolean> {
+public interface FirmwareRestriction extends Function<Thing, Boolean> {
 }

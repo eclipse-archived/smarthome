@@ -124,11 +124,11 @@ public interface Firmware extends Comparable<Firmware> {
     public String getPrerequisiteVersion();
 
     /**
-     * Provides the custom restrictions function of the firmware as {@link FirmwareInstallationRestrictions} function.
+     * Provides the custom restrictions function of the firmware as {@link FirmwareRestriction} function.
      *
-     * @return the custom restrictions of the firmware as {@link FirmwareInstallationRestrictions} (not null)
+     * @return the custom restrictions of the firmware as {@link FirmwareRestriction} (not null)
      */
-    public FirmwareInstallationRestrictions getCustomRestrictions();
+    public FirmwareRestriction getCustomRestrictions();
 
     /**
      * Returns the changelog of the firmware.

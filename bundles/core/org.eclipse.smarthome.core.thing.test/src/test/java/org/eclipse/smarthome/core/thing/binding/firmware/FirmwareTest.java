@@ -96,7 +96,7 @@ public class FirmwareTest extends JavaOSGiTest {
         String prerequisiteVersion = "0.0.9";
         String md5hash = "123abc";
         String vendor = "vendor";
-        FirmwareInstallationRestrictions restrictionFunction = t -> true;
+        FirmwareRestriction restrictionFunction = t -> true;
 
         Firmware firmware = FirmwareBuilder.create(sampleThingTypeUID, version).withModel(model)
                 .withModelRestricted(modelRestricted).withChangelog(changelog).withInputStream(inputStream)
