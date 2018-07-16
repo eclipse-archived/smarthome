@@ -28,6 +28,7 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.net.CidrAddress;
 import org.eclipse.smarthome.core.net.NetworkAddressChangeListener;
 import org.eclipse.smarthome.io.transport.mdns.MDNSClient;
@@ -225,5 +226,9 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             }
             createJmDNSByAddress(address);
         }
+    }
+
+    @Override
+    public void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress) {
     }
 }

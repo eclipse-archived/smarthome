@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,6 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author Mark Herwege - Added methods to find broadcast address(es)
  * @author Stefan Triller - Converted to OSGi service with primary ipv4 conf
  * @author Gary Tse - Network address change listener
+ * @author Tim Roberts - Added primary address change to network address change listener
  */
 @Component(configurationPid = "org.eclipse.smarthome.network", property = { "service.pid=org.eclipse.smarthome.network",
         "service.config.description.uri=system:network", "service.config.label=Network Settings",
@@ -108,12 +110,14 @@ public class NetUtil implements NetworkAddressService {
     @Modified
     public synchronized void modified(Map<String, Object> config) {
         String primaryAddressConf = (String) config.get(PRIMARY_ADDRESS);
+        String oldPrimaryAddress = primaryAddress;
         if (primaryAddressConf == null || primaryAddressConf.isEmpty() || !isValidIPConfig(primaryAddressConf)) {
             // if none is specified we return the default one for backward compatibility
             primaryAddress = getFirstLocalIPv4Address();
         } else {
             primaryAddress = primaryAddressConf;
         }
+        notifyPrimaryAddressChange(oldPrimaryAddress, primaryAddress);
 
         String broadcastAddressConf = (String) config.get(BROADCAST_ADDRESS);
         if (broadcastAddressConf == null || broadcastAddressConf.isEmpty() || !isValidIPConfig(broadcastAddressConf)) {
@@ -571,6 +575,24 @@ public class NetUtil implements NetworkAddressService {
                     .onException(exception -> LOGGER.debug("NetworkAddressChangeListener exception {}", exception))
                     .build();
             safeListener.onChanged(unmodifiableAddedList, unmodifiableRemovedList);
+        }
+    }
+
+    private void notifyPrimaryAddressChange(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress) {
+        if (!Objects.equals(oldPrimaryAddress, newPrimaryAddress)) {
+            // notify each listener with a timeout of 15 seconds.
+            // SafeCaller prevents bad listeners running too long or throws runtime exceptions
+            for (NetworkAddressChangeListener listener : networkAddressChangeListeners) {
+                if (safeCaller == null) {
+                    // safeCaller null must be checked between each round, in case it is deactivated
+                    break;
+                }
+                NetworkAddressChangeListener safeListener = safeCaller
+                        .create(listener, NetworkAddressChangeListener.class).withTimeout(15000)
+                        .onException(exception -> LOGGER.debug("NetworkAddressChangeListener exception {}", exception))
+                        .build();
+                safeListener.onPrimaryAddressChanged(oldPrimaryAddress, newPrimaryAddress);
+            }
         }
     }
 

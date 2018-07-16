@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -47,6 +48,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - Added call of removeOlderResults
+ * @author Gary Tse - Add NetworkAddressChangeListener to handle interface changes
+ * @author Tim Roberts - Added primary address change
  *
  */
 @Component(immediate = true, service = {DiscoveryService.class, NetworkAddressChangeListener.class}, configurationPid = "discovery.upnp")
@@ -233,6 +236,10 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
             }
         });
 
+    }
+
+    @Override
+    public void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress) {
     }
 
     @Override

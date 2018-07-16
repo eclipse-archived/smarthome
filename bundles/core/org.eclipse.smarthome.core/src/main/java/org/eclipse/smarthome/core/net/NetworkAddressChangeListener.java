@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.net;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This is an interface for listeners who wants to be notified for the change of network address.
@@ -25,6 +26,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @see NetUtil
  *
  * @author Gary Tse - Initial contribution
+ * @author Tim Roberts - Added primary address change
  */
 @NonNullByDefault
 public interface NetworkAddressChangeListener {
@@ -39,4 +41,13 @@ public interface NetworkAddressChangeListener {
      */
     void onChanged(List<CidrAddress> added, List<CidrAddress> removed);
 
+    /**
+     * When the primary address is changed, listeners will be notified by this method. The primary address may be
+     * changed either through the PaperUI or through an update to the associated configuration file. The primary address
+     * will be in the form of a subnet ("xxx.xxx.xxx.xxx/yyy").
+     *
+     * @param oldPrimaryAddress The old primary address (may be null if none specified)
+     * @param newPrimaryAddress The new primary address (may be null if none specified)
+     */
+    void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress);
 }
