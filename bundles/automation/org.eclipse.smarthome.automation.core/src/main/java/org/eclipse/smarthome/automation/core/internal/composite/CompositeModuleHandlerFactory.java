@@ -23,7 +23,6 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
 import org.eclipse.smarthome.automation.core.internal.RuleEngineImpl;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
@@ -62,9 +61,9 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
     /**
      * The constructor of system handler factory for composite module types.
      *
-     * @param context   is a bundle context
+     * @param context is a bundle context
      * @param mtManager is a module type manager
-     * @param re        is a rule engine
+     * @param re is a rule engine
      */
     public CompositeModuleHandlerFactory(ModuleTypeRegistry mtRegistry, RuleEngineImpl re) {
         this.mtRegistry = mtRegistry;
@@ -91,10 +90,10 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
     public void ungetHandler(Module module, String childModulePrefix, ModuleHandler handler) {
         ModuleHandler handlerOfModule = getHandlers().get(childModulePrefix + module.getId());
         if (handlerOfModule instanceof AbstractCompositeModuleHandler) {
-            AbstractCompositeModuleHandler<ModuleImpl, ?, ?> h = (AbstractCompositeModuleHandler<ModuleImpl, ?, ?>) handlerOfModule;
-            Set<ModuleImpl> modules = h.moduleHandlerMap.keySet();
+            AbstractCompositeModuleHandler<Module, ?, ?> h = (AbstractCompositeModuleHandler<Module, ?, ?>) handlerOfModule;
+            Set<Module> modules = h.moduleHandlerMap.keySet();
             if (modules != null) {
-                for (ModuleImpl child : modules) {
+                for (Module child : modules) {
                     ModuleHandler childHandler = h.moduleHandlerMap.get(child);
                     ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID());
                     mhf.ungetHandler(child, childModulePrefix + ":" + module.getId(), childHandler);
@@ -157,11 +156,11 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * properties and configuration of composite module see:
      * {@link ReferenceResolver#updateConfiguration(Configuration, Map, Logger)}.
      *
-     * @param compositeConfig   configuration values of composite module.
-     * @param childModules      list of child modules
+     * @param compositeConfig configuration values of composite module.
+     * @param childModules list of child modules
      * @param childModulePrefix defines UID of child module. The rule id is not enough for prefix when a composite type
-     *                          is used more then one time in one and the same rule. For example the prefix can be:
-     *                          ruleId:compositeModuleId:compositeModileId2.
+     *            is used more then one time in one and the same rule. For example the prefix can be:
+     *            ruleId:compositeModuleId:compositeModileId2.
      * @return map of pairs of module and its handler. Return null when some of the child modules can not find its
      *         handler.
      */

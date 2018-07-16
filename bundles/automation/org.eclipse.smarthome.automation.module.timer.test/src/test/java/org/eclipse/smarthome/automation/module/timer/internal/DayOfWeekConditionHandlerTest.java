@@ -37,8 +37,10 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.module.core.handler.ItemCommandActionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateTriggerHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler;
@@ -122,20 +124,20 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
     public void assertThatConditionWorks() {
         Configuration conditionConfiguration = new Configuration(Collections.singletonMap("days",
                 Arrays.asList(new String[] { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" })));
-        Condition condition = ModuleBuilder.createCondition().withId("id")
+        Condition condition = ConditionBuilder.create().withId("id")
                 .withTypeUID(DayOfWeekConditionHandler.MODULE_TYPE_ID).withConfiguration(conditionConfiguration)
                 .build();
         DayOfWeekConditionHandler handler = new DayOfWeekConditionHandler(condition);
 
         assertThat(handler.isSatisfied(null), is(true));
 
-        condition = ModuleBuilder.createCondition(condition)
+        condition = ConditionBuilder.create(condition)
                 .withConfiguration(new Configuration(Collections.singletonMap("days", Collections.emptyList())))
                 .build();
         handler = new DayOfWeekConditionHandler(condition);
         assertThat(handler.isSatisfied(null), is(false));
 
-        condition = ModuleBuilder.createCondition(condition)
+        condition = ConditionBuilder.create(condition)
                 .withConfiguration(
                         new Configuration(Collections.singletonMap("days", Collections.singletonList(dayOfWeek))))
                 .build();
@@ -165,18 +167,18 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
          */
         logger.info("Create rule");
         Configuration triggerConfig = new Configuration(Collections.singletonMap("itemName", testItemName1));
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTrigger")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("MyTrigger")
                 .withTypeUID(ItemStateTriggerHandler.UPDATE_MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
         Configuration conditionConfig = new Configuration(Collections.singletonMap("days", dayOfWeek));
-        List<Condition> conditions = Collections.singletonList(ModuleBuilder.createCondition().withId("MyDOWCondition")
+        List<Condition> conditions = Collections.singletonList(ConditionBuilder.create().withId("MyDOWCondition")
                 .withTypeUID(DayOfWeekConditionHandler.MODULE_TYPE_ID).withConfiguration(conditionConfig).build());
 
         Map<String, Object> cfgEntries = new HashMap<>();
         cfgEntries.put("itemName", testItemName2);
         cfgEntries.put("command", "ON");
         Configuration actionConfig = new Configuration(cfgEntries);
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("MyItemPostCommandAction")
                 .withTypeUID(ItemCommandActionHandler.ITEM_COMMAND_ACTION).withConfiguration(actionConfig).build());
 
         // prepare the execution
@@ -230,7 +232,7 @@ public class DayOfWeekConditionHandlerTest extends JavaOSGiTest {
 
         // now make the condition fail
         Rule rule2 = RuleBuilder.create(rule)
-                .withConditions(ModuleBuilder.createCondition(rule.getConditions().get(0))
+                .withConditions(ConditionBuilder.create(rule.getConditions().get(0))
                         .withConfiguration(new Configuration(Collections.singletonMap("days", Collections.emptyList())))
                         .build())
                 .build();

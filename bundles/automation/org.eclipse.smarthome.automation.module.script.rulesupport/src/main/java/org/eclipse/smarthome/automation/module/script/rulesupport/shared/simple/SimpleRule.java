@@ -42,46 +42,13 @@ import org.eclipse.smarthome.config.core.Configuration;
  *
  */
 @NonNullByDefault
-public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
-
-    @NonNullByDefault({})
-    protected List<Trigger> triggers;
-    @NonNullByDefault({})
-    protected List<Condition> conditions;
-    @NonNullByDefault({})
-    protected List<Action> actions;
-    @NonNullByDefault({})
-    protected Configuration configuration;
-    @NonNullByDefault({})
-    protected List<ConfigDescriptionParameter> configDescriptions;
-    @Nullable
-    protected String templateUID;
-    @NonNullByDefault({})
-    protected String uid;
-    @Nullable
-    protected String name;
-    @NonNullByDefault({})
-    protected Set<String> tags;
-    @NonNullByDefault({})
-    protected Visibility visibility;
-    @Nullable
-    protected String description;
+public abstract class SimpleRule extends Rule implements SimpleRuleActionHandler {
 
     protected transient volatile RuleStatusInfo status = new RuleStatusInfo(RuleStatus.UNINITIALIZED,
             RuleStatusDetail.NONE);
 
     public SimpleRule() {
-    }
-
-    @Override
-    public String getUID() {
-        return uid;
-    }
-
-    @Override
-    @Nullable
-    public String getTemplateUID() {
-        return templateUID;
+        super(null);
     }
 
     /**
@@ -93,12 +60,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         this.templateUID = templateUID;
     }
 
-    @Override
-    @Nullable
-    public String getName() {
-        return name;
-    }
-
     /**
      * This method is used to specify the {@link Rule}'s human-readable name.
      *
@@ -108,11 +69,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         name = ruleName;
     }
 
-    @Override
-    public Set<String> getTags() {
-        return tags;
-    }
-
     /**
      * This method is used to specify the {@link Rule}'s assigned tags.
      *
@@ -120,12 +76,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      */
     public void setTags(@Nullable Set<String> ruleTags) {
         tags = ruleTags != null ? ruleTags : new HashSet<>();
-    }
-
-    @Override
-    @Nullable
-    public String getDescription() {
-        return description;
     }
 
     /**
@@ -138,11 +88,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         description = ruleDescription;
     }
 
-    @Override
-    public Visibility getVisibility() {
-        return visibility;
-    }
-
     /**
      * This method is used to specify the {@link Rule}'s {@link Visibility}.
      *
@@ -150,11 +95,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      */
     public void setVisibility(@Nullable Visibility visibility) {
         this.visibility = visibility == null ? Visibility.VISIBLE : visibility;
-    }
-
-    @Override
-    public Configuration getConfiguration() {
-        return configuration;
     }
 
     /**
@@ -166,22 +106,12 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         this.configuration = ruleConfiguration == null ? new Configuration() : ruleConfiguration;
     }
 
-    @Override
-    public List<ConfigDescriptionParameter> getConfigurationDescriptions() {
-        return configDescriptions;
-    }
-
     /**
      * This method is used to describe with {@link ConfigDescriptionParameter}s
      * the meta info for configuration properties of the {@link Rule}.
      */
     public void setConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescriptions) {
         this.configDescriptions = configDescriptions == null ? new ArrayList<>() : configDescriptions;
-    }
-
-    @Override
-    public List<Condition> getConditions() {
-        return conditions;
     }
 
     /**
@@ -191,16 +121,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      */
     public void setConditions(@Nullable List<Condition> conditions) {
         this.conditions = conditions == null ? new ArrayList<>() : conditions;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return actions;
-    }
-
-    @Override
-    public List<Trigger> getTriggers() {
-        return triggers;
     }
 
     /**
@@ -221,32 +141,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         this.triggers = triggers == null ? new ArrayList<>() : triggers;
     }
 
-    /**
-     * This method is used to get a {@link ModuleImpl} participating in {@link Rule}
-     *
-     * @param moduleId specifies the id of a module belonging to this {@link Rule}.
-     * @return module with specified id or {@code null} if it does not belong to this {@link Rule}.
-     */
-    public @Nullable Module getModule(String moduleId) {
-        for (Module module : getModules()) {
-            if (module.getId().equals(moduleId)) {
-                return module;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public List<Module> getModules() {
-        final List<Module> result;
-        List<Module> modules = new ArrayList<Module>();
-        modules.addAll(triggers);
-        modules.addAll(conditions);
-        modules.addAll(actions);
-        result = Collections.unmodifiableList(modules);
-        return result;
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends Module> List<T> getModules(@Nullable Class<T> moduleClazz) {
         final List<T> result;
@@ -262,21 +156,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
             result = Collections.emptyList();
         }
         return result;
-    }
-
-    @Override
-    public RuleStatus getStatus() {
-        return status.getStatus();
-    }
-
-    @Override
-    public RuleStatusInfo getStatusInfo() {
-        return status;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return status.getStatusDetail() != RuleStatusDetail.DISABLED;
     }
 
     @Override
@@ -305,7 +184,4 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         return true;
     }
 
-    protected synchronized void setStatusInfo(RuleStatusInfo statusInfo) {
-        this.status = statusInfo;
-    }
 }

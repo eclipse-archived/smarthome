@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 
@@ -36,7 +36,7 @@ public class ConditionDTOMapper extends ModuleDTOMapper {
     }
 
     public static Condition mapDto(final ConditionDTO conditionDto) {
-        return ModuleBuilder.createCondition().withId(conditionDto.id).withTypeUID(conditionDto.type)
+        return ConditionBuilder.create().withId(conditionDto.id).withTypeUID(conditionDto.type)
                 .withConfiguration(new Configuration(conditionDto.configuration)).withInputs(conditionDto.inputs)
                 .withLabel(conditionDto.label).withDescription(conditionDto.description).build();
     }

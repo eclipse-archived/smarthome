@@ -17,8 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
@@ -91,17 +93,18 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleConfigurationResolving() {
         // test trigger configuration.
-        Module trigger = ModuleBuilder.createTrigger().withConfiguration(new Configuration(moduleConfiguration))
-                .build();
+        Module trigger = TriggerBuilder.create().withId("id").withTypeUID("typeUID")
+                .withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(trigger.getConfiguration(), context, logger);
         Assert.assertEquals(trigger.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test condition configuration.
-        Module condition = ModuleBuilder.createCondition().withConfiguration(new Configuration(moduleConfiguration))
-                .build();
+        Module condition = ConditionBuilder.create().withId("id").withTypeUID("typeUID")
+                .withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(condition.getConfiguration(), context, logger);
         Assert.assertEquals(condition.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test action configuration.
-        Module action = ModuleBuilder.createAction().withConfiguration(new Configuration(moduleConfiguration)).build();
+        Module action = ActionBuilder.create().withId("id").withTypeUID("typeUID")
+                .withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(action.getConfiguration(), context, logger);
         Assert.assertEquals(action.getConfiguration(), new Configuration(expectedModuleConfiguration));
     }
@@ -109,11 +112,13 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleInputResolving() {
         // test Composite child ModuleImpl(condition) context
-        Module condition = ModuleBuilder.createCondition().withInputs(compositeChildModuleInputsReferences).build();
+        Module condition = ConditionBuilder.create().withId("id").withTypeUID("typeUID")
+                .withInputs(compositeChildModuleInputsReferences).build();
         Map<String, Object> conditionContext = ReferenceResolver.getCompositeChildContext(condition, context);
         Assert.assertEquals(conditionContext, expectedCompositeChildModuleContext);
         // test Composite child ModuleImpl(action) context
-        Module action = ModuleBuilder.createAction().withInputs(compositeChildModuleInputsReferences).build();
+        Module action = ActionBuilder.create().withId("id").withTypeUID("typeUID")
+                .withInputs(compositeChildModuleInputsReferences).build();
         Map<String, Object> actionContext = ReferenceResolver.getCompositeChildContext(action, context);
         Assert.assertEquals(actionContext, expectedCompositeChildModuleContext);
     }

@@ -23,7 +23,9 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.WelcomeHomeRulesProvider;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.AirConditionerTriggerType;
 import org.eclipse.smarthome.automation.sample.extension.java.internal.type.StateConditionType;
@@ -51,8 +53,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
     public static AirConditionerRuleTemplate initialize() {
         // initialize triggers
         List<Trigger> triggers = new ArrayList<Trigger>();
-        triggers.add(
-                ModuleBuilder.createTrigger().withId(TRIGGER_ID).withTypeUID(AirConditionerTriggerType.UID).build());
+        triggers.add(TriggerBuilder.create().withId(TRIGGER_ID).withTypeUID(AirConditionerTriggerType.UID).build());
 
         // initialize conditions
         // here the tricky part is the giving a value to the condition configuration parameter.
@@ -65,7 +66,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
         conditionInputs.put(StateConditionType.INPUT_CURRENT_STATE,
                 TRIGGER_ID + "." + StateConditionType.INPUT_CURRENT_STATE);
 
-        Condition stateCondition = ModuleBuilder.createCondition().withId("AirConditionerStateCondition")
+        Condition stateCondition = ConditionBuilder.create().withId("AirConditionerStateCondition")
                 .withTypeUID(StateConditionType.UID).withConfiguration(conditionConfig).withInputs(conditionInputs)
                 .build();
 
@@ -81,7 +82,7 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
         conditionInputs.put(TemperatureConditionType.INPUT_CURRENT_TEMPERATURE,
                 TRIGGER_ID + "." + TemperatureConditionType.INPUT_CURRENT_TEMPERATURE);
 
-        Condition temperatureCondition = ModuleBuilder.createCondition().withId("AirConditionerTemperatureCondition")
+        Condition temperatureCondition = ConditionBuilder.create().withId("AirConditionerTemperatureCondition")
                 .withTypeUID(TemperatureConditionType.UID).withConfiguration(conditionConfig)
                 .withInputs(conditionInputs).build();
 
@@ -96,8 +97,8 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
         actionConfig.put(WelcomeHomeActionType.CONFIG_RESULT, "$" + WelcomeHomeRulesProvider.CONFIG_EXPECTED_RESULT);
 
         List<Action> actions = new ArrayList<Action>();
-        actions.add(ModuleBuilder.createAction().withId("AirConditionerSwitchOnAction")
-                .withTypeUID(WelcomeHomeActionType.UID).withConfiguration(actionConfig).build());
+        actions.add(ActionBuilder.create().withId("AirConditionerSwitchOnAction").withTypeUID(WelcomeHomeActionType.UID)
+                .withConfiguration(actionConfig).build());
 
         // initialize configDescriptions
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<ConfigDescriptionParameter>();

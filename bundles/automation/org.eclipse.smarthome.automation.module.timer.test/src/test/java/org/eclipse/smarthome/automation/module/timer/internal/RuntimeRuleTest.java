@@ -32,8 +32,9 @@ import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -103,7 +104,7 @@ public class RuntimeRuleTest extends JavaOSGiTest {
 
         ;
         Configuration triggerConfig = new Configuration(Collections.singletonMap("cronExpression", testExpression));
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTimerTrigger")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("MyTimerTrigger")
                 .withTypeUID(GenericCronTriggerHandler.MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers)
@@ -175,14 +176,14 @@ public class RuntimeRuleTest extends JavaOSGiTest {
         String testExpression = "* * * * * ?";
 
         Configuration triggerConfig = new Configuration(Collections.singletonMap("cronExpression", testExpression));
-        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("MyTimerTrigger")
+        List<Trigger> triggers = Collections.singletonList(TriggerBuilder.create().withId("MyTimerTrigger")
                 .withTypeUID(GenericCronTriggerHandler.MODULE_TYPE_ID).withConfiguration(triggerConfig).build());
 
         Map<String, Object> cfgEntries = new HashMap<>();
         cfgEntries.put("itemName", testItemName);
         cfgEntries.put("command", "ON");
         Configuration actionConfig = new Configuration(cfgEntries);
-        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("MyItemPostCommandAction")
+        List<Action> actions = Collections.singletonList(ActionBuilder.create().withId("MyItemPostCommandAction")
                 .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
 
         Rule rule = RuleBuilder.create("MyRule" + new Random().nextInt()).withTriggers(triggers).withActions(actions)

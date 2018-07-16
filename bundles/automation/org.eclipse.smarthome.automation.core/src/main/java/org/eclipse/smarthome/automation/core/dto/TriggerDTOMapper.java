@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.config.core.Configuration;
 
@@ -36,7 +36,7 @@ public class TriggerDTOMapper extends ModuleDTOMapper {
     }
 
     public static Trigger mapDto(final TriggerDTO triggerDto) {
-        return ModuleBuilder.createTrigger().withId(triggerDto.id).withTypeUID(triggerDto.type)
+        return TriggerBuilder.create().withId(triggerDto.id).withTypeUID(triggerDto.type)
                 .withConfiguration(new Configuration(triggerDto.configuration)).withLabel(triggerDto.label)
                 .withDescription(triggerDto.description).build();
     }

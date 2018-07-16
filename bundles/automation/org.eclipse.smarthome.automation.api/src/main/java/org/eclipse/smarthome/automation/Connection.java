@@ -10,10 +10,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.core.internal;
+package org.eclipse.smarthome.automation;
 
-import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 
