@@ -105,21 +105,21 @@ public interface Rule extends Identifiable<String> {
      *
      * @return a list with the conditions that belong to this {@link Rule}.
      */
-    List<? extends Condition> getConditions();
+    List<Condition> getConditions();
 
     /**
      * This method is used to get the actions participating in {@link Rule}.
      *
      * @return a list with the actions that belong to this {@link Rule}.
      */
-    List<? extends Action> getActions();
+    List<Action> getActions();
 
     /**
      * This method is used to get the triggers participating in {@link Rule}.
      *
      * @return a list with the triggers that belong to this {@link Rule}.
      */
-    List<? extends Trigger> getTriggers();
+    List<Trigger> getTriggers();
 
     /**
      * Obtains the modules of the {@link Rule}.
