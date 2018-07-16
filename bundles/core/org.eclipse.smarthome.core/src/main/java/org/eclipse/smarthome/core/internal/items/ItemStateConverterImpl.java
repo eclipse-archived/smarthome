@@ -89,7 +89,12 @@ public class ItemStateConverterImpl implements ItemStateConverter {
 
                 return state;
             } else {
-                return state.as(DecimalType.class);
+                State convertedState = state.as(DecimalType.class);
+                if (convertedState != null) {
+                    // convertedState is always returned because the state is an instance
+                    // of QuantityType which never returns null for as(DecimalType.class)
+                    return convertedState;
+                }
             }
         }
 

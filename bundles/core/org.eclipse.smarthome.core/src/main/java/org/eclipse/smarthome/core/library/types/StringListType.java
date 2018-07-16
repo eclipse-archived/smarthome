@@ -19,6 +19,7 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -29,6 +30,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Gaël L'hopital - port to Eclipse SmartHome
  *
  */
+@NonNullByDefault
 public class StringListType implements Command, State {
 
     protected List<String> typeDetails;

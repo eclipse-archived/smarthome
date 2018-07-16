@@ -22,6 +22,8 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
@@ -32,6 +34,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Erdoan Hadzhiyusein - Refactored to use ZonedDateTime
  * @author Jan N. Klug - add ability to use time or date only
  */
+@NonNullByDefault
 public class DateTimeType implements PrimitiveType, State, Command {
 
     // external format patterns for output
@@ -98,9 +101,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
             throw new IllegalArgumentException(zonedValue + " is not in a valid format.", invalidFormatException);
         }
 
-        if (date != null) {
-            zonedDateTime = date;
-        }
+        zonedDateTime = date;
     }
 
     /**
@@ -120,7 +121,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
     }
 
     @Override
-    public String format(String pattern) {
+    public String format(@Nullable String pattern) {
         if (pattern == null) {
             return DateTimeFormatter.ofPattern(DATE_PATTERN).format(zonedDateTime);
         }
@@ -151,7 +152,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }

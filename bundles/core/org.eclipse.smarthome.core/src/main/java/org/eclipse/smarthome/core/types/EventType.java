@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Due to the duality of some types (which can be states and commands at the
  * same time), we need to be able to differentiate what the meaning of a
@@ -22,9 +24,11 @@ package org.eclipse.smarthome.core.types;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public enum EventType {
 
-    COMMAND("command"), UPDATE("update");
+    COMMAND("command"),
+    UPDATE("update");
 
     private String name;
 

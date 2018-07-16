@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -21,6 +22,7 @@ import org.eclipse.smarthome.core.types.PrimitiveType;
  *
  * @author Alex Tugarev
  */
+@NonNullByDefault
 public enum NextPreviousType implements PrimitiveType, Command {
     NEXT,
     PREVIOUS;

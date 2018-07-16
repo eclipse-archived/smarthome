@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 
@@ -19,6 +20,7 @@ import org.eclipse.smarthome.core.types.PrimitiveType;
  *
  * @author Kai Kreuzer - Initial contribution
  */
+@NonNullByDefault
 public enum StopMoveType implements PrimitiveType, Command {
     STOP,
     MOVE;

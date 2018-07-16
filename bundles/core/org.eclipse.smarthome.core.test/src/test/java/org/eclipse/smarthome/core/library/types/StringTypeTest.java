@@ -22,17 +22,26 @@ import org.junit.Test;
 public class StringTypeTest {
 
     @Test
+    @SuppressWarnings("unlikely-arg-type")
     public void testEquals() {
         StringType empty = new StringType("");
         StringType expected1 = new StringType("expected1");
         StringType expected2 = new StringType("expected2");
 
         assertEquals(empty.hashCode(), StringType.EMPTY.hashCode());
+        assertEquals(empty.hashCode(), new StringType("").hashCode());
+        assertEquals(empty.hashCode(), new StringType().hashCode());
+        assertEquals(empty.hashCode(), new StringType(null).hashCode());
+
         assertEquals(expected1.hashCode(), new StringType("expected1").hashCode());
         assertEquals(expected2.hashCode(), new StringType("expected2").hashCode());
         assertFalse(expected1.hashCode() == new StringType("expected2").hashCode());
 
         assertEquals(empty, StringType.EMPTY);
+        assertEquals(empty, new StringType(""));
+        assertEquals(empty, new StringType());
+        assertEquals(empty, new StringType(null));
+
         assertEquals(expected1, new StringType("expected1"));
         assertEquals(expected2, new StringType("expected2"));
         assertEquals(false, expected1.equals(new StringType("expected2")));
@@ -44,8 +53,8 @@ public class StringTypeTest {
         assertEquals(false, expected1.equals("expected2"));
 
         assertEquals(true, new StringType(null).equals(new StringType(null)));
-        assertEquals(false, new StringType("").equals(new StringType(null)));
-        assertEquals(false, new StringType(null).equals(new StringType("")));
+        assertEquals(true, new StringType("").equals(new StringType(null)));
+        assertEquals(true, new StringType(null).equals(new StringType("")));
     }
 
 }

@@ -23,12 +23,6 @@ import org.junit.Test;
 public class PointTypeTest {
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorNull() {
-        @SuppressWarnings("unused")
-        PointType errorGenerator = new PointType(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testConstructorEmpty() {
         @SuppressWarnings("unused")
         PointType errorGenerator = new PointType("");
