@@ -230,5 +230,6 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
 
     @Override
     public void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress) {
+        // Intentionally left blank since the implementation is not interested in this information
     }
 }

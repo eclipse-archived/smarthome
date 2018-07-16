@@ -42,8 +42,7 @@ public interface NetworkAddressChangeListener {
     void onChanged(List<CidrAddress> added, List<CidrAddress> removed);
 
     /**
-     * When the primary address is changed, listeners will be notified by this method. The primary address may be
-     * changed either through the PaperUI or through an update to the associated configuration file. The primary address
+     * When the primary address is changed, listeners will be notified by this method. The primary address
      * will be in the form of a subnet ("xxx.xxx.xxx.xxx/yyy").
      *
      * @param oldPrimaryAddress The old primary address (may be null if none specified)
