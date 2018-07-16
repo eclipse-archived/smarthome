@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests the {@link GenericChannelTypeBuilder}.
+ * Tests the {@link ChannelTypeBuilder}.
  *
  * @author Stefan Triller - initial contribution
  *
