@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -130,7 +131,7 @@ public class HttpClient {
             }
 
             InputStream in = new BufferedInputStream(conn.getInputStream());
-            String output = IOUtils.toString(in);
+            String output = IOUtils.toString(in, StandardCharsets.UTF_8.name());
             return new Result(output, conn.getResponseCode());
         } finally {
             conn.disconnect();
