@@ -32,7 +32,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  */
 @NonNullByDefault
 @SuppressWarnings("unchecked")
-abstract class AbstractChannelTypeBuilder<T extends IChannelTypeBuilder<T>> implements IChannelTypeBuilder<T> {
+abstract class AbstractChannelTypeBuilder<T extends ChannelTypeBuilder<T>> implements ChannelTypeBuilder<T> {
 
     protected final ChannelTypeUID channelTypeUID;
     protected final String label;

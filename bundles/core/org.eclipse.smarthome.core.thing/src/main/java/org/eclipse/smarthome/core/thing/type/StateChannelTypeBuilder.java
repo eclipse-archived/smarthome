@@ -14,7 +14,6 @@ package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.internal.type.IChannelTypeBuilder;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
@@ -24,7 +23,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
  *
  */
 @NonNullByDefault
-public interface StateChannelTypeBuilder extends IChannelTypeBuilder<StateChannelTypeBuilder> {
+public interface StateChannelTypeBuilder extends ChannelTypeBuilder<StateChannelTypeBuilder> {
 
     /**
      * Sets the StateDescription for the ChannelType
