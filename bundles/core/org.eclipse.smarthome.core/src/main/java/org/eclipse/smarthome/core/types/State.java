@@ -12,12 +12,16 @@
  */
 package org.eclipse.smarthome.core.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This is a marker interface for all state types.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface State extends Type {
 
     /**
@@ -27,7 +31,7 @@ public interface State extends Type {
      * @return the {@link State}'s value in the given type's representation, or <code>null</code> if the conversion was
      *         not possible
      */
-    default <T extends State> T as(Class<T> target) {
+    default <T extends @Nullable State> @Nullable T as(@Nullable Class<T> target) {
         if (target != null && target.isInstance(this)) {
             return target.cast(this);
         } else {

@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * There are situations when item states do not have any defined value.
  * This might be because they have not been initialized yet (never
@@ -22,6 +24,7 @@ package org.eclipse.smarthome.core.types;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public enum UnDefType implements PrimitiveType, State {
     UNDEF,
     NULL;

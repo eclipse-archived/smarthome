@@ -278,7 +278,7 @@ public class QuantityType<T extends Quantity<T>> extends Number
     }
 
     @Override
-    public <U extends State> U as(@Nullable Class<U> target) {
+    public <U extends State> @Nullable U as(@Nullable Class<U> target) {
         if (target == OnOffType.class) {
             if (intValue() == 0) {
                 return target.cast(OnOffType.OFF);

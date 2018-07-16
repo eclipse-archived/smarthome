@@ -15,6 +15,8 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.State;
 
@@ -24,6 +26,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public class PercentType extends DecimalType {
 
     private static final long serialVersionUID = -9066279845951780879L;
@@ -61,7 +64,7 @@ public class PercentType extends DecimalType {
     }
 
     @Override
-    public <T extends State> T as(Class<T> target) {
+    public <T extends State> @Nullable T as(@Nullable Class<T> target) {
         if (target == OnOffType.class) {
             return target.cast(equals(ZERO) ? OnOffType.OFF : OnOffType.ON);
         } else if (target == DecimalType.class) {

@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.types;
 
 import java.util.Formatter;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * This is a parent interface for all states and commands.
  * It was introduced as many states can be commands at the same time and
@@ -25,6 +27,7 @@ import java.util.Formatter;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Add the simple and full type string methods
  */
+@NonNullByDefault
 public interface Type {
 
     /**

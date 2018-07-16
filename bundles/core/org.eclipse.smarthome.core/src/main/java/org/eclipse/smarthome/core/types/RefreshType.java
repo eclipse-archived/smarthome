@@ -12,10 +12,13 @@
  */
 package org.eclipse.smarthome.core.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * @author Oliver Libutzki - Initial contribution
  */
+@NonNullByDefault
 public enum RefreshType implements PrimitiveType, Command {
 
     REFRESH;
