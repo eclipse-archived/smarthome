@@ -24,6 +24,7 @@ import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -155,8 +156,18 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             kind = "state";
         }
 
-        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.parse(kind), label,
-                description, category, tags, stateDescription, eventDescription, (URI) configDescriptionObjects[0]);
+        ChannelKind cKind = ChannelKind.parse(kind);
+        URI configDescriptionURI = (URI) configDescriptionObjects[0];
+        ChannelType channelType = null;
+        if (cKind == ChannelKind.STATE) {
+            channelType = ChannelTypeBuilder.state(channelTypeUID, label, itemType).isAdvanced(advanced)
+                    .withDescription(description).withCategory(category).withTags(tags)
+                    .withConfigDescriptionURI(configDescriptionURI).withStateDescription(stateDescription).build();
+        } else if (cKind == ChannelKind.TRIGGER) {
+            channelType = ChannelTypeBuilder.trigger(channelTypeUID, label).isAdvanced(advanced)
+                    .withDescription(description).withCategory(category).withTags(tags)
+                    .withConfigDescriptionURI(configDescriptionURI).withEventDescription(eventDescription).build();
+        }
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
                 (ConfigDescription) configDescriptionObjects[1], system);

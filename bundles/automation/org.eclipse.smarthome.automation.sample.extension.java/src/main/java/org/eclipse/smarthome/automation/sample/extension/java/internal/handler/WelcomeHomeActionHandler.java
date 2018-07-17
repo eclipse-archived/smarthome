@@ -35,8 +35,8 @@ public class WelcomeHomeActionHandler extends BaseModuleHandler<Action> implemen
 
     @Override
     public Map<String, Object> execute(Map<String, Object> context) {
-        String device = getDevice(module.getConfiguration());
-        String result = getResult(module.getConfiguration());
+        getDevice(module.getConfiguration());
+        getResult(module.getConfiguration());
         return null;
     }
 

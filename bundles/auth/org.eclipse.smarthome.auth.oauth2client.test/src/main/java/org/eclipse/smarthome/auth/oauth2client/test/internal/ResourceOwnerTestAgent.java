@@ -54,7 +54,6 @@ public class ResourceOwnerTestAgent extends AbstractTestAgent implements TestAge
         this.oauthFactory = oauthFactory;
     }
 
-    @SuppressWarnings("null")
     public void unsetOauthFactory(OAuthFactory oauthFactory) {
         if (super.oauthFactory == oauthFactory) {
             if (handle != null) {

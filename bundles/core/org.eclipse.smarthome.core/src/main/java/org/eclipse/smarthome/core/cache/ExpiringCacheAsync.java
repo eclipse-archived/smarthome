@@ -57,7 +57,6 @@ public class ExpiringCacheAsync<V> {
      *         `getValue().thenAccept(value->useYourValueHere(value));`. If you need the value synchronously you can use
      *         `getValue().get()`.
      */
-    @SuppressWarnings("null")
     public CompletableFuture<V> getValue(Supplier<CompletableFuture<V>> requestNewValueFuture) {
         if (isExpired()) {
             return refreshValue(requestNewValueFuture);
@@ -103,7 +102,6 @@ public class ExpiringCacheAsync<V> {
         if (currentNewValueRequest == null) {
             throw new IllegalArgumentException("We expect a CompletableFuture for refreshValue() to work!");
         }
-        @SuppressWarnings("null")
         CompletableFuture<V> t = currentNewValueRequest.thenApply(newValue -> {
             // No request is ongoing anymore, update the value and expire time
             this.currentNewValueRequest = null;

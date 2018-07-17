@@ -296,7 +296,7 @@ public class OAuthClientServiceImpl implements OAuthClientService {
             throw new OAuthException("Missing client ID");
         }
 
-        @SuppressWarnings("null") // depends on usage, cannot guarantee every parameter is not null at the beginning
+        // depending on usage, cannot guarantee every parameter is not null at the beginning
         AccessTokenResponse accessTokenResponse = connector.grantTypeClientCredentials(tokenUrl, clientId,
                 persistedParams.clientSecret, scope, Boolean.TRUE.equals(persistedParams.supportsBasicAuth));
 

@@ -27,4 +27,5 @@ Import-Package: com.google.gson,
  org.osgi.service.packageadmin,
  org.osgi.util.tracker,
  org.slf4j
+Automatic-Module-Name: org.eclipse.smarthome.auth.oauth2client
 
