@@ -108,6 +108,11 @@ public class SystemOffsetProfile implements StateProfile {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Type applyOffset(Type state, boolean towardsItem) {
+        if (state instanceof UnDefType) {
+            // we cannot adjust undef or null values, thus we simply return them without reporting an error or warning
+            return state;
+        }
+
         QuantityType finalOffset = offset;
         if (finalOffset == null) {
             logger.warn(
