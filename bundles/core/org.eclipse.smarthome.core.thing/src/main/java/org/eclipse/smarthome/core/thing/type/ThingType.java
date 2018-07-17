@@ -72,7 +72,6 @@ public class ThingType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
-    @SuppressWarnings("null")
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
@@ -89,7 +88,6 @@ public class ThingType extends AbstractDescriptionType {
      * @throws IllegalArgumentException if the UID is null or empty, or the the meta information is null
      */
     @Deprecated
-    @SuppressWarnings("null")
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             String category, boolean listed, List<ChannelDefinition> channelDefinitions,
             List<ChannelGroupDefinition> channelGroupDefinitions, @Nullable Map<String, String> properties,

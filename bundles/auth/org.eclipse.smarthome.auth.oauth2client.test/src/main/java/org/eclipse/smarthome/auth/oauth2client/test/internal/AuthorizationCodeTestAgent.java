@@ -54,7 +54,6 @@ public class AuthorizationCodeTestAgent extends AbstractTestAgent implements Tes
         super.oauthFactory = oauthFactory;
     }
 
-    @SuppressWarnings("null")
     public void unsetOauthFactory(OAuthFactory oauthFactory) {
         if (super.oauthFactory == oauthFactory) {
             if (handle != null) {

@@ -73,8 +73,6 @@ public class WemoCoffeeHandler extends AbstractWemoHandler implements UpnpIOPart
 
     private Map<String, Boolean> subscriptionState = new HashMap<String, Boolean>();
 
-    private final Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
-
     protected static final int SUBSCRIPTION_DURATION = 600;
 
     private UpnpIOService service;

@@ -4,5 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.smarthome.core.voice"/>
-	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="output" path="target/test-classes"/>
 </classpath>

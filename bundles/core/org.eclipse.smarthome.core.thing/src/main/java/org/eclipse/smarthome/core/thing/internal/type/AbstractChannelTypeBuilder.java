@@ -82,7 +82,9 @@ abstract class AbstractChannelTypeBuilder<T extends ChannelTypeBuilder<T>> imple
 
     @Override
     public T withTags(Collection<String> tags) {
-        this.tags.addAll(tags);
+        if (tags != null) {
+            this.tags.addAll(tags);
+        }
         return (T) this;
     }
 

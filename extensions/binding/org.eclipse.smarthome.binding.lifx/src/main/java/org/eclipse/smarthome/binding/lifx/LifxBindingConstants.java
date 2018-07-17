@@ -97,7 +97,6 @@ public class LifxBindingConstants {
     public static final ThingTypeUID THING_TYPE_COLORMZLIGHT = new ThingTypeUID(BINDING_ID, "colormzlight");
     public static final ThingTypeUID THING_TYPE_WHITELIGHT = new ThingTypeUID(BINDING_ID, "whitelight");
 
-    @SuppressWarnings("null")
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
             .of(THING_TYPE_COLORLIGHT, THING_TYPE_COLORIRLIGHT, THING_TYPE_COLORMZLIGHT, THING_TYPE_WHITELIGHT)
             .collect(Collectors.toSet());

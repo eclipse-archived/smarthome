@@ -35,7 +35,6 @@ import org.junit.Test;
  * @author Henning Treu - initial contribution
  *
  */
-@SuppressWarnings("null")
 public class ThingTypeBuilderTest {
 
     private static final String CONF_URI = "conf:uri";
