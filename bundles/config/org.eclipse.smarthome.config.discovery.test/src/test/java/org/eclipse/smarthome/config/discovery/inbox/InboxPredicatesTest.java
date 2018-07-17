@@ -47,7 +47,6 @@ public class InboxPredicatesTest {
 
     private static final ThingUID THING_UID11 = new ThingUID(BINDING_ID1, THING_ID1);
     private static final ThingUID THING_UID12 = new ThingUID(BINDING_ID1, THING_ID2);
-    private static final ThingUID THING_UID21 = new ThingUID(BINDING_ID2, THING_ID1);
     private static final ThingUID THING_UID22 = new ThingUID(BINDING_ID2, THING_ID2);
 
     private static final String PROP1 = "prop1";
@@ -58,7 +57,6 @@ public class InboxPredicatesTest {
     private final static ThingTypeUID THING_TYPE_UID11 = new ThingTypeUID(BINDING_ID1, THING_TYPE_ID1);
     private final static ThingTypeUID THING_TYPE_UID12 = new ThingTypeUID(BINDING_ID1, THING_TYPE_ID2);
     private final static ThingTypeUID THING_TYPE_UID21 = new ThingTypeUID(BINDING_ID2, THING_TYPE_ID1);
-    private final static ThingTypeUID THING_TYPE_UID22 = new ThingTypeUID(BINDING_ID2, THING_TYPE_ID2);
 
     private final static Map<String, Object> PROPS1 = new ImmutableMap.Builder<String, Object>().put(PROP1, PROP_VAL1)
             .put(PROP2, PROP_VAL2).build();

@@ -783,6 +783,14 @@
         name="org.eclipse.wst.html.core">
       <setupTask
           xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.wst.html.core/attrUndefName"
+          value="-1"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.wst.html.core/elemUnknownName"
+          value="-1"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.wst.html.core/indentationChar"
           value="tab"/>
       <setupTask

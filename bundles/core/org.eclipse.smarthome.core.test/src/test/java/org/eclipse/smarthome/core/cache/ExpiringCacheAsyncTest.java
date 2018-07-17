@@ -43,7 +43,7 @@ public class ExpiringCacheAsyncTest {
         assertNull(t.getLastKnownValue());
 
         // Define a supplier which returns a future that is immediately completed.
-        @SuppressWarnings({ "unchecked", "null" })
+        @SuppressWarnings({ "unchecked" })
         Supplier<CompletableFuture<Double>> s = mock(Supplier.class);
         when(s.get()).thenReturn(CompletableFuture.completedFuture(10.0));
 

@@ -45,7 +45,6 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
             .concat(SunHandler.SUPPORTED_THING_TYPES.stream(), MoonHandler.SUPPORTED_THING_TYPES.stream())
             .collect(Collectors.toSet());
     private static final Map<String, AstroThingHandler> ASTRO_THING_HANDLERS = new HashMap<>();
-    private TimeZoneProvider timeZoneProvider;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

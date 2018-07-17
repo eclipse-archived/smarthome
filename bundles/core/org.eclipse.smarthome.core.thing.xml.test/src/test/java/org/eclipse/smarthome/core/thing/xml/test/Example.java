@@ -15,8 +15,6 @@ package org.eclipse.smarthome.core.thing.xml.test;
 import java.io.File;
 import java.net.URL;
 
-import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.xml.internal.ChannelTypeXmlResult;
 import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionList;
 import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionReader;
 import org.junit.Test;
@@ -38,11 +36,5 @@ public class Example {
 
         ThingDescriptionReader reader = new ThingDescriptionReader();
         ThingDescriptionList thingList = (ThingDescriptionList) reader.readFromXML(channelsURL);
-
-        thingList.stream().forEach(it -> {
-            if (it instanceof ChannelTypeXmlResult) {
-                ChannelType channelType = ((ChannelTypeXmlResult) it).toChannelType();
-            }
-        });
     }
 }

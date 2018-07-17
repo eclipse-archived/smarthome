@@ -12,12 +12,10 @@
  */
 package org.eclipse.smarthome.binding.tradfri.internal.model;
 
-import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
+import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.DEVICE_BATTERY_LEVEL;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
@@ -27,8 +25,6 @@ import com.google.gson.JsonElement;
  * @author Christoph Weitkamp - Initial contribution
  */
 public abstract class TradfriWirelessDeviceData extends TradfriDeviceData {
-
-    private final Logger logger = LoggerFactory.getLogger(TradfriWirelessDeviceData.class);
 
     public TradfriWirelessDeviceData(String attributesNodeName) {
         super(attributesNodeName);

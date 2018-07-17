@@ -113,7 +113,6 @@ public abstract class AbstractTestAgent implements TestAgent {
     }
 
     @Override
-    @SuppressWarnings("null")
     public AccessTokenResponse testGetAccessTokenByResourceOwnerPasswordCredentials()
             throws OAuthException, IOException, OAuthResponseException {
         logger.debug("test getOAuthTokenByResourceOwnerPasswordCredentials");
@@ -132,7 +131,6 @@ public abstract class AbstractTestAgent implements TestAgent {
     }
 
     @Override
-    @SuppressWarnings("null")
     public AccessTokenResponse testGetAccessTokenByAuthorizationCode(String code)
             throws OAuthException, IOException, OAuthResponseException {
         return oauthClientService.getAccessTokenResponseByAuthorizationCode(code, REDIRECT_URI);
@@ -167,7 +165,6 @@ public abstract class AbstractTestAgent implements TestAgent {
     }
 
     @Override
-    @SuppressWarnings("null")
     public void delete(String handle) {
         logger.debug("Delete handle: {}", handle);
         oauthFactory.deleteServiceAndAccessToken(handle);

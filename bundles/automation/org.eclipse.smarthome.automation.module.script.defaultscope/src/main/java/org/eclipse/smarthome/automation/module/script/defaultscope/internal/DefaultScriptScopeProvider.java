@@ -47,8 +47,6 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a default scope provider for stuff that is of general interest in an ESH-based solution.
@@ -59,8 +57,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
-
-    private final Logger logger = LoggerFactory.getLogger(DefaultScriptScopeProvider.class);
 
     private Map<String, Object> elements;
 

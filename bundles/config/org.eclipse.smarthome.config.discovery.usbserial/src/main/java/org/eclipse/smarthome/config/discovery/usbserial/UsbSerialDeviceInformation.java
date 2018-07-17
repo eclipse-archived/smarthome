@@ -134,7 +134,6 @@ public class UsbSerialDeviceInformation {
         return result;
     }
 
-    @SuppressWarnings("null")
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) {
