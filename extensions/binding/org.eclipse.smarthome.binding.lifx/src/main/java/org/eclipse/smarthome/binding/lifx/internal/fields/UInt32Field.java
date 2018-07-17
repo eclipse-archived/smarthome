@@ -14,9 +14,12 @@ package org.eclipse.smarthome.binding.lifx.internal.fields;
 
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author Tim Buckley
  */
+@NonNullByDefault
 public class UInt32Field extends Field<Long> {
 
     @Override

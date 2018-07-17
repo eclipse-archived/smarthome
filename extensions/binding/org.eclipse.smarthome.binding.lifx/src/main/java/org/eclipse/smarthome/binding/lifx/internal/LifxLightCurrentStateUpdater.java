@@ -20,6 +20,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetColorZonesRequest;
@@ -44,6 +46,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Wouter Born - Extracted class from LifxLightHandler
  */
+@NonNullByDefault
 public class LifxLightCurrentStateUpdater {
 
     private static final int STATE_POLLING_INTERVAL = 3;
@@ -61,7 +64,7 @@ public class LifxLightCurrentStateUpdater {
     private boolean wasOnline;
     private boolean updateSignalStrength;
 
-    private ScheduledFuture<?> statePollingJob;
+    private @Nullable ScheduledFuture<?> statePollingJob;
 
     public LifxLightCurrentStateUpdater(LifxLightContext context, LifxLightCommunicationHandler communicationHandler) {
         this.logId = context.getLogId();
@@ -96,7 +99,8 @@ public class LifxLightCurrentStateUpdater {
         try {
             lock.lock();
             communicationHandler.addResponsePacketListener(this::handleResponsePacket);
-            if (statePollingJob == null || statePollingJob.isCancelled()) {
+            ScheduledFuture<?> localStatePollingJob = statePollingJob;
+            if (localStatePollingJob == null || localStatePollingJob.isCancelled()) {
                 statePollingJob = scheduler.scheduleWithFixedDelay(this::pollLightState, 0, STATE_POLLING_INTERVAL,
                         TimeUnit.SECONDS);
             }
@@ -111,8 +115,9 @@ public class LifxLightCurrentStateUpdater {
         try {
             lock.lock();
             communicationHandler.removeResponsePacketListener(this::handleResponsePacket);
-            if (statePollingJob != null && !statePollingJob.isCancelled()) {
-                statePollingJob.cancel(true);
+            ScheduledFuture<?> localStatePollingJob = statePollingJob;
+            if (localStatePollingJob != null && !localStatePollingJob.isCancelled()) {
+                localStatePollingJob.cancel(true);
                 statePollingJob = null;
             }
         } catch (Exception e) {
@@ -186,7 +191,7 @@ public class LifxLightCurrentStateUpdater {
 
     private void handleMultiZoneStatus(StateMultiZoneResponse packet) {
         HSBK[] colors = currentLightState.getColors();
-        if (colors == null || colors.length != packet.getCount()) {
+        if (colors.length != packet.getCount()) {
             colors = new HSBK[packet.getCount()];
         }
         for (int i = 0; i < packet.getColors().length && packet.getIndex() + i < colors.length; i++) {

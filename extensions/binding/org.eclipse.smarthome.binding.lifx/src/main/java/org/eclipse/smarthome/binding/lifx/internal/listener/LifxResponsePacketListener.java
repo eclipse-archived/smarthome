@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.listener;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightCommunicationHandler;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 
@@ -21,11 +22,12 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
  *
  * @author Wouter Born - Initial contribution
  */
+@NonNullByDefault
 public interface LifxResponsePacketListener {
 
     /**
      * Called when the {@link LifxLightCommunicationHandler} receives a response packet.
-     * 
+     *
      * @param packet the received packet
      */
     public void handleResponsePacket(Packet packet);

@@ -14,6 +14,8 @@ package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A packet handler responsible for converting a ByteBuffer into a Packet
  * instance.
@@ -23,6 +25,7 @@ import java.nio.ByteBuffer;
  * @author Tim Buckley - Initial Contribution
  * @author Karel Goderis - Enhancement for the V2 LIFX Firmware and LAN Protocol Specification
  */
+@NonNullByDefault
 public interface PacketHandler<T extends Packet> {
 
     public abstract T handle(ByteBuffer buf);

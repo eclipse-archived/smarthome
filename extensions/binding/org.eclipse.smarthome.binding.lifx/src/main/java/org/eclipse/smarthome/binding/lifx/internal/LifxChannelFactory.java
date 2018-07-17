@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -20,6 +21,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @author Wouter Born - Add i18n support
  */
+@NonNullByDefault
 public interface LifxChannelFactory {
 
     Channel createColorZoneChannel(ThingUID thingUID, int index);

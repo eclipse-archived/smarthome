@@ -14,6 +14,8 @@ package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.SUPPORTED_THING_TYPES;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -30,10 +32,11 @@ import org.osgi.service.component.annotations.Reference;
  * @author Dennis Nobel - Initial contribution
  * @author Karel Goderis - Remove dependency on external libraries
  */
+@NonNullByDefault
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.lifx")
 public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
-    private LifxChannelFactory channelFactory;
+    private @NonNullByDefault({}) LifxChannelFactory channelFactory;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -46,12 +49,9 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected ThingHandler createHandler(Thing thing) {
-        ThingTypeUID typeUID = thing.getThingTypeUID();
-        if (typeUID != null && supportsThingType(typeUID)) {
-            if (channelFactory != null) {
-                return new LifxLightHandler(thing, channelFactory);
-            }
+    protected @Nullable ThingHandler createHandler(Thing thing) {
+        if (supportsThingType(thing.getThingTypeUID())) {
+            return new LifxLightHandler(thing, channelFactory);
         }
 
         return null;

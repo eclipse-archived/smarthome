@@ -14,6 +14,8 @@ package org.eclipse.smarthome.binding.lifx.internal.fields;
 
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * A pseudo-uint64 field. Bytes will be stored directly in a long value, so
  * unexpected values will likely be shown if exposed to users. Most bit-level
@@ -21,6 +23,7 @@ import java.nio.ByteBuffer;
  *
  * @author Tim Buckley
  */
+@NonNullByDefault
 public class UInt64Field extends Field<Long> {
 
     @Override

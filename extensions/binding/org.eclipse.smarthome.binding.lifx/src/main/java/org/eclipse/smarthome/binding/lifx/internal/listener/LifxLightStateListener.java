@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.listener;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.internal.LifxLightState;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
@@ -23,6 +25,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Wouter Born - Initial contribution
  */
+@NonNullByDefault
 public interface LifxLightStateListener {
 
     /**
@@ -39,7 +42,7 @@ public interface LifxLightStateListener {
      * @param oldPowerState the old power state value
      * @param newPowerState the new power state value
      */
-    void handlePowerStateChange(PowerState oldPowerState, PowerState newPowerState);
+    void handlePowerStateChange(@Nullable PowerState oldPowerState, PowerState newPowerState);
 
     /**
      * Called when the infrared property changes.
@@ -47,7 +50,7 @@ public interface LifxLightStateListener {
      * @param oldInfrared the old infrared value
      * @param newInfrared the new infrared value
      */
-    void handleInfraredChange(PercentType oldInfrared, PercentType newInfrared);
+    void handleInfraredChange(@Nullable PercentType oldInfrared, PercentType newInfrared);
 
     /**
      * Called when the signal strength property changes.
@@ -55,5 +58,5 @@ public interface LifxLightStateListener {
      * @param oldSignalStrength the old signal strength value
      * @param newSignalStrength the new signal strength value
      */
-    void handleSignalStrengthChange(SignalStrength oldSignalStrength, SignalStrength newSignalStrength);
+    void handleSignalStrengthChange(@Nullable SignalStrength oldSignalStrength, SignalStrength newSignalStrength);
 }

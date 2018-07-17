@@ -56,6 +56,7 @@ public class LifxSelectorUtil {
         UNICAST;
     }
 
+    @SuppressWarnings("resource")
     public static @Nullable SelectionKey openBroadcastChannel(@Nullable Selector selector, String logId,
             int broadcastPort) throws IOException {
         if (selector == null) {
@@ -70,6 +71,7 @@ public class LifxSelectorUtil {
         return broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
+    @SuppressWarnings("resource")
     public static @Nullable SelectionKey openUnicastChannel(@Nullable Selector selector, String logId,
             @Nullable InetSocketAddress address) throws IOException {
         if (selector == null || address == null) {

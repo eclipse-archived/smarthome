@@ -14,9 +14,12 @@ package org.eclipse.smarthome.binding.lifx.internal.fields;
 
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author Wouter Born - Add support for MultiZone light control
  */
+@NonNullByDefault
 public class HSBKField extends Field<HSBK> {
 
     public static final Field<Integer> FIELD_HUE = new UInt16Field().little();

@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal.protocol;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Wouter Born - Support LIFX 2016 product line-up and infrared functionality
  */
+@NonNullByDefault
 public enum Products {
 
     OR1000(1, 1, "Original 1000", true, false, false, false),

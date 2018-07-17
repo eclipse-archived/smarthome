@@ -14,6 +14,8 @@ package org.eclipse.smarthome.binding.lifx.internal.fields;
 
 import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.*;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -21,6 +23,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 /**
  * @author Wouter Born - Add support for MultiZone light control
  */
+@NonNullByDefault
 public class HSBK {
 
     private static final String DEFAULT_PROPERTY_NAME = "hsbk";
@@ -107,7 +110,7 @@ public class HSBK {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }

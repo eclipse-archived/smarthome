@@ -14,11 +14,14 @@ package org.eclipse.smarthome.binding.lifx.internal.fields;
 
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Reads a wrapped field in reversed byte order.
  *
  * @author Tim Buckley
  */
+@NonNullByDefault
 public class LittleField<T> extends Field<T> {
 
     private final Field<T> wrapped;
