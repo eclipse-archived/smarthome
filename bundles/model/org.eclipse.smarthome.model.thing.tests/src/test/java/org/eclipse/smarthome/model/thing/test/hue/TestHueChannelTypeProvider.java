@@ -60,7 +60,7 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
             channelTypes = Arrays.asList(ctColor, ctColorTemperature, ctColorX, ctColorTemperatureX);
 
             ChannelGroupType groupX = ChannelGroupTypeBuilder.instance(GROUP_CHANNEL_GROUP_TYPE_UID, "Channel Group")
-                    .isAdvanced(false).withDescription("Channel Group")
+                    .withDescription("Channel Group")
                     .withChannelDefinitions(Arrays.asList(
                             new ChannelDefinition("foo", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID),
                             new ChannelDefinition("bar", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID)))
