@@ -77,8 +77,8 @@ public class ChannelGroupType extends AbstractDescriptionType {
      *            (could be null or empty)
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
-    public ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description,
-            String category, List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
+    ChannelGroupType(ChannelGroupTypeUID uid, boolean advanced, String label, String description, String category,
+            List<ChannelDefinition> channelDefinitions) throws IllegalArgumentException {
         super(uid, label, description);
 
         this.advanced = advanced;

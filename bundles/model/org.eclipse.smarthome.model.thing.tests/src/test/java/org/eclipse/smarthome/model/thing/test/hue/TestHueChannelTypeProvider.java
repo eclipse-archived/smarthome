@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -58,10 +59,12 @@ public class TestHueChannelTypeProvider implements ChannelTypeProvider {
                     new URI("Xhue", "XLCT001:Xcolor_temperature", null));
             channelTypes = Arrays.asList(ctColor, ctColorTemperature, ctColorX, ctColorTemperatureX);
 
-            ChannelGroupType groupX = new ChannelGroupType(GROUP_CHANNEL_GROUP_TYPE_UID, false, "Channel Group",
-                    "Channel Group", null,
-                    Arrays.asList(new ChannelDefinition("foo", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID),
-                            new ChannelDefinition("bar", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID)));
+            ChannelGroupType groupX = ChannelGroupTypeBuilder.instance(GROUP_CHANNEL_GROUP_TYPE_UID, "Channel Group")
+                    .isAdvanced(false).withDescription("Channel Group")
+                    .withChannelDefinitions(Arrays.asList(
+                            new ChannelDefinition("foo", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID),
+                            new ChannelDefinition("bar", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID)))
+                    .build();
             channelGroupTypes = Arrays.asList(groupX);
 
         } catch (Exception willNeverBeThrown) {
