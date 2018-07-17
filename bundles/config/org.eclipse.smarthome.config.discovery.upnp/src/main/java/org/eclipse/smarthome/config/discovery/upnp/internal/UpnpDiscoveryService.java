@@ -52,10 +52,8 @@ import org.slf4j.LoggerFactory;
  * @author Tim Roberts - Added primary address change
  *
  */
-@Component(immediate = true, service = { DiscoveryService.class,
-        NetworkAddressChangeListener.class }, configurationPid = "discovery.upnp")
-public class UpnpDiscoveryService extends AbstractDiscoveryService
-        implements RegistryListener, NetworkAddressChangeListener {
+@Component(immediate = true, service = { DiscoveryService.class, NetworkAddressChangeListener.class }, configurationPid = "discovery.upnp")
+public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener, NetworkAddressChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 
@@ -238,11 +236,6 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService
             }
         });
 
-    }
-
-    @Override
-    public void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress) {
-        // Intentionally left blank since the implementation is not interested in this information
     }
 
     @Override

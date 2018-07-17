@@ -48,5 +48,7 @@ public interface NetworkAddressChangeListener {
      * @param oldPrimaryAddress The old primary address (may be null if none specified)
      * @param newPrimaryAddress The new primary address (may be null if none specified)
      */
-    void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress);
+    default void onPrimaryAddressChanged(@Nullable String oldPrimaryAddress, @Nullable String newPrimaryAddress) {
+        // nothing to do for the default implementation
+    }
 }
