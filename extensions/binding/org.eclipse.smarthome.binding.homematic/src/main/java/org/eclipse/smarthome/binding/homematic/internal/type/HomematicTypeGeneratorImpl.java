@@ -44,6 +44,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -73,7 +74,7 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
     private HomematicThingTypeProvider thingTypeProvider;
     private HomematicChannelTypeProvider channelTypeProvider;
     private HomematicConfigDescriptionProvider configDescriptionProvider;
-    private Map<String, Set<String>> firmwaresByType = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> firmwaresByType = new HashMap<String, Set<String>>();
 
     private static final String[] STATUS_DATAPOINT_NAMES = new String[] { DATAPOINT_NAME_UNREACH,
             DATAPOINT_NAME_CONFIG_PENDING, DATAPOINT_NAME_DEVICE_IN_BOOTLOADER, DATAPOINT_NAME_UPDATE_PENDING };
@@ -128,7 +129,7 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
         if (thingTypeProvider != null) {
             ThingTypeUID thingTypeUID = UidUtils.generateThingTypeUID(device);
             ThingType tt = thingTypeProvider.getInternalThingType(thingTypeUID);
-            
+
             if (tt == null || device.isGatewayExtras()) {
                 logger.debug("Generating ThingType for device '{}' with {} datapoints", device.getType(),
                         device.getDatapointCount());
@@ -162,8 +163,8 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
                     if (groupType == null || device.isGatewayExtras()) {
                         String groupLabel = String.format("%s",
                                 WordUtils.capitalizeFully(StringUtils.replace(channel.getType(), "_", " ")));
-                        groupType = new ChannelGroupType(groupTypeUID, false, groupLabel, null, null,
-                                channelDefinitions);
+                        groupType = ChannelGroupTypeBuilder.instance(groupTypeUID, groupLabel)
+                                .withChannelDefinitions(channelDefinitions).build();
                         channelTypeProvider.addChannelGroupType(groupType);
                         groupTypes.add(groupType);
                     }
@@ -341,7 +342,7 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
                 }
             }
         }
-        
+
         configDescriptionProvider.addConfigDescription(new ConfigDescription(configDescriptionURI, parms, groups));
 
     }
