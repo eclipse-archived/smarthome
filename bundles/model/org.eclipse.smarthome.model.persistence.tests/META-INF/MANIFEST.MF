@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Persistence Model Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.persistence.tests
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.model.persistence.extensions,
