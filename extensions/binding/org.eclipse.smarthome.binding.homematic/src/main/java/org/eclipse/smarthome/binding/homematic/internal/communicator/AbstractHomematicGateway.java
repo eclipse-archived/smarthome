@@ -62,10 +62,10 @@ import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.Sta
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.VirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.VirtualGateway;
 import org.eclipse.smarthome.binding.homematic.internal.misc.DelayedExecuter;
+import org.eclipse.smarthome.binding.homematic.internal.misc.DelayedExecuter.DelayedExecuterCallback;
 import org.eclipse.smarthome.binding.homematic.internal.misc.HomematicClientException;
 import org.eclipse.smarthome.binding.homematic.internal.misc.HomematicConstants;
 import org.eclipse.smarthome.binding.homematic.internal.misc.MiscUtils;
-import org.eclipse.smarthome.binding.homematic.internal.misc.DelayedExecuter.DelayedExecuterCallback;
 import org.eclipse.smarthome.binding.homematic.internal.model.HmChannel;
 import org.eclipse.smarthome.binding.homematic.internal.model.HmDatapoint;
 import org.eclipse.smarthome.binding.homematic.internal.model.HmDatapointConfig;
@@ -91,26 +91,26 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
     private static final long CONNECTION_TRACKER_INTERVAL_SECONDS = 15;
     private static final String GATEWAY_POOL_NAME = "homematicGateway";
 
-    private Map<TransferMode, RpcClient<?>> rpcClients = new HashMap<TransferMode, RpcClient<?>>();
-    private Map<TransferMode, RpcServer> rpcServers = new HashMap<TransferMode, RpcServer>();
+    private final Map<TransferMode, RpcClient<?>> rpcClients = new HashMap<TransferMode, RpcClient<?>>();
+    private final Map<TransferMode, RpcServer> rpcServers = new HashMap<TransferMode, RpcServer>();
 
     protected HomematicConfig config;
     protected HttpClient httpClient;
-    private String id;
-    private HomematicGatewayAdapter gatewayAdapter;
-    private DelayedExecuter sendDelayedExecutor = new DelayedExecuter();
-    private DelayedExecuter receiveDelayedExecutor = new DelayedExecuter();
-    private Set<HmDatapointInfo> echoEvents = Collections.synchronizedSet(new HashSet<HmDatapointInfo>());
+    private final String id;
+    private final HomematicGatewayAdapter gatewayAdapter;
+    private final DelayedExecuter sendDelayedExecutor = new DelayedExecuter();
+    private final DelayedExecuter receiveDelayedExecutor = new DelayedExecuter();
+    private final Set<HmDatapointInfo> echoEvents = Collections.synchronizedSet(new HashSet<HmDatapointInfo>());
     private ScheduledFuture<?> connectionTrackerFuture;
     private ConnectionTrackerThread connectionTrackerThread;
-    private Map<String, HmDevice> devices = Collections.synchronizedMap(new HashMap<String, HmDevice>());
-    private Map<HmInterface, TransferMode> availableInterfaces = new TreeMap<HmInterface, TransferMode>();
+    private final Map<String, HmDevice> devices = Collections.synchronizedMap(new HashMap<String, HmDevice>());
+    private final Map<HmInterface, TransferMode> availableInterfaces = new TreeMap<HmInterface, TransferMode>();
     private static List<VirtualDatapointHandler> virtualDatapointHandlers = new ArrayList<VirtualDatapointHandler>();
     private boolean cancelLoadAllMetadata;
     private boolean initialized;
     private boolean newDeviceEventsEnabled;
     private ScheduledFuture<?> enableNewDeviceFuture;
-    private ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(GATEWAY_POOL_NAME);
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(GATEWAY_POOL_NAME);
 
     static {
         // loads all virtual datapoints
@@ -219,7 +219,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
     /**
      * Starts the Homematic gateway client.
      */
-    protected void startClients() throws IOException {
+    protected synchronized void startClients() throws IOException {
         for (TransferMode mode : availableInterfaces.values()) {
             if (!rpcClients.containsKey(mode)) {
                 rpcClients.put(mode,
@@ -231,7 +231,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
     /**
      * Stops the Homematic gateway client.
      */
-    protected void stopClients() {
+    protected synchronized void stopClients() {
         for (RpcClient<?> rpcClient : rpcClients.values()) {
             rpcClient.dispose();
         }
@@ -241,7 +241,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
     /**
      * Starts the Homematic RPC server.
      */
-    private void startServers() throws IOException {
+    private synchronized void startServers() throws IOException {
         for (TransferMode mode : availableInterfaces.values()) {
             if (!rpcServers.containsKey(mode)) {
                 RpcServer rpcServer = mode == TransferMode.XML_RPC ? new XmlRpcServer(this, config)
@@ -258,7 +258,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
     /**
      * Stops the Homematic RPC server.
      */
-    private void stopServers() {
+    private synchronized void stopServers() {
         for (HmInterface hmInterface : availableInterfaces.keySet()) {
             try {
                 getRpcClient(hmInterface).release(hmInterface);
@@ -897,7 +897,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         public void run() {
             try {
                 if (ping && !pong) {
-                    handleInvalidConnection();
+                    handleInvalidConnection("No Pong received!");
                 }
 
                 pong = false;
@@ -918,7 +918,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
                 }
             } catch (IOException ex) {
                 try {
-                    handleInvalidConnection();
+                    handleInvalidConnection("IOException " + ex.getMessage());
                 } catch (IOException ex2) {
                     // ignore
                 }
@@ -948,11 +948,11 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
             }
         }
 
-        private void handleInvalidConnection() throws IOException {
+        private void handleInvalidConnection(String cause) throws IOException {
             ping = false;
             if (!connectionLost) {
                 connectionLost = true;
-                logger.warn("Connection lost on gateway '{}'", id);
+                logger.warn("Connection lost on gateway '{}', cause: \"{}\"", id, cause);
                 gatewayAdapter.onConnectionLost();
             }
             stopServers();
