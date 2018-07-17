@@ -16,9 +16,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author Tim Buckley
  */
+@NonNullByDefault
 public class StringField extends Field<String> {
 
     public static final Charset CHARSET = StandardCharsets.US_ASCII;

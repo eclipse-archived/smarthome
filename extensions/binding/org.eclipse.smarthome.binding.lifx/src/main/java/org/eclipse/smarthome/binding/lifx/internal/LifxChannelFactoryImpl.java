@@ -16,6 +16,8 @@ import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -34,6 +36,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Wouter Born - Add i18n support
  */
+@NonNullByDefault
 @Component(service = LifxChannelFactory.class, immediate = true)
 public class LifxChannelFactoryImpl implements LifxChannelFactory {
 
@@ -43,15 +46,15 @@ public class LifxChannelFactoryImpl implements LifxChannelFactory {
     private static final String TEMPERATURE_ZONE_LABEL_KEY = "channel-type.lifx.temperaturezone.label";
     private static final String TEMPERATURE_ZONE_DESCRIPTION_KEY = "channel-type.lifx.temperaturezone.description";
 
-    private Bundle bundle;
-    private TranslationProvider i18nProvider;
-    private LocaleProvider localeProvider;
+    private @NonNullByDefault({}) Bundle bundle;
+    private @NonNullByDefault({}) TranslationProvider i18nProvider;
+    private @NonNullByDefault({}) LocaleProvider localeProvider;
 
     @Override
     public Channel createColorZoneChannel(ThingUID thingUID, int index) {
         String label = getText(COLOR_ZONE_LABEL_KEY, index);
         String description = getText(COLOR_ZONE_DESCRIPTION_KEY, index);
-        return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COLOR_ZONE + index), "ColorItem")
+        return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COLOR_ZONE + index), "Color")
                 .withType(CHANNEL_TYPE_COLOR_ZONE).withLabel(label).withDescription(description).build();
     }
 
@@ -59,17 +62,22 @@ public class LifxChannelFactoryImpl implements LifxChannelFactory {
     public Channel createTemperatureZoneChannel(ThingUID thingUID, int index) {
         String label = getText(TEMPERATURE_ZONE_LABEL_KEY, index);
         String description = getText(TEMPERATURE_ZONE_DESCRIPTION_KEY, index);
-        return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_TEMPERATURE_ZONE + index), "DimmerItem")
+        return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_TEMPERATURE_ZONE + index), "Dimmer")
                 .withType(CHANNEL_TYPE_TEMPERATURE_ZONE).withLabel(label).withDescription(description).build();
     }
 
-    private String getDefaultText(String key) {
+    private @Nullable String getDefaultText(String key) {
         return i18nProvider.getText(bundle, key, key, Locale.ENGLISH);
     }
 
     private String getText(String key, Object... arguments) {
         Locale locale = localeProvider != null ? localeProvider.getLocale() : Locale.ENGLISH;
-        return i18nProvider != null ? i18nProvider.getText(bundle, key, getDefaultText(key), locale, arguments) : key;
+        if (i18nProvider == null) {
+            return key;
+        }
+
+        String text = i18nProvider.getText(bundle, key, getDefaultText(key), locale, arguments);
+        return text != null ? text : key;
     }
 
     @Activate

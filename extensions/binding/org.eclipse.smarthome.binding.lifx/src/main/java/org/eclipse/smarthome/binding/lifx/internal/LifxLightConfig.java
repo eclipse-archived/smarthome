@@ -15,6 +15,8 @@ package org.eclipse.smarthome.binding.lifx.internal;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
 
@@ -23,17 +25,19 @@ import org.eclipse.smarthome.binding.lifx.internal.fields.MACAddress;
  *
  * @author Wouter Born - Initial contribution
  */
+@NonNullByDefault
 public class LifxLightConfig {
 
-    private String deviceId;
-    private String host;
+    private @Nullable String deviceId;
+    private @Nullable String host;
     private long fadetime = 300; // milliseconds
 
-    public MACAddress getMACAddress() {
-        return deviceId == null ? null : new MACAddress(deviceId, true);
+    public @Nullable MACAddress getMACAddress() {
+        String localDeviceId = deviceId;
+        return localDeviceId == null ? null : new MACAddress(localDeviceId, true);
     }
 
-    public InetSocketAddress getHost() {
+    public @Nullable InetSocketAddress getHost() {
         return host == null ? null : new InetSocketAddress(host, LifxBindingConstants.UNICAST_PORT);
     }
 

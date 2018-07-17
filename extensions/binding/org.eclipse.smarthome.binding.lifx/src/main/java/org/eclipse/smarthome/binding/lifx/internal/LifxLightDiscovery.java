@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
@@ -122,7 +121,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
     @Activate
     @Override
-    protected void activate(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
+    protected void activate(@Nullable Map<String, @Nullable Object> configProperties) {
         super.activate(configProperties);
     }
 

@@ -14,6 +14,8 @@ package org.eclipse.smarthome.binding.lifx.internal.fields;
 
 import java.nio.ByteBuffer;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Defines an abstract field that can be used to convert between native
  * datatypes and a LIFX-compatible byte representation.
@@ -22,6 +24,7 @@ import java.nio.ByteBuffer;
  *
  * @author Tim Buckley
  */
+@NonNullByDefault
 public abstract class Field<T> {
 
     protected final int length;

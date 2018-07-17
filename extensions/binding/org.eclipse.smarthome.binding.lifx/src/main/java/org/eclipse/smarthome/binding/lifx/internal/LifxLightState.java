@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxLightStateListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
@@ -33,15 +35,15 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Wouter Born - Extracted class from LifxLightHandler, added listener logic
  */
+@NonNullByDefault
 public class LifxLightState {
 
-    private PowerState powerState;
-    private HSBK[] colors;
-    private PercentType infrared;
-    private SignalStrength signalStrength;
+    private HSBK[] colors = new HSBK[] { new HSBK(DEFAULT_COLOR) };
+    private @Nullable PercentType infrared;
+    private @Nullable PowerState powerState;
+    private @Nullable SignalStrength signalStrength;
 
     private LocalDateTime lastChange = LocalDateTime.MIN;
-
     private List<LifxLightStateListener> listeners = new CopyOnWriteArrayList<>();
 
     public void copy(LifxLightState other) {
@@ -51,33 +53,19 @@ public class LifxLightState {
         this.signalStrength = other.getSignalStrength();
     }
 
-    public PowerState getPowerState() {
+    public @Nullable PowerState getPowerState() {
         return powerState;
     }
 
     public HSBK getColor() {
-        return colors != null && colors.length > 0 ? new HSBK(colors[0]) : null;
+        return colors.length > 0 ? new HSBK(colors[0]) : new HSBK(DEFAULT_COLOR);
     }
 
     public HSBK getColor(int zoneIndex) {
-        return colors != null && zoneIndex < colors.length ? new HSBK(colors[zoneIndex]) : null;
-    }
-
-    public HSBK getNullSafeColor() {
-        HSBK color = getColor();
-        return color != null ? color : new HSBK(DEFAULT_COLOR);
-    }
-
-    public HSBK getNullSafeColor(int zoneIndex) {
-        HSBK color = getColor(zoneIndex);
-        return color != null ? color : new HSBK(DEFAULT_COLOR);
+        return zoneIndex < colors.length ? new HSBK(colors[zoneIndex]) : new HSBK(DEFAULT_COLOR);
     }
 
     public HSBK[] getColors() {
-        if (colors == null) {
-            return null;
-        }
-
         HSBK[] colorsCopy = new HSBK[colors.length];
         for (int i = 0; i < colors.length; i++) {
             colorsCopy[i] = colors[i] != null ? new HSBK(colors[i]) : null;
@@ -85,33 +73,28 @@ public class LifxLightState {
         return colorsCopy;
     }
 
-    public HSBK[] getNullSafeColors() {
-        HSBK[] colors = getColors();
-        return colors != null ? colors : new HSBK[] { new HSBK(DEFAULT_COLOR) };
-    }
-
-    public PercentType getInfrared() {
+    public @Nullable PercentType getInfrared() {
         return infrared;
     }
 
-    public SignalStrength getSignalStrength() {
+    public @Nullable SignalStrength getSignalStrength() {
         return signalStrength;
     }
 
     public void setColor(HSBType newHSB) {
-        HSBK newColor = getNullSafeColor();
+        HSBK newColor = getColor();
         newColor.setHSB(newHSB);
         setColor(newColor);
     }
 
     public void setColor(HSBType newHSB, int zoneIndex) {
-        HSBK newColor = getNullSafeColor(zoneIndex);
+        HSBK newColor = getColor(zoneIndex);
         newColor.setHSB(newHSB);
         setColor(newColor, zoneIndex);
     }
 
     public void setBrightness(PercentType brightness) {
-        HSBK[] newColors = getNullSafeColors();
+        HSBK[] newColors = getColors();
         for (HSBK newColor : newColors) {
             newColor.setBrightness(brightness);
         }
@@ -119,19 +102,19 @@ public class LifxLightState {
     }
 
     public void setBrightness(PercentType brightness, int zoneIndex) {
-        HSBK newColor = getNullSafeColor(zoneIndex);
+        HSBK newColor = getColor(zoneIndex);
         newColor.setBrightness(brightness);
         setColor(newColor, zoneIndex);
     }
 
     public void setColor(HSBK newColor) {
-        HSBK[] newColors = getNullSafeColors();
+        HSBK[] newColors = getColors();
         Arrays.fill(newColors, newColor);
         setColors(newColors);
     }
 
     public void setColor(HSBK newColor, int zoneIndex) {
-        HSBK[] newColors = getNullSafeColors();
+        HSBK[] newColors = getColors();
         newColors[zoneIndex] = newColor;
         setColors(newColors);
     }
@@ -155,7 +138,7 @@ public class LifxLightState {
     }
 
     public void setTemperature(PercentType temperature) {
-        HSBK[] newColors = getNullSafeColors();
+        HSBK[] newColors = getColors();
         for (HSBK newColor : newColors) {
             newColor.setTemperature(temperature);
         }
@@ -163,7 +146,7 @@ public class LifxLightState {
     }
 
     public void setTemperature(PercentType temperature, int zoneIndex) {
-        HSBK newColor = getNullSafeColor(zoneIndex);
+        HSBK newColor = getColor(zoneIndex);
         newColor.setTemperature(temperature);
         setColor(newColor, zoneIndex);
     }

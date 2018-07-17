@@ -26,6 +26,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
 import org.eclipse.smarthome.binding.lifx.internal.listener.LifxLightStateListener;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.AcknowledgementResponse;
@@ -54,6 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Wouter Born - Extracted class from LifxLightHandler, added logic for handling packet loss
  */
+@NonNullByDefault
 public class LifxLightStateChanger implements LifxLightStateListener {
 
     /**
@@ -77,9 +80,9 @@ public class LifxLightStateChanger implements LifxLightStateListener {
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    private ScheduledFuture<?> sendJob;
+    private @Nullable ScheduledFuture<?> sendJob;
 
-    private Map<Integer, List<PendingPacket>> pendingPacketsMap = new ConcurrentHashMap<>();
+    private Map<Integer, @Nullable List<PendingPacket>> pendingPacketsMap = new ConcurrentHashMap<>();
 
     private class PendingPacket {
 
@@ -140,7 +143,8 @@ public class LifxLightStateChanger implements LifxLightStateListener {
             lock.lock();
             communicationHandler.addResponsePacketListener(this::handleResponsePacket);
             pendingLightState.addListener(this);
-            if (sendJob == null || sendJob.isCancelled()) {
+            ScheduledFuture<?> localSendJob = sendJob;
+            if (localSendJob == null || localSendJob.isCancelled()) {
                 sendJob = scheduler.scheduleWithFixedDelay(this::sendPendingPackets, 0, PACKET_INTERVAL,
                         TimeUnit.MILLISECONDS);
             }
@@ -156,8 +160,9 @@ public class LifxLightStateChanger implements LifxLightStateListener {
             lock.lock();
             communicationHandler.removeResponsePacketListener(this::handleResponsePacket);
             pendingLightState.removeListener(this);
-            if (sendJob != null && !sendJob.isCancelled()) {
-                sendJob.cancel(true);
+            ScheduledFuture<?> localSendJob = sendJob;
+            if (localSendJob != null && !localSendJob.isCancelled()) {
+                localSendJob.cancel(true);
                 sendJob = null;
             }
             pendingPacketsMap.clear();
@@ -191,15 +196,16 @@ public class LifxLightStateChanger implements LifxLightStateListener {
     }
 
     private void addPacketsToMap(Packet... packets) {
-        List<PendingPacket> pendingPackets = createPendingPackets(packets);
+        List<PendingPacket> newPendingPackets = createPendingPackets(packets);
         int packetType = packets[0].getPacketType();
 
         try {
             lock.lock();
-            if (pendingPacketsMap.get(packetType) == null) {
-                pendingPacketsMap.put(packetType, pendingPackets);
+            List<PendingPacket> pendingPackets = pendingPacketsMap.get(packetType);
+            if (pendingPackets == null) {
+                pendingPacketsMap.put(packetType, newPendingPackets);
             } else {
-                pendingPacketsMap.get(packetType).addAll(pendingPackets);
+                pendingPackets.addAll(newPendingPackets);
             }
         } finally {
             lock.unlock();
@@ -218,13 +224,15 @@ public class LifxLightStateChanger implements LifxLightStateListener {
         }
     }
 
-    private PendingPacket findPacketToSend() {
+    private @Nullable PendingPacket findPacketToSend() {
         PendingPacket result = null;
         for (List<PendingPacket> pendingPackets : pendingPacketsMap.values()) {
-            for (PendingPacket pendingPacket : pendingPackets) {
-                if (pendingPacket.hasAcknowledgeIntervalElapsed()
-                        && (result == null || pendingPacket.lastSend < result.lastSend)) {
-                    result = pendingPacket;
+            if (pendingPackets != null) {
+                for (PendingPacket pendingPacket : pendingPackets) {
+                    if (pendingPacket.hasAcknowledgeIntervalElapsed()
+                            && (result == null || pendingPacket.lastSend < result.lastSend)) {
+                        result = pendingPacket;
+                    }
                 }
             }
         }
@@ -242,29 +250,31 @@ public class LifxLightStateChanger implements LifxLightStateListener {
     }
 
     private void removeFailedPackets() {
-        for (Integer key : pendingPacketsMap.keySet()) {
-            List<PendingPacket> pendingPackets = pendingPacketsMap.get(key);
-            Iterator<PendingPacket> it = pendingPackets.iterator();
-            while (it.hasNext()) {
-                PendingPacket pendingPacket = it.next();
-                if (pendingPacket.sendCount > MAX_RETRIES && pendingPacket.hasAcknowledgeIntervalElapsed()) {
-                    logger.warn("{} failed (unacknowledged {} times)", pendingPacket.packet.getClass().getSimpleName(),
-                            pendingPacket.sendCount);
-                    it.remove();
+        for (List<PendingPacket> pendingPackets : pendingPacketsMap.values()) {
+            if (pendingPackets != null) {
+                Iterator<PendingPacket> it = pendingPackets.iterator();
+                while (it.hasNext()) {
+                    PendingPacket pendingPacket = it.next();
+                    if (pendingPacket.sendCount > MAX_RETRIES && pendingPacket.hasAcknowledgeIntervalElapsed()) {
+                        logger.warn("{} failed (unacknowledged {} times)",
+                                pendingPacket.packet.getClass().getSimpleName(), pendingPacket.sendCount);
+                        it.remove();
+                    }
                 }
             }
         }
     }
 
-    private PendingPacket removeAcknowledgedPacket(int sequenceNumber) {
-        for (Integer key : pendingPacketsMap.keySet()) {
-            List<PendingPacket> pendingPackets = pendingPacketsMap.get(key);
-            Iterator<PendingPacket> it = pendingPackets.iterator();
-            while (it.hasNext()) {
-                PendingPacket pendingPacket = it.next();
-                if (pendingPacket.packet.getSequence() == sequenceNumber) {
-                    it.remove();
-                    return pendingPacket;
+    private @Nullable PendingPacket removeAcknowledgedPacket(int sequenceNumber) {
+        for (List<PendingPacket> pendingPackets : pendingPacketsMap.values()) {
+            if (pendingPackets != null) {
+                Iterator<PendingPacket> it = pendingPackets.iterator();
+                while (it.hasNext()) {
+                    PendingPacket pendingPacket = it.next();
+                    if (pendingPacket.packet.getSequence() == sequenceNumber) {
+                        it.remove();
+                        return pendingPacket;
+                    }
                 }
             }
         }
@@ -294,22 +304,25 @@ public class LifxLightStateChanger implements LifxLightStateListener {
     }
 
     @Override
-    public void handlePowerStateChange(PowerState oldPowerState, PowerState newPowerState) {
-        if (newPowerState != null && !newPowerState.equals(oldPowerState)) {
+    public void handlePowerStateChange(@Nullable PowerState oldPowerState, PowerState newPowerState) {
+        if (!newPowerState.equals(oldPowerState)) {
             SetLightPowerRequest packet = new SetLightPowerRequest(pendingLightState.getPowerState());
             replacePacketsInMap(packet);
         }
     }
 
     @Override
-    public void handleInfraredChange(PercentType oldInfrared, PercentType newInfrared) {
-        int infrared = percentTypeToInfrared(pendingLightState.getInfrared());
-        SetLightInfraredRequest packet = new SetLightInfraredRequest(infrared);
-        replacePacketsInMap(packet);
+    public void handleInfraredChange(@Nullable PercentType oldInfrared, PercentType newInfrared) {
+        PercentType infrared = pendingLightState.getInfrared();
+        if (infrared != null) {
+            SetLightInfraredRequest packet = new SetLightInfraredRequest(percentTypeToInfrared(infrared));
+            replacePacketsInMap(packet);
+        }
     }
 
     @Override
-    public void handleSignalStrengthChange(SignalStrength oldSignalStrength, SignalStrength newSignalStrength) {
+    public void handleSignalStrengthChange(@Nullable SignalStrength oldSignalStrength,
+            SignalStrength newSignalStrength) {
         // Nothing to handle
     }
 
