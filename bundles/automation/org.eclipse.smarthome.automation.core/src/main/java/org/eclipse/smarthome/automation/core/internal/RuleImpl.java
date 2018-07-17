@@ -63,8 +63,8 @@ public class RuleImpl implements Rule {
 
     /**
      * Constructor for creating an empty {@link Rule} with a specified rule identifier.
-     * When {@code null} is passed for the {@code uid} parameter, the {@link Rule}'s identifier will
-     * be randomly generated.
+     * When {@code null} is passed for the {@code uid} parameter, the {@link Rule}'s identifier will be randomly
+     * generated.
      *
      * @param uid the rule's identifier, or {@code null} if a random identifier should be generated.
      */
@@ -76,36 +76,22 @@ public class RuleImpl implements Rule {
      * Utility constructor for creating a {@link Rule} from a set of modules, or from a template.
      * When {@code null} is passed for the {@code uid} parameter, the {@link Rule}'s identifier will be randomly
      * generated.
-     * }
-     * 
-     * /**
-     * Utility constructor for creating a {@link Rule} from a set of modules, or from a template.
-     * When {@code null} is passed for the {@code uid} parameter, the {@link Rule}'s identifier will be randomly
-     * generated.
      *
-     * @param uid the {@link Rule}'s identifier, or {@code null} if a random identifier should be
-     *            generated.
+     * @param uid the {@link Rule}'s identifier, or {@code null} if a random identifier should be generated.
      * @param name the rule's name
      * @param description the rule's description
      * @param tags the tags
-     * @param triggers the {@link Rule}'s triggers list, or {@code null} if the {@link Rule} should
-     *            have no
-     *            triggers or
+     * @param triggers the {@link Rule}'s triggers list, or {@code null} if the {@link Rule} should have no triggers or
      *            will be created from a template.
-     * @param conditions the {@link Rule}'s conditions list, or {@code null} if the {@link Rule} should
-     *            have no
+     * @param conditions the {@link Rule}'s conditions list, or {@code null} if the {@link Rule} should have no
      *            conditions, or will be created from a template.
-     * @param actions the {@link Rule}'s actions list, or {@code null} if the {@link Rule} should
-     *            have no
-     *            actions, or will be created from a template.
+     * @param actions the {@link Rule}'s actions list, or {@code null} if the {@link Rule} should have no actions, or
+     *            will be created from a template.
      * @param configDescriptions metadata describing the configuration of the {@link Rule}.
      * @param configuration the values that will configure the modules of the {@link Rule}.
      * @param templateUID the {@link RuleTemplate} identifier of the template that will be used by the
-     *            {@link RuleRegistry} to validate the {@link Rule}'s configuration, as well as to
-     *            create and
-     *            configure
-     *            the {@link Rule}'s modules, or null if the {@link Rule} should not be created
-     *            from a template.
+     *            {@link RuleRegistry} to validate the {@link Rule}'s configuration, as well as to create and configure
+     *            the {@link Rule}'s modules, or null if the {@link Rule} should not be created from a template.
      * @param visibility the {@link Rule}'s visibility
      */
     public RuleImpl(@Nullable String uid, final @Nullable String name, final @Nullable String description,
@@ -142,10 +128,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the {@link RuleTemplate} identifier of the template that will be used to
-     * by the {@link RuleRegistry} to resolve the {@link RuleImpl}: to validate the {@link RuleImpl}'s configuration, as
-     * well as
-     * to create and configure the {@link RuleImpl}'s modules.
+     * This method is used to specify the {@link RuleTemplate} identifier of the template that will be used to by the
+     * {@link RuleRegistry} to resolve the {@link RuleImpl}: to validate the {@link RuleImpl}'s configuration, as well
+     * as to create and configure the {@link RuleImpl}'s modules.
      */
     public void setTemplateUID(@Nullable String templateUID) {
         this.templateUID = templateUID;
@@ -230,8 +215,8 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to describe with {@link ConfigDescriptionParameter}s
-     * the meta info for configuration properties of the {@link RuleImpl}.
+     * This method is used to describe with {@link ConfigDescriptionParameter}s the meta info for configuration
+     * properties of the {@link RuleImpl}.
      */
     public void setConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescriptions) {
         this.configDescriptions = configDescriptions == null ? Collections.emptyList()
