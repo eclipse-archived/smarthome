@@ -14,7 +14,9 @@ package org.eclipse.smarthome.automation.core.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -52,15 +54,15 @@ public class RuleBuilder {
     private @Nullable String description;
 
     protected RuleBuilder(Rule rule) {
-        this.triggers = rule.getTriggers();
-        this.conditions = rule.getConditions();
-        this.actions = rule.getActions();
+        this.triggers = new LinkedList<>(rule.getTriggers());
+        this.conditions = new LinkedList<>(rule.getConditions());
+        this.actions = new LinkedList<>(rule.getActions());
         this.configuration = rule.getConfiguration();
-        this.configDescriptions = rule.getConfigurationDescriptions();
+        this.configDescriptions = new LinkedList<>(rule.getConfigurationDescriptions());
         this.templateUID = rule.getTemplateUID();
         this.uid = rule.getUID();
         this.name = rule.getName();
-        this.tags = rule.getTags();
+        this.tags = new HashSet<>(rule.getTags());
         this.visibility = rule.getVisibility();
         this.description = rule.getDescription();
     }
@@ -150,7 +152,7 @@ public class RuleBuilder {
     }
 
     public RuleBuilder withTags(@Nullable Set<String> tags) {
-        this.tags = tags;
+        this.tags = tags != null ? new HashSet<>(tags) : Collections.emptySet();
         return this;
     }
 
@@ -160,7 +162,7 @@ public class RuleBuilder {
     }
 
     public RuleBuilder withConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescs) {
-        this.configDescriptions = configDescs;
+        this.configDescriptions = configDescs != null ? new LinkedList<>(configDescs) : Collections.emptyList();
         return this;
     }
 
