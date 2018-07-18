@@ -26,20 +26,11 @@ import org.eclipse.smarthome.config.core.Configuration;
 @NonNullByDefault
 public class TriggerImpl extends ModuleImpl implements Trigger {
 
-    @Nullable
-    private TriggerHandler triggerHandler;
+    private @Nullable TriggerHandler triggerHandler;
 
-    public TriggerImpl() {
-    }
-
-    public TriggerImpl(String id, String typeUID, Configuration configuration) {
-        super(id, typeUID, configuration);
-    }
-
-    public TriggerImpl(Trigger trigger) {
-        super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
-        setLabel(trigger.getLabel());
-        setDescription(trigger.getDescription());
+    public TriggerImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
+            @Nullable String description) {
+        super(id, typeUID, configuration, label, description);
     }
 
     /**

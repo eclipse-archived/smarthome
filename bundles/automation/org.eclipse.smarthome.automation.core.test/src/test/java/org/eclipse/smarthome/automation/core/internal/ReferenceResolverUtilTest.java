@@ -91,17 +91,18 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleConfigurationResolving() {
         // test trigger configuration.
-        Module trigger = ModuleBuilder.createTrigger().withConfiguration(new Configuration(moduleConfiguration))
-                .build();
+        Module trigger = ModuleBuilder.createTrigger().withId("id1").withTypeUID("typeUID1")
+                .withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(trigger.getConfiguration(), context, logger);
         Assert.assertEquals(trigger.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test condition configuration.
-        Module condition = ModuleBuilder.createCondition().withConfiguration(new Configuration(moduleConfiguration))
-                .build();
+        Module condition = ModuleBuilder.createCondition().withId("id2").withTypeUID("typeUID2")
+                .withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(condition.getConfiguration(), context, logger);
         Assert.assertEquals(condition.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test action configuration.
-        Module action = ModuleBuilder.createAction().withConfiguration(new Configuration(moduleConfiguration)).build();
+        Module action = ModuleBuilder.createAction().withId("id3").withTypeUID("typeUID3")
+                .withConfiguration(new Configuration(moduleConfiguration)).build();
         ReferenceResolver.updateConfiguration(action.getConfiguration(), context, logger);
         Assert.assertEquals(action.getConfiguration(), new Configuration(expectedModuleConfiguration));
     }
@@ -109,11 +110,13 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleInputResolving() {
         // test Composite child ModuleImpl(condition) context
-        Module condition = ModuleBuilder.createCondition().withInputs(compositeChildModuleInputsReferences).build();
+        Module condition = ModuleBuilder.createCondition().withId("id1").withTypeUID("typeUID1")
+                .withInputs(compositeChildModuleInputsReferences).build();
         Map<String, Object> conditionContext = ReferenceResolver.getCompositeChildContext(condition, context);
         Assert.assertEquals(conditionContext, expectedCompositeChildModuleContext);
         // test Composite child ModuleImpl(action) context
-        Module action = ModuleBuilder.createAction().withInputs(compositeChildModuleInputsReferences).build();
+        Module action = ModuleBuilder.createAction().withId("id2").withTypeUID("typeUID2")
+                .withInputs(compositeChildModuleInputsReferences).build();
         Map<String, Object> actionContext = ReferenceResolver.getCompositeChildContext(action, context);
         Assert.assertEquals(actionContext, expectedCompositeChildModuleContext);
     }
