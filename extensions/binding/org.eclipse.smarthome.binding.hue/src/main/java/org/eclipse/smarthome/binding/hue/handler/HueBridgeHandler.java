@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.hue.internal.ApiVersionUtils;
 import org.eclipse.smarthome.binding.hue.internal.Config;
 import org.eclipse.smarthome.binding.hue.internal.FullConfig;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
@@ -104,13 +105,21 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
         public void run() {
             try {
                 try {
-                    FullConfig fullConfig = hueBridge.getFullConfig();
+                    // FullConfig fullConfig = hueBridge.getFullConfig();
                     if (!lastBridgeConnectionState) {
                         lastBridgeConnectionState = tryResumeBridgeConnection();
                     }
                     if (lastBridgeConnectionState) {
                         Map<String, FullLight> lastLightStateCopy = new HashMap<>(lastLightStates);
-                        for (final FullLight fullLight : fullConfig.getLights()) {
+
+                        List<FullLight> lights;
+                        if (ApiVersionUtils.supportsFullLights(hueBridge.getVersion())) {
+                            lights = hueBridge.getFullLights();
+                        } else {
+                            lights = hueBridge.getFullConfig().getLights();
+                        }
+
+                        for (final FullLight fullLight : lights) {
                             final String lightId = fullLight.getId();
                             if (lastLightStateCopy.containsKey(lightId)) {
                                 final FullLight lastFullLight = lastLightStateCopy.remove(lightId);
