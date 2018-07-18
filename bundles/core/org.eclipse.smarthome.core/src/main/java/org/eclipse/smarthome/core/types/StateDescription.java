@@ -107,7 +107,7 @@ public class StateDescription {
     /**
      * Returns a list of predefined states with their label.
      *
-     * @return ist of predefined states with their label
+     * @return a list of predefined states with their label
      */
     public List<StateOption> getOptions() {
         return options;
