@@ -456,12 +456,6 @@ public class ThingManagerImpl
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
-
-        if (storage != null && storage.containsKey(thing.getUID().getAsString())
-                && !storage.get(thing.getUID().getAsString())) {
-            setEnabled(thing.getUID(), false);
-        }
-
         if (!isHandlerRegistered(thing)) {
             registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
         } else {
@@ -1067,6 +1061,11 @@ public class ThingManagerImpl
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
+        if (storage != null && storage.containsKey(thing.getUID().getAsString())
+                && !storage.get(thing.getUID().getAsString())) {
+            logger.debug("Thing '{}' will not be initialized. It is marked as disabled.", thing.getUID());
+            return;
+        }
         if (thingHandlerFactory != null) {
             String bsn = getBundleName(thingHandlerFactory);
             if (loadedXmlThingTypes.contains(bsn)) {
@@ -1211,7 +1210,7 @@ public class ThingManagerImpl
             if (storage != null) {
                 storage.remove(thingUID.getAsString());
             }
-            if (!thing.getStatus().equals(ThingStatus.ONLINE)) {
+            if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
                 setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE));
                 registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
             }
@@ -1221,10 +1220,8 @@ public class ThingManagerImpl
                 storage.put(thingUID.getAsString(), enabled);
             }
             ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
-            if (thing.getHandler() != null) {
+            if (isHandlerRegistered(thing)) {
                 unregisterAndDisposeHandler(thingHandlerFactory, thing, thing.getHandler());
-            } else {
-                thingHandlerFactory.unregisterHandler(thing);
             }
         }
     }
