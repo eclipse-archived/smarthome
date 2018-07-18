@@ -1614,9 +1614,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         waitForAssert {
             assertThat handleCommandCalled, is(true)
+            assertThat calledChannelUID, is(equalTo(new ChannelUID(THING.getUID(), "channel")))
+            assertThat calledCommand, is(equalTo(OnOffType.ON))
         }
-        assertThat calledChannelUID, is(equalTo(new ChannelUID(THING.getUID(), "channel")))
-        assertThat calledCommand, is(equalTo(OnOffType.ON))
     }
 
     private void registerThingTypeProvider() {
