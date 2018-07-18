@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -48,6 +49,7 @@ import com.google.gson.JsonParser;
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Andre Fuechsel - search for lights with given serial number added
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding, minor code cleanup
+ * @author Samuel Leisering - added cached config and API-Version
  */
 @NonNullByDefault
 public class HueBridge {
@@ -58,7 +60,10 @@ public class HueBridge {
 
     private final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
     private HttpClient http = new HttpClient();
-    private ScheduledExecutorService scheduler;
+    private final ScheduledExecutorService scheduler;
+
+    @Nullable
+    private Config cachedConfig;
 
     /**
      * Connect with a bridge as a new user.
@@ -104,6 +109,27 @@ public class HueBridge {
         return ip;
     }
 
+    public ApiVersion getVersion() throws IOException, ApiException {
+        Config c = getCachedConfig();
+        return ApiVersion.of(c.getApiVersion());
+    }
+
+    /**
+     * Returns a cached version of the basic {@link Config} mostly immutable configuration.
+     * This can be used to reduce load on the bridge.
+     *
+     * @return The {@link Config} of the Hue Bridge, loaded and cached lazily on the first call
+     * @throws IOException
+     * @throws ApiException
+     */
+    private Config getCachedConfig() throws IOException, ApiException {
+        if (this.cachedConfig == null) {
+            this.cachedConfig = getConfig();
+        }
+
+        return Objects.requireNonNull(this.cachedConfig);
+    }
+
     /**
      * Returns the username currently authenticated with or null if there isn't one.
      *
@@ -125,22 +151,42 @@ public class HueBridge {
     /**
      * Returns a list of lights known to the bridge.
      *
+     * @return list of known lights as {@link FullLight FullLights}.
+     * @throws UnauthorizedException thrown if the user no longer exists
+     */
+    public List<FullLight> getFullLights() throws IOException, ApiException {
+        if (ApiVersionUtils.supportsFullLights(getVersion())) {
+            Type gsonType = FullLight.GSON_TYPE;
+            return getTypedLights(gsonType);
+        } else {
+            return getFullConfig().getLights();
+        }
+    }
+
+    /**
+     * Returns a list of lights known to the bridge.
+     *
      * @return list of known lights
      * @throws UnauthorizedException thrown if the user no longer exists
      */
     public List<Light> getLights() throws IOException, ApiException {
+        Type gsonType = Light.GSON_TYPE;
+        return getTypedLights(gsonType);
+    }
+
+    private <T extends Light> List<T> getTypedLights(Type gsonType) throws IOException, ApiException {
         requireAuthentication();
 
         Result result = http.get(getRelativeURL("lights"));
 
         handleErrors(result);
 
-        Map<String, Light> lightMap = safeFromJson(result.getBody(), Light.GSON_TYPE);
+        Map<String, T> lightMap = safeFromJson(result.getBody(), gsonType);
 
-        ArrayList<Light> lightList = new ArrayList<>();
+        ArrayList<T> lightList = new ArrayList<>();
 
         for (String id : lightMap.keySet()) {
-            Light light = lightMap.get(id);
+            T light = lightMap.get(id);
             light.setId(id);
             lightList.add(light);
         }
