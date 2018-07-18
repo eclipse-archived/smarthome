@@ -84,10 +84,13 @@ public class ZonePlayerDiscoveryParticipant implements UpnpDiscoveryParticipant 
                     modelName = "CONNECTAMP";
                 }
                 ThingTypeUID thingUID = new ThingTypeUID(SonosBindingConstants.BINDING_ID, modelName);
-
-                // In case a new "unknown" Sonos player is discovered a generic ThingTypeUID will be used
                 if (!SonosBindingConstants.SUPPORTED_KNOWN_THING_TYPES_UIDS.contains(thingUID)) {
-                    thingUID = SonosBindingConstants.ZONEPLAYER_THING_TYPE_UID;
+                    // Try with the model name all in uppercase
+                    thingUID = new ThingTypeUID(SonosBindingConstants.BINDING_ID, modelName.toUpperCase());
+                    // In case a new "unknown" Sonos player is discovered a generic ThingTypeUID will be used
+                    if (!SonosBindingConstants.SUPPORTED_KNOWN_THING_TYPES_UIDS.contains(thingUID)) {
+                        thingUID = SonosBindingConstants.ZONEPLAYER_THING_TYPE_UID;
+                    }
                 }
 
                 logger.debug("Discovered a Sonos '{}' thing with UDN '{}'", thingUID,
