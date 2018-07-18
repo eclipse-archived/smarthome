@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.*;
 import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueLightDiscoveryService;
+import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.test.AbstractHueOSGiTest;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
@@ -165,6 +165,12 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
             public Result get(String address) throws IOException {
                 if (address.endsWith("testUserName")) {
                     String body = "{\"lights\":{}}";
+                    return new Result(body, 200);
+                } else if (address.endsWith("lights") || address.endsWith("sensors")) {
+                    String body = "{}";
+                    return new Result(body, 200);
+                } else if (address.endsWith("testUserName/config")) {
+                    String body = "{ \"apiversion\": \"1.26.0\"}";
                     return new Result(body, 200);
                 } else {
                     return new Result("", 404);

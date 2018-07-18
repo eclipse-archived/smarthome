@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.hue.handler;
+package org.eclipse.smarthome.binding.hue.internal.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.*;
 import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
@@ -26,6 +26,7 @@ import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
+import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.test.AbstractHueOSGiTest;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;

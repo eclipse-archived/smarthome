@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.hue.internal;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.eclipse.smarthome.binding.hue.handler.LightStateConverter;
+import org.eclipse.smarthome.binding.hue.internal.handler.LightStateConverter;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Test;

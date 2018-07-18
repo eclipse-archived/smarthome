@@ -22,10 +22,12 @@ import java.util.Map;
  *
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding, minor code cleanup
+ * @author Samuel Leisering - added API-Version
  */
 public class Config {
     private String name;
     private String swversion;
+    private String apiversion;
     private String mac;
     private boolean dhcp;
     private String ipaddress;
@@ -161,4 +163,18 @@ public class Config {
     public SoftwareUpdate getSoftwareUpdate() {
         return swupdate;
     }
+
+    /**
+     * Returns the current API-Version of the Bridge. This always returns <code>1.0</code>
+     * for bridges with version less than <code>1.2.1</code>, which introduces this call.
+     *
+     * @return
+     */
+    public String getApiVersion() {
+        if (apiversion == null) {
+            return "1.0";
+        }
+        return apiversion;
+    }
+
 }

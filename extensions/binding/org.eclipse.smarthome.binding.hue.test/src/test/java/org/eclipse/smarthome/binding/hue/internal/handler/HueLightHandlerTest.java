@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.hue.handler;
+package org.eclipse.smarthome.binding.hue.internal.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -23,6 +23,8 @@ import org.eclipse.smarthome.binding.hue.internal.FullConfig;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
 import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.handler.HueClient;
+import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.test.HueLightState;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.HSBType;

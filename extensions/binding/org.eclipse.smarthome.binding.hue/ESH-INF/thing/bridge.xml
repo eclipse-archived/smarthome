@@ -34,6 +34,12 @@
 				<required>true</required>
 				<default>10</default>
 			</parameter>
+			<parameter name="sensorPollingInterval" type="integer" min="50" step="1" unit="ms">
+				<label>Sensor Polling Interval</label>
+				<description>Milliseconds between fetching sensor-values from the Bridge. A higher value means more delay for the sensor values, but a too low value can cause congestion on the bridge.</description>
+				<required>true</required>
+				<default>500</default>
+			</parameter>
 		</config-description>
 	</bridge-type>
 
