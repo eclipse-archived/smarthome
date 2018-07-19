@@ -24,6 +24,7 @@ Export-Package:
  org.eclipse.smarthome.core.library,
  org.eclipse.smarthome.core.library.dimension,
  org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.tags,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.core.net,
