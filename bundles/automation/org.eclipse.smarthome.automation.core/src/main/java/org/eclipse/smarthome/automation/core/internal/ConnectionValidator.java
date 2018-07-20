@@ -24,7 +24,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -53,11 +52,11 @@ public class ConnectionValidator {
      * @param r rule which must be checked
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(ModuleTypeRegistry mtRegistry, Rule r) {
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, ManagedRule r) {
         if (r == null) {
             throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
         }
-        validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
+        validateConnections(mtRegistry, r.getTriggerImpls(), r.getConditionImpls(), r.getActionImpls());
     }
 
     /**
@@ -65,9 +64,9 @@ public class ConnectionValidator {
      * there unconnected required inputs and compatibility of data types of connected inputs and outputs. Throws
      * exception if they are incompatible.
      *
-     * @param triggers   is a list with triggers of the rule whose connections have to be validated
+     * @param triggers is a list with triggers of the rule whose connections have to be validated
      * @param conditions is a list with conditions of the rule whose connections have to be validated
-     * @param actions    is a list with actions of the rule whose connections have to be validated
+     * @param actions is a list with actions of the rule whose connections have to be validated
      * @throws IllegalArgumentException when validation fails.
      */
     public static void validateConnections(ModuleTypeRegistry mtRegistry,
@@ -90,9 +89,9 @@ public class ConnectionValidator {
      * unconnected required inputs and compatibility of data types of connected inputs and outputs. Throws exception if
      * they are incompatible.
      *
-     * @param action   is an Action module whose connections have to be validated
+     * @param action is an Action module whose connections have to be validated
      * @param triggers is a list with triggers of the rule on which the action belongs
-     * @param actions  is a list with actions of the rule on which the action belongs
+     * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateActionConnections(ModuleTypeRegistry mtRegistry, Action action,
@@ -137,9 +136,9 @@ public class ConnectionValidator {
      * exception if they are incompatible.
      *
      * @param connection that should be validated
-     * @param input      that should be validated
-     * @param triggers   is a list with triggers of the rule on which the action belongs
-     * @param actions    is a list with actions of the rule on which the action belongs
+     * @param input that should be validated
+     * @param triggers is a list with triggers of the rule on which the action belongs
+     * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
@@ -169,7 +168,7 @@ public class ConnectionValidator {
      * incompatible.
      *
      * @param condition is a Condition module whose connections have to be validated
-     * @param triggers  is a list with triggers of the rule on which the condition belongs
+     * @param triggers is a list with triggers of the rule on which the condition belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, @NonNull Condition condition,
@@ -214,8 +213,8 @@ public class ConnectionValidator {
      * exception if they are incompatible.
      *
      * @param connection that should be validated
-     * @param input      that should be validated
-     * @param triggers   is a list with triggers of the rule on which the action belongs
+     * @param input that should be validated
+     * @param triggers is a list with triggers of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
@@ -246,10 +245,10 @@ public class ConnectionValidator {
      * Checks the compatibility of data types of the input and connected output. Throws
      * exception if they are incompatible.
      *
-     * @param msg        message should be extended with an information and thrown as exception when validation fails.
+     * @param msg message should be extended with an information and thrown as exception when validation fails.
      * @param connection that should be validated
-     * @param input      that should be validated
-     * @param outputs    list with outputs of the module connected to the given input
+     * @param input that should be validated
+     * @param outputs list with outputs of the module connected to the given input
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkCompatibility(String msg, Connection connection, Input input, List<Output> outputs) {
@@ -288,11 +287,11 @@ public class ConnectionValidator {
     /**
      * Collects the {@link Connection}s of {@link Module}s.
      *
-     * @param type       specifies the type of the automation object - module type, rule or rule template.
-     * @param UID        is the unique identifier of the automation object - module type, rule or rule template.
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param UID is the unique identifier of the automation object - module type, rule or rule template.
      * @param jsonModule is a JSONObject representing the module.
      * @param exceptions is a list used for collecting the exceptions occurred during {@link Module}s creation.
-     * @param log        is used for logging of exceptions.
+     * @param log is used for logging of exceptions.
      * @return collected Connections
      */
     public static Set<Connection> getConnections(Map<String, String> inputs) {

@@ -28,6 +28,11 @@ public class TriggerImpl extends ModuleImpl implements Trigger {
 
     private @Nullable TriggerHandler triggerHandler;
 
+    public TriggerImpl(final Trigger trigger) {
+        this(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration(), trigger.getLabel(),
+                trigger.getDescription());
+    }
+
     public TriggerImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
             @Nullable String description) {
         super(id, typeUID, configuration, label, description);

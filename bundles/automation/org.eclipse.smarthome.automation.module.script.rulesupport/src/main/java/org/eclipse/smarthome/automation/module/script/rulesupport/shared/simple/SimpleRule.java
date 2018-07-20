@@ -221,21 +221,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         this.triggers = triggers == null ? new ArrayList<>() : triggers;
     }
 
-    /**
-     * This method is used to get a {@link ModuleImpl} participating in {@link Rule}
-     *
-     * @param moduleId specifies the id of a module belonging to this {@link Rule}.
-     * @return module with specified id or {@code null} if it does not belong to this {@link Rule}.
-     */
-    public @Nullable Module getModule(String moduleId) {
-        for (Module module : getModules()) {
-            if (module.getId().equals(moduleId)) {
-                return module;
-            }
-        }
-        return null;
-    }
-
     @Override
     public List<Module> getModules() {
         final List<Module> result;
@@ -264,17 +249,14 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         return result;
     }
 
-    @Override
     public RuleStatus getStatus() {
         return status.getStatus();
     }
 
-    @Override
     public RuleStatusInfo getStatusInfo() {
         return status;
     }
 
-    @Override
     public boolean isEnabled() {
         return status.getStatusDetail() != RuleStatusDetail.DISABLED;
     }

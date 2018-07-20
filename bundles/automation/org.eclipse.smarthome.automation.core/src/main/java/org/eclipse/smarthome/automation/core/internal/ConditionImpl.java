@@ -37,6 +37,11 @@ public class ConditionImpl extends ModuleImpl implements Condition {
     private Set<Connection> connections = Collections.emptySet();
     private @Nullable ConditionHandler conditionHandler;
 
+    public ConditionImpl(final Condition condition) {
+        this(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getLabel(),
+                condition.getDescription(), condition.getInputs());
+    }
+
     /**
      * Constructor of {@link Condition} module object.
      *

@@ -39,6 +39,11 @@ public class ActionImpl extends ModuleImpl implements Action {
     private Set<Connection> connections = Collections.emptySet();
     private Map<String, String> inputs = Collections.emptyMap();
 
+    public ActionImpl(final Action action) {
+        this(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getLabel(), action.getDescription(),
+                action.getInputs());
+    }
+
     /**
      * Constructor of Action object.
      *
