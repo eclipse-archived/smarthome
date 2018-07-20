@@ -366,12 +366,11 @@
   <feature name="esh-io-transport-serial-rfc2217" version="${project.version}">
     <feature>esh-base</feature>
 
-    <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=rfc2217))"</requirement>
-    <feature dependency="true">esh.tp-serial-rxtx</feature>
+    <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=rxtx))"</requirement>
+    <feature dependency="true">esh-io-transport-serial-rxtx</feature>
 
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
-    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.rxtx/${project.version}</bundle>
-	<bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217/${project.version}</bundle>
   </feature>
   
   <feature name="esh-io-transport-upnp" version="${project.version}">

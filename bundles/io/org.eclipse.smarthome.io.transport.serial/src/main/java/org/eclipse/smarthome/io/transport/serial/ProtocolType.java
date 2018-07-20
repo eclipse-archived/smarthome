@@ -37,8 +37,8 @@ public class ProtocolType {
         }
     }
 
-    private PathType pathType;
-    private String scheme;
+    private final PathType pathType;
+    private final String scheme;
 
     public ProtocolType(PathType pathType, String scheme) {
         this.pathType = pathType;
@@ -49,16 +49,8 @@ public class ProtocolType {
         return pathType;
     }
 
-    public void setPathType(PathType pathType) {
-        this.pathType = pathType;
-    }
-
     public String getScheme() {
         return scheme;
-    }
-
-    public void setScheme(String scheme) {
-        this.scheme = scheme;
     }
 
 }
