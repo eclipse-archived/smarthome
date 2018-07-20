@@ -81,7 +81,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             .state(new ChannelTypeUID(BINDING_ID, "low-battery"), "Low Battery", "Switch").withCategory("Battery")
             .withStateDescription(
                     StateDescriptionFragmentBuilder.create().withReadOnly(true).build().toStateDescription())
-            .withTags(Arrays.asList(SystemTags.CAP_LOW_BATTERY, SystemTags.CAP_SWITCHABLE)).build();
+            .withTags(Arrays.asList(SystemTags.CAP_LOW_BATTERY, SystemTags.CAP_MEASUREMENT)).build();
 
     /**
      * Battery level default system wide {@link ChannelType}. Represents the battery level as a percentage.
@@ -156,7 +156,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             .withDescription("Motion detected by the device").withCategory("Motion")
             .withStateDescription(
                     StateDescriptionFragmentBuilder.create().withReadOnly(true).build().toStateDescription())
-            .withTags(Arrays.asList(SystemTags.CAP_SWITCHABLE)).build();
+            .withTags(Arrays.asList(SystemTags.CAP_MEASUREMENT, SystemTags.PROP_PRESENCE)).build();
 
     /**
      * Brightness: default system wide {@link ChannelType} which allows changing the brightness from 0-100%
@@ -195,15 +195,14 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             .withDescription("Change the sound volume of a device")
             .withStateDescription(
                     new StateDescription(BigDecimal.ZERO, new BigDecimal(100), null, "%d %%", false, null))
-            .withCategory("SoundVolume")
-            .withTags(Arrays.asList(SystemTags.PROP_NOISE, SystemTags.CAP_DIMMABLE, SystemTags.CAP_VOLUME)).build();
+            .withCategory("SoundVolume").withTags(Arrays.asList(SystemTags.CAP_VOLUME)).build();
 
     /**
      * Mute: default system wide {@link ChannelType} which allows muting and un-muting audio
      */
     public static final ChannelType SYSTEM_MUTE = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "mute"), "Mute", "Switch").withDescription("Mute audio of the device")
-            .withCategory("SoundVolume").withTags(Arrays.asList(SystemTags.PROP_NOISE, SystemTags.CAP_SWITCHABLE))
+            .withCategory("SoundVolume").withTags(Arrays.asList(SystemTags.CAP_VOLUME, SystemTags.CAP_SWITCHABLE))
             .build();
 
     /**
@@ -211,8 +210,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_MEDIA_CONTROL = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "media-control"), "Media Control", "Player")
-            .withCategory("MediaControl").withTags(Arrays.asList(SystemTags.PROP_NOISE, SystemTags.CAP_CONTROL))
-            .build();
+            .withCategory("MediaControl").withTags(Arrays.asList(SystemTags.CAP_CONTROL)).build();
 
     /**
      * Media-title: default system wide {@link ChannelType} which displays the title of a (played) song

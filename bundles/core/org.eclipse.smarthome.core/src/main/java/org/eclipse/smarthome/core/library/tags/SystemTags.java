@@ -54,6 +54,7 @@ public class SystemTags {
     public static final String PROP_FREQUENCY = Kind.Property + TAG_KIND_DELIMITER + "Frequency";
     public static final String PROP_GAS = Kind.Property + TAG_KIND_DELIMITER + "Gas";
     public static final String PROP_OIL = Kind.Property + TAG_KIND_DELIMITER + "Oil";
+    public static final String PROP_PRESENCE = Kind.Property + TAG_KIND_DELIMITER + "Presence";
 
     public static final String PUR_ALARM = Kind.Purpose + TAG_KIND_DELIMITER + "Alarm";
     public static final String PUR_ALARM_FIRE = PUR_ALARM + TAG_KIND_DELIMITER + "Fire";
@@ -66,6 +67,9 @@ public class SystemTags {
     public static final String PUR_LIGHTING_NIGHT = PUR_LIGHTING + TAG_KIND_DELIMITER + "Night";
     public static final String PUR_HEATING = Kind.Purpose + TAG_KIND_DELIMITER + "Heating";
     public static final String PUR_COOLING = Kind.Purpose + TAG_KIND_DELIMITER + "Cooling";
+    public static final String PUR_PRESENCE = Kind.Purpose + TAG_KIND_DELIMITER + "Presence";
+    public static final String PUR_PRESENCE_AWAY = PUR_PRESENCE + TAG_KIND_DELIMITER + "Away";
+    public static final String PUR_PRESENCE_HOME = PUR_PRESENCE + TAG_KIND_DELIMITER + "AtHome";
 
     public static final String CAP_MEASUREMENT = Kind.Capability + TAG_KIND_DELIMITER + "Measurement";
     public static final String CAP_CONTROL = Kind.Capability + TAG_KIND_DELIMITER + "Control";
