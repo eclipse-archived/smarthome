@@ -12,12 +12,15 @@
  */
 package org.eclipse.smarthome.binding.hue.test;
 
+import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
+
 /**
  * Builder for the current state of a hue light.
  *
  * @author Dominic Lerbs - Initial contribution
  * @author Markus Mazurczak - Added possibility to set modelId to "PAR16 50 TW" to test osram workaround
  * @author Markus Rathgeb - migrated to plain Java test
+ * @author Christoph Weitkamp - Added support for bulbs using CIE XY colormode only
  */
 public class HueLightState {
 
@@ -28,6 +31,7 @@ public class HueLightState {
     boolean isOn = true;
     String alert = "none";
     String effect = "none";
+    String colorMode = "hs";
     String model = "LCT001";
 
     public HueLightState() {
@@ -72,6 +76,11 @@ public class HueLightState {
         return this;
     }
 
+    public HueLightState colormode(ColorMode colorMode) {
+        this.colorMode = colorMode.toString();
+        return this;
+    }
+
     @Override
     public String toString() {
         return "" + //
@@ -90,7 +99,7 @@ public class HueLightState {
                 "        \"ct\": " + colorTemperature + "," + //
                 "        \"alert\": \"" + alert + "\"," + //
                 "        \"effect\": \"" + effect + "\"," + //
-                "        \"colormode\": \"hs\"," + //
+                "        \"colormode\": \"" + colorMode + "\"," + //
                 "        \"reachable\": true" + //
                 "      }," + //
                 "      \"type\": \"Extended color light\"," + //
