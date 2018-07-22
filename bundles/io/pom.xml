@@ -44,6 +44,7 @@
     <module>org.eclipse.smarthome.io.transport.serial</module>
     <module>org.eclipse.smarthome.io.transport.serial.javacomm</module>
     <module>org.eclipse.smarthome.io.transport.serial.rxtx</module>
+    <module>org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>
     <module>org.eclipse.smarthome.io.transport.upnp.test</module>
   </modules>

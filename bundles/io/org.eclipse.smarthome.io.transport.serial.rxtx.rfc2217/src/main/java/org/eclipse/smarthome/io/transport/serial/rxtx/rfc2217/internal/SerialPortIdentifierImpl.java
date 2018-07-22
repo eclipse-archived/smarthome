@@ -10,7 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.io.transport.serial.internal;
+package org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217.internal;
+
+import java.net.URI;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
@@ -18,26 +20,27 @@ import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
 import org.eclipse.smarthome.io.transport.serial.rxtx.RxTxSerialPort;
 
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
+import gnu.io.rfc2217.TelnetSerialPort;
 
 /**
- * Specific serial port identifier implementation.
+ * Specific serial port identifier implementation for RFC2217.
  *
- * @author Markus Rathgeb - Initial contribution
+ * @author Matthias Steigenberger - Initial contribution
  */
 @NonNullByDefault
 public class SerialPortIdentifierImpl implements SerialPortIdentifier {
 
-    final CommPortIdentifier id;
+    final TelnetSerialPort id;
+    private URI uri;
 
     /**
      * Constructor.
      *
      * @param id the underlying comm port identifier implementation
      */
-    public SerialPortIdentifierImpl(final CommPortIdentifier id) {
+    public SerialPortIdentifierImpl(final TelnetSerialPort id, URI uri) {
         this.id = id;
+        this.uri = uri;
     }
 
     @Override
@@ -49,15 +52,12 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
     @Override
     public SerialPort open(String owner, int timeout) throws PortInUseException {
         try {
-            final CommPort cp = id.open(owner, timeout);
-            if (cp instanceof gnu.io.SerialPort) {
-                return new RxTxSerialPort((gnu.io.SerialPort) cp);
-            } else {
-                throw new IllegalStateException(
-                        String.format("We expect an serial port instead of '%s'", cp.getClass()));
-            }
-        } catch (gnu.io.PortInUseException e) {
-            throw new PortInUseException();
+            id.getTelnetClient().setDefaultTimeout(timeout);
+            id.getTelnetClient().connect(uri.getHost(), uri.getPort());
+            return new RxTxSerialPort(id);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    String.format("Unable to establish remote connection to serial port %s", uri), e);
         }
     }
 
