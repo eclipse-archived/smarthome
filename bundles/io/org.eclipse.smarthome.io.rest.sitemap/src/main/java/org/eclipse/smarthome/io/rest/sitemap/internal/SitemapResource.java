@@ -133,7 +133,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     UriInfo uriInfo;
 
     @Context
-    private HttpServletRequest request;
+    HttpServletRequest request;
 
     @Context
     private HttpServletResponse response;
