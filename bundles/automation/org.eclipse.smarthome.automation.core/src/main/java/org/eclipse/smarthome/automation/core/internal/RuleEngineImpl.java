@@ -42,6 +42,11 @@ import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.TriggerHandlerCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.core.internal.composite.CompositeModuleHandlerFactory;
+import org.eclipse.smarthome.automation.core.internal.ruleengine.ManagedAction;
+import org.eclipse.smarthome.automation.core.internal.ruleengine.ManagedCondition;
+import org.eclipse.smarthome.automation.core.internal.ruleengine.ManagedModule;
+import org.eclipse.smarthome.automation.core.internal.ruleengine.ManagedRule;
+import org.eclipse.smarthome.automation.core.internal.ruleengine.ManagedTrigger;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
@@ -394,7 +399,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (rules != null) {
             for (String rUID : rules) {
                 if (getRuleStatus(rUID).equals(RuleStatus.IDLE) || getRuleStatus(rUID).equals(RuleStatus.RUNNING)) {
-                    unregister(getRule(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
+                    unregister(getManagedRule(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
                             "Update Module Type " + moduleType.getUID());
                     setStatus(rUID, new RuleStatusInfo(RuleStatus.INITIALIZING));
                 }
@@ -480,7 +485,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 : new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.DISABLED);
         rule.setStatusInfo(initStatusInfo);
 
-        ManagedRule oldRule = getRule(rUID);
+        ManagedRule oldRule = getManagedRule(rUID);
         if (oldRule != null) {
             unregister(oldRule);
         }
@@ -505,16 +510,16 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         }
         String rUID = rule.getUID();
         setStatus(rUID, new RuleStatusInfo(RuleStatus.INITIALIZING));
-        for (final ActionImpl action : rule.getActionImpls()) {
-            updateMapModuleTypeToRule(rUID, action.getTypeUID());
+        for (final ManagedAction action : rule.getActions()) {
+            updateMapModuleTypeToRule(rUID, action.unwrap().getTypeUID());
             action.setConnections(resolveConnections(action.getInputs()));
         }
-        for (final ConditionImpl condition : rule.getConditionImpls()) {
-            updateMapModuleTypeToRule(rUID, condition.getTypeUID());
+        for (final ManagedCondition condition : rule.getConditions()) {
+            updateMapModuleTypeToRule(rUID, condition.unwrap().getTypeUID());
             condition.setConnections(resolveConnections(condition.getInputs()));
         }
-        for (final TriggerImpl trigger : rule.getTriggerImpls()) {
-            updateMapModuleTypeToRule(rUID, trigger.getTypeUID());
+        for (final ManagedTrigger trigger : rule.getTriggers()) {
+            updateMapModuleTypeToRule(rUID, trigger.unwrap().getTypeUID());
         }
         try {
             validateModuleIDs(rule);
@@ -525,14 +530,14 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         }
         try {
             autoMapConnections(rule);
-            ConnectionValidator.validateConnections(mtRegistry, rule);
+            ConnectionValidator.validateConnections(mtRegistry, rule.unwrap());
         } catch (IllegalArgumentException e) {
             // change status to UNINITIALIZED
             setStatus(rUID, new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.INVALID_RULE,
                     "Validation of rule " + rUID + " has failed! " + e.getLocalizedMessage()));
             return;
         }
-        final String errMsgs = setModuleHandlers(rUID, rule.getModuleImpls());
+        final String errMsgs = setModuleHandlers(rUID, rule.getModules());
         if (errMsgs == null) {
             register(rule);
             // change status to IDLE
@@ -591,19 +596,20 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param modules list of modules
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
-    private <T extends ModuleImpl> String setModuleHandlers(String rUID, List<T> modules) {
+    private <T extends ManagedModule<?, ?>> String setModuleHandlers(String rUID, List<T> modules) {
         StringBuffer sb = null;
         if (modules != null) {
-            for (T m : modules) {
+            for (T mm : modules) {
+                final Module m = mm.unwrap();
                 try {
                     ModuleHandler moduleHandler = getModuleHandler(m, rUID);
                     if (moduleHandler != null) {
-                        if (m instanceof ActionImpl) {
-                            ((ActionImpl) m).setModuleHandler((ActionHandler) moduleHandler);
-                        } else if (m instanceof ConditionImpl) {
-                            ((ConditionImpl) m).setModuleHandler((ConditionHandler) moduleHandler);
-                        } else if (m instanceof TriggerImpl) {
-                            ((TriggerImpl) m).setModuleHandler((TriggerHandler) moduleHandler);
+                        if (mm instanceof ManagedAction) {
+                            ((ManagedAction) mm).setModuleHandler((ActionHandler) moduleHandler);
+                        } else if (mm instanceof ManagedCondition) {
+                            ((ManagedCondition) mm).setModuleHandler((ConditionHandler) moduleHandler);
+                        } else if (mm instanceof ManagedTrigger) {
+                            ((ManagedTrigger) mm).setModuleHandler((TriggerHandler) moduleHandler);
                         }
                     } else {
                         if (sb == null) {
@@ -649,30 +655,18 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      *
      * @param modules list of modules which should be disconnected.
      */
-    private <T extends ModuleImpl> void removeModuleHandlers(List<T> modules, String ruleUID) {
+    private <T extends ManagedModule<?, ?>> void removeModuleHandlers(List<T> modules, String ruleUID) {
         if (modules != null) {
-            for (T m : modules) {
-                ModuleHandler handler = null;
-                if (m instanceof ActionImpl) {
-                    handler = ((ActionImpl) m).getModuleHandler();
-                } else if (m instanceof ConditionImpl) {
-                    handler = ((ConditionImpl) m).getModuleHandler();
-                } else if (m instanceof TriggerImpl) {
-                    handler = ((TriggerImpl) m).getModuleHandler();
-                }
+            for (T mm : modules) {
+                final Module m = mm.unwrap();
+                ModuleHandler handler = mm.getModuleHandler();
 
                 if (handler != null) {
                     ModuleHandlerFactory factory = getModuleHandlerFactory(m.getTypeUID());
                     if (factory != null) {
                         factory.ungetHandler(m, ruleUID, handler);
                     }
-                    if (m instanceof ActionImpl) {
-                        ((ActionImpl) m).setModuleHandler(null);
-                    } else if (m instanceof ConditionImpl) {
-                        ((ConditionImpl) m).setModuleHandler(null);
-                    } else if (m instanceof TriggerImpl) {
-                        ((TriggerImpl) m).setModuleHandler(null);
-                    }
+                    mm.setModuleHandler(null);
                 }
             }
         }
@@ -689,19 +683,19 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         final String ruleUID = rule.getUID();
 
         TriggerHandlerCallback thCallback = getTriggerHandlerCallback(ruleUID);
-        rule.getTriggerImpls().forEach(trigger -> {
+        rule.getTriggers().forEach(trigger -> {
             TriggerHandler triggerHandler = trigger.getModuleHandler();
             if (triggerHandler != null) {
                 triggerHandler.setCallback(thCallback);
             }
         });
-        rule.getConditionImpls().forEach(condition -> {
+        rule.getConditions().forEach(condition -> {
             ConditionHandler conditionHandler = condition.getModuleHandler();
             if (conditionHandler != null) {
                 conditionHandler.setCallback(moduleHandlerCallback);
             }
         });
-        rule.getActionImpls().forEach(action -> {
+        rule.getActions().forEach(action -> {
             ActionHandler actionHandler = action.getModuleHandler();
             if (actionHandler != null) {
                 actionHandler.setCallback(moduleHandlerCallback);
@@ -743,7 +737,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 callback.dispose();
             }
         }
-        removeModuleHandlers(r.getModuleImpls(), rUID);
+        removeModuleHandlers(r.getModules(), rUID);
     }
 
     /**
@@ -838,8 +832,13 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param rUID unique id of the {@link Rule}
      * @return internal {@link Rule} object
      */
-    protected ManagedRule getRule(String rUID) {
+    private ManagedRule getManagedRule(String rUID) {
         return managedRules.get(rUID);
+    }
+
+    protected Rule getRule(String rUID) {
+        final ManagedRule managedRule = getManagedRule(rUID);
+        return managedRule != null ? managedRule.unwrap() : null;
     }
 
     @Override
@@ -916,7 +915,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             f = ex.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    setRule(getRule(rUID));
+                    setRule(getManagedRule(rUID));
                 }
             }, scheduleReinitializationDelay, TimeUnit.MILLISECONDS);
             scheduleTasks.put(rUID, f);
@@ -964,7 +963,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 for (String typeUID : missingTypes) {
                     sb.append(typeUID).append(", ");
                 }
-                unregister(getRule(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR, sb.substring(0, sb.length() - 2));
+                unregister(getManagedRule(rUID), RuleStatusDetail.HANDLER_MISSING_ERROR,
+                        sb.substring(0, sb.length() - 2));
             }
         }
     }
@@ -1016,7 +1016,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
 
     @Override
     public void runNow(String ruleUID, boolean considerConditions, Map<String, Object> context) {
-        final ManagedRule rule = getRule(ruleUID);
+        final ManagedRule rule = getManagedRule(ruleUID);
         if (rule == null) {
             logger.warn("Failed to execute rule '{}': Invalid Rule UID", ruleUID);
             return;
@@ -1136,22 +1136,24 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @return true when all conditions of the rule are satisfied, false otherwise.
      */
     private boolean calculateConditions(ManagedRule rule) {
-        List<ConditionImpl> conditions = rule.getConditionImpls();
+        List<ManagedCondition> conditions = rule.getConditions();
         if (conditions.size() == 0) {
             return true;
         }
         final String ruleUID = rule.getUID();
         RuleStatus ruleStatus = null;
-        for (Iterator<ConditionImpl> it = conditions.iterator(); it.hasNext();) {
+        for (Iterator<ManagedCondition> it = conditions.iterator(); it.hasNext();) {
             ruleStatus = getRuleStatus(ruleUID);
             if (ruleStatus != RuleStatus.RUNNING) {
                 return false;
             }
-            ConditionImpl c = it.next();
-            ConditionHandler tHandler = c.getModuleHandler();
-            Map<String, Object> context = getContext(ruleUID, c.getConnections());
+            final ManagedCondition managedCondition = it.next();
+            final Condition condition = managedCondition.unwrap();
+            ConditionHandler tHandler = managedCondition.getModuleHandler();
+            Map<String, Object> context = getContext(ruleUID, managedCondition.getConnections());
             if (tHandler != null && !tHandler.isSatisfied(Collections.unmodifiableMap(context))) {
-                logger.debug("The condition '{}' of rule '{}' is unsatisfied.", new Object[] { c.getId(), ruleUID });
+                logger.debug("The condition '{}' of rule '{}' is unsatisfied.",
+                        new Object[] { condition.getId(), ruleUID });
                 return false;
             }
         }
@@ -1165,20 +1167,21 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      */
     private void executeActions(ManagedRule rule, boolean stopOnFirstFail) {
         final String ruleUID = rule.getUID();
-        final Collection<ActionImpl> actions = rule.getActionImpls();
+        final Collection<ManagedAction> actions = rule.getActions();
         if (actions.size() == 0) {
             return;
         }
         RuleStatus ruleStatus = null;
-        for (Iterator<ActionImpl> it = actions.iterator(); it.hasNext();) {
+        for (Iterator<ManagedAction> it = actions.iterator(); it.hasNext();) {
             ruleStatus = getRuleStatus(ruleUID);
             if (ruleStatus != RuleStatus.RUNNING) {
                 return;
             }
-            ActionImpl action = it.next();
-            ActionHandler aHandler = action.getModuleHandler();
+            final ManagedAction managedAction = it.next();
+            final Action action = managedAction.unwrap();
+            ActionHandler aHandler = managedAction.getModuleHandler();
             if (aHandler != null) {
-                Map<String, Object> context = getContext(ruleUID, action.getConnections());
+                Map<String, Object> context = getContext(ruleUID, managedAction.getConnections());
                 try {
                     Map<String, ?> outputs = aHandler.execute(Collections.unmodifiableMap(context));
                     if (outputs != null) {
@@ -1261,7 +1264,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @throws IllegalArgumentException when a module id contains illegal characters
      */
     private void validateModuleIDs(ManagedRule rule) {
-        for (Module m : rule.getModuleImpls()) {
+        for (final ManagedModule<?, ?> mm : rule.getModules()) {
+            final Module m = mm.unwrap();
             String mId = m.getId();
             if (!mId.matches("[A-Za-z0-9_-]*")) {
                 rule.setStatusInfo(new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.INVALID_RULE,
@@ -1288,14 +1292,16 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      */
     private void autoMapConnections(ManagedRule rule) {
         Map<Set<String>, OutputRef> triggerOutputTags = new HashMap<Set<String>, OutputRef>(11);
-        for (Trigger t : rule.getTriggerImpls()) {
+        for (ManagedTrigger mt : rule.getTriggers()) {
+            final Trigger t = mt.unwrap();
             TriggerType tt = (TriggerType) mtRegistry.get(t.getTypeUID());
             if (tt != null) {
                 initTagsMap(t.getId(), tt.getOutputs(), triggerOutputTags);
             }
         }
         Map<Set<String>, OutputRef> actionOutputTags = new HashMap<Set<String>, OutputRef>(11);
-        for (Action a : rule.getActionImpls()) {
+        for (ManagedAction ma : rule.getActions()) {
+            final Action a = ma.unwrap();
             ActionType at = (ActionType) mtRegistry.get(a.getTypeUID());
             if (at != null) {
                 initTagsMap(a.getId(), at.getOutputs(), actionOutputTags);
@@ -1303,11 +1309,12 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         }
         // auto mapping of conditions
         if (!triggerOutputTags.isEmpty()) {
-            for (Condition c : rule.getConditionImpls()) {
+            for (ManagedCondition mc : rule.getConditions()) {
+                final Condition c = mc.unwrap();
                 boolean isConnectionChanged = false;
                 ConditionType ct = (ConditionType) mtRegistry.get(c.getTypeUID());
                 if (ct != null) {
-                    Set<Connection> connections = copyConnections(((ConditionImpl) c).getConnections());
+                    Set<Connection> connections = copyConnections(mc.getConnections());
 
                     for (Input input : ct.getInputs()) {
                         if (isConnected(input, connections)) {
@@ -1320,19 +1327,20 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     if (isConnectionChanged) {
                         // update condition inputs
                         Map<String, String> connectionMap = getConnectionMap(connections);
-                        ((ConditionImpl) c).setInputs(connectionMap);
-                        ((ConditionImpl) c).setConnections(connections);
+                        mc.setInputs(connectionMap);
+                        mc.setConnections(connections);
                     }
                 }
             }
         }
         // auto mapping of actions
         if (!triggerOutputTags.isEmpty() || !actionOutputTags.isEmpty()) {
-            for (Action a : rule.getActionImpls()) {
+            for (final ManagedAction ma : rule.getActions()) {
+                final Action a = ma.unwrap();
                 boolean isConnectionChanged = false;
                 ActionType at = (ActionType) mtRegistry.get(a.getTypeUID());
                 if (at != null) {
-                    Set<Connection> connections = copyConnections(((ConditionImpl) a).getConnections());
+                    Set<Connection> connections = copyConnections(ma.getConnections());
                     for (Input input : at.getInputs()) {
                         if (isConnected(input, connections)) {
                             continue; // the input is already connected. Skip it.
@@ -1347,8 +1355,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     if (isConnectionChanged) {
                         // update condition inputs
                         Map<String, String> connectionMap = getConnectionMap(connections);
-                        ((ConditionImpl) a).setInputs(connectionMap);
-                        ((ConditionImpl) a).setConnections(connections);
+                        ma.setInputs(connectionMap);
+                        ma.setConnections(connections);
                     }
                 }
             }

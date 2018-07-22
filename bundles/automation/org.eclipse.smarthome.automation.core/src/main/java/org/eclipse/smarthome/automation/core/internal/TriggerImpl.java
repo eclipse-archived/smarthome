@@ -15,7 +15,6 @@ package org.eclipse.smarthome.automation.core.internal;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
@@ -26,35 +25,9 @@ import org.eclipse.smarthome.config.core.Configuration;
 @NonNullByDefault
 public class TriggerImpl extends ModuleImpl implements Trigger {
 
-    private @Nullable TriggerHandler triggerHandler;
-
-    public TriggerImpl(final Trigger trigger) {
-        this(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration(), trigger.getLabel(),
-                trigger.getDescription());
-    }
-
     public TriggerImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
             @Nullable String description) {
         super(id, typeUID, configuration, label, description);
-    }
-
-    /**
-     * This method gets handler which is responsible for handling of this module.
-     *
-     * @return handler of the module or null.
-     */
-    @Nullable
-    TriggerHandler getModuleHandler() {
-        return triggerHandler;
-    }
-
-    /**
-     * This method sets handler of the module.
-     *
-     * @param triggerHandler
-     */
-    public void setModuleHandler(@Nullable TriggerHandler triggerHandler) {
-        this.triggerHandler = triggerHandler;
     }
 
 }

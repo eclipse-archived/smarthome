@@ -24,6 +24,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -52,11 +53,11 @@ public class ConnectionValidator {
      * @param r rule which must be checked
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(ModuleTypeRegistry mtRegistry, ManagedRule r) {
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, Rule r) {
         if (r == null) {
             throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
         }
-        validateConnections(mtRegistry, r.getTriggerImpls(), r.getConditionImpls(), r.getActionImpls());
+        validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
     }
 
     /**
