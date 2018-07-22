@@ -249,18 +249,6 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         return result;
     }
 
-    public RuleStatus getStatus() {
-        return status.getStatus();
-    }
-
-    public RuleStatusInfo getStatusInfo() {
-        return status;
-    }
-
-    public boolean isEnabled() {
-        return status.getStatusDetail() != RuleStatusDetail.DISABLED;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -287,7 +275,4 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
         return true;
     }
 
-    protected synchronized void setStatusInfo(RuleStatusInfo statusInfo) {
-        this.status = statusInfo;
-    }
 }
