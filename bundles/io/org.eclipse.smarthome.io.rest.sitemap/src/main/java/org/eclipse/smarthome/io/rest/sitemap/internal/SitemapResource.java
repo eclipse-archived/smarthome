@@ -239,8 +239,8 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
             @QueryParam("type") String type, @QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
         final Locale locale = localeService.getLocale(language);
-        logger.debug("Received HTTP GET request from IP {} at '{}' for media type '{}'.",
-                new Object[] { request.getRemoteAddr(), uriInfo.getPath(), type });
+        logger.debug("Received HTTP GET request from IP {} at '{}' for media type '{}'.", request.getRemoteAddr(),
+                uriInfo.getPath(), type);
         Object responseObject = getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build(), locale);
         return Response.ok(responseObject).build();
     }
