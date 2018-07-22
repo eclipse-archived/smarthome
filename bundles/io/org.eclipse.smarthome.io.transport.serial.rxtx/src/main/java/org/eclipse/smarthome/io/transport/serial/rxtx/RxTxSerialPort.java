@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.io.transport.serial.internal;
+package org.eclipse.smarthome.io.transport.serial.rxtx;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortEventListener;
 import org.eclipse.smarthome.io.transport.serial.UnsupportedCommOperationException;
+import org.eclipse.smarthome.io.transport.serial.internal.SerialPortEventImpl;
 
 import gnu.io.SerialPortEvent;
 
@@ -31,7 +32,7 @@ import gnu.io.SerialPortEvent;
  * @author Markus Rathgeb - Initial contribution
  */
 @NonNullByDefault
-public class SerialPortImpl implements SerialPort {
+public class RxTxSerialPort implements SerialPort {
 
     private final gnu.io.SerialPort sp;
 
@@ -40,7 +41,7 @@ public class SerialPortImpl implements SerialPort {
      *
      * @param sp the underlying serial port implementation
      */
-    public SerialPortImpl(final gnu.io.SerialPort sp) {
+    public RxTxSerialPort(final gnu.io.SerialPort sp) {
         this.sp = sp;
     }
 
