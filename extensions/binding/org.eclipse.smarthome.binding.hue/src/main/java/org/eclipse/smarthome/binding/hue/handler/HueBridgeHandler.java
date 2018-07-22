@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.handler;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -48,7 +49,6 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -299,8 +299,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
             Config config = fullConfig.getConfig();
             if (config != null) {
                 Map<String, String> properties = editProperties();
-                properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress().replaceAll(":", "").toLowerCase());
-                properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                properties.put(PROPERTY_SERIAL_NUMBER, config.getMACAddress().replaceAll(":", "").toLowerCase());
+                properties.put(PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
                 updateProperties(properties);
                 propertiesInitializedSuccessfully = true;
             }

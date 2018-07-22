@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.handler;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
@@ -68,7 +69,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     public void assertThatANewUserIsAddedToConfigIfNotExistingYet() {
         Configuration configuration = new Configuration();
         configuration.put(HOST, DUMMY_HOST);
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
         Bridge bridge = createBridgeThing(configuration);
 
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
@@ -91,7 +92,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         Configuration configuration = new Configuration();
         configuration.put(HOST, DUMMY_HOST);
         configuration.put(USER_NAME, TEST_USER_NAME);
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
         Bridge bridge = createBridgeThing(configuration);
 
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
@@ -113,7 +114,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         Configuration configuration = new Configuration();
         configuration.put(HOST, DUMMY_HOST);
         configuration.put(USER_NAME, "notAuthenticatedUser");
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
         Bridge bridge = createBridgeThing(configuration);
 
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
@@ -137,7 +138,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     public void verifyStatusIfLinkButtonIsNotPressed() {
         Configuration configuration = new Configuration();
         configuration.put(HOST, DUMMY_HOST);
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
         Bridge bridge = createBridgeThing(configuration);
 
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
@@ -161,7 +162,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     public void verifyStatusIfNewUserCannotBeCreated() {
         Configuration configuration = new Configuration();
         configuration.put(HOST, DUMMY_HOST);
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
         Bridge bridge = createBridgeThing(configuration);
 
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
@@ -185,7 +186,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     public void verifyOfflineIsSetWithoutBridgeOfflineStatus() {
         Configuration configuration = new Configuration();
         configuration.put(HOST, DUMMY_HOST);
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
         Bridge bridge = createBridgeThing(configuration);
 
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
@@ -201,7 +202,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     public void assertThatAStatusConfigurationMessageForMissingBridgeIPIsProperlyReturnedIPIsNull() {
         Configuration configuration = new Configuration();
         configuration.put(HOST, null);
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
 
         Bridge bridge = createBridgeThing(configuration);
 
@@ -217,7 +218,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
     public void assertThatAStatusConfigurationMessageForMissingBridgeIPIsProperlyReturnedIPIsAnEmptyString() {
         Configuration configuration = new Configuration();
         configuration.put(HOST, "");
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
 
         Bridge bridge = createBridgeThing(configuration);
 

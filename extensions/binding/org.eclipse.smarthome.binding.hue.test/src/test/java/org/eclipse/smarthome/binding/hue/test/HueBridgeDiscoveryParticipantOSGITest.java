@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.test;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -101,8 +102,8 @@ public class HueBridgeDiscoveryParticipantOSGITest extends JavaOSGiTest {
         assertThat(result.getThingTypeUID(), is(THING_TYPE_BRIDGE));
         assertThat(result.getBridgeUID(), is(nullValue()));
         assertThat(result.getProperties().get(HOST), is("1.2.3.4"));
-        assertThat(result.getProperties().get(SERIAL_NUMBER), is("serial123"));
-        assertThat(result.getRepresentationProperty(), is(SERIAL_NUMBER));
+        assertThat(result.getProperties().get(PROPERTY_SERIAL_NUMBER), is("serial123"));
+        assertThat(result.getRepresentationProperty(), is(PROPERTY_SERIAL_NUMBER));
     }
 
     @Test
