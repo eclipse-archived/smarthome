@@ -18,8 +18,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 
 /**
- * The {@link RuleTemplateProvider} provides basic functionality for managing {@link RuleTemplate}s.
- * It can be used for
+ * This interface provides basic functionality for managing {@link RuleTemplate}s. It can be used for
  * <ul>
  * <li>Get the existing {@link RuleTemplate}s with the {@link Provider#getAll()},
  * {@link TemplateProvider#getTemplates(Locale)} and {@link #getTemplate(String, Locale)} methods.</li>
@@ -28,7 +27,7 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  * {@link #addProviderChangeListener(ProviderChangeListener)}
  * and removed with the {@link #removeProviderChangeListener(ProviderChangeListener)} methods.
  *
- * @author Ana Dimova
+ * @author Ana Dimova - Initial Contribution
  */
 public interface RuleTemplateProvider extends TemplateProvider<RuleTemplate> {
 

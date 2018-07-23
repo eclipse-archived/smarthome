@@ -20,9 +20,13 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Rule;
 
 /**
- * This is a base class that can be used by any ModuleHandlerFactory implementation
+ * This class provides a {@link ModuleHandlerFactory} base implementation. It is used by its subclasses for base
+ * implementation of creating and disposing {@link ModuleHandler} instances. They only have to implement
+ * {@link #internalCreate(Module, String)} method for creating concrete instances needed for the operation of the
+ * {@link Module}s.
  *
  * @author Kai Kreuzer - Initial Contribution
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
@@ -32,6 +36,10 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
     private final Map<@NonNull String, @NonNull ModuleHandler> handlers = new HashMap<>();
 
+    /**
+     * Should be overridden by the implementations that extend this base class. Called from DS to deactivate the
+     * {@link ModuleHandlerFactory}.
+     */
     protected void deactivate() {
         for (ModuleHandler handler : handlers.values()) {
             handler.dispose();
@@ -39,6 +47,13 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
         handlers.clear();
     }
 
+    /**
+     * Provides all available {@link ModuleHandler}s created by concrete factory implementation.
+     *
+     * @return a map with keys calculated by concatenated rule UID and module Id and values representing
+     *         {@link ModuleHandler} created for concrete module corresponding to the module Id and belongs to rule with
+     *         such UID.
+     */
     protected Map<String, ModuleHandler> getHandlers() {
         return Collections.unmodifiableMap(handlers);
     }
@@ -56,11 +71,11 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     }
 
     /**
-     * Create a new handler for the given module.
+     * Creates a new {@link ModuleHandler} for a given {@code module} and {@code ruleUID}.
      *
-     * @param module  the {@link Module} for which a handler should be created
-     * @param ruleUID the id of the rule for which the handler should be created
-     * @return A {@link ModuleHandler} instance or {@code null} if thins module type is not supported
+     * @param module  the {@link Module} for which a handler should be created.
+     * @param ruleUID the identifier of the {@link Rule} that the given module belongs to.
+     * @return a {@link ModuleHandler} instance or {@code null} if thins module type is not supported.
      */
     protected abstract @Nullable ModuleHandler internalCreate(Module module, String ruleUID);
 

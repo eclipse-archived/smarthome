@@ -19,7 +19,7 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class is implementation of {@link Trigger} modules used in the {@link RuleEngineImpl}s.
+ * This class is implementation of {@link Trigger} modules used in the {@link RuleEngine}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */

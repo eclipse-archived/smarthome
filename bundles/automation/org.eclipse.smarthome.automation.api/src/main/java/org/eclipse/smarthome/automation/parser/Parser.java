@@ -25,7 +25,7 @@ import java.util.Set;
 public interface Parser<T> {
 
     /**
-     * This constant can be used to specify the type of the parser.
+     * Specifies the type of the parser whose is the type of the parsed automation objects.
      * <p>
      * Example : "parser.type" = "parser.module.type";
      * It is used as registration property of the corresponding service.
@@ -33,14 +33,22 @@ public interface Parser<T> {
     public static String PARSER_TYPE = "parser.type";
 
     /**
-     * Following constants are representing the possible values of property {@link #PARSER_TYPE}
+     * Defines one of the possible values of property {@link #PARSER_TYPE}.
      */
     public static String PARSER_MODULE_TYPE = "parser.module.type";
+
+    /**
+     * Defines one of the possible values of property {@link #PARSER_TYPE}.
+     */
     public static String PARSER_TEMPLATE = "parser.template";
+
+    /**
+     * Defines one of the possible values of property {@link #PARSER_TYPE}.
+     */
     public static String PARSER_RULE = "parser.rule";
 
     /**
-     * This constant can be used for recognition of which file format is supported by the parser.
+     * Defines a service registration property used for recognition of which file format is supported by the parser.
      * <p>
      * Example : "format" = "json";
      * It is used as registration property of the corresponding service.
@@ -48,13 +56,12 @@ public interface Parser<T> {
     public static String FORMAT = "format";
 
     /**
-     * Following constant representing the possible value of property {@link #FORMAT} It means that the parser supports
-     * json format.
+     * Defines the possible value of property {@link #FORMAT}. It means that the parser supports json format.
      */
     public static String FORMAT_JSON = "json";
 
     /**
-     * This method is used for loading file with some particular format and parse it to the automation objects.
+     * Loads a file with some particular format and parse it to the corresponding automation objects.
      *
      * @param reader {@link InputStreamReader} which reads from a file containing automation object representations.
      * @return a set of automation objects. Each object represents the result of parsing of one object.
@@ -64,7 +71,7 @@ public interface Parser<T> {
     public Set<T> parse(InputStreamReader reader) throws ParsingException;
 
     /**
-     * This method is used to record automation objects in a file with some particular format.
+     * Records the automation objects in a file with some particular format.
      *
      * @param dataObjects provides an objects for export.
      * @param writer      is {@link OutputStreamWriter} used to write the automation objects in a file.

@@ -13,10 +13,65 @@
 package org.eclipse.smarthome.automation;
 
 /**
- * This enum is used to present the main status of a rule.
+ * This enumeration is used to present the main status of a {@link Rule}.
+ * <table>
+ * <caption><b>Rule Status transitions</b></caption>
+ * <tr>
+ * </tr>
+ * <tr>
+ * <td><b>From/To</b></td>
+ * <td><b>{@link #UNINITIALIZED}</b></td>
+ * <td><b>{@link #INITIALIZING}</b></td>
+ * <td><b>{@link #IDLE}</b></td>
+ * <td><b>{@link #RUNNING}</b></td>
+ * </tr>
+ * <td></td>
+ * <tr>
+ * <td><b>{@link #UNINITIALIZED}</b></td>
+ * <td><b>N/A</b></td>
+ * <td>
+ * <li><b>Add:</b> Rule, ModuleHandler, ModuleType, Template</li>
+ * <li><b>Update:</b> Rule</li></td>
+ * <td><b>N/A</b></td>
+ * <td><b>N/A</b></td>
+ * </tr>
+ * <td></td>
+ * <tr>
+ * <td><b>{@link #INITIALIZING}</b></td>
+ * <td>Resolving fails, Disable rule</td>
+ * <td><b>N/A</b></td>
+ * <td>Resolving succeeds</td>
+ * <td><b>N/A</b></td>
+ * </tr>
+ * <td></td>
+ * <tr>
+ * <td><b>{@link #IDLE}</b></td>
+ * <td>
+ * <li><b>Remove:</b> Rule, ModuleHandler</li>
+ * <li><b>Update:</b> ModuleType</li>
+ * <li><b>Disable:</b> Rule</li></td>
+ * <td><b>N/A</b></td>
+ * <td><b>N/A</b></td>
+ * <td>
+ * <li>Triggered</li>
+ * <li><b>{@link RuleRegistry#runNow(String) runNow}</b></li></td>
+ * </tr>
+ * <td></td>
+ * <tr>
+ * <td><b>{@link #RUNNING}</b></td>
+ * <td>
+ * <li><b>Remove:</b> Rule, ModuleHandler</li>
+ * <li><b>Update:</b> ModuleType</li>
+ * <li><b>Disable:</b> Rule</li></td>
+ * <td><b>N/A</b></td>
+ * <td>Execution finished</td>
+ * <td><b>N/A</b></td>
+ * </tr>
+ * </table>
  *
  * @author Yordan Mihaylov - Initial contribution
  * @author Kai Kreuzer - Refactored to match ThingStatus implementation
+ * @author Ana Dimova - add java doc
  */
 public enum RuleStatus {
     UNINITIALIZED(1),
