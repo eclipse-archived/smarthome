@@ -1942,6 +1942,10 @@
 				state,
 				title;
 
+			if (data.TYPE === "ALIVE") {
+				return;
+			}
+
 			if (data.TYPE === "SITEMAP_CHANGED") {
 				var oldLocation = window.location.href;
 				var parts = oldLocation.split("?");

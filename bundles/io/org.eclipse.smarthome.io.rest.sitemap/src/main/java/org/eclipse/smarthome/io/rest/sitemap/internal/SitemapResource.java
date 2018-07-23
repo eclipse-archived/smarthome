@@ -21,9 +21,13 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -45,6 +49,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.auth.Role;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -128,6 +133,9 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     UriInfo uriInfo;
 
     @Context
+    HttpServletRequest request;
+
+    @Context
     private HttpServletResponse response;
 
     private ItemUIRegistry itemUIRegistry;
@@ -140,14 +148,37 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
 
     private final Map<String, EventOutput> eventOutputs = new MapMaker().weakValues().makeMap();
 
+    private ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
+
+    private ScheduledFuture<?> cleanSubscriptionsJob;
+
     @Activate
     protected void activate() {
         broadcaster = new SseBroadcaster();
         broadcaster.add(this);
+
+        // The clean SSE subscriptions job sends an ALIVE event to all subscribers. This will trigger
+        // an exception when the subscriber is dead, leading to the release of the SSE subscription
+        // on server side.
+        // In practice, the exception occurs only after the sending of a second ALIVE event. So this
+        // will require two runs of the job to release an SSE subscription.
+        // The clean SSE subscriptions job is run every 5 minutes.
+        cleanSubscriptionsJob = scheduler.scheduleAtFixedRate(() -> {
+            logger.debug("Run clean SSE subscriptions job");
+            if (subscriptions != null) {
+                subscriptions.checkAliveClients();
+            }
+        }, 1, 5, TimeUnit.MINUTES);
     }
 
     @Deactivate
     protected void deactivate() {
+        if (cleanSubscriptionsJob != null && !cleanSubscriptionsJob.isCancelled()) {
+            logger.debug("Cancel clean SSE subscriptions job");
+            cleanSubscriptionsJob.cancel(true);
+            cleanSubscriptionsJob = null;
+        }
         broadcaster.remove(this);
         broadcaster = null;
     }
@@ -193,7 +224,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
     @ApiOperation(value = "Get all available sitemaps.", response = SitemapDTO.class, responseContainer = "Collection")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getSitemaps() {
-        logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+        logger.debug("Received HTTP GET request from IP {} at '{}'", request.getRemoteAddr(), uriInfo.getPath());
         Object responseObject = getSitemapBeans(uriInfo.getAbsolutePathBuilder().build());
         return Response.ok(responseObject).build();
     }
@@ -208,8 +239,8 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
             @QueryParam("type") String type, @QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
         final Locale locale = localeService.getLocale(language);
-        logger.debug("Received HTTP GET request at '{}' for media type '{}'.",
-                new Object[] { uriInfo.getPath(), type });
+        logger.debug("Received HTTP GET request from IP {} at '{}' for media type '{}'.", request.getRemoteAddr(),
+                uriInfo.getPath(), type);
         Object responseObject = getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build(), locale);
         return Response.ok(responseObject).build();
     }
@@ -227,7 +258,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             @PathParam("pageid") @ApiParam(value = "page id") String pageId,
             @QueryParam("subscriptionid") @ApiParam(value = "subscriptionid", required = false) String subscriptionId) {
         final Locale locale = localeService.getLocale(language);
-        logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+        logger.debug("Received HTTP GET request from IP {} at '{}'", request.getRemoteAddr(), uriInfo.getPath());
 
         if (subscriptionId != null) {
             try {
@@ -270,6 +301,8 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         broadcaster.add(eventOutput);
         eventOutputs.put(subscriptionId, eventOutput);
         URI uri = uriInfo.getBaseUriBuilder().path(PATH_SITEMAPS).path(SEGMENT_EVENTS).path(subscriptionId).build();
+        logger.debug("Client from IP {} requested new subscription => got id {}.", request.getRemoteAddr(),
+                subscriptionId);
         return Response.created(uri);
     }
 
@@ -302,7 +335,8 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             return JSONResponse.createResponse(Status.BAD_REQUEST, null,
                     "Subscription id " + subscriptionId + " is not yet linked to a sitemap/page.");
         }
-        logger.debug("Client requested sitemap event stream for subscription {}.", subscriptionId);
+        logger.debug("Client from IP {} requested sitemap event stream for subscription {}.", request.getRemoteAddr(),
+                subscriptionId);
 
         // Disables proxy buffering when using an nginx http server proxy for this response.
         // This allows you to not disable proxy buffering in nginx and still have working sse
@@ -758,6 +792,15 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
         OutboundEvent outboundEvent = eventBuilder.name("event").mediaType(MediaType.APPLICATION_JSON_TYPE).data(event)
                 .build();
         broadcaster.broadcast(outboundEvent);
+    }
+
+    @Override
+    public void onRelease(String subscriptionId) {
+        logger.debug("SSE connection for subscription {} has been released.", subscriptionId);
+        EventOutput eventOutput = eventOutputs.remove(subscriptionId);
+        if (eventOutput != null) {
+            broadcaster.remove(eventOutput);
+        }
     }
 
     @Override
