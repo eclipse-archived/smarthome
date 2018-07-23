@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.internal.State;
 import org.eclipse.smarthome.binding.hue.internal.State.AlertMode;
+import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
 import org.eclipse.smarthome.binding.hue.internal.State.Effect;
 import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -35,7 +36,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
  * @author Andre Fuechsel - added method for brightness
  * @author Yordan Zhelev - added method for alert
  * @author Denis Dudnik - switched to internally integrated source of Jue library, minor code cleanup
- *
+ * @author Christoph Weitkamp - Added support for bulbs using CIE XY colormode only
  */
 @NonNullByDefault
 public class LightStateConverter {
@@ -70,7 +71,12 @@ public class LightStateConverter {
      * @param hsbType HSB type
      * @return light state representing the {@link HSBType}.
      */
-    public static StateUpdate toColorLightState(HSBType hsbType) {
+    public static StateUpdate toColorLightState(HSBType hsbType, State lightState) {
+        return ColorMode.XY.equals(lightState.getColorMode()) ? toXYColorLightState(hsbType)
+                : toHSBColorLightState(hsbType);
+    }
+
+    private static StateUpdate toHSBColorLightState(HSBType hsbType) {
         int hue = (int) Math.round(hsbType.getHue().doubleValue() * HUE_FACTOR);
         int saturation = (int) Math.round(hsbType.getSaturation().doubleValue() * SATURATION_FACTOR);
         int brightness = (int) Math.round(hsbType.getBrightness().doubleValue() * BRIGHTNESS_FACTOR);
@@ -80,6 +86,14 @@ public class LightStateConverter {
             stateUpdate.setBrightness(brightness);
         }
         return stateUpdate;
+    }
+
+    private static StateUpdate toXYColorLightState(HSBType hsbType) {
+        PercentType[] xyY = hsbType.toXY();
+        float x = xyY[0].floatValue() / 100.0f;
+        float y = xyY[1].floatValue() / 100.0f;
+
+        return new StateUpdate().setXY(x, y);
     }
 
     /**
@@ -202,6 +216,11 @@ public class LightStateConverter {
      * @return HSB type representing the color
      */
     public static HSBType toHSBType(State lightState) {
+        return ColorMode.XY.equals(lightState.getColorMode()) ? fromXYtoHSBType(lightState)
+                : fromHSBtoHSBType(lightState);
+    }
+
+    private static HSBType fromHSBtoHSBType(State lightState) {
         int hue = lightState.getHue();
 
         int saturationInPercent = (int) (lightState.getSaturation() / SATURATION_FACTOR);
@@ -212,6 +231,12 @@ public class LightStateConverter {
 
         return new HSBType(new DecimalType(hue / HUE_FACTOR), new PercentType(saturationInPercent),
                 new PercentType(brightnessInPercent));
+    }
+
+    private static HSBType fromXYtoHSBType(State lightState) {
+        float[] xy = lightState.getXY();
+
+        return HSBType.fromXY(xy[0], xy[1]);
     }
 
     /**

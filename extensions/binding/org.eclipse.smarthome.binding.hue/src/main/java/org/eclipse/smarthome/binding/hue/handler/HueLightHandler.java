@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueClient} to execute the actual
  * command.
  *
- * @author Dennis Nobel - Initial contribution of hue binding
+ * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
  * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, changed
@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  *         bulbs
  * @author Yordan Zhelev - added alert and effect functions
  * @author Denis Dudnik - switched to internally integrated source of Jue library
- *
+ * @author Christoph Weitkamp - Added support for bulbs using CIE XY colormode only
  */
 @NonNullByDefault
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
@@ -243,7 +243,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     if (hsbCommand.getBrightness().intValue() == 0) {
                         lightState = LightStateConverter.toOnOffLightState(OnOffType.OFF);
                     } else {
-                        lightState = LightStateConverter.toColorLightState(hsbCommand);
+                        lightState = LightStateConverter.toColorLightState(hsbCommand, light.getState());
                     }
                 } else if (command instanceof PercentType) {
                     lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
