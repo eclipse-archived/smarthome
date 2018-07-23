@@ -23,12 +23,12 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
  * @author Markus Rathgeb - Initial Contribution and API
  */
 @NonNullByDefault
-public class ManagedModule<M extends Module, H extends ModuleHandler> {
+public class WrappedModule<M extends Module, H extends ModuleHandler> {
 
     private final M module;
     private @Nullable H handler;
 
-    protected ManagedModule(final M module) {
+    protected WrappedModule(final M module) {
         this.module = module;
     }
 

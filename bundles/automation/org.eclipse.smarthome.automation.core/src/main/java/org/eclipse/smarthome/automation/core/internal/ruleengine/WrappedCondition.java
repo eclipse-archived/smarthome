@@ -18,10 +18,10 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.core.internal.Connection;
-import org.eclipse.smarthome.automation.handler.ActionHandler;
+import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 
@@ -31,20 +31,20 @@ import org.eclipse.smarthome.automation.type.Output;
  * @author Markus Rathgeb - Initial Contribution and API
  */
 @NonNullByDefault
-public class ManagedAction extends ManagedModule<Action, ActionHandler> {
+public class WrappedCondition extends WrappedModule<Condition, ConditionHandler> {
 
-    private Set<Connection> connections = Collections.emptySet();
     private Map<String, String> inputs = Collections.emptyMap();
+    private Set<Connection> connections = Collections.emptySet();
 
-    public ManagedAction(final Action action) {
-        super(action);
-        inputs = action.getInputs();
+    public WrappedCondition(final Condition condition) {
+        super(condition);
+        inputs = condition.getInputs();
     }
 
     /**
      * This method sets the connections for this module.
      *
-     * @param connections the set of connections for this action
+     * @param connections the set of connections for this condition
      */
     public void setConnections(@Nullable Set<Connection> connections) {
         this.connections = connections == null ? Collections.emptySet() : connections;
@@ -55,23 +55,22 @@ public class ManagedAction extends ManagedModule<Action, ActionHandler> {
     }
 
     /**
-     * This method is used to get input connections of the Action. The connections
-     * are links between {@link Input}s of the this {@link Module} and {@link Output}s
-     * of other {@link Module}s.
+     * This method is used to get input connections of the Condition. The connections
+     * are links between {@link Input}s of the current {@link Module} and {@link Output}s of other
+     * {@link Module}s.
      *
-     * @return map that contains the inputs of this action.
+     * @return map that contains the inputs of this condition.
      */
     public Map<String, String> getInputs() {
         return inputs;
     }
 
     /**
-     * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
+     * This method is used to connect {@link Input}s of the Condition to {@link Output}s of other {@link Module}s.
      *
-     * @param inputs map that contains the inputs for this action.
+     * @param inputs map that contains the inputs for this condition.
      */
     public void setInputs(@Nullable Map<String, String> inputs) {
         this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
-
 }

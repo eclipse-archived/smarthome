@@ -22,9 +22,9 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
  * @author Markus Rathgeb - Initial Contribution and API
  */
 @NonNullByDefault
-public class ManagedTrigger extends ManagedModule<Trigger, TriggerHandler> {
+public class WrappedTrigger extends WrappedModule<Trigger, TriggerHandler> {
 
-    public ManagedTrigger(final Trigger trigger) {
+    public WrappedTrigger(final Trigger trigger) {
         super(trigger);
     }
 }

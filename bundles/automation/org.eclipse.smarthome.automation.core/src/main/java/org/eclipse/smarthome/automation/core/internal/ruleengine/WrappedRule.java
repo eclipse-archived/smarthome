@@ -33,10 +33,10 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
  * @author Markus Rathgeb - Initial Contribution and API
  */
 @NonNullByDefault
-public class ManagedRule {
+public class WrappedRule {
 
-    private static <T extends ManagedModule, U extends Module> List<T> map(final List<U> in, Function<U, T> factory,
-            final Collection<ManagedModule<Module, ModuleHandler>> coll) {
+    private static <T extends WrappedModule, U extends Module> List<T> map(final List<U> in, Function<U, T> factory,
+            final Collection<WrappedModule<Module, ModuleHandler>> coll) {
         return Collections.unmodifiableList(in.stream().map(module -> {
             final T impl = factory.apply(module);
             coll.add(impl);
@@ -49,17 +49,17 @@ public class ManagedRule {
 
     private RuleStatusInfo statusInfo = new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.NONE);
 
-    private final List<ManagedModule<Module, ModuleHandler>> modules;
-    private final List<ManagedAction> actions;
-    private final List<ManagedCondition> conditions;
-    private final List<ManagedTrigger> triggers;
+    private final List<WrappedModule<Module, ModuleHandler>> modules;
+    private final List<WrappedAction> actions;
+    private final List<WrappedCondition> conditions;
+    private final List<WrappedTrigger> triggers;
 
-    public ManagedRule(final Rule rule) {
+    public WrappedRule(final Rule rule) {
         this.rule = rule;
-        final LinkedList<ManagedModule<Module, ModuleHandler>> modules = new LinkedList<>();
-        this.actions = map(rule.getActions(), ManagedAction::new, modules);
-        this.conditions = map(rule.getConditions(), ManagedCondition::new, modules);
-        this.triggers = map(rule.getTriggers(), ManagedTrigger::new, modules);
+        final LinkedList<WrappedModule<Module, ModuleHandler>> modules = new LinkedList<>();
+        this.actions = map(rule.getActions(), WrappedAction::new, modules);
+        this.conditions = map(rule.getConditions(), WrappedCondition::new, modules);
+        this.triggers = map(rule.getTriggers(), WrappedTrigger::new, modules);
         this.modules = Collections.unmodifiableList(modules);
     }
 
@@ -79,19 +79,19 @@ public class ManagedRule {
         this.statusInfo = statusInfo;
     }
 
-    public List<ManagedAction> getActions() {
+    public List<WrappedAction> getActions() {
         return actions;
     }
 
-    public List<ManagedCondition> getConditions() {
+    public List<WrappedCondition> getConditions() {
         return conditions;
     }
 
-    public List<ManagedTrigger> getTriggers() {
+    public List<WrappedTrigger> getTriggers() {
         return triggers;
     }
 
-    public List<ManagedModule<Module, ModuleHandler>> getModules() {
+    public List<WrappedModule<Module, ModuleHandler>> getModules() {
         return modules;
     }
 
