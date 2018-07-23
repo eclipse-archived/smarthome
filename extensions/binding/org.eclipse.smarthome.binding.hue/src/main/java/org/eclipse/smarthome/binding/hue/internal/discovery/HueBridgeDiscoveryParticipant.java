@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,10 +54,11 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
         if (uid != null) {
             Map<String, Object> properties = new HashMap<>(2);
             properties.put(HOST, device.getDetails().getBaseURL().getHost());
-            properties.put(SERIAL_NUMBER, device.getDetails().getSerialNumber());
+            properties.put(PROPERTY_SERIAL_NUMBER, device.getDetails().getSerialNumber());
 
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                    .withLabel(device.getDetails().getFriendlyName()).withRepresentationProperty(SERIAL_NUMBER).build();
+                    .withLabel(device.getDetails().getFriendlyName()).withRepresentationProperty(PROPERTY_SERIAL_NUMBER)
+                    .build();
             return result;
         } else {
             return null;

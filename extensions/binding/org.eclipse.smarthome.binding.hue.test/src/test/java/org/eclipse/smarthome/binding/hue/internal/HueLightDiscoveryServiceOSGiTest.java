@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.internal;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -74,7 +75,7 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
         Configuration configuration = new Configuration();
         configuration.put(HOST, "1.2.3.4");
         configuration.put(USER_NAME, "testUserName");
-        configuration.put(SERIAL_NUMBER, "testSerialNumber");
+        configuration.put(PROPERTY_SERIAL_NUMBER, "testSerialNumber");
 
         hueBridge = (Bridge) thingRegistry.createThingOfType(BRIDGE_THING_TYPE_UID, BRIDGE_THING_UID, null, "Bridge",
                 configuration);

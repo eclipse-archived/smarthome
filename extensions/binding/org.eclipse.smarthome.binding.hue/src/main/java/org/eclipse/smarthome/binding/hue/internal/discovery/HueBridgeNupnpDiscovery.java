@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,7 +95,8 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
                 ThingUID uid = new ThingUID(THING_TYPE_BRIDGE, serialNumber);
                 DiscoveryResult result = DiscoveryResultBuilder.create(uid)
                         .withProperties(buildProperties(host, serialNumber))
-                        .withLabel(LABEL_PATTERN.replace("IP", host)).withRepresentationProperty(SERIAL_NUMBER).build();
+                        .withLabel(LABEL_PATTERN.replace("IP", host)).withRepresentationProperty(PROPERTY_SERIAL_NUMBER)
+                        .build();
                 thingDiscovered(result);
             }
         }
@@ -110,7 +112,7 @@ public class HueBridgeNupnpDiscovery extends AbstractDiscoveryService {
     private Map<String, Object> buildProperties(String host, String serialNumber) {
         Map<String, Object> properties = new HashMap<>(2);
         properties.put(HOST, host);
-        properties.put(SERIAL_NUMBER, serialNumber);
+        properties.put(PROPERTY_SERIAL_NUMBER, serialNumber);
         return properties;
     }
 
