@@ -266,4 +266,13 @@ public class PageChangeListener implements StateChangeListener {
         }
     }
 
+    public void sendAliveEvent() {
+        ServerAliveEvent aliveEvent = new ServerAliveEvent();
+        aliveEvent.pageId = pageId;
+        aliveEvent.sitemapName = sitemapName;
+        for (SitemapSubscriptionCallback callback : distinctCallbacks) {
+            callback.onEvent(aliveEvent);
+        }
+    }
+
 }

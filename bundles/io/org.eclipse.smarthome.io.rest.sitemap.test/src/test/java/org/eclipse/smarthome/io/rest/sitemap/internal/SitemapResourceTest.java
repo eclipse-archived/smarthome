@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -75,11 +76,15 @@ public class SitemapResourceTest extends JavaTest {
     private static final String WIDGET2_LABEL = "widget 2";
     private static final String WIDGET1_ID = "00";
     private static final String WIDGET2_ID = "01";
+    private static final String CLIENT_IP = "127.0.0.1";
 
     private SitemapResource sitemapResource;
 
     @Mock
     private UriInfo uriInfo;
+
+    @Mock
+    private HttpServletRequest request;
 
     @Mock
     private SitemapProvider sitemapProvider;
@@ -108,6 +113,9 @@ public class SitemapResourceTest extends JavaTest {
         when(uriInfo.getAbsolutePathBuilder()).thenReturn(UriBuilder.fromPath(SITEMAP_PATH));
         when(uriInfo.getBaseUriBuilder()).thenReturn(UriBuilder.fromPath(SITEMAP_PATH));
         sitemapResource.uriInfo = uriInfo;
+
+        when(request.getRemoteAddr()).thenReturn(CLIENT_IP);
+        sitemapResource.request = request;
 
         item = new TestItem(ITEM_NAME);
         visibilityRuleItem = new TestItem(VISIBILITY_RULE_ITEM_NAME);
