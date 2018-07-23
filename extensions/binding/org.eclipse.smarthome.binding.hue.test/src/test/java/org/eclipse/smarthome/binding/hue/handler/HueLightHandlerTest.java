@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import org.eclipse.smarthome.binding.hue.internal.FullConfig;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
 import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
 import org.eclipse.smarthome.binding.hue.test.HueLightState;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -52,6 +53,7 @@ import com.google.gson.JsonParser;
  * @author Andre Fuechsel - modified tests after introducing the generic thing types
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  * @author Simon Kaufmann - migrated to plain Java test
+ * @author Christoph Weitkamp - Added support for bulbs using CIE XY colormode only
  */
 public class HueLightHandlerTest {
 
@@ -193,6 +195,24 @@ public class HueLightHandlerTest {
     public void assertCommandForColorChannelWhite() {
         String expectedReply = "{\"bri\" : 254, \"sat\" : 0, \"hue\" : 0}";
         assertSendCommandForColor(HSBType.WHITE, new HueLightState(), expectedReply);
+    }
+
+    @Test
+    public void assertXYCommandForColorChannelBlack() {
+        String expectedReply = "{\"on\" : false}";
+        assertSendCommandForColor(HSBType.BLACK, new HueLightState().colormode(ColorMode.XY), expectedReply);
+    }
+
+    @Test
+    public void assertXYCommandForColorChannelWhite() {
+        String expectedReply = "{\"xy\" : [ 0.31271592 , 0.32900152 ]}";
+        assertSendCommandForColor(HSBType.WHITE, new HueLightState().colormode(ColorMode.XY), expectedReply);
+    }
+
+    @Test
+    public void assertXYCommandForColorChannelColorful() {
+        String expectedReply = "{\"xy\" : [ 0.16969365 , 0.12379659 ]}";
+        assertSendCommandForColor(new HSBType("220,90,50"), new HueLightState().colormode(ColorMode.XY), expectedReply);
     }
 
     @Test
