@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: .,
+ lib/jollyday-0.5.6.jar
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Core Ephemeris
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.core.ephemeris
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Export-Package: 
+ org.eclipse.smarthome.core.ephemeris
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.ephemeris,
+ org.eclipse.smarthome.core.i18n,
+ org.eclipse.smarthome.core.library.types,
+ org.osgi.framework,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.core.ephemeris
