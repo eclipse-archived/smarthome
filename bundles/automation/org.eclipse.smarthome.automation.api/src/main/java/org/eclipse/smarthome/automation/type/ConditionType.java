@@ -36,12 +36,12 @@ public class ConditionType extends ModuleType {
     private final List<Input> inputs;
 
     /**
-     * This constructor is responsible to create an instance of {@link ConditionType} with base properties - UID, a
-     * {@link List} of configuration descriptions and a {@link List} of {@link Input} descriptions.
+     * Creates an instance of {@link ConditionType} with base properties - UID, a {@link List} of configuration
+     * descriptions and a {@link List} of {@link Input} descriptions.
      *
      * @param UID                the {@link ConditionType}'s identifier, or {@code null} if a random identifier should
      *                           be generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Condition} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Condition} instances.
      * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
      *                           {@link Condition} instances.
      */
@@ -52,13 +52,12 @@ public class ConditionType extends ModuleType {
     }
 
     /**
-     * This constructor is responsible to create an instance of {@link ConditionType} with UID, label, description, a
-     * {@link Set} of tags, visibility, a {@link List} of configuration descriptions and a {@link List} of {@link Input}
-     * descriptions.
+     * Creates an instance of {@link ConditionType} with UID, label, description, a {@link Set} of tags, visibility,
+     * a {@link List} of configuration descriptions and a {@link List} of {@link Input} descriptions.
      *
      * @param UID                the {@link ConditionType}'s identifier, or {@code null} if a random identifier should
      *                           be generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Condition} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Condition} instances.
      * @param label              a short and accurate, human-readable label of the {@link ConditionType}.
      * @param description        a detailed, human-readable description of usage of {@link ConditionType} and its
      *                           benefits.
@@ -77,8 +76,7 @@ public class ConditionType extends ModuleType {
     }
 
     /**
-     * This method is used to obtain the meta-information descriptions of {@link Input}s defined by this
-     * {@link ConditionType}.
+     * Gets the meta-information descriptions of {@link Input}s defined by this {@link ConditionType}.
      *
      * @return a {@link List} of {@link Input} meta-information descriptions.
      */

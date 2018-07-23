@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Add support for prefixes and provide default predicates for prefixes and tags.
+ * This class add support for prefixes for {@link Rule} UIDs and provide default predicates for prefixes and tags.
  *
  * @author Victor Toni - initial contribution
  *
@@ -28,19 +28,18 @@ import java.util.function.Predicate;
 public class RulePredicates {
 
     /**
-     * Constant defining separator between prefix and name.
+     * Constant defining separator between prefix and UID.
      */
     public static final String PREFIX_SEPARATOR = ":";
 
     /**
-     * Gets the prefix of the {@link Rule}, if any exist. This property is either set by the
-     * {@link ModuleHandlerCallback} when
-     * the {@link Rule} is added or by the creating party. It's an optional property.
+     * Gets the prefix of the {@link Rule}'s UID, if any exist. The UID is either set automatically when the
+     * {@link Rule} is added or by the creating party. It's an optional property.
      * <br/>
      * <br/>
-     * Implementation note
+     * Implementation note:
      * <br/>
-     * The namespace is part of the UID and the prefix thereof.
+     * The name space is part of the UID and the prefix thereof.
      * <br/>
      * If the UID does not contain a {@link PREFIX_SEPARATOR} {@code null} will be returned.
      * <br/>
@@ -48,7 +47,7 @@ public class RulePredicates {
      * <br/>
      * If the prefix would have a zero length {@code null} will be returned.
      *
-     * @return prefix of this {@link Rule}, or {@code null} if no prefix or an empty prefix is found
+     * @return prefix of this {@link Rule}, or {@code null} if no prefix or an empty prefix is found.
      */
     public static String getPrefix(Rule rule) {
         if (null != rule) {
@@ -63,11 +62,10 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to filter {@link Rule}s for a given prefix or {@code null}
-     * prefix.
+     * Creates a {@link Predicate} which can be used to filter {@link Rule}s for a given prefix or {@code null} prefix.
      *
-     * @param prefix to search for
-     * @return created {@link Predicate}
+     * @param prefix to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasPrefix(final String prefix) {
         if (null == prefix) {
@@ -81,8 +79,8 @@ public class RulePredicates {
      * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given prefixes and even
      * {@code null} prefix.
      *
-     * @param prefixes to search for
-     * @return created {@link Predicate}
+     * @param prefixes to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasAnyOfPrefixes(String... prefixes) {
         final HashSet<String> namespaceSet = new HashSet<>(prefixes.length);
@@ -97,8 +95,8 @@ public class RulePredicates {
     /**
      * Creates a {@link Predicate} which can be used to match {@link Rule}s with one or more tags.
      *
-     * @param tags to search for
-     * @return created {@link Predicate}
+     * @param tags to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasTags() {
         // everything with a tag is matching
@@ -109,8 +107,8 @@ public class RulePredicates {
     /**
      * Creates a {@link Predicate} which can be used to match {@link Rule}s without tags.
      *
-     * @param tags to search for
-     * @return created {@link Predicate}
+     * @param tags to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasNoTags() {
         // Rule.getTags() is never null
@@ -121,8 +119,8 @@ public class RulePredicates {
      * Creates a {@link Predicate} which can be used to match {@link Rule}s with all given tags or no tags at all.
      * All given tags must match, (the matched {@code Rule} might contain more).
      *
-     * @param tags to search for
-     * @return created {@link Predicate}
+     * @param tags to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasAllTags(final Collection<String> tags) {
         if (tags == null || tags.isEmpty()) {
@@ -140,20 +138,19 @@ public class RulePredicates {
      * Creates a {@link Predicate} which can be used to match {@link Rule}s for all given tags or no tags at all.
      * All given tags must match, (the matched {@code Rule} might contain more).
      *
-     * @param tags to search for
-     * @return created {@link Predicate}
+     * @param tags to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasAllTags(final String... tags) {
         return hasAllTags(tags == null ? null : Arrays.asList(tags));
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or
-     * {@link Rule}s
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
      * without tags.
      *
-     * @param tags to search for
-     * @return created {@link Predicate}
+     * @param tags to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasAnyOfTags(final Collection<String> tags) {
         if (null == tags || tags.isEmpty()) {
@@ -169,12 +166,11 @@ public class RulePredicates {
     }
 
     /**
-     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or
-     * {@link Rule}s
+     * Creates a {@link Predicate} which can be used to match {@link Rule}s for any of the given tags or {@link Rule}s
      * without tags.
      *
-     * @param tags to search for
-     * @return created {@link Predicate}
+     * @param tags to search for.
+     * @return created {@link Predicate}.
      */
     public static Predicate<Rule> hasAnyOfTags(final String... tags) {
         if (null == tags || 0 == tags.length) {

@@ -16,7 +16,7 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
- * Defines visibility values of {@link Rule}s, {@link ModuleType}s and {@link Template}s
+ * Defines visibility values of {@link Rule}s, {@link ModuleType}s and {@link Template}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  *
