@@ -84,7 +84,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
 
     @Override
     public Collection<RuleTemplate> getByTag(String tag, Locale locale) {
-        Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
+        Collection<RuleTemplate> result = new ArrayList<>();
         for (Provider<RuleTemplate> provider : elementMap.keySet()) {
             for (RuleTemplate resultTemplate : elementMap.get(provider)) {
                 Collection<String> tags = resultTemplate.getTags();
@@ -105,8 +105,8 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
 
     @Override
     public Collection<RuleTemplate> getByTags(Locale locale, String... tags) {
-        Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
-        Collection<RuleTemplate> result = new ArrayList<RuleTemplate>(20);
+        Set<String> tagSet = tags != null ? new HashSet<>(Arrays.asList(tags)) : null;
+        Collection<RuleTemplate> result = new ArrayList<>();
         for (Provider<RuleTemplate> provider : elementMap.keySet()) {
             for (RuleTemplate resultTemplate : elementMap.get(provider)) {
                 Collection<String> tTags = resultTemplate.getTags();

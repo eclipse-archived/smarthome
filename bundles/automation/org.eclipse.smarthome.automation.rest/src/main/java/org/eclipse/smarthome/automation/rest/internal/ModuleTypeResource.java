@@ -58,7 +58,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Markus Rathgeb - Use DTOs
- * @author Ana Dimova - extends ModuleImpl type DTOs with composites
+ * @author Ana Dimova - extends Module type DTOs with composites
  */
 @Path("module-types")
 @Api("module-types")
@@ -118,7 +118,7 @@ public class ModuleTypeResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets a module type corresponding to the given UID.", response = ModuleTypeDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ModuleTypeDTO.class),
-            @ApiResponse(code = 404, message = "ModuleImpl Type corresponding to the given UID does not found.") })
+            @ApiResponse(code = 404, message = "Module Type corresponding to the given UID does not found.") })
     public Response getByUID(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language,
             @PathParam("moduleTypeUID") @ApiParam(value = "moduleTypeUID", required = true) String moduleTypeUID) {
         Locale locale = localeService.getLocale(language);

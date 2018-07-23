@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.automation;
 
 /**
- * This class is used to present status of rule. The status consists out of three parts:
+ * This class is used to present status of a rule. The status consists of three parts:
  * The main status, a status detail and a string description.
  *
  * @author Yordan Mihaylov - Initial contribution

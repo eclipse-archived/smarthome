@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@link ScriptedPrivateModuleHandlerFactory} is used to provide types for "private" scripted Actions, Triggers and
- * Conditions. These ModuleImpl Types are meant to be only used inside scripts.
+ * Conditions. These Module Types are meant to be only used inside scripts.
  *
  * This class provides the handlers from the script to the RuleManager. As Jsr223 languages have different needs, it
  * allows these handlers to be defined in different ways.
@@ -37,7 +37,7 @@ public class ScriptedPrivateModuleHandlerFactory extends AbstractScriptedModuleH
     private static final Collection<String> TYPES = Arrays.asList("jsr223.ScriptedAction", "jsr223.ScriptedCondition",
             "jsr223.ScriptedTrigger");
 
-    private Logger logger = LoggerFactory.getLogger(ScriptedPrivateModuleHandlerFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(ScriptedPrivateModuleHandlerFactory.class);
     private final HashMap<String, ScriptedHandler> privateTypes = new HashMap<>();
 
     private int nextId = 0;

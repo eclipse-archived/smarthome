@@ -21,10 +21,18 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
- * Actions are the part of "THEN" section of the {@link Rule} definition. Elements of this section are expected result
- * of {@link Rule} execution. The Action can have {@link Output} elements. These actions are used to process input data
- * as source data of other Actions. Building elements of actions ( {@link ConfigDescriptionParameter}s, {@link Input}s
- * and {@link Output}s) are defined by {@link ActionType}
+ * This interface represents automation {@code Action} modules which are the expected result of {@link Rule}s execution.
+ * They describe the actual work that should be performed by the Rule as a response to a trigger.
+ * <p>
+ * Each Action can provide information to the next Actions in the list through its {@link Output}s. The actions have
+ * {@link Input}s to process input data from other Actions or {@link Trigger}s.
+ * <p>
+ * Actions can be configured.
+ * <p>
+ * The building elements of the Actions are {@link ConfigDescriptionParameter}s, {@link Input}s and {@link Output}s.
+ * They are defined by the corresponding {@link ActionType}.
+ * <p>
+ * Action modules are placed in the <b>actions</b> section of the {@link Rule} definition.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
@@ -34,11 +42,10 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 public interface Action extends Module {
 
     /**
-     * This method is used to get input connections of the Action. The connections
-     * are links between {@link Input}s of the this {@link Module} and {@link Output}s
-     * of other {@link Module}s.
+     * Gets the input references of the Action. The references define how the {@link Input}s of this {@link Module} are
+     * connected to {@link Output}s of other {@link Module}s.
      *
-     * @return map that contains the inputs of this action.
+     * @return a map with the input references of this action.
      */
     Map<String, String> getInputs();
 

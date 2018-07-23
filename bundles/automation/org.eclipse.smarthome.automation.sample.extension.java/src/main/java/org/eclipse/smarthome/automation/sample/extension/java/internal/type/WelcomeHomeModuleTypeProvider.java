@@ -27,7 +27,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
- * The purpose of this class is to illustrate how to provide ModuleImpl Types and how to use them for creation of the
+ * The purpose of this class is to illustrate how to provide Module Types and how to use them for creation of the
  * {@link RuleTemplate}s or directly the {@link Rule}s.
  *
  * @author Ana Dimova - Initial Contribution
@@ -64,8 +64,7 @@ public class WelcomeHomeModuleTypeProvider implements ModuleTypeProvider {
      * To provide the {@link ModuleType}s should register the WelcomeHomeModuleTypeProvider as
      * {@link ModuleTypeProvider} service.
      *
-     * @param bc
-     *            is a bundle's execution context within the Framework.
+     * @param bc is a bundle's execution context within the Framework.
      */
     public void register(BundleContext bc) {
         providerReg = bc.registerService(ModuleTypeProvider.class.getName(), this, null);

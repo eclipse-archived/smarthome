@@ -18,10 +18,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.Trigger;
 
 /**
- * This interface is implemented by external modules which are called by the
- * RuleManager to execute {@link Action}s of the {@link Rule}s.
+ * This interface should be implemented by external modules which provide functionality for processing {@link Action}
+ * modules. This functionality is called to execute the {@link Action}s of the {@link Rule} when it is needed.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
@@ -31,12 +32,12 @@ import org.eclipse.smarthome.automation.Rule;
 public interface ActionHandler extends ModuleHandler {
 
     /**
-     * The Method is called by the RuleManager to execute a {@link Rule} {@link Action}.
+     * Called to execute an {@link Action} of the {@link Rule} when it is needed.
      *
+     * @param context an unmodifiable map containing the outputs of the {@link Trigger} that triggered the {@link Rule},
+     *                the outputs of all preceding {@link Action}s, and the inputs for this {@link Action}.
      *
-     * @param context is an unmodifiable map containing action input values and snapshot of output values of triggers
-     *                and executed actions. The output ids are defined in form: ModuleId.outputId
-     * @return values map of values which must be set to outputs of the {@link Action} (may be null).
+     * @return a map with the {@code outputs} which are the result of the {@link Action}'s execution (may be null).
      */
     @Nullable
     Map<String, Object> execute(Map<String, Object> context);

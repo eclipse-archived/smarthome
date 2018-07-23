@@ -36,15 +36,14 @@ public class TriggerType extends ModuleType {
     private final List<Output> outputs;
 
     /**
-     * This constructor is responsible to create an instance of {@link TriggerType} with base properties - UID, a
-     * {@link List} of configuration descriptions and a {@link List} of {@link Output} descriptions.
+     * Creates an instance of {@link TriggerType} with base properties - UID, a {@link List} of configuration
+     * descriptions and a {@link List} of {@link Output} descriptions.
      *
      * @param UID                the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
      *                           generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Trigger} instances.
      * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
-     *                           {@link Trigger}
-     *                           instances.
+     *                           {@link Trigger} instances.
      */
     public TriggerType(@Nullable String UID, @Nullable List<ConfigDescriptionParameter> configDescriptions,
             @Nullable List<Output> outputs) {
@@ -53,13 +52,12 @@ public class TriggerType extends ModuleType {
     }
 
     /**
-     * This constructor is responsible to create an instance of {@link TriggerType} with UID, label, description, a
-     * {@link Set} of tags, visibility, a {@link List} of configuration descriptions and a {@link List} of
-     * {@link Output} descriptions.
+     * Creates an instance of {@link TriggerType} with UID, label, description, a {@link Set} of tags, visibility,
+     * a {@link List} of configuration descriptions and a {@link List} of {@link Output} descriptions.
      *
      * @param UID                the {@link TriggerType}'s identifier, or {@code null} if a random identifier should be
      *                           generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Trigger} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Trigger} instances.
      * @param label              a short and accurate, human-readable label of the {@link TriggerType}.
      * @param description        a detailed, human-readable description of usage of {@link TriggerType} and its
      *                           benefits.
@@ -67,6 +65,8 @@ public class TriggerType extends ModuleType {
      *                           searching or filtering it.
      * @param visibility         determines whether the {@link TriggerType} can be used by anyone if it is
      *                           {@link Visibility#VISIBLE} or only by its creator if it is {@link Visibility#HIDDEN}.
+     *                           If {@code null} is provided the default visibility {@link Visibility#VISIBLE} will be
+     *                           used.
      * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
      *                           {@link Trigger} instances.
      */
@@ -78,7 +78,7 @@ public class TriggerType extends ModuleType {
     }
 
     /**
-     * This method is used to obtain the meta-information descriptions of {@link Output}s defined by this type.<br>
+     * Gets the meta-information descriptions of {@link Output}s defined by this type.<br>
      *
      * @return a {@link List} of {@link Output} definitions.
      */

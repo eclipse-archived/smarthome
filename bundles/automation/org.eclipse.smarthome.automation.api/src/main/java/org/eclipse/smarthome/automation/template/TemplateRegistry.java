@@ -29,57 +29,66 @@ import org.eclipse.smarthome.core.common.registry.Registry;
 public interface TemplateRegistry<E extends Template> extends Registry<E, String> {
 
     /**
-     * This method is used to get template of specified by type.
+     * Gets a template specified by unique identifier.
      *
-     * @param uid    the an unique id in scope of registered templates
-     * @param locale user locale
-     * @return template instance or null.
+     * @param uid    the unique identifier in scope of registered templates.
+     * @param locale specifies the desired {@link Locale} to be used for localization of the returned element. If
+     *               localization resources for this locale are not available or the passed locale is {@code null} the
+     *               element is returned with the default localization.
+     * @return the desired template instance or {@code null} if a template with such UID does not exist or the passed
+     *         UID is {@code null}.
      */
     public E get(String uid, Locale locale);
 
     /**
-     * This method is used for getting the templates filtered by tag.
+     * Gets the templates filtered by tag.
      *
-     * * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all
-     * templates.
-     *
-     * @return the templates, which correspond to the specified filter.
+     * @param tag determines the tag that the templates must have, to be included in the returned result. If it is
+     *            {@code null} then the result will contain all available templates.
+     * @return a collection of templates, which correspond to the specified tag.
      */
     public Collection<E> getByTag(String tag);
 
     /**
-     * This method is used for getting the templates filtered by tag.
+     * Gets the templates filtered by tag.
      *
-     * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all templates.
-     * @return the templates, which correspond to the specified filter.
+     * @param tag    determines the tag that the templates must have, to be included in the returned result. If it is
+     *               {@code null} then the result will contain all available templates.
+     * @param locale specifies the desired {@link Locale} to be used for localization of the returned elements. If
+     *               localization resources for this locale are not available or the passed locale is {@code null} the
+     *               elements are returned with the default localization.
+     * @return a collection of localized templates, which correspond to the specified tag.
      */
     public Collection<E> getByTag(String tag, Locale locale);
 
     /**
-     * This method is used for getting the templates filtered by tags.
+     * Gets the templates filtered by tags.
      *
-     * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
-     *             returns all templates.
-     * @return collection of templates, which correspond to the filter.
+     * @param tags determines the set of tags that the templates must have, to be included in the returned result. If it
+     *             is {@code null} then the result will contain all templates.
+     * @return a collection of templates, which correspond to the specified set of tags.
      */
     public Collection<E> getByTags(String... tags);
 
     /**
-     * This method is used for getting the templates filtered by tags.
+     * Gets the templates filtered by tags.
      *
-     * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
-     *             returns all templates.
-     * @return the templates, which correspond to the the filter.
+     * @param locale specifies the desired {@link Locale} to be used for localization of the returned elements. If
+     *               localization resources for this locale are not available or the passed locale is {@code null} the
+     *               elements are returned with the default localization.
+     * @param tags   determines the set of tags that the templates must have, to be included in the returned result. If
+     *               it is {@code null} then the result will contain all templates.
+     * @return the templates, which correspond to the specified set of tags.
      */
     public Collection<E> getByTags(Locale locale, String... tags);
 
     /**
-     * This method is used for getting all templates, localized by specified locale,
+     * Gets all available templates, localized by specified locale.
      *
-     * @param locale specifies the localization for the returned elements.
-     *               If a localization resources for this locale are not available the elements are returned with the
-     *               default localization.
-     * @return collection of templates, corresponding to specified type
+     * @param locale specifies the desired {@link Locale} to be used for localization of the returned elements. If
+     *               localization resources for this locale are not available or the passed locale is {@code null} the
+     *               elements are returned with the default localization.
+     * @return a collection of localized templates, corresponding to the parameterized type.
      */
     public Collection<E> getAll(Locale locale);
 

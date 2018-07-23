@@ -14,57 +14,67 @@ package org.eclipse.smarthome.automation;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.Output;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * Modules are the super class of Trigger, Actions and Conditions. The all have an id, a type, a label, a description
- * and a configuration.
+ * This interface represents automation {@code Modules} which are building components of the {@link Rule}s.
+ * <p>
+ * Each module is identified by id, which is unique in scope of the {@link Rule}.
+ * <p>
+ * Each module has a {@link ModuleType} which provides meta data of the module. The meta data defines {@link Input}s,
+ * {@link Output}s and {@link ConfigDescriptionParameter}s which are the building elements of the {@link Module}.
+ * <br>
+ * Setters of the module don't have immediate effect on the Rule. To apply the changes, the Module should be set on the
+ * {@link Rule} and the Rule has to be updated in {@link RuleRegistry} by invoking {@code update} method.
  *
+ * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - Initial Contribution
  */
 @NonNullByDefault
 public interface Module {
 
     /**
-     * This method is used for getting the id of the {@link Module}. It is unique
-     * in scope of the {@link Rule}.
+     * Gets the {@link Module}'s unique identifier in the scope of the rule in which this module belongs. The identifier
+     * of the {@link Module} is used to identify it when other rule's module refers it as input.
      *
-     * @return module id
+     * @return the {@link Module}'s unique identifier in the scope of the rule in which this module belongs.
      */
     String getId();
 
     /**
-     * This method is used for getting the reference to {@link ModuleType} of this
-     * module. The {@link ModuleType} contains description, tags and meta info for
-     * this module.
+     * Gets the module type unique identifier which is a reference to the corresponding {@link ModuleType} that
+     * describes this module. The {@link ModuleType} contains {@link Input}s, {@link Output}s and
+     * {@link ConfigDescriptionParameter}s of this module.
      *
-     * @return unique id of the {@link ModuleType} of this {@link Module}.
+     * @return the {@link ModuleType} unique identifier.
      */
     String getTypeUID();
 
     /**
-     * This method is used for getting the label of the Module. The label is a
-     * short, user friendly name of the Module.
+     * Gets the label of the {@link Module}. The label is user understandable name of the Module.
      *
-     * @return the label of the module or null.
+     * @return the label of the module or {@code null} if not specified.
      */
     @Nullable
     String getLabel();
 
     /**
-     * This method is used for getting the description of the Module. The
-     * description is a long, user friendly description of the Module.
+     * Gets the description of the {@link Module}. The description is a detailed, human understandable description of
+     * the Module.
      *
-     * @return the description of the module or null.
+     * @return the detailed description of the module or {@code null} if not specified.
      */
     @Nullable
     String getDescription();
 
     /**
-     * This method is used for getting configuration values of the {@link Module}.
+     * Gets the configuration values of the {@link Module}.
      *
-     * @return current configuration values.
+     * @return the current configuration values of the {@link Module}.
      */
     Configuration getConfiguration();
 

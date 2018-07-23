@@ -35,24 +35,24 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 public class ActionType extends ModuleType {
 
     /**
-     * This field contains meta-information describing the incoming connections of the {@link Action} module to the
-     * other {@link Module}s.
+     * Contains meta-information describing the incoming connections of the {@link Action} module to the other
+     * {@link Module}s.
      */
     private final List<Input> inputs;
 
     /**
-     * This field contains meta-information describing the outgoing connections of the {@link Action} module to the
-     * other {@link Action}s.
+     * Contains meta-information describing the outgoing connections of the {@link Action} module to the other
+     * {@link Action}s.
      */
     private final List<Output> outputs;
 
     /**
-     * This constructor is responsible to create an instance of {@link ActionType} with base properties - UID, a
-     * {@link List} of configuration descriptions and a {@link List} of {@link Input} definitions.
+     * Creates an instance of {@link ActionType} with base properties - UID, a {@link List} of configuration
+     * descriptions and a {@link List} of {@link Input} definitions.
      *
      * @param UID                the {@link ActionType}'s identifier, or {@code null} if a random identifier should be
      *                           generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Action} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Action} instances.
      * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
      *                           {@link Action} instances.
      */
@@ -62,13 +62,12 @@ public class ActionType extends ModuleType {
     }
 
     /**
-     * This constructor is responsible to create an instance of the {@link ActionType} with UID, a {@link List} of
-     * configuration descriptions, a {@link List} of {@link Input} definitions and a {@link List} of {@link Output}
-     * descriptions.
+     * Creates an instance of the {@link ActionType} with UID, a {@link List} of configuration descriptions,
+     * a {@link List} of {@link Input} definitions and a {@link List} of {@link Output} descriptions.
      *
      * @param UID                the {@link ActionType}'s identifier, or {@code null} if a random identifier should be
      *                           generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Action} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Action} instances.
      * @param inputs             a {@link List} with {@link Input} meta-information descriptions of the future
      *                           {@link Action} instances.
      * @param outputs            a {@link List} with {@link Output} meta-information descriptions of the future
@@ -80,13 +79,13 @@ public class ActionType extends ModuleType {
     }
 
     /**
-     * This constructor is responsible to create an instance of {@link ActionType} with UID, label, description, a
-     * {@link Set} of tags, visibility, a {@link List} of configuration descriptions, a {@link List} of {@link Input}
-     * descriptions and a {@link List} of {@link Output} descriptions.
+     * Creates an instance of {@link ActionType} with UID, label, description, a {@link Set} of tags, visibility,
+     * a {@link List} of configuration descriptions, a {@link List} of {@link Input} descriptions and a {@link List}
+     * of {@link Output} descriptions.
      *
      * @param UID                the {@link ActionType}'s identifier, or {@code null} if a random identifier should be
      *                           generated.
-     * @param configDescriptions describing metadata for the configuration of the future {@link Action} instances.
+     * @param configDescriptions describing meta-data for the configuration of the future {@link Action} instances.
      * @param label              is a short and accurate name of the {@link ActionType}.
      * @param description        is a short and understandable description of which can be used the {@link ActionType}.
      * @param tags               defines categories that fit the {@link ActionType} and which can serve as criteria for
@@ -107,7 +106,7 @@ public class ActionType extends ModuleType {
     }
 
     /**
-     * This method is used to obtain the meta-information descriptions of {@link Input}s defined by this type.
+     * Gets the meta-information descriptions of {@link Input}s defined by this type.
      *
      * @return a {@link List} with {@link Input} definitions.
      */
@@ -116,7 +115,7 @@ public class ActionType extends ModuleType {
     }
 
     /**
-     * This method is used to obtain the meta-information descriptions of {@link Output}s defined by this type.
+     * Gets the meta-information descriptions of {@link Output}s defined by this type.
      *
      * @return a {@link List} with {@link Output} definitions.
      */

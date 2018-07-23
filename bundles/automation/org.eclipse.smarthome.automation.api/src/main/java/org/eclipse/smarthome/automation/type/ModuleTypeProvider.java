@@ -28,11 +28,10 @@ import org.eclipse.smarthome.core.common.registry.Provider;
 public interface ModuleTypeProvider extends Provider<ModuleType> {
 
     /**
-     * This method is used to get localized ModuleType. When the localization is
-     * not specified or it is not supported a ModuleType with default locale is
-     * returned.
+     * Gets the localized {@link ModuleType} defined by this provider. When the localization is not specified
+     * or it is not supported a {@link ModuleType} with default locale is returned.
      *
-     * @param UID    unique id of module type.
+     * @param UID    unique identifier of the {@link ModuleType}.
      * @param locale defines localization of label and description of the {@link ModuleType} or null.
      * @param        <T> the type of the required object.
      * @return localized module type.
@@ -40,9 +39,8 @@ public interface ModuleTypeProvider extends Provider<ModuleType> {
     <T extends ModuleType> T getModuleType(String UID, Locale locale);
 
     /**
-     * This method is used to get localized ModuleTypes defined by this provider.
-     * When localization is not specified or it is not supported a ModuleTypes
-     * with default localization is returned.
+     * Gets the localized {@link ModuleType}s defined by this provider. When localization is not specified or
+     * it is not supported the {@link ModuleType}s with default localization is returned.
      *
      * @param locale defines localization of label and description of the {@link ModuleType}s or null.
      * @param        <T> the type of the required object.

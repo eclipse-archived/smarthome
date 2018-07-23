@@ -26,18 +26,18 @@ public class ParsingNestedException extends Exception {
     public static final int RULE = 3;
 
     /**
-     * This field keeps information about the UID of the automation object for parsing - module type, template or rule.
+     * Keeps information about the UID of the automation object for parsing - module type, template or rule.
      */
     private final String id;
 
     /**
-     * This field keeps information about the type of the automation object for parsing - module type, template or rule.
+     * Keeps information about the type of the automation object for parsing - module type, template or rule.
      */
     private final int type;
 
     /**
-     * This constructor creates an exception based on exception thrown the parsing plus information about the type of
-     * the automation object, its UID and additional message with additional information about the parsing process.
+     * Creates an exception based on exception thrown the parsing plus information about the type of the automation
+     * object, its UID and additional message with additional information about the parsing process.
      *
      * @param type is the type of the automation object for parsing.
      * @param id   is the UID of the automation object for parsing.
@@ -51,8 +51,8 @@ public class ParsingNestedException extends Exception {
     }
 
     /**
-     * This constructor creates an exception based on exception thrown during the parsing plus information about the
-     * type of the automation object and its UID.
+     * Creates an exception based on exception thrown during the parsing plus information about the type of the
+     * automation object and its UID.
      *
      * @param type is the type of the automation object for parsing.
      * @param id   is the UID of the automation object for parsing.
