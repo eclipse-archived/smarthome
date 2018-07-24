@@ -26,6 +26,10 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
+import org.eclipse.smarthome.automation.core.util.ConditionBuilder;
+import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
+import org.eclipse.smarthome.automation.core.util.TriggerBuilder;
 import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.RuleSupportRuleRegistryDelegate;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedAutomationManager;
@@ -76,6 +80,11 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
         staticTypes.put("ConditionHandlerFactory", ScriptedConditionHandlerFactory.class);
         staticTypes.put("TriggerHandlerFactory", ScriptedTriggerHandlerFactory.class);
 
+        staticTypes.put("ModuleBuilder", ModuleBuilder.class);
+        staticTypes.put("ActionBuilder", ActionBuilder.class);
+        staticTypes.put("ConditionBuilder", ConditionBuilder.class);
+        staticTypes.put("TriggerBuilder", TriggerBuilder.class);
+
         staticTypes.put("Configuration", Configuration.class);
         staticTypes.put("Action", Action.class);
         staticTypes.put("Condition", Condition.class);
@@ -92,7 +101,8 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
         types.add(AUTOMATION_MANAGER);
         types.add(RULE_REGISTRY);
 
-        presets.put(RULE_SUPPORT, Arrays.asList("Configuration", "Action", "Condition", "Trigger", "Rule"));
+        presets.put(RULE_SUPPORT, Arrays.asList("Configuration", "Action", "Condition", "Trigger", "Rule",
+                "ModuleBuilder", "ActionBuilder", "ConditionBuilder", "TriggerBuilder"));
         presets.put("RuleSimple", Arrays.asList("SimpleActionHandler", "SimpleConditionHandler", "SimpleTriggerHandler",
                 "SimpleRule", "TriggerType", "ConfigDescriptionParameter", "ModuleType", "ActionType", "Visibility"));
         presets.put("RuleFactories",

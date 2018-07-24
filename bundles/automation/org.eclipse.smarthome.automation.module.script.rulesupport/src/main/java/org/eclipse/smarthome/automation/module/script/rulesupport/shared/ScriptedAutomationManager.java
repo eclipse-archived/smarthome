@@ -19,6 +19,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ActionBuilder;
 import org.eclipse.smarthome.automation.core.util.ModuleBuilder;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.module.script.rulesupport.internal.ScriptedCustomModuleHandlerFactory;
@@ -164,7 +165,7 @@ public class ScriptedAutomationManager {
             String privId = addPrivateActionHandler(
                     new SimpleRuleActionHandlerDelegate((SimpleRuleActionHandler) element));
 
-            Action scriptedAction = ModuleBuilder.createAction().withId(Integer.toString(moduleIndex++))
+            Action scriptedAction = ActionBuilder.create().withId(Integer.toString(moduleIndex++))
                     .withTypeUID("jsr223.ScriptedAction").withConfiguration(new Configuration()).build();
             scriptedAction.getConfiguration().put("privId", privId);
             actions.add(scriptedAction);
