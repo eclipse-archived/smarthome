@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -200,12 +201,43 @@ public class Channel {
     }
 
     /**
-     * Returns the channel properties
+     * Returns an immutable copy of the {@link Channel} properties.
      *
-     * @return channel properties (not null)
+     * @return an immutable copy of the {@link Channel} properties (not {@code null})
      */
     public Map<String, String> getProperties() {
-        return properties;
+        synchronized (this) {
+            return Collections.unmodifiableMap(new HashMap<>(properties));
+        }
+    }
+
+    /**
+     * Sets the property value for the property identified by the given name. If the value to be set is {@code null}
+     * then the property will be removed.
+     *
+     * @param name the name of the property to be set (must not be {@code null} or empty)
+     * @param value the value of the property (if {@code null} then the property with the given name is removed)
+     * @return the previous value associated with the name, or {@code null} if there was no mapping for the name
+     */
+    public @Nullable String setProperty(String name, @Nullable String value) {
+        if (StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Property name must not be null or empty");
+        }
+        synchronized (this) {
+            if (value == null) {
+                return properties.remove(name);
+            }
+            return properties.put(name, value);
+        }
+    }
+
+    /**
+     * Updates all properties of the {@link Channel}.
+     *
+     * @param properties the properties to set (must not be {@code null})
+     */
+    public void setProperties(Map<String, String> properties) {
+        this.properties = new HashMap<>(properties);
     }
 
     /**

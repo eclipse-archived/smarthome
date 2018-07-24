@@ -50,7 +50,7 @@ public class ThingPropertiesTest extends JavaOSGiTest {
     }
 
     @Test
-    public void gestGetProperties() {
+    public void testGetProperties() {
         assertEquals(2, thing.getProperties().size());
         assertEquals("value1", thing.getProperties().get("key1"));
         assertEquals("value2", thing.getProperties().get("key2"));
