@@ -181,7 +181,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
 
     @Override
     public List<Condition> getConditions() {
-        return conditions;
+        return conditions == null ? new ArrayList<>() : conditions;
     }
 
     /**
@@ -190,17 +190,17 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      * @param conditions a list with the conditions that should belong to this {@link Rule}.
      */
     public void setConditions(@Nullable List<Condition> conditions) {
-        this.conditions = conditions == null ? new ArrayList<>() : conditions;
+        this.conditions = conditions;
     }
 
     @Override
     public List<Action> getActions() {
-        return actions;
+        return actions == null ? new ArrayList<>() : actions;
     }
 
     @Override
     public List<Trigger> getTriggers() {
-        return triggers;
+        return triggers == null ? new ArrayList<>() : triggers;
     }
 
     /**
@@ -209,7 +209,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      * @param actions a list with the actions that should belong to this {@link Rule}.
      */
     public void setActions(@Nullable List<Action> actions) {
-        this.actions = actions == null ? new ArrayList<>() : actions;
+        this.actions = actions;
     }
 
     /**
@@ -218,7 +218,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
      * @param triggers a list with the triggers that should belong to this {@link Rule}.
      */
     public void setTriggers(@Nullable List<Trigger> triggers) {
-        this.triggers = triggers == null ? new ArrayList<>() : triggers;
+        this.triggers = triggers;
     }
 
     /**
