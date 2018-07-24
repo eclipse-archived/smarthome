@@ -16,7 +16,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.junit.Test;
@@ -29,10 +28,11 @@ import org.junit.Test;
 public class ItemTagTest {
 
     private static final String TAG1 = "tag1";
-    private static final String TAG2 = "tag2";
+    private static final String TAG2 = "täg2";
     private static final String TAG3 = "tag3";
     private static final String TAG1_UPPERCASE = "TAG1";
-    private static final String TAG2_MIXED_CASE = "tAg2";
+    private static final String TAG2_MIXED_CASE = "tÄg2";
+    private static final String OTHER_TAG = "other tag";
 
     private static final String ITEM1 = "item1";
 
@@ -60,6 +60,24 @@ public class ItemTagTest {
         assertThat(item.hasTag(TAG1), is(false));
         assertThat(item.hasTag(TAG2), is(false));
         assertThat(item.hasTag(TAG3), is(false));
+    }
+
+    @Test
+    public void testThatRemoveNonExistingTagDoesNotThrowNPE() {
+        SwitchItem item = new SwitchItem(ITEM1);
+        assertThat(item.getTags().size(), is(0));
+
+        item.addTag(TAG1);
+        item.addTag(TAG2);
+
+        assertThat(item.getTags().size(), is(2));
+        assertThat(item.hasTag(TAG1), is(true));
+        assertThat(item.hasTag(TAG2), is(true));
+
+        item.removeTag(OTHER_TAG);
+        assertThat(item.getTags().size(), is(2));
+        assertThat(item.hasTag(TAG1), is(true));
+        assertThat(item.hasTag(TAG2), is(true));
     }
 
     @Test
@@ -115,7 +133,7 @@ public class ItemTagTest {
     }
 
     @Test
-    public void testThatGetTagsReturnsTagsAllLowercase() {
+    public void testThatGetTagsReturnsTagsAsTheyHaveBeenStored() {
         SwitchItem item = new SwitchItem(ITEM1);
         assertThat(item.getTags().size(), is(0));
 
@@ -125,6 +143,6 @@ public class ItemTagTest {
         assertThat(item.hasTag(TAG2), is(true));
         assertThat(item.hasTag(TAG3), is(true));
 
-        assertThat(item.getTags().containsAll(Arrays.asList(TAG1, TAG2, TAG3)), is(true));
+        assertThat(item.getTags().containsAll(Arrays.asList(TAG1_UPPERCASE, TAG2_MIXED_CASE, TAG3)), is(true));
     }
 }
