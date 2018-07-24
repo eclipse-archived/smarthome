@@ -181,7 +181,7 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
 
     @Override
     public List<Condition> getConditions() {
-        return conditions == null ? new ArrayList<>() : conditions;
+        return conditions == null ? Collections.emptyList() : conditions;
     }
 
     /**
@@ -195,12 +195,12 @@ public abstract class SimpleRule implements Rule, SimpleRuleActionHandler {
 
     @Override
     public List<Action> getActions() {
-        return actions == null ? new ArrayList<>() : actions;
+        return actions == null ? Collections.emptyList() : actions;
     }
 
     @Override
     public List<Trigger> getTriggers() {
-        return triggers == null ? new ArrayList<>() : triggers;
+        return triggers == null ? Collections.emptyList() : triggers;
     }
 
     /**
