@@ -360,7 +360,7 @@ public abstract class GenericItem implements ActiveItem {
 
     @Override
     public void removeTag(String tag) {
-        tags.remove(tags.stream().filter(t -> t.equalsIgnoreCase(tag)).findFirst().orElse(""));
+        tags.remove(tags.stream().filter(t -> t.equalsIgnoreCase(tag)).findFirst().orElse(tag));
     }
 
     @Override
