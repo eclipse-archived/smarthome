@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -245,13 +246,23 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     }
 
     private void extractConfiguration(Map<String, Object> config) {
-        sysfsTtyDevicesDirectory = config
+        String newSysfsTtyDevicesDirectory = config
                 .getOrDefault(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, SYSFS_TTY_DEVICES_DIRECTORY_DEFAULT).toString();
-        devDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
+        String newDevDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
 
-        if (!canPerformScans()) {
-            logger.info("Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
-                    sysfsTtyDevicesDirectory, devDirectory);
+        if (Objects.equals(sysfsTtyDevicesDirectory, newSysfsTtyDevicesDirectory)
+                && Objects.equals(devDirectory, newDevDirectory)) {
+            logger.debug(
+                    "Skip configuration update, as the new configuration is the same as the current configuration");
+        } else {
+            sysfsTtyDevicesDirectory = newSysfsTtyDevicesDirectory;
+            devDirectory = newDevDirectory;
+
+            if (!canPerformScans()) {
+                logger.info(
+                        "Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
+                        sysfsTtyDevicesDirectory, devDirectory);
+            }
         }
     }
 
