@@ -340,27 +340,27 @@ public abstract class GenericItem implements ActiveItem {
 
     @Override
     public boolean hasTag(String tag) {
-        return (tags.contains(tag));
+        return (tags.contains(tag.toLowerCase()));
     }
 
     @Override
     public void addTag(String tag) {
-        tags.add(tag);
+        tags.add(tag.toLowerCase());
     }
 
     @Override
     public void addTags(Collection<String> tags) {
-        this.tags.addAll(tags);
+        tags.stream().map(String::toLowerCase).forEach(this.tags::add);
     }
 
     @Override
     public void addTags(String... tags) {
-        this.tags.addAll(Arrays.asList(tags));
+        Arrays.asList(tags).stream().map(String::toLowerCase).forEach(this.tags::add);
     }
 
     @Override
     public void removeTag(String tag) {
-        tags.remove(tag);
+        tags.remove(tag.toLowerCase());
     }
 
     @Override
