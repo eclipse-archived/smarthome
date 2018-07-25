@@ -54,7 +54,9 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     private final static String CAMERA_ITEM_NAME1 = "cameraItem1";
     private final static String CAMERA_ITEM_NAME2 = "cameraItem2";
     private final static String CAMERA_ITEM_NAME3 = "cameraItem3";
+    private final static String CAMERA_ITEM_NAME4 = "cameraItem4";
     private final static String CAMERA_TAG = "camera";
+    private final static String CAMERA_TAG_UPPERCASE = "CAMERA";
     private final static String SENSOR_TAG = "sensor";
     private final static String OTHER_TAG = "other";
 
@@ -72,16 +74,19 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
         GenericItem cameraItem1 = new SwitchItem(CAMERA_ITEM_NAME1);
         GenericItem cameraItem2 = new SwitchItem(CAMERA_ITEM_NAME2);
         GenericItem cameraItem3 = new NumberItem(CAMERA_ITEM_NAME3);
+        GenericItem cameraItem4 = new NumberItem(CAMERA_ITEM_NAME4);
         cameraItem1.addTag(CAMERA_TAG);
         cameraItem2.addTag(CAMERA_TAG);
         cameraItem2.addTag(SENSOR_TAG);
         cameraItem3.addTag(CAMERA_TAG);
+        cameraItem4.addTag(CAMERA_TAG_UPPERCASE);
 
         itemProvider = getService(ManagedItemProvider.class);
         itemProvider.add(new SwitchItem(ITEM_NAME));
         itemProvider.add(cameraItem1);
         itemProvider.add(cameraItem2);
         itemProvider.add(cameraItem3);
+        itemProvider.add(cameraItem4);
     }
 
     @After
@@ -93,7 +98,7 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     @Test
     public void assertGetItemsReturnsItemFromRegisteredItemProvider() {
         List<Item> items = new ArrayList<>(itemRegistry.getItems());
-        assertThat(items.size(), is(4));
+        assertThat(items.size(), is(5));
         assertThat(items.get(0).getName(), is(equalTo(ITEM_NAME)));
     }
 
@@ -107,10 +112,21 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     @Test
     public void assertGetItemsByTagReturnsItemFromRegisteredItemProvider() {
         List<Item> items = new ArrayList<>(itemRegistry.getItemsByTag(CAMERA_TAG));
-        assertThat(items.size(), is(3));
+        assertThat(items.size(), is(4));
         assertThat(items.get(0).getName(), is(equalTo(CAMERA_ITEM_NAME1)));
         assertThat(items.get(1).getName(), is(equalTo(CAMERA_ITEM_NAME2)));
         assertThat(items.get(2).getName(), is(equalTo(CAMERA_ITEM_NAME3)));
+        assertThat(items.get(3).getName(), is(equalTo(CAMERA_ITEM_NAME4)));
+    }
+
+    @Test
+    public void assertGetItemsByTagInUppercaseReturnsItemFromRegisteredItemProvider() {
+        List<Item> items = new ArrayList<>(itemRegistry.getItemsByTag(CAMERA_TAG_UPPERCASE));
+        assertThat(items.size(), is(4));
+        assertThat(items.get(0).getName(), is(equalTo(CAMERA_ITEM_NAME1)));
+        assertThat(items.get(1).getName(), is(equalTo(CAMERA_ITEM_NAME2)));
+        assertThat(items.get(2).getName(), is(equalTo(CAMERA_ITEM_NAME3)));
+        assertThat(items.get(3).getName(), is(equalTo(CAMERA_ITEM_NAME4)));
     }
 
     @Test
@@ -143,7 +159,7 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
 
     @Test
     public void assertGetItemsByTagCanFilterByClassAndTagWithGenericItem() {
-        assertThat(itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(3));
+        assertThat(itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(4));
     }
 
     @Test
