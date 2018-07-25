@@ -43,6 +43,10 @@ import org.eclipse.smarthome.core.library.types.StopMoveType;
 import org.eclipse.smarthome.core.library.types.StringListType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
+import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.MetricPrefix;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -160,6 +164,11 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements.put("PercentType", PercentType.class);
         elements.put("PointType", PointType.class);
         elements.put("StringType", StringType.class);
+
+        elements.put("SIUnits", SIUnits.class);
+        elements.put("ImperialUnits", ImperialUnits.class);
+        elements.put("MetricPrefix", MetricPrefix.class);
+        elements.put("SmartHomeUnits", SmartHomeUnits.class);
 
         // services
         elements.put("items", new ItemRegistryDelegate(itemRegistry));
