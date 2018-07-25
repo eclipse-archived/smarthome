@@ -25,6 +25,13 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bluetooth/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-bluetooth-bluegiga" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-binding-bluetooth</feature>
+    <feature>esh-io-transport-serial</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.bluetooth.bluegiga/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-bluetooth-bluez" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-binding-bluetooth</feature>
