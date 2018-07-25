@@ -38,6 +38,7 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
@@ -257,6 +258,14 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         }
 
         @Override
+        public void validateConfigurationParameters(Thing thing, Map<String, Object> configurationParameters) {
+            ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
+            if (thingType != null && thingType.getConfigDescriptionURI() != null) {
+                configDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
+            }
+        }
+
+        @Override
         public void configurationUpdated(Thing thing) {
             initializeHandler(thing);
         }
@@ -287,6 +296,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
     private BundleResolver bundleResolver;
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
+    private ConfigDescriptionValidator configDescriptionValidator;
 
     private final Set<Thing> things = new CopyOnWriteArraySet<>();
 
@@ -1079,6 +1089,15 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
+    }
+
+    @Reference
+    protected void setConfigDescriptionValidator(ConfigDescriptionValidator configDescriptionValidator) {
+        this.configDescriptionValidator = configDescriptionValidator;
+    }
+
+    protected void unsetConfigDescriptionValidator(ConfigDescriptionValidator configDescriptionValidator) {
+        this.configDescriptionValidator = null;
     }
 
     @Reference

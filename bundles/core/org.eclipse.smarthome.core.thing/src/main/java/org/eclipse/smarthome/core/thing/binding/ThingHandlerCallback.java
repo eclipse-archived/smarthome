@@ -12,8 +12,11 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.Map;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
@@ -66,6 +69,16 @@ public interface ThingHandlerCallback {
      * @throws IllegalStateException if the {@link Thing} is read-only.
      */
     void thingUpdated(Thing thing);
+
+    /**
+     * Validates the given configuration parameters against the configuration description.
+     *
+     * @param thing thing with the updated configuration (must no be null)
+     * @param configurationParameters the configuration parameters to be validated
+     * @throws ConfigValidationException if one or more of the given configuration parameters do not match
+     *             their declarations in the configuration description
+     */
+    void validateConfigurationParameters(Thing thing, Map<String, Object> configurationParameters);
 
     /**
      * Informs about an updated configuration of a thing.
