@@ -84,7 +84,7 @@ public class RuleEngineTest extends JavaOSGiTest {
 
         // do connections auto mapping
         ruleRegistry.add(rule);
-        RuleImpl ruleGet = ruleEngine.getRuleImpl("AutoMapRule");
+        Rule ruleGet = ruleEngine.getRule("AutoMapRule");
         Assert.assertEquals("Returned rule with wrong UID", "AutoMapRule", ruleGet.getUID());
 
         // check condition connections
@@ -128,12 +128,12 @@ public class RuleEngineTest extends JavaOSGiTest {
         rule2.setTags(ruleTags);
         ruleRegistry.add(rule2);
 
-        RuleImpl rule1Get = ruleEngine.getRuleImpl("ruleWithTag1");
+        Rule rule1Get = ruleEngine.getRule("ruleWithTag1");
         Assert.assertNotNull("Cannot find rule by UID", rule1Get);
         Assert.assertNotNull("rule.getTags is null", rule1Get.getTags());
         Assert.assertEquals("rule.getTags is empty", 1, rule1Get.getTags().size());
 
-        RuleImpl rule2Get = ruleEngine.getRuleImpl("ruleWithTags12");
+        Rule rule2Get = ruleEngine.getRule("ruleWithTags12");
         Assert.assertNotNull("Cannot find rule by UID", rule2Get);
         Assert.assertNotNull("rule.getTags is null", rule2Get.getTags());
         Assert.assertEquals("rule.getTags is empty", 2, rule2Get.getTags().size());
@@ -148,7 +148,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         Rule rule3 = RuleBuilder.create("rule3").withTriggers(createTriggers("typeUID"))
                 .withConditions(createConditions("typeUID")).withActions(createActions("typeUID")).build();
         ruleRegistry.add(rule3);
-        RuleImpl rule3Get = ruleEngine.getRuleImpl("rule3");
+        Rule rule3Get = ruleEngine.getRule("rule3");
         Assert.assertNotNull("RuleImpl configuration is null", rule3Get.getConfiguration());
     }
 
@@ -166,7 +166,7 @@ public class RuleEngineTest extends JavaOSGiTest {
                 .withConditions(createConditions("typeUID")).withActions(createActions("typeUID"))
                 .withConfigurationDescriptions(configDescriptions).withConfiguration(configurations).build();
         ruleRegistry.add(rule4);
-        RuleImpl rule4Get = ruleEngine.getRuleImpl("rule4");
+        Rule rule4Get = ruleEngine.getRule("rule4");
         Configuration rule4cfg = rule4Get.getConfiguration();
         List<ConfigDescriptionParameter> rule4cfgD = rule4Get.getConfigurationDescriptions();
         Assert.assertNotNull("RuleImpl configuration is null", rule4cfg);
@@ -194,7 +194,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         List<Action> actions = new ArrayList<Action>(rule1.getActions());
         ruleRegistry.add(rule1);
 
-        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
+        Rule rule1Get = ruleEngine.getRule("rule1");
         List<Action> actionsGet = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet);
         Assert.assertEquals("Empty actions list", 1, actionsGet.size());
@@ -203,7 +203,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         actions.add(ModuleBuilder.createAction().withId("actionId2").withTypeUID("typeUID2").build());
         rule1.setActions(actions);
         ruleEngine.addRule(rule1);
-        rule1Get = ruleEngine.getRuleImpl("rule1");
+        rule1Get = ruleEngine.getRule("rule1");
         List<Action> actionsGet2 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet2);
         Assert.assertEquals("Action was not added to the rule's list of actions", 2, actionsGet2.size());
@@ -211,12 +211,12 @@ public class RuleEngineTest extends JavaOSGiTest {
 
         actions.add(ModuleBuilder.createAction().withId("actionId3").withTypeUID("typeUID3").build());
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
-        rule1Get = ruleEngine.getRuleImpl("rule1");
+        rule1Get = ruleEngine.getRule("rule1");
         List<Action> actionsGet3 = rule1Get.getActions();
         Assert.assertNotNull("Null actions list", actionsGet3);
         Assert.assertEquals("Action was not added to the rule's list of actions", 3, actionsGet3.size());
         Assert.assertNotNull("RuleImpl modules map was not updated",
-                ruleEngine.getRuleImpl("rule1").getModule("actionId3"));
+                ruleEngine.getRule("rule1").getModule("actionId3"));
     }
 
     /**
@@ -228,7 +228,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         RuleImpl rule1 = createRule();
         List<Trigger> triggers = new ArrayList<Trigger>(rule1.getTriggers());
         ruleRegistry.add(rule1);
-        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
+        Rule rule1Get = ruleEngine.getRule("rule1");
         List<Trigger> triggersGet = rule1Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet);
         Assert.assertEquals("Empty triggers list", 1, triggersGet.size());
@@ -239,7 +239,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         ruleEngine.addRule(rule1); // ruleEngine.update will update the
                                    // RuleImpl2.moduleMap with the new
                                    // module
-        RuleImpl rule2Get = ruleEngine.getRuleImpl("rule1");
+        Rule rule2Get = ruleEngine.getRule("rule1");
         List<Trigger> triggersGet2 = rule2Get.getTriggers();
         Assert.assertNotNull("Null triggers list", triggersGet2);
         Assert.assertEquals("Trigger was not added to the rule's list of triggers", 2, triggersGet2.size());
@@ -256,7 +256,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         RuleImpl rule1 = createRule();
         List<Condition> conditions = new ArrayList<>(rule1.getConditions());
         ruleRegistry.add(rule1);
-        RuleImpl rule1Get = ruleEngine.getRuleImpl("rule1");
+        Rule rule1Get = ruleEngine.getRule("rule1");
         List<Condition> conditionsGet = rule1Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet);
         Assert.assertEquals("Empty conditions list", 1, conditionsGet.size());
@@ -265,7 +265,7 @@ public class RuleEngineTest extends JavaOSGiTest {
         conditions.add(ModuleBuilder.createCondition().withId("conditionId2").withTypeUID("typeUID2").build());
         rule1.setConditions(conditions);
         ruleEngine.addRule(rule1); // ruleEngine.update will update the RuleImpl2.moduleMap with the new module
-        RuleImpl rule2Get = ruleEngine.getRuleImpl("rule1");
+        Rule rule2Get = ruleEngine.getRule("rule1");
         List<Condition> conditionsGet2 = rule2Get.getConditions();
         Assert.assertNotNull("Null conditions list", conditionsGet2);
         Assert.assertEquals("Condition was not added to the rule's list of conditions", 2, conditionsGet2.size());

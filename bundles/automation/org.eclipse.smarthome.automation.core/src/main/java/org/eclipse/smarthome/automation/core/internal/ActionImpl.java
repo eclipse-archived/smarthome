@@ -14,13 +14,11 @@ package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -35,8 +33,6 @@ import org.eclipse.smarthome.config.core.Configuration;
 @NonNullByDefault
 public class ActionImpl extends ModuleImpl implements Action {
 
-    private @Nullable ActionHandler actionHandler;
-    private Set<Connection> connections = Collections.emptySet();
     private Map<String, String> inputs = Collections.emptyMap();
 
     /**
@@ -56,38 +52,6 @@ public class ActionImpl extends ModuleImpl implements Action {
     }
 
     /**
-     * This method sets the connections for this module.
-     *
-     * @param connections the set of connections for this action
-     */
-    void setConnections(@Nullable Set<Connection> connections) {
-        this.connections = connections == null ? Collections.emptySet() : connections;
-    }
-
-    public Set<Connection> getConnections() {
-        return connections;
-    }
-
-    /**
-     * This method gets handler which is responsible for handling of this module.
-     *
-     * @return handler of the module or null.
-     */
-    @Nullable
-    ActionHandler getModuleHandler() {
-        return actionHandler;
-    }
-
-    /**
-     * This method sets handler of the module.
-     *
-     * @param actionHandler
-     */
-    public void setModuleHandler(@Nullable ActionHandler actionHandler) {
-        this.actionHandler = actionHandler;
-    }
-
-    /**
      * This method is used to get input connections of the Action. The connections
      * are links between {@link Input}s of the this {@link Module} and {@link Output}s
      * of other {@link Module}s.
@@ -97,14 +61,5 @@ public class ActionImpl extends ModuleImpl implements Action {
     @Override
     public Map<String, String> getInputs() {
         return inputs;
-    }
-
-    /**
-     * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
-     *
-     * @param inputs map that contains the inputs for this action.
-     */
-    public void setInputs(@Nullable Map<String, String> inputs) {
-        this.inputs = inputs == null ? Collections.emptyMap() : Collections.unmodifiableMap(inputs);
     }
 }
