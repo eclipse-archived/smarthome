@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.eclipse.smarthome.automation;
 
 import java.util.List;
@@ -129,26 +141,18 @@ public interface Rule extends Identifiable<String> {
     List<Module> getModules();
 
     /**
-     * Gets the status of a rule. In order to get all status information (status, status detail and status description)
-     * please use {@link Rule#getStatusInfo()}.
+     * This method is used to get a {@link Module} participating in {@link Rule}
      *
-     * @return the status
+     * @param moduleId specifies the id of a module belonging to this {@link Rule}.
+     * @return module with specified id or {@code null} if it does not belong to this {@link Rule}.
      */
-    RuleStatus getStatus();
-
-    /**
-     * Gets the status info of a rule. The status info consists of the status itself, the status detail and a status
-     * description.
-     *
-     * @return the status info
-     */
-    RuleStatusInfo getStatusInfo();
-
-    /**
-     * Provides information on whether the rule is currently enabled or not.
-     *
-     * @return true, if the rule is enabled
-     */
-    boolean isEnabled();
+    default @Nullable Module getModule(String moduleId) {
+        for (Module module : getModules()) {
+            if (module.getId().equals(moduleId)) {
+                return module;
+            }
+        }
+        return null;
+    }
 
 }

@@ -26,9 +26,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.RuleStatus;
-import org.eclipse.smarthome.automation.RuleStatusDetail;
-import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
@@ -57,9 +54,6 @@ public class RuleImpl implements Rule {
     protected @NonNullByDefault({}) Set<String> tags;
     protected @NonNullByDefault({}) Visibility visibility;
     protected @Nullable String description;
-
-    private transient volatile RuleStatusInfo status = new RuleStatusInfo(RuleStatus.UNINITIALIZED,
-            RuleStatusDetail.NONE);
 
     /**
      * Constructor for creating an empty {@link Rule} with a specified rule identifier.
@@ -265,21 +259,6 @@ public class RuleImpl implements Rule {
         this.triggers = triggers == null ? Collections.emptyList() : Collections.unmodifiableList(triggers);
     }
 
-    /**
-     * This method is used to get a {@link ModuleImpl} participating in {@link RuleImpl}
-     *
-     * @param moduleId specifies the id of a module belonging to this {@link RuleImpl}.
-     * @return module with specified id or {@code null} if it does not belong to this {@link RuleImpl}.
-     */
-    public @Nullable Module getModule(String moduleId) {
-        for (Module module : getModules()) {
-            if (module.getId().equals(moduleId)) {
-                return module;
-            }
-        }
-        return null;
-    }
-
     @Override
     public List<Module> getModules() {
         final List<Module> result;
@@ -289,21 +268,6 @@ public class RuleImpl implements Rule {
         modules.addAll(actions);
         result = Collections.unmodifiableList(modules);
         return result;
-    }
-
-    @Override
-    public RuleStatus getStatus() {
-        return status.getStatus();
-    }
-
-    @Override
-    public RuleStatusInfo getStatusInfo() {
-        return status;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return status.getStatusDetail() != RuleStatusDetail.DISABLED;
     }
 
     @Override
@@ -330,10 +294,6 @@ public class RuleImpl implements Rule {
             return false;
         }
         return true;
-    }
-
-    protected synchronized void setStatusInfo(RuleStatusInfo statusInfo) {
-        this.status = statusInfo;
     }
 
 }
