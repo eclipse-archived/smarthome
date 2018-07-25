@@ -541,7 +541,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         assertThat thing.getConfiguration().get("parameter"), is("before")
 
         // let it fail next time...
-        thing.getHandler().callback = [thingUpdated: {updatedThing -> throw new IllegalStateException()}] as ThingHandlerCallback
+        thing.getHandler().callback = [validateConfigurationParameters: {updatedThing, configurationParameters -> }, thingUpdated: {updatedThing -> throw new IllegalStateException()}] as ThingHandlerCallback
         try {
             thingRegistry.updateConfiguration(thingUID, [parameter: "after"] as Map)
             fail("There should have been an exception!")
