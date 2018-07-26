@@ -20,7 +20,7 @@
 			<required>false</required>
 		</parameter><!--ipAddress -->
 		<parameter name="dSSAddress" type="text" groupName="connection">
-			<context>network_address</context>
+			<context>network-address</context>
 			<label>@text/dss_param_ip_address_label</label>
 			<description>@text/dss_param_ip_address_desc</description>
 			<required>true</required>

@@ -16,7 +16,7 @@
 
 		<config-description>
 			<parameter name="gatewayAddress" type="text" required="true">
-				<context>network_address</context>
+				<context>network-address</context>
 				<label>Gateway Address</label>
 				<description>Network address of the Homematic gateway</description>
 			</parameter>
@@ -32,7 +32,7 @@
 				</options>
 			</parameter>
 			<parameter name="callbackHost" type="text">
-				<context>network_address</context>
+				<context>network-address</context>
 				<label>Callback Network Address</label>
 				<description>Callback network address of the ESH runtime, default is auto-discovery</description>
 			</parameter>
