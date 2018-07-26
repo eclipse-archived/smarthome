@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.automation.core.util;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,10 +42,12 @@ import org.slf4j.Logger;
  * </li>
  * </ul>
  *
- * ModuleImpl 'A' Configuration properties can have references to either CompositeModule Configuration properties or RuleImpl
+ * ModuleImpl 'A' Configuration properties can have references to either CompositeModule Configuration properties or
+ * RuleImpl
  * Configuration properties depending where ModuleImpl 'A' is placed.
  * <br/>
- * Note. If ModuleImpl 'A' is child of CompositeModule - it cannot have direct configuration references to the RuleImpl that is
+ * Note. If ModuleImpl 'A' is child of CompositeModule - it cannot have direct configuration references to the RuleImpl
+ * that is
  * holding the CompositeModule.
  * <ul>
  * <li>
@@ -98,20 +101,35 @@ public class ReferenceResolver {
         for (String configKey : config.keySet()) {
             Object o = config.get(configKey);
             if (o instanceof String) {
-                String childConfigPropertyValue = (String) o;
-                if (isReference(childConfigPropertyValue)) {
-                    Object result = resolveReference(childConfigPropertyValue, context);
-                    if (result != null) {
-                        config.put(configKey, result);
-                    }
-                } else if (containsPattern(childConfigPropertyValue)) {
-                    Object result = resolvePattern(childConfigPropertyValue, context, logger);
-                    if (result != null) {
-                        config.put(configKey, result);
+                Object result = resolveProperty(config, context, logger, configKey, (String) o);
+                config.put(configKey, result);
+            } else if (o instanceof ArrayList) {
+                ArrayList<Object> resultList = new ArrayList<>();
+                ArrayList<?> list = (ArrayList<?>) o;
+                for (Object obj : list) {
+                    if (obj instanceof String) {
+                        resultList.add(resolveProperty(config, context, logger, configKey, (String) obj));
                     }
                 }
+                config.put(configKey, resultList);
             }
         }
+    }
+
+    private static Object resolveProperty(Configuration config, Map<String, ?> context, Logger logger, String configKey,
+            String childConfigPropertyValue) {
+        if (isReference(childConfigPropertyValue)) {
+            Object result = resolveReference(childConfigPropertyValue, context);
+            if (result != null) {
+                return result;
+            }
+        } else if (containsPattern(childConfigPropertyValue)) {
+            Object result = resolvePattern(childConfigPropertyValue, context, logger);
+            if (result != null) {
+                return result;
+            }
+        }
+        return childConfigPropertyValue;
     }
 
     /**
