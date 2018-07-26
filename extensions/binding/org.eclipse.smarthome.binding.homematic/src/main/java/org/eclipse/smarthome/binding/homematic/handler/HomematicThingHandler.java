@@ -456,15 +456,15 @@ public class HomematicThingHandler extends BaseThingHandler {
     @Override
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
             throws ConfigValidationException {
-        validateConfigurationParameters(configurationParameters);
+        super.handleConfigurationUpdate(configurationParameters);
 
         try {
             HomematicGateway gateway = getHomematicGateway();
             HmDevice device = gateway.getDevice(UidUtils.getHomematicAddress(getThing()));
 
-            for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
-                String key = configurationParmeter.getKey();
-                Object newValue = configurationParmeter.getValue();
+            for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
+                String key = configurationParameter.getKey();
+                Object newValue = configurationParameter.getValue();
 
                 if (key.startsWith("HMP_")) {
                     key = StringUtils.removeStart(key, "HMP_");
