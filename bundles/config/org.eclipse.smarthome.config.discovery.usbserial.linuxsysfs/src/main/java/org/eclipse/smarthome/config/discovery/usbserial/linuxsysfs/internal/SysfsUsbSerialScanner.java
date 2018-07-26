@@ -250,18 +250,25 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
                 .getOrDefault(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, SYSFS_TTY_DEVICES_DIRECTORY_DEFAULT).toString();
         String newDevDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
 
-        if (Objects.equals(sysfsTtyDevicesDirectory, newSysfsTtyDevicesDirectory)
-                && Objects.equals(devDirectory, newDevDirectory)) {
-            logger.debug(
-                    "Skip configuration update, as the new configuration is the same as the current configuration");
-        } else {
+        boolean configurationIsChanged = !(Objects.equals(sysfsTtyDevicesDirectory, newSysfsTtyDevicesDirectory)
+                && Objects.equals(devDirectory, newDevDirectory));
+
+        if (configurationIsChanged) {
             sysfsTtyDevicesDirectory = newSysfsTtyDevicesDirectory;
             devDirectory = newDevDirectory;
+        }
 
-            if (!canPerformScans()) {
-                logger.info(
-                        "Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
-                        sysfsTtyDevicesDirectory, devDirectory);
+        if (!canPerformScans()) {
+            String logString = String.format(
+                    "Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
+                    sysfsTtyDevicesDirectory, devDirectory);
+
+            if (configurationIsChanged) {
+                // Warn if the configuration was actively changed
+                logger.warn(logString);
+            } else {
+                // Otherwise, only debug log - so that, in particular, on Non-Linux systems users do not see warning
+                logger.debug(logString);
             }
         }
     }
