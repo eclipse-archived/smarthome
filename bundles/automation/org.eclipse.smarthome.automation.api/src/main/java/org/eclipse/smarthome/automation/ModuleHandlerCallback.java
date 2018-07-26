@@ -14,6 +14,8 @@ package org.eclipse.smarthome.automation;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 
 /**
@@ -25,6 +27,7 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
+@NonNullByDefault
 public interface ModuleHandlerCallback {
 
     /**
@@ -38,7 +41,8 @@ public interface ModuleHandlerCallback {
      *         {@link RuleStatus#IDLE} and {@link RuleStatus#RUNNING}, {@code false} when it is
      *         {@link RuleStatus#DISABLED} and {@code null} when it is not available.
      */
-    public Boolean isEnabled(String ruleUID);
+    @Nullable
+    Boolean isEnabled(String ruleUID);
 
     /**
      * This method is used for changing <b>enabled</b> state of the {@link Rule}.
@@ -46,10 +50,10 @@ public interface ModuleHandlerCallback {
      * {@link RuleStatus#RUNNING}.
      * The <b>disabled</b> rule status is {@link RuleStatus#DISABLED}.
      *
-     * @param uid       the unique identifier of the {@link Rule}.
+     * @param uid the unique identifier of the {@link Rule}.
      * @param isEnabled a new <b>enabled / disabled</b> state of the {@link Rule}.
      */
-    public void setEnabled(String uid, boolean isEnabled);
+    void setEnabled(String uid, boolean isEnabled);
 
     /**
      * This method gets {@link RuleStatusInfo} of the specified {@link Rule}.
@@ -58,7 +62,8 @@ public interface ModuleHandlerCallback {
      * @return {@link RuleStatusInfo} object containing status of the looking {@link Rule} or null when a rule with
      *         specified UID does not exists.
      */
-    public RuleStatusInfo getStatusInfo(String ruleUID);
+    @Nullable
+    RuleStatusInfo getStatusInfo(String ruleUID);
 
     /**
      * Utility method which gets {@link RuleStatus} of the specified {@link Rule}.
@@ -67,7 +72,8 @@ public interface ModuleHandlerCallback {
      * @return {@link RuleStatus} object containing status of the looking {@link Rule} or null when a rule with
      *         specified UID does not exists.
      */
-    public RuleStatus getStatus(String ruleUID);
+    @Nullable
+    RuleStatus getStatus(String ruleUID);
 
     /**
      * The method skips the triggers and the conditions and directly executes the actions of the rule.
@@ -76,16 +82,16 @@ public interface ModuleHandlerCallback {
      *
      * @param ruleUID id of the rule whose actions have to be executed.
      */
-    public void runNow(String uid);
+    void runNow(String uid);
 
     /**
      * Same as {@link #runNow(String)} with the additional option to enable/disable evaluation of
      * conditions defined in the target rule. The context can be set here, too, but also might be {@code null}.
      *
-     * @param ruleUID            id of the rule whose actions have to be executed.
+     * @param ruleUID id of the rule whose actions have to be executed.
      * @param considerConditions if {@code true} the conditions of the rule will be checked.
-     * @param context            the context that is passed to the conditions and the actions of the rule.
+     * @param context the context that is passed to the conditions and the actions of the rule.
      */
-    public void runNow(String uid, boolean considerConditions, Map<String, Object> context);
+    void runNow(String uid, boolean considerConditions, @Nullable Map<String, Object> context);
 
 }
