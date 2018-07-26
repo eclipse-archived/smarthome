@@ -80,9 +80,6 @@ public class UsbSerialDiscoveryService extends AbstractDiscoveryService implemen
     protected void activate(@Nullable Map<String, @Nullable Object> configProperties) {
         super.activate(configProperties);
         usbSerialDiscovery.registerDiscoveryListener(this);
-        if (isBackgroundDiscoveryEnabled()) {
-            usbSerialDiscovery.startBackgroundScanning();
-        }
     }
 
     @Modified

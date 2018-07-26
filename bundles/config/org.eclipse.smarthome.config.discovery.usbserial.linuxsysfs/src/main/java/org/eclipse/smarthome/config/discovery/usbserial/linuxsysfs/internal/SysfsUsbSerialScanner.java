@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -245,13 +246,30 @@ public class SysfsUsbSerialScanner implements UsbSerialScanner {
     }
 
     private void extractConfiguration(Map<String, Object> config) {
-        sysfsTtyDevicesDirectory = config
+        String newSysfsTtyDevicesDirectory = config
                 .getOrDefault(SYSFS_TTY_DEVICES_DIRECTORY_ATTRIBUTE, SYSFS_TTY_DEVICES_DIRECTORY_DEFAULT).toString();
-        devDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
+        String newDevDirectory = config.getOrDefault(DEV_DIRECTORY_ATTRIBUTE, DEV_DIRECTORY_DEFAULT).toString();
+
+        boolean configurationIsChanged = !(Objects.equals(sysfsTtyDevicesDirectory, newSysfsTtyDevicesDirectory)
+                && Objects.equals(devDirectory, newDevDirectory));
+
+        if (configurationIsChanged) {
+            sysfsTtyDevicesDirectory = newSysfsTtyDevicesDirectory;
+            devDirectory = newDevDirectory;
+        }
 
         if (!canPerformScans()) {
-            logger.info("Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
+            String logString = String.format(
+                    "Cannot perform scans with this configuration: sysfsTtyDevicesDirectory: {}, devDirectory: {}",
                     sysfsTtyDevicesDirectory, devDirectory);
+
+            if (configurationIsChanged) {
+                // Warn if the configuration was actively changed
+                logger.warn(logString);
+            } else {
+                // Otherwise, only debug log - so that, in particular, on Non-Linux systems users do not see warning
+                logger.debug(logString);
+            }
         }
     }
 

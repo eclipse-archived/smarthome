@@ -127,7 +127,7 @@ public class PollingUsbSerialScanner implements UsbSerialDiscovery {
                 logger.debug("Scheduled USB-Serial background discovery every {} seconds",
                         pauseBetweenScans.getSeconds());
             } else {
-                logger.info(
+                logger.debug(
                         "Do not start background scanning, as the configured USB-Serial scanner cannot perform scans on this system");
             }
         }
