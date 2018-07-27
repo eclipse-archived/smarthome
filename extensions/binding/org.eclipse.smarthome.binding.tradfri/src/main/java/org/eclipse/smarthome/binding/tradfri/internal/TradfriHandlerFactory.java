@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriControllerHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriGatewayHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriLightHandler;
+import org.eclipse.smarthome.binding.tradfri.handler.TradfriPlugHandler;
 import org.eclipse.smarthome.binding.tradfri.handler.TradfriSensorHandler;
 import org.eclipse.smarthome.binding.tradfri.internal.discovery.TradfriDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -48,7 +49,8 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
             .concat(Stream.of(GATEWAY_TYPE_UID),
-                    Stream.concat(SUPPORTED_LIGHT_TYPES_UIDS.stream(), SUPPORTED_CONTROLLER_TYPES_UIDS.stream()))
+                    Stream.concat(Stream.concat(SUPPORTED_LIGHT_TYPES_UIDS.stream(),
+                            SUPPORTED_CONTROLLER_TYPES_UIDS.stream()), SUPPORTED_PLUG_TYPES_UIDS.stream()))
             .collect(Collectors.toSet());
 
     private final Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
@@ -72,6 +74,8 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
             return new TradfriSensorHandler(thing);
         } else if (SUPPORTED_LIGHT_TYPES_UIDS.contains(thingTypeUID)) {
             return new TradfriLightHandler(thing);
+        } else if (SUPPORTED_PLUG_TYPES_UIDS.contains(thingTypeUID)) {
+            return new TradfriPlugHandler(thing);
         }
         return null;
     }
