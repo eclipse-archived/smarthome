@@ -22,7 +22,7 @@ public class ApiVersionUtils {
 
     /**
      * starting from version 1.11, <code>GET</code>ing the Lights always returns {@link FullLight FullLights} instead of
-     * {@link Light Lights}
+     * {@link HueObject Lights}
      *
      * @return
      */

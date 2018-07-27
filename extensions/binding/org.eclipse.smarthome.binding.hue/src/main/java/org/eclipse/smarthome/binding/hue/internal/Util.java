@@ -40,11 +40,11 @@ class Util {
         }
     }
 
-    public static List<Light> idsToLights(List<String> ids) {
-        List<Light> lights = new ArrayList<>();
+    public static List<HueObject> idsToLights(List<String> ids) {
+        List<HueObject> lights = new ArrayList<>();
 
         for (String id : ids) {
-            Light light = new Light();
+            HueObject light = new HueObject();
             light.setId(id);
             lights.add(light);
         }
@@ -52,10 +52,10 @@ class Util {
         return lights;
     }
 
-    public static List<String> lightsToIds(List<Light> lights) {
+    public static List<String> lightsToIds(List<HueObject> lights) {
         List<String> ids = new ArrayList<>();
 
-        for (Light light : lights) {
+        for (HueObject light : lights) {
             ids.add(light.getId());
         }
 

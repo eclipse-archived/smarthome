@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -20,24 +19,9 @@ import java.util.Date;
  *
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding, minor code cleanup
+ * @author Samuel Leisering - refactor configuration updates
  */
-public class ScheduleUpdate {
-    private ArrayList<Command> commands = new ArrayList<>();
-
-    String toJson() {
-        StringBuilder json = new StringBuilder("{");
-
-        for (int i = 0; i < commands.size(); i++) {
-            json.append(commands.get(i).toJson());
-            if (i < commands.size() - 1) {
-                json.append(",");
-            }
-        }
-
-        json.append("}");
-
-        return json.toString();
-    }
+public class ScheduleUpdate extends ConfigUpdate {
 
     /**
      * Set the name of the schedule.

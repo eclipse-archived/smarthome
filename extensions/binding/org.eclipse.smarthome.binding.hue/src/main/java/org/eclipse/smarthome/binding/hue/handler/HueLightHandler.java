@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.hue.internal.FullHueObject;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.State;
@@ -142,7 +143,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     private synchronized void initializeProperties() {
         if (!propertiesInitializedSuccessfully) {
-            FullLight fullLight = getLight();
+            FullHueObject fullLight = getLight();
             if (fullLight != null) {
                 String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
                 updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
@@ -151,7 +152,10 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (vendor != null) {
                     updateProperty(Thing.PROPERTY_VENDOR, vendor);
                 }
-                updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
+                String uniqueID = fullLight.getUniqueID();
+                if (uniqueID != null) {
+                    updateProperty(LIGHT_UNIQUE_ID, uniqueID);
+                }
                 isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
                 propertiesInitializedSuccessfully = true;
             }

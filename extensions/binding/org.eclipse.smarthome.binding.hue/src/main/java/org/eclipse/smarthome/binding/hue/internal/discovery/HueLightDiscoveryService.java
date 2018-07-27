@@ -17,6 +17,7 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,13 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.handler.LightStatusListener;
+import org.eclipse.smarthome.binding.hue.handler.sensors.DimmerSwitchHandler;
+import org.eclipse.smarthome.binding.hue.handler.sensors.LightLevelHandler;
+import org.eclipse.smarthome.binding.hue.handler.sensors.PresenceHandler;
+import org.eclipse.smarthome.binding.hue.handler.sensors.TemperatureHandler;
+import org.eclipse.smarthome.binding.hue.internal.FullHueObject;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.FullSensor;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -47,6 +54,7 @@ import org.slf4j.LoggerFactory;
  *         added representationProperty to discovery result
  * @author Thomas Höfer - Added representation
  * @author Denis Dudnik - switched to internally integrated source of Jue library
+ * @author Samuel Leisering - Added sensor support
  */
 @NonNullByDefault
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
@@ -63,7 +71,11 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
             new SimpleEntry<>("dimmable_plug_in_unit", "0110"),
             new SimpleEntry<>("color_light", "0200"),
             new SimpleEntry<>("extended_color_light", "0210"),
-            new SimpleEntry<>("color_temperature_light", "0220")
+            new SimpleEntry<>("color_temperature_light", "0220"),
+            new SimpleEntry<>("zllswitch", "0820"),
+            new SimpleEntry<>("zllpresence", "0107"),
+            new SimpleEntry<>("zlltemperature", "0302"),
+            new SimpleEntry<>("zlllightlevel", "0106")
         ).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
     // @formatter:on
 
@@ -86,14 +98,26 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
-        return HueLightHandler.SUPPORTED_THING_TYPES;
+        HashSet<ThingTypeUID> types = new HashSet<>();
+        types.addAll(HueLightHandler.SUPPORTED_THING_TYPES);
+        types.addAll(DimmerSwitchHandler.SUPPORTED_THING_TYPES);
+        types.addAll(PresenceHandler.SUPPORTED_THING_TYPES);
+        types.addAll(TemperatureHandler.SUPPORTED_THING_TYPES);
+        types.addAll(LightLevelHandler.SUPPORTED_THING_TYPES);
+
+        return types;
     }
 
     @Override
     public void startScan() {
         List<FullLight> lights = hueBridgeHandler.getFullLights();
         for (FullLight l : lights) {
-            onLightAddedInternal(l);
+            onObjectAddedInternal(l);
+        }
+
+        List<FullSensor> sensors = hueBridgeHandler.getFullSensors();
+        for (FullSensor l : sensors) {
+            onObjectAddedInternal(l);
         }
         // search for unpaired lights
         hueBridgeHandler.startSearch();
@@ -107,30 +131,33 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     public void onLightAdded(@Nullable HueBridge bridge, FullLight light) {
-        onLightAddedInternal(light);
+        onObjectAddedInternal(light);
     }
 
-    private void onLightAddedInternal(FullLight light) {
-        ThingUID thingUID = getThingUID(light);
-        ThingTypeUID thingTypeUID = getThingTypeUID(light);
+    private void onObjectAddedInternal(FullHueObject object) {
+        ThingUID thingUID = getThingUID(object);
+        ThingTypeUID thingTypeUID = getThingTypeUID(object);
 
-        String modelId = light.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_");
+        String modelId = object.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_");
 
         if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>(1);
-            properties.put(LIGHT_ID, light.getId());
+            properties.put(LIGHT_ID, object.getId());
             properties.put(MODEL_ID, modelId);
-            properties.put(LIGHT_UNIQUE_ID, light.getUniqueID());
+            String uniqueID = object.getUniqueID();
+            if (uniqueID != null) {
+                properties.put(LIGHT_UNIQUE_ID, uniqueID);
+            }
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                     .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(LIGHT_UNIQUE_ID)
-                    .withLabel(light.getName()).build();
+                    .withLabel(object.getName()).build();
 
             thingDiscovered(discoveryResult);
         } else {
-            logger.debug("discovered unsupported light of type '{}' and model '{}' with id {}", light.getType(),
-                    modelId, light.getId());
+            logger.debug("discovered unsupported light of type '{}' and model '{}' with id {}", object.getType(),
+                    modelId, object.getId());
         }
     }
 
@@ -148,7 +175,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         // nothing to do
     }
 
-    private @Nullable ThingUID getThingUID(FullLight light) {
+    private @Nullable ThingUID getThingUID(FullHueObject light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
@@ -159,9 +186,10 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         }
     }
 
-    private @Nullable ThingTypeUID getThingTypeUID(FullLight light) {
+    private @Nullable ThingTypeUID getThingTypeUID(FullHueObject light) {
         String thingTypeId = TYPE_TO_ZIGBEE_ID_MAP
                 .get(light.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
+
         return thingTypeId != null ? new ThingTypeUID(BINDING_ID, thingTypeId) : null;
     }
 }

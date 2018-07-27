@@ -42,7 +42,7 @@ public class FullGroup extends Group {
      *
      * @return lights in the group
      */
-    public List<Light> getLights() {
+    public List<HueObject> getLights() {
         return Util.idsToLights(lights);
     }
 }

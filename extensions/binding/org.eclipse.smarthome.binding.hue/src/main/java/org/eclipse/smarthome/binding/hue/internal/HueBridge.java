@@ -169,12 +169,12 @@ public class HueBridge {
      * @return list of known lights
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public List<Light> getLights() throws IOException, ApiException {
-        Type gsonType = Light.GSON_TYPE;
+    public List<HueObject> getLights() throws IOException, ApiException {
+        Type gsonType = HueObject.GSON_TYPE;
         return getTypedLights(gsonType);
     }
 
-    private <T extends Light> List<T> getTypedLights(Type gsonType) throws IOException, ApiException {
+    private <T extends HueObject> List<T> getTypedLights(Type gsonType) throws IOException, ApiException {
         requireAuthentication();
 
         Result result = http.get(getRelativeURL("lights"));
@@ -192,6 +192,31 @@ public class HueBridge {
         }
 
         return lightList;
+    }
+
+    /**
+     * Returns a list of sensors known to the bridge
+     *
+     * @return list of sensors
+     * @throws IOException
+     * @throws ApiException
+     */
+    public List<FullSensor> getSensors() throws IOException, ApiException {
+        requireAuthentication();
+
+        Result result = http.get(getRelativeURL("sensors"));
+
+        Map<String, FullSensor> sensorMap = safeFromJson(result.getBody(), FullSensor.GSON_TYPE);
+        ArrayList<FullSensor> sensorList = new ArrayList<>();
+
+        for (String id : sensorMap.keySet()) {
+            FullSensor sensor = sensorMap.get(id);
+            sensor.setId(id);
+            sensorList.add(sensor);
+        }
+
+        return sensorList;
+
     }
 
     /**
@@ -263,14 +288,14 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws EntityNotAvailableException thrown if a light with the given id doesn't exist
      */
-    public FullLight getLight(Light light) throws IOException, ApiException {
+    public FullHueObject getLight(HueObject light) throws IOException, ApiException {
         requireAuthentication();
 
         Result result = http.get(getRelativeURL("lights/" + enc(light.getId())));
 
         handleErrors(result);
 
-        FullLight fullLight = safeFromJson(result.getBody(), FullLight.class);
+        FullHueObject fullLight = safeFromJson(result.getBody(), FullLight.class);
         fullLight.setId(light.getId());
         return fullLight;
     }
@@ -285,7 +310,7 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws EntityNotAvailableException thrown if the specified light no longer exists
      */
-    public String setLightName(Light light, String name) throws IOException, ApiException {
+    public String setLightName(HueObject light, String name) throws IOException, ApiException {
         requireAuthentication();
 
         String body = gson.toJson(new SetAttributesRequest(name));
@@ -309,12 +334,20 @@ public class HueBridge {
      * @throws DeviceOffException thrown if the specified light is turned off
      * @throws IOException if the bridge cannot be reached
      */
-    public CompletableFuture<Result> setLightState(Light light, StateUpdate update) {
+    public CompletableFuture<Result> setLightState(HueObject light, StateUpdate update) {
         requireAuthentication();
 
         String body = update.toJson();
         return http.putAsync(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body, update.getMessageDelay(),
                 scheduler);
+    }
+
+    public CompletableFuture<Result> updateSensorConfig(FullSensor sensor, ConfigUpdate update) {
+        requireAuthentication();
+
+        String body = update.toJson();
+        return http.putAsync(getRelativeURL("sensors/" + enc(sensor.getId()) + "/config"), body,
+                update.getMessageDelay(), scheduler);
     }
 
     /**
@@ -367,7 +400,7 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws GroupTableFullException thrown if the group limit has been reached
      */
-    public Group createGroup(List<Light> lights) throws IOException, ApiException {
+    public Group createGroup(List<HueObject> lights) throws IOException, ApiException {
         requireAuthentication();
 
         String body = gson.toJson(new SetAttributesRequest(lights));
@@ -397,7 +430,7 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws GroupTableFullException thrown if the group limit has been reached
      */
-    public Group createGroup(String name, List<Light> lights) throws IOException, ApiException {
+    public Group createGroup(String name, List<HueObject> lights) throws IOException, ApiException {
         requireAuthentication();
 
         String body = gson.toJson(new SetAttributesRequest(name, lights));
@@ -470,7 +503,7 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws EntityNotAvailableException thrown if the specified group no longer exists
      */
-    public void setGroupLights(Group group, List<Light> lights) throws IOException, ApiException {
+    public void setGroupLights(Group group, List<HueObject> lights) throws IOException, ApiException {
         requireAuthentication();
 
         if (!group.isModifiable()) {
@@ -493,7 +526,8 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      * @throws EntityNotAvailableException thrown if the specified group no longer exists
      */
-    public String setGroupAttributes(Group group, String name, List<Light> lights) throws IOException, ApiException {
+    public String setGroupAttributes(Group group, String name, List<HueObject> lights)
+            throws IOException, ApiException {
         requireAuthentication();
 
         if (!group.isModifiable()) {

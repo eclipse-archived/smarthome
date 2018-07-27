@@ -22,15 +22,16 @@ import com.google.gson.reflect.TypeToken;
  *
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding
+ * @author Samuel Leisering - introduced Sensor support, renamed supertype to HueObject
  */
-public class Light {
-    public static final Type GSON_TYPE = new TypeToken<Map<String, Light>>() {
+public class HueObject {
+    public static final Type GSON_TYPE = new TypeToken<Map<String, HueObject>>() {
     }.getType();
 
     private String id;
     private String name;
 
-    Light() {
+    HueObject() {
     }
 
     void setId(String id) {
