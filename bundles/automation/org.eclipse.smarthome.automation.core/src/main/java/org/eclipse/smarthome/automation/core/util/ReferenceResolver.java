@@ -15,6 +15,7 @@ package org.eclipse.smarthome.automation.core.util;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -103,9 +104,9 @@ public class ReferenceResolver {
             if (o instanceof String) {
                 Object result = resolveProperty(config, context, logger, configKey, (String) o);
                 config.put(configKey, result);
-            } else if (o instanceof ArrayList) {
+            } else if (o instanceof List) {
                 ArrayList<Object> resultList = new ArrayList<>();
-                ArrayList<?> list = (ArrayList<?>) o;
+                List<?> list = (List<?>) o;
                 for (Object obj : list) {
                     if (obj instanceof String) {
                         resultList.add(resolveProperty(config, context, logger, configKey, (String) obj));
