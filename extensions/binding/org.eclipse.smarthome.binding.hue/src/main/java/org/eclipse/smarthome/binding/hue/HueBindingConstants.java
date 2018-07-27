@@ -42,6 +42,11 @@ public class HueBindingConstants {
     public static final ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
     public static final ThingTypeUID THING_TYPE_DIMMABLE_PLUG = new ThingTypeUID(BINDING_ID, "0110");
 
+    public static final ThingTypeUID THING_TYPE_DIMMER_SWITCH = new ThingTypeUID(BINDING_ID, "0820");
+    public static final ThingTypeUID THING_TYPE_PRESENCE_SENSOR = new ThingTypeUID(BINDING_ID, "0107");
+    public static final ThingTypeUID THING_TYPE_TEMPERATURE_SENSOR = new ThingTypeUID(BINDING_ID, "0302");
+    public static final ThingTypeUID THING_TYPE_LIGHT_LEVEL_SENSOR = new ThingTypeUID(BINDING_ID, "0106");
+
     // List all channels
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
     public static final String CHANNEL_COLOR = "color";
@@ -49,11 +54,19 @@ public class HueBindingConstants {
     public static final String CHANNEL_ALERT = "alert";
     public static final String CHANNEL_EFFECT = "effect";
     public static final String CHANNEL_SWITCH = "switch";
+    public static final String CHANNEL_DIMMER_SWITCH = "dimmer_switch";
+    public static final String CHANNEL_PRESENCE = "presence";
+    public static final String CHANNEL_TEMPERATURE = "temperature";
+    public static final String CHANNEL_LAST_UPDATED = "last_updated";
+    public static final String CHANNEL_LIGHTLEVEL = "lightlevel";
+    public static final String CHANNEL_DARK = "dark";
+    public static final String CHANNEL_DAYLIGHT = "daylight";
 
     // Bridge config properties
     public static final String HOST = "ipAddress";
     public static final String USER_NAME = "userName";
     public static final String POLLING_INTERVAL = "pollingInterval";
+    public static final String SENSOR_POLLING_INTERVAL = "sensorPollingInterval";
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";

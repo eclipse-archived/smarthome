@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="hue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Hue Presence Sensor (There is no official ZLL Device ID for presence sensors) -->
+	<thing-type id="0107">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge" />
+		</supported-bridge-type-refs>
+
+		<label>Hue Presence Sensor</label>
+		<description>A motion sensor providing presence detection</description>
+
+		<channels>
+			<channel id="presence" typeId="switch" />
+			<channel id="last_updated" typeId="last_updated" />
+
+		</channels>
+
+		<representation-property>uniqueId</representation-property>
+
+		<config-description>
+			<parameter name="lightId" type="text">
+				<label>Sensor ID</label>
+				<description>The identifier that is used within the hue bridge.</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="on" type="boolean">
+				<label>On</label>
+				<description>Indicates whether the sensor is on</description>
+			</parameter>
+			<parameter name="battery" type="integer" readOnly="true">
+				<label>Battery level</label>
+				<description>The battery level of the sensor</description>
+			</parameter>
+			<parameter name="reachable" type="boolean" readOnly="true">
+				<label>Reachable</label>
+				<description>Indicates whether the sensor is reachable</description>
+			</parameter>
+			<parameter name="sensitivity" type="integer">
+				<label>Sensitivity</label>
+				<description>The current sensitivity of the presence sensor. Cannot exceed maximum sensitivity</description>
+			</parameter>
+			<parameter name="sensitivitymax" type="integer" readOnly="true">
+				<label>Maximum Sensitivity</label>
+				<description>The maximum sensitivity of the presence sensor</description>
+			</parameter>
+		</config-description>
+	</thing-type>
+</thing:thing-descriptions>
