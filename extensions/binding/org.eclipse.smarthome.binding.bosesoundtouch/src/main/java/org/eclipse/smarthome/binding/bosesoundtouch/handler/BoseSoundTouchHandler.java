@@ -24,7 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
+import org.eclipse.jetty.websocket.api.WebSocketFrameListener;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.api.extensions.Frame;
+import org.eclipse.jetty.websocket.api.extensions.Frame.Type;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
@@ -61,8 +64,11 @@ import org.slf4j.LoggerFactory;
  * @author Christian Niessner - Initial contribution
  * @author Thomas Traunbauer - Initial contribution
  * @author Kai Kreuzer - code clean up
+ * @author Alexander Kostadinov - Handling of websocket ping-pong mechanism for thing status check
  */
-public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocketListener {
+public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocketListener, WebSocketFrameListener {
+
+    private static final int MAX_MISSED_PONGS_COUNT = 2;
 
     private static final int RETRY_INTERVAL_IN_SECS = 30;
 
@@ -76,6 +82,8 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
     private CommandExecutor commandExecutor;
 
     private PresetContainer presetContainer;
+    
+    private int missedPongsCount = 0;
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
@@ -362,8 +370,16 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
     @Override
     public void onWebSocketClose(int code, String reason) {
         logger.debug("{}: onClose({}, '{}')", getDeviceName(), code, reason);
+        missedPongsCount = 0;
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason);
         commandExecutor.postOperationMode(OperationModeType.OFFLINE);
+    }
+    
+    @Override
+    public void onWebSocketFrame(Frame frame) {
+        if (frame.getType() == Type.PONG) {
+            missedPongsCount = 0;
+        }
     }
 
     private void openConnection() {
@@ -383,7 +399,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
             onWebSocketError(e);
         }
     }
-
+    
     private void closeConnection() {
         if (session != null) {
             try {
@@ -410,15 +426,23 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
         if (getThing().getStatus() != ThingStatus.ONLINE) {
             openConnection(); // try to reconnect....
         }
-        if (getThing().getStatus() == ThingStatus.ONLINE) {
+
+        if (getThing().getStatus() == ThingStatus.ONLINE && this.session != null && this.session.isOpen()) {
             try {
-                session.getRemote().sendString("HELLO");
+                this.session.getRemote().sendPing(null);
+                missedPongsCount++;
             } catch (IOException | NullPointerException e) {
                 onWebSocketError(e);
                 closeConnection();
                 openConnection();
             }
-
+            
+            if (missedPongsCount == MAX_MISSED_PONGS_COUNT) {
+                missedPongsCount = 0;
+                closeConnection();
+                openConnection();
+            }
         }
     }
+
 }
