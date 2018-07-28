@@ -189,6 +189,7 @@ Bridge homematic:bridge:ccu [ gatewayAddress="..." ]
 
 The first parameter after Thing is the device type, the second the serial number.
 If you are using Homegear, you have to add the prefix ```HG-``` for each type.
+The ```HG-```prefix is only needed for Things, not for Items or channel configs.
 This is necessary, because the Homegear devices supports more datapoints than Homematic devices.
 
 ```java
@@ -211,6 +212,7 @@ The receiveDelay is handy for dimmers and rollershutters for example.
 If you have a slider in a UI and you move this slider to a new position, it jumps around because the gateway sends multiple events with different positions until the final has been reached.
 If you set the ```receiveDelay``` to some seconds, these events are filtered out and only the last position is distributed to the binding.
 The disadvantage is of course, that all events for this channel are delayed.
+*The channel configs are optional*
 
 ```java
   Thing HM-LC-Dim1T-Pl-2    JEQ0999999 "Name"  @  "Location" {
@@ -223,6 +225,15 @@ The disadvantage is of course, that all events for this channel are delayed.
 ```
 
 The Type is the device type, channel number and lowercase channel name separated with a underscore.
+If you are using Homegear, the ```HG-``` prefix is not needed for the Type.
+
+Example without channel configs
+```java
+  Thing HM-LC-Dim1T-Pl-2    JEQ0999999 "Name"  @  "Location" {
+      Channels:
+          Type HM-LC-Dim1T-Pl-2_1_LEVEL : 1#LEVEL
+  }
+```
 
 ### Items
 
