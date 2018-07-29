@@ -47,7 +47,6 @@ public class TemperatureHandler extends HueSensorHandler {
     @Override
     protected void doSensorStateChanged(@Nullable HueBridge bridge, @NonNull FullSensor sensor, Configuration config) {
         Object tmp = sensor.getState().get("temperature");
-        System.out.println("SET TEMPERATURE " + tmp);
         BigDecimal value = new BigDecimal(String.valueOf(tmp));
         DecimalType temperature = new DecimalType(value.divide(new BigDecimal(100)));
         updateState(HueBindingConstants.CHANNEL_TEMPERATURE, temperature);

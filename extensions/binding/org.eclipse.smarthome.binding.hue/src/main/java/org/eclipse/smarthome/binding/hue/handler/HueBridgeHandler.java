@@ -314,7 +314,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
 
     private synchronized void onUpdate() {
         if (hueBridge != null) {
-            if (pollingJob == null || pollingJob.isCancelled()) {
+            ScheduledFuture<?> job = pollingJob;
+            if (job == null || job.isCancelled()) {
                 int pollingInterval = DEFAULT_POLLING_INTERVAL;
                 try {
                     Object pollingIntervalConfig = getConfig().get(POLLING_INTERVAL);
@@ -330,8 +331,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                 }
                 pollingJob = scheduler.scheduleWithFixedDelay(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
             }
-
-            if (sensorPollingJob == null || sensorPollingJob.isCancelled()) {
+            job = sensorPollingJob;
+            if (job == null || job.isCancelled()) {
                 int pollingInterval = DEFAULT_SENSOR_POLLING_INTERVAL;
                 try {
                     Object pollingIntervalConfig = getConfig().get(SENSOR_POLLING_INTERVAL);
