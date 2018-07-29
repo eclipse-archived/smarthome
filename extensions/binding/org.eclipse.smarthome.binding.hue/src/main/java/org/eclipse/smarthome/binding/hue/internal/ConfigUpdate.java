@@ -30,7 +30,7 @@ public class ConfigUpdate {
         super();
     }
 
-    protected String toJson() {
+    public String toJson() {
         StringBuilder json = new StringBuilder("{");
 
         for (int i = 0; i < commands.size(); i++) {
