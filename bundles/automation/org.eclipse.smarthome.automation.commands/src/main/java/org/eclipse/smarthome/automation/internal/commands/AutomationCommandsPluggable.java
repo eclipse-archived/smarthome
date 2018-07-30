@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
@@ -33,7 +33,9 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -43,7 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-@Component(immediate = true)
+@Component(immediate = true, name = "org.eclipse.smarthome.automation.commands")
 public class AutomationCommandsPluggable extends AutomationCommands implements ConsoleCommandExtension {
 
     /**
@@ -80,9 +82,9 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     protected RuleRegistry ruleRegistry;
 
     /**
-     * This field holds the reference to the {@code ModuleHandlerCallback}.
+     * This field holds the reference to the {@code RuleManager}.
      */
-    protected ModuleHandlerCallback callback;
+    protected RuleManager callback;
 
     /**
      * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
@@ -100,6 +102,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      *
      * @param componentContext
      */
+    @Activate
     protected void activate(ComponentContext componentContext) {
         super.initialize(componentContext.getBundleContext(), moduleTypeRegistry, templateRegistry, ruleRegistry);
     }
@@ -107,6 +110,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     /**
      * Deactivating this component - called from DS.
      */
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         super.dispose();
     }
@@ -142,13 +146,13 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     }
 
     /**
-     * Bind the {@link ModuleHandlerCallback} service - called from DS.
+     * Bind the {@link RuleEngine} service - called from DS.
      *
      * @param ruleEngine RuleManager service.
      */
     @Reference
-    protected void setRuleEngine(ModuleHandlerCallback ruleEngine) {
-        this.callback = ruleEngine;
+    protected void setRuleManager(RuleManager ruleManager) {
+        this.callback = ruleManager;
     }
 
     protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
@@ -163,7 +167,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
         this.templateRegistry = null;
     }
 
-    protected void unsetRuleEngine(ModuleHandlerCallback ruleEngine) {
+    protected void unsetRuleManager(RuleManager ruleManager) {
         this.callback = null;
     }
 
