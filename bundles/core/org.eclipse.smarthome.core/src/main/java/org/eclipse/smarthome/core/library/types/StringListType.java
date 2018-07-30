@@ -72,6 +72,15 @@ public class StringListType implements Command, State {
     }
 
     /**
+     * Return the size of this list
+     *
+     * @return the size of this list
+     */
+    public int size() {
+        return typeDetails.size();
+    }
+
+    /**
      * <p>
      * Formats the value of this type according to a pattern (@see
      * {@link Formatter}). One single value of this type can be referenced
