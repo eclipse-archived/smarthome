@@ -43,12 +43,10 @@ import org.slf4j.Logger;
  * </li>
  * </ul>
  *
- * ModuleImpl 'A' Configuration properties can have references to either CompositeModule Configuration properties or
- * RuleImpl
+ * ModuleImpl 'A' Configuration properties can have references to either CompositeModule Configuration properties or RuleImpl
  * Configuration properties depending where ModuleImpl 'A' is placed.
  * <br/>
- * Note. If ModuleImpl 'A' is child of CompositeModule - it cannot have direct configuration references to the RuleImpl
- * that is
+ * Note. If ModuleImpl 'A' is child of CompositeModule - it cannot have direct configuration references to the RuleImpl that is
  * holding the CompositeModule.
  * <ul>
  * <li>
