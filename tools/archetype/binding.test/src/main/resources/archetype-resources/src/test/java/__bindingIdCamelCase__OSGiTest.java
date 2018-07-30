@@ -19,8 +19,6 @@
  */
 package ${package};
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 import ${package}.internal.${bindingIdCamelCase}Handler;
@@ -51,8 +49,12 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
     @Before
     public void setUp() {
         registerService(volatileStorageService);
+        
         managedThingProvider = getService(ThingProvider.class, ManagedThingProvider.class);
+        assertNotNull(managedThingProvider);
+        
         bridge = BridgeBuilder.create(BRIDGE_THING_TYPE_UID, "1").withLabel("My Bridge").build();
+        assertNotNull(bridge);
     }
 
     @After
@@ -63,8 +65,8 @@ public class ${bindingIdCamelCase}OSGiTest extends JavaOSGiTest {
 
     @Test
     public void creationOf${bindingIdCamelCase}Handler() {
-        assertThat(bridge.getHandler(), is(nullValue()));
+        assertNull(bridge.getHandler());
         managedThingProvider.add(bridge);
-        waitForAssert(() -> assertThat(bridge.getHandler(), is(notNullValue())));
+        waitForAssert(() -> assertNotNull(managedThingProvider.get(bridge.getUID())));
     }
 }
