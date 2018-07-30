@@ -18,6 +18,7 @@ Import-Package:
  org.eclipse.jetty.util,
  org.eclipse.jetty.util.component,
  org.eclipse.jetty.websocket.api,
+ org.eclipse.jetty.websocket.api.extensions,
  org.eclipse.jetty.websocket.client,
  org.eclipse.jetty.websocket.common,
  org.eclipse.smarthome.binding.bosesoundtouch,
