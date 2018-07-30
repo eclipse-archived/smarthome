@@ -47,6 +47,14 @@
             }
           ]
       }
+     ],
+     "inputs":[
+      {
+        "name":"command",
+        "type":"org.eclipse.smarthome.core.types.Command",
+        "label":"Command to send",
+        "description":"Command that will be send to the Item if none is specified in the configuration."
+      }
      ]
     }
    ]
