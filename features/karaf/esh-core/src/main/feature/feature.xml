@@ -369,10 +369,14 @@
     <requirement>esh.tp;filter:="(&amp;(feature=serial)(impl=rxtx))"</requirement>
     <feature dependency="true">esh-io-transport-serial-rxtx</feature>
 
+
+    <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
+    <feature dependency="true">esh.tp-commons-net</feature>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217/${project.version}</bundle>
   </feature>
-  
+
   <feature name="esh-io-transport-upnp" version="${project.version}">
     <feature>esh-base</feature>
 
