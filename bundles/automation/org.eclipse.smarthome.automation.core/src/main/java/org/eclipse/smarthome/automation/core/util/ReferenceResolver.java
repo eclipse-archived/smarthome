@@ -13,7 +13,9 @@
 package org.eclipse.smarthome.automation.core.util;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -98,20 +100,35 @@ public class ReferenceResolver {
         for (String configKey : config.keySet()) {
             Object o = config.get(configKey);
             if (o instanceof String) {
-                String childConfigPropertyValue = (String) o;
-                if (isReference(childConfigPropertyValue)) {
-                    Object result = resolveReference(childConfigPropertyValue, context);
-                    if (result != null) {
-                        config.put(configKey, result);
-                    }
-                } else if (containsPattern(childConfigPropertyValue)) {
-                    Object result = resolvePattern(childConfigPropertyValue, context, logger);
-                    if (result != null) {
-                        config.put(configKey, result);
+                Object result = resolveProperty(config, context, logger, configKey, (String) o);
+                config.put(configKey, result);
+            } else if (o instanceof List) {
+                ArrayList<Object> resultList = new ArrayList<>();
+                List<?> list = (List<?>) o;
+                for (Object obj : list) {
+                    if (obj instanceof String) {
+                        resultList.add(resolveProperty(config, context, logger, configKey, (String) obj));
                     }
                 }
+                config.put(configKey, resultList);
             }
         }
+    }
+
+    private static Object resolveProperty(Configuration config, Map<String, ?> context, Logger logger, String configKey,
+            String childConfigPropertyValue) {
+        if (isReference(childConfigPropertyValue)) {
+            Object result = resolveReference(childConfigPropertyValue, context);
+            if (result != null) {
+                return result;
+            }
+        } else if (containsPattern(childConfigPropertyValue)) {
+            Object result = resolvePattern(childConfigPropertyValue, context, logger);
+            if (result != null) {
+                return result;
+            }
+        }
+        return childConfigPropertyValue;
     }
 
     /**
