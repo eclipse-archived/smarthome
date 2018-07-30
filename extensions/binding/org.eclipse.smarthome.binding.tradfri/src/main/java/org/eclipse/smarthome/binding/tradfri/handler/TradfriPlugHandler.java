@@ -67,7 +67,11 @@ public class TradfriPlugHandler extends TradfriThingHandler {
 
             switch (channelUID.getId()) {
                 case CHANNEL_POWER:
-                    setState(((OnOffType) command));
+                    if (command instanceof OnOffType) {
+                        setState(((OnOffType) command));
+                    } else {
+                        logger.debug("Cannot handle command '{}' for channel '{}'", command, CHANNEL_POWER);
+                    }
                     break;
                 default:
                     logger.error("Unknown channel UID {}", channelUID);

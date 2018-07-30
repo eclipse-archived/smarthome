@@ -14,9 +14,6 @@ package org.eclipse.smarthome.binding.tradfri.internal.model;
 
 import static org.eclipse.smarthome.binding.tradfri.TradfriBindingConstants.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -26,8 +23,6 @@ import com.google.gson.JsonPrimitive;
  * @author Kai Kreuzer - Initial contribution
  */
 public class TradfriPlugData extends TradfriDeviceData {
-
-    private final Logger logger = LoggerFactory.getLogger(TradfriPlugData.class);
 
     public TradfriPlugData() {
         super(PLUG);
