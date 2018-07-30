@@ -49,6 +49,12 @@
                   <source>true</source>
                 </artifact>
                 <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=17045 -->
+                  <id>commons-net:commons-net:3.3</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+                <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13628 -->
                   <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
                   <id>net.minidev:accessors-smart:1.1</id>
@@ -62,7 +68,6 @@
                   <transitive>false</transitive>
                   <source>true</source>
                 </artifact>
-
                 <artifact>
                   <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11322 -->
                   <id>org.mapdb:mapdb:1.0.9</id>
