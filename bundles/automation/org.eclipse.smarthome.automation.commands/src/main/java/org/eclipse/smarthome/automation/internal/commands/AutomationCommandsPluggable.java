@@ -45,7 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-@Component(immediate = true, name = "org.eclipse.smarthome.automation.commands")
+@Component(immediate = true)
 public class AutomationCommandsPluggable extends AutomationCommands implements ConsoleCommandExtension {
 
     /**
@@ -84,7 +84,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     /**
      * This field holds the reference to the {@code RuleManager}.
      */
-    protected RuleManager callback;
+    protected RuleManager ruleManager;
 
     /**
      * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
@@ -146,13 +146,13 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     }
 
     /**
-     * Bind the {@link RuleEngine} service - called from DS.
+     * Bind the {@link RuleManager} service - called from DS.
      *
-     * @param ruleEngine RuleManager service.
+     * @param ruleManager RuleManager service.
      */
     @Reference
     protected void setRuleManager(RuleManager ruleManager) {
-        this.callback = ruleManager;
+        this.ruleManager = ruleManager;
     }
 
     protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
@@ -168,7 +168,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
     }
 
     protected void unsetRuleManager(RuleManager ruleManager) {
-        this.callback = null;
+        this.ruleManager = null;
     }
 
     @Override
@@ -412,8 +412,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
 
     @Override
     public RuleStatus getRuleStatus(String ruleUID) {
-        if (callback != null) {
-            RuleStatusInfo rsi = callback.getStatusInfo(ruleUID);
+        if (ruleManager != null) {
+            RuleStatusInfo rsi = ruleManager.getStatusInfo(ruleUID);
             return rsi != null ? rsi.getStatus() : null;
         } else {
             return null;
@@ -422,8 +422,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
 
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
-        if (callback != null) {
-            callback.setEnabled(uid, isEnabled);
+        if (ruleManager != null) {
+            ruleManager.setEnabled(uid, isEnabled);
         }
 
     }
