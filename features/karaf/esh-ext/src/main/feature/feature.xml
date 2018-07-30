@@ -93,11 +93,19 @@
   <feature name="esh-binding-mqtt" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-mqtt</feature>
+
+    <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
+    <feature dependency="true">esh.tp-commons-net</feature>
+
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.mqtt/${project.version}</bundle>
   </feature>
 
   <feature name="esh-binding-ntp" version="${project.version}">
     <feature>esh-base</feature>
+
+    <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
+    <feature dependency="true">esh.tp-commons-net</feature>
+
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.ntp/${project.version}</bundle>
   </feature>
 
@@ -195,6 +203,10 @@
     <feature>esh-base</feature>
     <feature>esh-ui</feature>
     <feature dependency="true">esh-io-rest-sitemap</feature>
+
+    <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
+    <feature dependency="true">esh.tp-commons-net</feature>
+
     <bundle>mvn:org.eclipse.smarthome.extension.ui/org.eclipse.smarthome.ui.basic/${project.version}</bundle>
   </feature>
 
@@ -218,6 +230,10 @@
   <feature name="esh-io-mqttembeddedbroker" description="Embedded MQTT Broker" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-mqtt</feature>
+
+    <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
+    <feature dependency="true">esh.tp-commons-net</feature>
+
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.mqttembeddedbroker/${project.version}</bundle>
   </feature>
 
