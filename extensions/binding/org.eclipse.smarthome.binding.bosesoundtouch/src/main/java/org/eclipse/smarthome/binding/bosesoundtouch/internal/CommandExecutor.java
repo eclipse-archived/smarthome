@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.binding.bosesoundtouch.handler.BoseSoundTouchHandler;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
@@ -190,8 +189,14 @@ public class CommandExecutor implements AvailableSources {
      * @param command the command is Type of Command
      */
     public void postPlayerControl(Command command) {
-        if (command.equals(PlayPauseType.PLAY) || command.equals(PlayPauseType.PAUSE)) {
-            postRemoteKey(RemoteKeyType.PLAY_PAUSE);
+        if (command.equals(PlayPauseType.PLAY)) {
+            if (currentOperationMode == OperationModeType.STANDBY) {
+                postRemoteKey(RemoteKeyType.PLAY_PAUSE);
+            } else {
+                postRemoteKey(RemoteKeyType.PLAY);
+            }
+        } else if (command.equals(PlayPauseType.PAUSE)) {
+            postRemoteKey(RemoteKeyType.PAUSE);
         } else if (command.equals(NextPreviousType.NEXT)) {
             postRemoteKey(RemoteKeyType.NEXT_TRACK);
         } else if (command.equals(NextPreviousType.PREVIOUS)) {
