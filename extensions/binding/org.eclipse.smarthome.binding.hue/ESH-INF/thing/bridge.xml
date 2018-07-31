@@ -15,7 +15,7 @@
 
 		<config-description>
 			<parameter name="ipAddress" type="text">
-				<context>network_address</context>
+				<context>network-address</context>
 				<label>Network Address</label>
 				<description>Network address of the hue bridge.</description>
 				<required>true</required>
