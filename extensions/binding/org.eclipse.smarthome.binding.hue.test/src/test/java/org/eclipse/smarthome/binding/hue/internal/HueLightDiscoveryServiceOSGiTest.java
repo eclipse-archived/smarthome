@@ -166,6 +166,12 @@ public class HueLightDiscoveryServiceOSGiTest extends AbstractHueOSGiTest {
                 if (address.endsWith("testUserName")) {
                     String body = "{\"lights\":{}}";
                     return new Result(body, 200);
+                } else if (address.endsWith("lights") || address.endsWith("sensors")) {
+                    String body = "{}";
+                    return new Result(body, 200);
+                } else if (address.endsWith("testUserName/config")) {
+                    String body = "{ \"apiversion\": \"1.26.0\"}";
+                    return new Result(body, 200);
                 } else {
                     return new Result("", 404);
                 }
