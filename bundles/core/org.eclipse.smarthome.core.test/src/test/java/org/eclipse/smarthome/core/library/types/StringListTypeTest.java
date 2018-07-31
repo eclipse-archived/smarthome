@@ -47,6 +47,17 @@ public class StringListTypeTest {
     }
 
     @Test
+    public void testWithEmptyConstituents() {
+        StringListType call1 = new StringListType(",0699222222");
+        assertEquals("", call1.getValue(0));
+        assertEquals("0699222222", call1.getValue(1));
+
+        StringListType call2 = new StringListType("0699222222,");
+        assertEquals("0699222222", call2.getValue(0));
+        assertEquals("", call2.getValue(1));
+    }
+
+    @Test
     public void testError() {
         StringListType type = new StringListType("foo=bar", "electric", "chair");
 
