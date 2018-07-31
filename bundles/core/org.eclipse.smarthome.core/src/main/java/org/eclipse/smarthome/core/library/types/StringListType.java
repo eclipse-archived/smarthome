@@ -70,6 +70,13 @@ public class StringListType implements Command, State {
         }
         return typeDetails.get(index);
     }
+   
+    /**
+     * Returns the number of elements in this list.
+     */ 
+    public int size() {
+        return typeDetails.size();
+    }  
 
     /**
      * <p>
