@@ -60,8 +60,8 @@ public class StringListType implements Command, State {
      * Deserialize the input string, splitting it on every delimiter not preceded by a backslash.
      */
     public StringListType(String serialized) {
-        typeDetails = Arrays.stream(serialized.split(REGEX_SPLITTER)).map(s -> s.replace(ESCAPED_DELIMITER, DELIMITER))
-                .collect(Collectors.toList());
+        typeDetails = Arrays.stream(serialized.split(REGEX_SPLITTER, -1))
+                .map(s -> s.replace(ESCAPED_DELIMITER, DELIMITER)).collect(Collectors.toList());
     }
 
     public String getValue(final int index) {
@@ -79,7 +79,7 @@ public class StringListType implements Command, State {
      * (alphabetical) order of their keys.
      *
      * @param pattern the pattern to use containing indexes to reference the
-     *            single elements of this type.
+     *                    single elements of this type.
      */
     @Override
     public String format(String pattern) {
