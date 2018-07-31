@@ -190,7 +190,11 @@ public class CommandExecutor implements AvailableSources {
      */
     public void postPlayerControl(Command command) {
         if (command.equals(PlayPauseType.PLAY)) {
-            postRemoteKey(RemoteKeyType.PLAY);
+            if (currentOperationMode == OperationModeType.STANDBY) {
+                postRemoteKey(RemoteKeyType.PLAY_PAUSE);
+            } else {
+                postRemoteKey(RemoteKeyType.PLAY);
+            }
         } else if (command.equals(PlayPauseType.PAUSE)) {
             postRemoteKey(RemoteKeyType.PAUSE);
         } else if (command.equals(NextPreviousType.NEXT)) {
