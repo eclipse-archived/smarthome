@@ -54,7 +54,7 @@ public class TradfriPlugData extends TradfriDeviceData {
     public boolean getOnOffState() {
         JsonElement onOff = attributes.get(ONOFF);
         if (onOff != null) {
-            return attributes.get(ONOFF).getAsInt() == 1;
+            return onOff.getAsInt() == 1;
         } else {
             return false;
         }

@@ -48,10 +48,9 @@ import org.osgi.service.component.annotations.Component;
 public class TradfriHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
-            .concat(Stream.of(GATEWAY_TYPE_UID),
-                    Stream.concat(Stream.concat(SUPPORTED_LIGHT_TYPES_UIDS.stream(),
-                            SUPPORTED_CONTROLLER_TYPES_UIDS.stream()), SUPPORTED_PLUG_TYPES_UIDS.stream()))
-            .collect(Collectors.toSet());
+            .of(Stream.of(GATEWAY_TYPE_UID), SUPPORTED_LIGHT_TYPES_UIDS.stream(),
+                    SUPPORTED_CONTROLLER_TYPES_UIDS.stream(), SUPPORTED_PLUG_TYPES_UIDS.stream())
+            .reduce(Stream::concat).orElseGet(Stream::empty).collect(Collectors.toSet());
 
     private final Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
