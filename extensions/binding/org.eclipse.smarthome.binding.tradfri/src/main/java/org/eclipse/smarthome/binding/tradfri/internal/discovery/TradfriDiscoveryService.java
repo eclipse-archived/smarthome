@@ -117,12 +117,17 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
                         thingType = THING_TYPE_DIMMABLE_LIGHT;
                     }
                     thingId = new ThingUID(thingType, bridge, Integer.toString(id));
+                } else if (TYPE_PLUG.equals(type) && data.has(PLUG)) {
+                    // Smart plug
+                    ThingTypeUID thingType = THING_TYPE_ONOFF_PLUG;
+                    thingId = new ThingUID(thingType, bridge, Integer.toString(id));
                 } else if (TYPE_SWITCH.equals(type) && data.has(SWITCH)) {
                     // Remote control and wireless dimmer
                     // As protocol does not distinguishes between remote control and wireless dimmer,
                     // we check for the whole model name
                     ThingTypeUID thingType = (model != null && REMOTE_CONTROLLER_MODEL.equals(model))
-                            ? THING_TYPE_REMOTE_CONTROL : THING_TYPE_DIMMER;
+                            ? THING_TYPE_REMOTE_CONTROL
+                            : THING_TYPE_DIMMER;
                     thingId = new ThingUID(thingType, bridge, Integer.toString(id));
                 } else if (TYPE_SENSOR.equals(type) && data.has(SENSOR)) {
                     // Motion sensor
