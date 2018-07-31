@@ -1123,9 +1123,27 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             for (Connection c : connections) {
                 String outputModuleId = c.getOuputModuleId();
                 if (outputModuleId != null) {
-                    sb.append(outputModuleId).append(OUTPUT_SEPARATOR).append(c.getOutputName());
-                    context.put(c.getInputName(), context.get(sb.toString()));
-                    sb.setLength(0);
+                    String outputName = c.getOutputName();
+                    sb.append(outputModuleId).append(OUTPUT_SEPARATOR);
+                    // if the outputName contains a dot we assume its a hashmap and retrieve the value after the dot
+                    if (outputName != null && outputName.contains(".")) {
+                        String[] parts = outputName.split("\\.");
+                        sb.append(parts[0]);
+                        Object dataStructure = context.get(sb.toString());
+                        if (dataStructure instanceof HashMap) {
+                            @SuppressWarnings("rawtypes")
+                            HashMap hm = (HashMap) dataStructure;
+                            Object val = hm.get(parts[1]);
+                            if (val != null) {
+                                context.put(c.getInputName(), val);
+                            }
+                        }
+                        sb.setLength(0);
+                    } else {
+                        sb.append(outputName);
+                        context.put(c.getInputName(), context.get(sb.toString()));
+                        sb.setLength(0);
+                    }
                 } else {
                     // get reference from context
                     String ref = c.getOutputName();
