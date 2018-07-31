@@ -31,6 +31,81 @@
 		</tags>
 	</channel-type>
 
+	<channel-type id="last_updated">
+		<item-type>DateTime</item-type>
+		<label>Last Updated</label>
+		<description> The date when the sensor was last updated
+        </description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="lightlevel">
+		<item-type>Number</item-type>
+		<label>Light Level</label>
+		<description> The detected lightlevel in logarithmic lux
+        </description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="dark">
+		<item-type>Switch</item-type>
+		<label>Dark</label>
+		<description> lightlevel is below the darkness threshold
+        </description>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
+
+    <channel-type id="daylight">
+        <item-type>Switch</item-type>
+        <label>Daylight</label>
+        <description> lightlevel is above the daylight threshold
+        </description>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
+    </channel-type>
+
+
+	<!-- Dimmer Switch Channel -->
+	<channel-type id="dimmer_switch">
+		<item-type>Number</item-type>
+		<label>Dimmer Switch State</label>
+		<description> The Button that was last pressed on the dimmer switch
+        </description>
+		<category>Light</category>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+		<state>
+			<options>
+				<option value="1000">On (Initial Press)</option>
+				<option value="1001">On (Hold)</option>
+				<option value="1002">On (Short Released)</option>
+				<option value="1003">On (Long Released)</option>
+				<option value="2000">Dim Up (Initial Press)</option>
+				<option value="2001">Dim Up (Hold)</option>
+				<option value="2002">Dim Up (Short Released)</option>
+				<option value="2003">Dim Up (Long Released)</option>
+				<option value="3000">Dim Down (Initial Press)</option>
+				<option value="3001">Dim Down (Hold)</option>
+				<option value="3002">Dim Down (Short Released)</option>
+				<option value="3003">Dim Down (Long Released)</option>
+				<option value="4000">Off (Initial Press)</option>
+				<option value="4001">Off (Hold)</option>
+				<option value="4002">Off (Short Released)</option>
+				<option value="4003">Off (Long Released)</option>
+			</options>
+
+		</state>
+	</channel-type>
+
+
 	<!-- Switch Channel -->
 	<channel-type id="switch">
 		<item-type>Switch</item-type>
@@ -41,6 +116,15 @@
 		<tags>
 			<tag>Lighting</tag>
 		</tags>
+	</channel-type>
+
+	<!-- Temperature Channel -->
+	<channel-type id="temperature">
+		<item-type>Number:Temperature</item-type>
+		<label>Temperature</label>
+		<description>Current temperature</description>
+		<category>Temperature</category>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<!-- Color Temperature Channel -->
