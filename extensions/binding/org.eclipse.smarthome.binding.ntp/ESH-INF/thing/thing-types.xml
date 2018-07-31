@@ -13,7 +13,7 @@
 		</channels>
 		<config-description>
 			<parameter name="hostname" type="text" required="true">
-				<context>network_address</context>
+				<context>network-address</context>
 				<label>Hostname</label>
 				<description>The NTP server hostname.</description>
 				<default>0.pool.ntp.org</default>
