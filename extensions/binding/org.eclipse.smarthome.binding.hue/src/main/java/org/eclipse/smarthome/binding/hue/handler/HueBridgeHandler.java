@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -77,11 +78,14 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueClient {
 
+    ReentrantLock pollingLock = new ReentrantLock();
+
     abstract class PollingRunnable implements Runnable {
         @Override
         public void run() {
 
             try {
+                pollingLock.lock();
                 try {
                     if (!lastBridgeConnectionState) {
                         lastBridgeConnectionState = tryResumeBridgeConnection();
@@ -110,6 +114,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                 }
             } catch (Throwable t) {
                 logger.error("An unexpected error occurred: {}", t.getMessage(), t);
+            } finally {
+                pollingLock.unlock();
             }
         }
 
@@ -348,7 +354,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                             pollingInterval);
                 }
 
-                sensorPollingJob = scheduler.scheduleWithFixedDelay(sensorPollingRunnable, 1, 100,
+                sensorPollingJob = scheduler.scheduleWithFixedDelay(sensorPollingRunnable, 1, pollingInterval,
                         TimeUnit.MILLISECONDS);
             }
         }
