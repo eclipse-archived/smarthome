@@ -33,6 +33,7 @@ public class TradfriBindingConstants {
     // List of all Thing Type UIDs
     public static final ThingTypeUID GATEWAY_TYPE_UID = new ThingTypeUID(BINDING_ID, "gateway");
 
+    public static final ThingTypeUID THING_TYPE_ONOFF_PLUG = new ThingTypeUID(BINDING_ID, "0010");
     public static final ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "0100");
     public static final ThingTypeUID THING_TYPE_COLOR_TEMP_LIGHT = new ThingTypeUID(BINDING_ID, "0220");
     public static final ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "0210");
@@ -44,18 +45,22 @@ public class TradfriBindingConstants {
             .unmodifiableSet(Stream.of(THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_TEMP_LIGHT, THING_TYPE_COLOR_LIGHT)
                     .collect(Collectors.toSet()));
 
+    public static final Set<ThingTypeUID> SUPPORTED_PLUG_TYPES_UIDS = Collections
+            .unmodifiableSet(Stream.of(THING_TYPE_ONOFF_PLUG).collect(Collectors.toSet()));
+
     // List of all Gateway Configuration Properties
     public static final String GATEWAY_CONFIG_HOST = "host";
     public static final String GATEWAY_CONFIG_PORT = "port";
     public static final String GATEWAY_CONFIG_CODE = "code";
     public static final String GATEWAY_CONFIG_IDENTITY = "identity";
     public static final String GATEWAY_CONFIG_PRE_SHARED_KEY = "preSharedKey";
-    
+
     // Not yet used - included for future support
     public static final Set<ThingTypeUID> SUPPORTED_CONTROLLER_TYPES_UIDS = Collections.unmodifiableSet(Stream
             .of(THING_TYPE_DIMMER, THING_TYPE_REMOTE_CONTROL, THING_TYPE_MOTION_SENSOR).collect(Collectors.toSet()));
 
     // List of all Channel IDs
+    public static final String CHANNEL_POWER = "power";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
     public static final String CHANNEL_COLOR_TEMPERATURE = "color_temperature";
     public static final String CHANNEL_COLOR = "color";
@@ -166,9 +171,10 @@ public class TradfriBindingConstants {
     public static final String VERSION = "9029";
     public static final int WAKE_UP_SMART_TASK = 3;
 
-    public static final String TYPE_LIGHT = "2";
-    public static final String TYPE_SENSOR = "4";
     public static final String TYPE_SWITCH = "0";
+    public static final String TYPE_LIGHT = "2";
+    public static final String TYPE_PLUG = "3";
+    public static final String TYPE_SENSOR = "4";
     public static final String DEVICE_VENDOR = "0";
     public static final String DEVICE_MODEL = "1";
     public static final String DEVICE_FIRMWARE = "3";

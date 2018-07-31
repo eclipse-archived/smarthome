@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="tradfri"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
 	<bridge-type id="gateway">
@@ -12,6 +13,23 @@
 
 	<!-- thing types for devices -->
 	<!-- their IDs refer to the Zigbee Lightlink device ids (see chapter 2.2 in https://www.nxp.com/documents/user_manual/JN-UG-3091.pdf) -->
+	<thing-type id="0010">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="gateway" />
+		</supported-bridge-type-refs>
+
+		<label>On/Off Plug</label>
+		<description>A plug that can be switched on and off.</description>
+
+		<channels>
+			<channel id="power" typeId="system.power" />
+		</channels>
+
+		<representation-property>id</representation-property>
+
+		<config-description-ref uri="thing-type:tradfri:device" />
+	</thing-type>
+
 	<thing-type id="0100">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="gateway" />
