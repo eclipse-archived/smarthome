@@ -45,7 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-@Component(immediate = true)
+@Component
 public class AutomationCommandsPluggable extends AutomationCommands implements ConsoleCommandExtension {
 
     /**
@@ -412,20 +412,13 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
 
     @Override
     public RuleStatus getRuleStatus(String ruleUID) {
-        if (ruleManager != null) {
-            RuleStatusInfo rsi = ruleManager.getStatusInfo(ruleUID);
-            return rsi != null ? rsi.getStatus() : null;
-        } else {
-            return null;
-        }
+        RuleStatusInfo rsi = ruleManager.getStatusInfo(ruleUID);
+        return rsi != null ? rsi.getStatus() : null;
     }
 
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
-        if (ruleManager != null) {
-            ruleManager.setEnabled(uid, isEnabled);
-        }
-
+        ruleManager.setEnabled(uid, isEnabled);
     }
 
 }
