@@ -54,11 +54,12 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (CHANNEL_1.equals(channelUID.getId())) {
-            // TODO: handle command
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
             }
             
+            // TODO: handle command
+
             // Note: if communication with thing fails for some reason,
             // indicate that by setting the status with detail information
             // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
