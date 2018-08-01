@@ -189,6 +189,7 @@ Bridge homematic:bridge:ccu [ gatewayAddress="..." ]
 
 The first parameter after Thing is the device type, the second the serial number.
 If you are using Homegear, you have to add the prefix ```HG-``` for each type.
+The ```HG-``` prefix is only needed for Things, not for Items or channel configs.
 This is necessary, because the Homegear devices supports more datapoints than Homematic devices.
 
 ```java
@@ -223,6 +224,16 @@ The disadvantage is of course, that all events for this channel are delayed.
 ```
 
 The Type is the device type, channel number and lowercase channel name separated with a underscore.
+Note that, for Homegear devices, in contrast to the specification of the Thing above no ```HG-``` prefix is needed for the specification of the Type of the Channel.
+
+The channel configs are optional.
+Example without channel configs
+```java
+  Thing HM-LC-Dim1T-Pl-2    JEQ0999999 "Name"  @  "Location" {
+      Channels:
+          Type HM-LC-Dim1T-Pl-2_1_LEVEL : 1#LEVEL
+  }
+```
 
 ### Items
 
