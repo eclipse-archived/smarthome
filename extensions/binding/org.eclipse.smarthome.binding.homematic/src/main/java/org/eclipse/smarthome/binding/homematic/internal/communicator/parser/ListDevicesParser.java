@@ -54,8 +54,10 @@ public class ListDevicesParser extends CommonRpcParser<Object[], Collection<HmDe
                 String id = toString(data.get("ID"));
                 String firmware = toString(data.get("FIRMWARE"));
 
-                devices.put(address,
-                        new HmDevice(address, hmInterface, type, config.getGatewayInfo().getId(), id, firmware));
+                HmDevice device = new HmDevice(address, hmInterface, type, config.getGatewayInfo().getId(), id,
+                        firmware);
+                device.addChannel(new HmChannel(type, -1));
+                devices.put(address, device);
             } else {
                 // channel
                 String deviceAddress = getSanitizedAddress(data.get("PARENT"));

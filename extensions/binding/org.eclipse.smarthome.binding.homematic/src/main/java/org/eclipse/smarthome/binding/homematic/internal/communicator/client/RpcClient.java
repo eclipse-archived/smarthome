@@ -172,7 +172,7 @@ public abstract class RpcClient<T> {
      */
     public void addChannelDatapoints(HmChannel channel, HmParamsetType paramsetType) throws IOException {
         RpcRequest<T> request = createRpcRequest("getParamsetDescription");
-        request.addArg(getRpcAddress(channel.getDevice().getAddress()) + ":" + channel.getNumber());
+        request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
         request.addArg(paramsetType.toString());
         new GetParamsetDescriptionParser(channel, paramsetType).parse(sendMessage(config.getRpcPort(channel), request));
     }
@@ -182,7 +182,7 @@ public abstract class RpcClient<T> {
      */
     public void setChannelDatapointValues(HmChannel channel, HmParamsetType paramsetType) throws IOException {
         RpcRequest<T> request = createRpcRequest("getParamset");
-        request.addArg(getRpcAddress(channel.getDevice().getAddress()) + ":" + channel.getNumber());
+        request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
         request.addArg(paramsetType.toString());
         if (channel.getDevice().getHmInterface() == HmInterface.CUXD && paramsetType == HmParamsetType.VALUES) {
             setChannelDatapointValues(channel);
@@ -210,7 +210,7 @@ public abstract class RpcClient<T> {
         for (HmDatapoint dp : channel.getDatapoints()) {
             if (dp.isReadable() && !dp.isVirtual() && dp.getParamsetType() == HmParamsetType.VALUES) {
                 RpcRequest<T> request = createRpcRequest("getValue");
-                request.addArg(getRpcAddress(channel.getDevice().getAddress()) + ":" + channel.getNumber());
+                request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
                 request.addArg(dp.getName());
                 new GetValueParser(dp).parse(sendMessage(config.getRpcPort(channel), request));
             }
@@ -288,12 +288,12 @@ public abstract class RpcClient<T> {
         RpcRequest<T> request;
         if (HmParamsetType.VALUES == dp.getParamsetType()) {
             request = createRpcRequest("setValue");
-            request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + ":" + dp.getChannel().getNumber());
+            request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + getChannelSuffix(dp.getChannel()));
             request.addArg(dp.getName());
             request.addArg(value);
         } else {
             request = createRpcRequest("putParamset");
-            request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + ":" + dp.getChannel().getNumber());
+            request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + getChannelSuffix(dp.getChannel()));
             request.addArg(HmParamsetType.MASTER.toString());
             Map<String, Object> paramSet = new HashMap<String, Object>();
             paramSet.put(dp.getName(), value);
@@ -387,6 +387,15 @@ public abstract class RpcClient<T> {
     public List<HmRssiInfo> loadRssiInfo(HmInterface hmInterface) throws IOException {
         RpcRequest<T> request = createRpcRequest("rssiInfo");
         return new RssiInfoParser(config).parse(sendMessage(config.getRpcPort(hmInterface), request));
+    }
+
+    /**
+     * Returns the address suffix that specifies the channel for a given HmChannel. This is either a colon ":" followed
+     * by the channel number, or the empty string. The empty string is returned for the channel -1, since this channel
+     * encapsulates the ParamSets of a device that do not belong to one of its channels.
+     */
+    private String getChannelSuffix(HmChannel channel) {
+        return channel.getNumber() != -1 ? ":" + channel.getNumber() : "";
     }
 
 }
