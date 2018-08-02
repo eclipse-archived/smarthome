@@ -99,7 +99,13 @@
 			</parameter>
 			<parameter name="unpairOnDeletion" type="boolean">
 				<label>Unpair Devices on Deletion</label>
-				<description>If set to true, devices are unpaired from the gateway when their corresponding things are removed</description>
+				<description>If set to true, devices are unpaired from the gateway when their corresponding things are removed. The option "factoryResetOnDeletion" also unpairs a device, so in order to avoid unpairing on deletion, both options need to be set to false!</description>
+				<advanced>true</advanced>
+				<default>false</default>
+			</parameter>
+			<parameter name="factoryResetOnDeletion" type="boolean">
+				<label>Factory Reset Devices on Deletion</label>
+				<description>If set to true, devices are factory reset when their corresponding things are removed. Due to the factory reset, the device will also be unpaired from the gateway, even if "unpairOnDeletion" is set to false!</description>
 				<advanced>true</advanced>
 				<default>false</default>
 			</parameter>

@@ -56,6 +56,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -508,12 +509,22 @@ public class HomematicThingHandler extends BaseThingHandler {
     @SuppressWarnings("null")
     @Override
     public synchronized void handleRemoval() {
-        final Bridge bridge = getBridge();
-        if (bridge != null && bridge.getHandler() != null
-                && bridge.getConfiguration().as(HomematicConfig.class).isUnpairOnDeletion()) {
+        final Bridge bridge;
+        final ThingHandler handler;
+
+        if ((bridge = getBridge()) == null || (handler = bridge.getHandler()) == null) {
+            super.handleRemoval();
+            return;
+        }
+
+        final HomematicConfig config = bridge.getConfiguration().as(HomematicConfig.class);
+        final boolean unpairOnDeletion = config.isUnpairOnDeletion() || config.isFactoryResetOnDeletion();
+        final boolean factoryResetOnDeletion = config.isFactoryResetOnDeletion();
+
+        if (unpairOnDeletion) {
             deviceDeletionPending = true;
-            ((HomematicBridgeHandler) bridge.getHandler()).deleteFromGateway(UidUtils.getHomematicAddress(thing), false,
-                    false, true);
+            ((HomematicBridgeHandler) handler).deleteFromGateway(UidUtils.getHomematicAddress(thing),
+                    factoryResetOnDeletion, false, true);
         } else {
             super.handleRemoval();
         }
