@@ -41,6 +41,7 @@ import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
 import org.eclipse.smarthome.ui.internal.chart.ChartServlet;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
