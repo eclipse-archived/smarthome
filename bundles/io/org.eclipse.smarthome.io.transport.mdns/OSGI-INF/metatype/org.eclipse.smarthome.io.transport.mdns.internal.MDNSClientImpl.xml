@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
+
+	<OCD name="Transport mDNS" id="TransportMDNS" description="Transport mDNS IP configuration">
+		<AD name="useOnlyOneAddress" id="useOnlyOneAddress" default="false" type="Boolean" description="Use only one IP address per interface and family" />
+
+		<AD name="ignoreIPv6" id="ignoreIPv6" default="false" type="Boolean" description="Don't use IPv6 addresses" />
+	</OCD>
+
+	<Designate pid="org.eclipse.smarthome.TransportMDNS">
+		<Object ocdref="TransportMDNS" />
+	</Designate>
+
+</metatype:MetaData>

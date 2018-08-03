@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.io.transport.mdns.internal;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -20,6 +22,7 @@ import java.time.Duration;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,6 +38,7 @@ import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +49,19 @@ import org.slf4j.LoggerFactory;
  * @author Gary Tse - Add NetworkAddressChangeListener to handle interface changes
  *
  */
-@Component(immediate = true)
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.TransportMDNS")
 public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 
+    private static final String CONFIG_USER_ONLY_ONE_ADDRESS = "useOnlyOneAddress";
+    private static final String CONFIG_IGNORE_IPV6 = "ignoreIPv6";
+
     private final ConcurrentMap<InetAddress, JmDNS> jmdnsInstances = new ConcurrentHashMap<>();
 
-    private static Set<InetAddress> getAllInetAddresses() {
+    private boolean useOnlyOneAddress;
+    private boolean ignoreIPv6;
+
+    private Set<InetAddress> getAllInetAddresses() {
         final Set<InetAddress> addresses = new HashSet<>();
         Enumeration<NetworkInterface> itInterfaces;
         try {
@@ -62,19 +72,37 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
         while (itInterfaces.hasMoreElements()) {
             final NetworkInterface iface = itInterfaces.nextElement();
             try {
-                if (!iface.isUp() || iface.isLoopback()) {
+                if (!iface.isUp() || iface.isLoopback() || iface.isPointToPoint()) {
                     continue;
                 }
             } catch (final SocketException ex) {
                 continue;
             }
             final Enumeration<InetAddress> itAddresses = iface.getInetAddresses();
+            boolean ipv4addressAdded = false;
+            boolean ipv6addressAdded = false;
             while (itAddresses.hasMoreElements()) {
                 final InetAddress address = itAddresses.nextElement();
-                if (address.isLoopbackAddress() || address.isLinkLocalAddress()) {
+                if (address.isLoopbackAddress() || address.isLinkLocalAddress()
+                        || (ignoreIPv6 && address instanceof Inet6Address)) {
                     continue;
                 }
-                addresses.add(address);
+                if (useOnlyOneAddress) {
+                    // add only one address per interface and family
+                    if (address instanceof Inet4Address) {
+                        if (!ipv4addressAdded) {
+                            addresses.add(address);
+                            ipv4addressAdded = true;
+                        }
+                    } else if (address instanceof Inet6Address) {
+                        if (!ipv6addressAdded) {
+                            addresses.add(address);
+                            ipv6addressAdded = true;
+                        }
+                    }
+                } else {
+                    addresses.add(address);
+                }
             }
         }
         return addresses;
@@ -86,10 +114,17 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     }
 
     @Activate
-    public void activate() {
+    protected void activate(Map<String, Object> parameters) {
+        getConfigParameters(parameters);
         for (InetAddress address : getAllInetAddresses()) {
             createJmDNSByAddress(address);
         }
+    }
+
+    @Modified
+    protected void modified(Map<String, Object> parameters) {
+        deactivate();
+        activate(parameters);
     }
 
     @Deactivate
@@ -226,4 +261,29 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             createJmDNSByAddress(address);
         }
     }
+
+    private void getConfigParameters(Map<String, Object> parameters) {
+        useOnlyOneAddress = getConfigParameter(parameters, CONFIG_USER_ONLY_ONE_ADDRESS, false);
+        ignoreIPv6 = getConfigParameter(parameters, CONFIG_IGNORE_IPV6, false);
+    }
+
+    private boolean getConfigParameter(Map<String, Object> parameters, String parameter, boolean defaultValue) {
+        if (parameters == null) {
+            return defaultValue;
+        }
+        Object value = parameters.get(parameter);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof String) {
+            return Boolean.valueOf((String) value);
+        } else {
+            logger.warn("ignoring invalid type {} for parameter {}", value.getClass().getName(), parameter);
+            return defaultValue;
+        }
+    }
+
 }
