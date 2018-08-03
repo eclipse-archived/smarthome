@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -59,6 +60,8 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     private static final String CONFIG_IGNORE_IPV6 = "ignoreIPv6";
 
     private final ConcurrentMap<InetAddress, JmDNS> jmdnsInstances = new ConcurrentHashMap<>();
+
+    private final ConcurrentSkipListSet<ServiceDescription> activeServices = new ConcurrentSkipListSet<>();
 
     private boolean useOnlyOneAddress;
     private boolean ignoreIPv6;
@@ -118,8 +121,19 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     @Activate
     protected void activate(Map<String, Object> parameters) {
         getConfigParameters(parameters);
+        start();
+    }
+
+    private void start() {
         for (InetAddress address : getAllInetAddresses()) {
             createJmDNSByAddress(address);
+        }
+        for (ServiceDescription description : activeServices) {
+            try {
+                registerService(description);
+            } catch (IOException e) {
+                // ignore so far
+            }
         }
     }
 
@@ -146,6 +160,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
 
     @Override
     public void registerService(ServiceDescription description) throws IOException {
+        activeServices.add(description);
         for (JmDNS instance : jmdnsInstances.values()) {
             logger.debug("Registering new service {} at {}:{} ({})", description.serviceType,
                     instance.getInetAddress().getHostAddress(), description.servicePort, instance.getName());
@@ -158,6 +173,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
 
     @Override
     public void unregisterService(ServiceDescription description) {
+        activeServices.remove(description);
         for (JmDNS instance : jmdnsInstances.values()) {
             try {
                 logger.debug("Unregistering service {} at {}:{} ({})", description.serviceType,
@@ -173,6 +189,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
 
     @Override
     public void unregisterAllServices() {
+        activeServices.clear();
         for (JmDNS instance : jmdnsInstances.values()) {
             instance.unregisterAllServices();
         }
@@ -240,28 +257,8 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
 
     @Override
     public void onChanged(List<CidrAddress> added, List<CidrAddress> removed) {
-        // remove jmdns instances that no longer exist due to interface changed
-        for (CidrAddress cidrAddress : removed) {
-            InetAddress inetAddr = cidrAddress.getAddress();
-            if (jmdnsInstances.containsKey(inetAddr)) {
-                JmDNS jmdns = jmdnsInstances.get(inetAddr);
-                closeQuietly(jmdns);
-                jmdnsInstances.remove(inetAddr);
-                logger.debug("mDNS service has been removed ({} for IP {})", jmdns.getName(),
-                        inetAddr.getHostAddress());
-            }
-        }
-
-        // add the new addresses, just like activate
-        for (CidrAddress cidrAddress : added) {
-            InetAddress address = cidrAddress.getAddress();
-
-            // skip the loopback or link local addresses
-            if (address.isLoopbackAddress() || address.isLinkLocalAddress()) {
-                continue;
-            }
-            createJmDNSByAddress(address);
-        }
+        deactivate();
+        start();
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
