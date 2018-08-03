@@ -49,7 +49,9 @@ import org.slf4j.LoggerFactory;
  * @author Gary Tse - Add NetworkAddressChangeListener to handle interface changes
  *
  */
-@Component(immediate = true, configurationPid = "org.eclipse.smarthome.TransportMDNS")
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.TransportMDNS", property = {
+        "service.pid=org.eclipse.smarthome.TransportMDNS", "service.config.description.uri=system:transport-mdns",
+        "service.config.label=Transport MDNS Settings", "service.config.category=system" })
 public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 

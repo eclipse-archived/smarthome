@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+	http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+
+	<config-description uri="system:transport-mdns">
+		<parameter name="useOnlyOneAddress" type="boolean">
+			<label>Use only one address</label>
+			<description>Use only one IP address per interface and family</description>
+			<limitToOptions>true</limitToOptions>
+		</parameter>
+		<parameter name="ignoreIPv6" type="boolean">
+			<label>Ignore IPv6</label>
+			<description>Don't use IPv6 addresses</description>
+			<limitToOptions>true</limitToOptions>
+		</parameter>
+	</config-description>
+
+</config-description:config-descriptions>
