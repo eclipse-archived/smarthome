@@ -47,7 +47,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.test.AsyncResultWrapper
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -55,7 +55,7 @@ import org.osgi.service.component.ComponentContext
 
 import com.google.common.collect.Sets
 
-class InboxOSGITest extends OSGiTest {
+class InboxOSGITest extends JavaOSGiTest {
 
     class DiscoveryService1 extends AbstractDiscoveryService {
         public DiscoveryService1() {

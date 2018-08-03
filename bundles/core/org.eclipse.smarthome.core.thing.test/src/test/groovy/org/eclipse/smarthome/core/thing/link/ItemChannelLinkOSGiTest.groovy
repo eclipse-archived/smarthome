@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -30,7 +30,7 @@ import org.junit.Test
  *
  * @author Dennis Nobel - Initial contribution
  */
-class ItemChannelLinkOSGiTest extends OSGiTest {
+class ItemChannelLinkOSGiTest extends JavaOSGiTest {
 
     ChannelUID CHANNEL_UID = new ChannelUID("binding:typeId:thingId:channelId")
     ItemChannelLink ITEM_CHANNEL_LINK = new ItemChannelLink("item", CHANNEL_UID)

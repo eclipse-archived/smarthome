@@ -34,7 +34,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.Test
 
 /**
@@ -44,7 +44,7 @@ import org.junit.Test
  * @author Alex Tugarev - Adapted for constructor modification of ConfigDescriptionParameter
  * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
-class ThingFactoryTest extends OSGiTest{
+class ThingFactoryTest extends JavaOSGiTest{
 
     @Test
     void 'create simple Thing'() {

@@ -22,7 +22,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.ConfigOptionProvider
 import org.eclipse.smarthome.config.core.ParameterOption
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.Before
 import org.junit.Test
 
@@ -32,7 +32,7 @@ import org.junit.Test
  * @author Chris Jackson
  *
  */
-class ConfigOptionRegistryOSGiTest extends OSGiTest {
+class ConfigOptionRegistryOSGiTest extends JavaOSGiTest {
 
     ConfigDescriptionRegistry configDescriptionRegistry
     ConfigDescription configDescription

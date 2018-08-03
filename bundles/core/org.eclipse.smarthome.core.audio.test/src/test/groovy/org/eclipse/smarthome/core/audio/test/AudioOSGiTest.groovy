@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.audio.*
 import org.eclipse.smarthome.core.audio.internal.AudioManagerImpl
 import org.eclipse.smarthome.core.audio.internal.AudioServlet
 import org.eclipse.smarthome.core.audio.test.fake.AudioSinkFake
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
@@ -34,7 +34,7 @@ import org.junit.BeforeClass
  * @author Petar Valchev
  *
  */
-class AudioOSGiTest extends OSGiTest {
+class AudioOSGiTest extends JavaOSGiTest {
     protected AudioManager audioManager
     protected AudioSink audioSinkFake
     protected AudioStream audioStream

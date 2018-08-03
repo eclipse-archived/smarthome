@@ -20,14 +20,14 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.core.binding.BindingInfo
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry
-import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
 
-class BindingInfoTest extends OSGiTest {
+class BindingInfoTest extends JavaOSGiTest {
 
     static final String TEST_BUNDLE_NAME = "BundleInfoTest.bundle"
     static final String TEST_BUNDLE_NAME2 = "BundleInfoTestNoAuthor.bundle"

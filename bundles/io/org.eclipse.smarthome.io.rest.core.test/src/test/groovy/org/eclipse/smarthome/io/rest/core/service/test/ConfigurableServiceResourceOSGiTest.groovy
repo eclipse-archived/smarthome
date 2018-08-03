@@ -18,7 +18,7 @@ import static org.junit.Assert.*
 import javax.ws.rs.core.Response
 
 import org.eclipse.smarthome.io.rest.core.internal.service.ConfigurableServiceResource
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -31,7 +31,7 @@ import org.osgi.service.cm.ConfigurationAdmin
  *
  * @author Dennis Nobel - Initial contribution
  */
-class ConfigurableServiceResourceOSGiTest extends OSGiTest {
+class ConfigurableServiceResourceOSGiTest extends JavaOSGiTest {
 
     ConfigurableServiceResource configurableServiceResource
 

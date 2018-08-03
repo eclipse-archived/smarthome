@@ -41,7 +41,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.StateDescription
 import org.eclipse.smarthome.core.types.StateOption
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -57,7 +57,7 @@ import org.osgi.service.component.ComponentContext
  * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  * @author Kai Kreuzer - Adapted to new service implementation
  */
-class ThingLinkManagerOSGiTest extends OSGiTest {
+class ThingLinkManagerOSGiTest extends JavaOSGiTest {
 
     def ThingRegistry thingRegistry
     def ManagedThingProvider managedThingProvider

@@ -205,4 +205,19 @@ public class JavaTest {
         }
     }
 
+    protected void waitForAssert(Runnable assertion, @Nullable Runnable beforeLastCall) throws Exception {
+        waitForAssert(assertion, beforeLastCall, DFL_TIMEOUT, DFL_SLEEP_TIME);
+    }
+
+    protected void waitForAssert(Runnable assertion, @Nullable Runnable beforeLastCall, long timeout) throws Exception {
+        waitForAssert(assertion, beforeLastCall, timeout, DFL_SLEEP_TIME);
+    }
+
+    protected void waitForAssert(Runnable assertion, int timeout) throws Exception {
+        waitForAssert(assertion, timeout, DFL_SLEEP_TIME);
+    }
+
+    protected boolean waitFor(BooleanSupplier condition, int timeout) throws Exception {
+        return waitFor(condition, timeout, DFL_SLEEP_TIME);
+    }
 }

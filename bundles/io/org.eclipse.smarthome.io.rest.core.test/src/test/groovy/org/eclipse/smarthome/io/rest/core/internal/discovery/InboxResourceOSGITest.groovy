@@ -25,11 +25,11 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.io.rest.core.internal.discovery.InboxResource
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.Before
 import org.junit.Test
 
-class InboxResourceOSGITest extends OSGiTest {
+class InboxResourceOSGITest extends JavaOSGiTest {
 
     ThingTypeRegistry thingTypeRegistry = new ThingTypeRegistry()
     ConfigDescriptionRegistry configDescRegistry
