@@ -281,9 +281,9 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
         if (value instanceof String) {
             return Boolean.valueOf((String) value);
         } else {
-            logger.warn("ignoring invalid type {} for parameter {}", value.getClass().getName(), parameter);
+            logger.warn("ignoring invalid type {} for parameter {}, using default value {} instead",
+                    value.getClass().getName(), parameter, defaultValue);
             return defaultValue;
         }
     }
-
 }
