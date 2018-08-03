@@ -175,7 +175,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         Properties properties = new Properties();
 
         // Host and port
-        properties.put(BrokerConstants.HOST_PROPERTY_NAME, "127.0.0.1");
+        properties.put(BrokerConstants.HOST_PROPERTY_NAME, "0.0.0.0");
         int port;
         if (secure) {
             port = (portParam == null) ? port = 8883 : portParam;
