@@ -56,6 +56,7 @@ public class HomematicConfig {
     private int installModeDuration = DEFAULT_INSTALL_MODE_DURATION;
     private long discoveryTimeToLive = -1;
     private boolean unpairOnDeletion = false;
+    private boolean factoryResetOnDeletion = false;
 
     private HmGatewayInfo gatewayInfo;
 
@@ -232,6 +233,25 @@ public class HomematicConfig {
      */
     public void setUnpairOnDeletion(boolean unpairOnDeletion) {
         this.unpairOnDeletion = unpairOnDeletion;
+    }
+
+    /**
+     * Returns if devices are factory reset when their corresponding things are removed
+     * 
+     * @return <i>true</i> if devices are factory reset when their corresponding things are removed
+     */
+    public boolean isFactoryResetOnDeletion() {
+        return factoryResetOnDeletion;
+    }
+
+    /**
+     * Sets factoryResetOnDeletion
+     * 
+     * @param factoryResetOnDeletion if set to <i>true</i>, devices are factory reset when their corresponding things
+     *            are removed
+     */
+    public void setFactoryResetOnDeletion(boolean factoryResetOnDeletion) {
+        this.factoryResetOnDeletion = factoryResetOnDeletion;
     }
 
     /**

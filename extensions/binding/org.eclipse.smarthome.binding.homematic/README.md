@@ -141,7 +141,12 @@ The port number of the CUxD daemon (default = 8701)
 Time in seconds that the controller will be in install mode when a device discovery is initiated (default = 60)
 
 -   **unpairOnDeletion**
-If true, devices are automatically unpaired from a gateway when the corresponding thing is deleted (default = false)
+If set to true, devices are automatically unpaired from the gateway when their corresponding things are deleted.
+**Warning!** The option "factoryResetOnDeletion" also unpairs a device, so in order to avoid unpairing on deletion completely, both options need to be set to false! (default = false)
+
+-   **factoryResetOnDeletion**
+If set to true, devices are automatically factory reset when their corresponding things are removed.
+Due to the factory reset, the device will also be unpaired from the gateway, even if "unpairOnDeletion" is set to false! (default = false)
 
 The syntax for a bridge is:
 
