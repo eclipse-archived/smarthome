@@ -518,8 +518,8 @@ public class HomematicThingHandler extends BaseThingHandler {
         }
 
         final HomematicConfig config = bridge.getConfiguration().as(HomematicConfig.class);
-        final boolean unpairOnDeletion = config.isUnpairOnDeletion() || config.isFactoryResetOnDeletion();
         final boolean factoryResetOnDeletion = config.isFactoryResetOnDeletion();
+        final boolean unpairOnDeletion = factoryResetOnDeletion || config.isUnpairOnDeletion();
 
         if (unpairOnDeletion) {
             deviceDeletionPending = true;
