@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.binding.weatherunderground.internal.json;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,42 +33,6 @@ public class WeatherUndergroundJsonUtils {
     private static final String TREND_UP = "up";
     private static final String TREND_DOWN = "down";
     private static final String TREND_STABLE = "stable";
-
-    /**
-     * Returns the field value from the object data, nested fields are possible.
-     * If the fieldName is for example current#humidity, the methods getCurrent().getHumidity() are called.
-     */
-    public static Object getValue(String channelId, Object data) throws Exception {
-        String[] fields = StringUtils.split(channelId, "#");
-        return getValue(data, fields, 0);
-    }
-
-    /**
-     * Iterates through the fields and returns the getter value.
-     */
-    private static Object getValue(Object data, String[] fields, int index) throws Exception {
-        if (data == null) {
-            return null;
-        }
-        String fieldName = fields[index];
-        Method method = data.getClass().getMethod(toGetterString(fieldName));
-        Object result = method.invoke(data);
-        if (++index < fields.length) {
-            result = getValue(result, fields, index);
-        }
-        return result;
-    }
-
-    /**
-     * Converts the string to a getter method.
-     */
-    private static String toGetterString(String str) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("get");
-        sb.append(Character.toTitleCase(str.charAt(0)));
-        sb.append(str.substring(1));
-        return sb.toString();
-    }
 
     /**
      * Convert a string representing an Epoch value into a Calendar object
