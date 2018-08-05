@@ -145,11 +145,11 @@ public class PacketFactory {
      * @param packetType the packet type of the handler to retrieve
      * @return a packet handler, or null
      */
-    public PacketHandler<?> getHandler(int packetType) {
+    public @Nullable PacketHandler<?> getHandler(int packetType) {
         return handlers.get(packetType);
     }
 
-    public static PacketHandler<?> createHandler(int packetType) {
+    public static @Nullable PacketHandler<?> createHandler(int packetType) {
         return getInstance().getHandler(packetType);
     }
 

@@ -28,6 +28,14 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public interface PacketHandler<T extends Packet> {
 
+    /**
+     * Creates a packet from the given buffer.
+     *
+     * @param buf the buffer used for creating the packet
+     * @return the packet created from the buffer
+     * @throws IllegalArgumentException when an empty packet could not be created or the data in the buffer
+     *             could not be parsed
+     */
     public abstract T handle(ByteBuffer buf);
 
 }
