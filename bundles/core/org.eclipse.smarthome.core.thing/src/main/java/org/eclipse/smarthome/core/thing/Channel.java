@@ -200,12 +200,14 @@ public class Channel {
     }
 
     /**
-     * Returns the channel properties
+     * Returns an immutable copy of the {@link Channel} properties.
      *
-     * @return channel properties (not null)
+     * @return an immutable copy of the {@link Channel} properties (not {@code null})
      */
     public Map<String, String> getProperties() {
-        return properties;
+        synchronized (this) {
+            return Collections.unmodifiableMap(new HashMap<>(properties));
+        }
     }
 
     /**
