@@ -56,6 +56,7 @@ public class LifxSelectorUtil {
         UNICAST;
     }
 
+    @SuppressWarnings("resource")
     public static @Nullable SelectionKey openBroadcastChannel(@Nullable Selector selector, String logId,
             int broadcastPort) throws IOException {
         if (selector == null) {
@@ -70,6 +71,7 @@ public class LifxSelectorUtil {
         return broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
+    @SuppressWarnings("resource")
     public static @Nullable SelectionKey openUnicastChannel(@Nullable Selector selector, String logId,
             @Nullable InetSocketAddress address) throws IOException {
         if (selector == null || address == null) {
@@ -123,6 +125,7 @@ public class LifxSelectorUtil {
         key.cancel();
     }
 
+    @SuppressWarnings("resource")
     public static void receiveAndHandlePackets(Selector selector, String logId,
             BiConsumer<Packet, InetSocketAddress> packetConsumer) {
         try {
@@ -196,13 +199,7 @@ public class LifxSelectorUtil {
                         address.toString());
             } else {
                 Packet packet = handler.handle(readBuffer);
-                if (packet == null) {
-                    LOGGER.warn(
-                            "Packet handler '{}' was unable to create packet from " + "ByteBuffer for the light ({})",
-                            handler.getClass().getName(), logId);
-                } else {
-                    packetConsumer.accept(packet, address);
-                }
+                packetConsumer.accept(packet, address);
             }
         }
     }
@@ -257,6 +254,7 @@ public class LifxSelectorUtil {
         return sendPacket(context, packet, host, UNICAST);
     }
 
+    @SuppressWarnings("resource")
     private static boolean sendPacket(@Nullable LifxSelectorContext context, Packet packet, InetSocketAddress address,
             CastType castType) {
         if (context == null) {
