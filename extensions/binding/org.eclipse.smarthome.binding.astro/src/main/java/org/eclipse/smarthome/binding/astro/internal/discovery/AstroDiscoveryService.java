@@ -121,12 +121,8 @@ public class AstroDiscoveryService extends AbstractDiscoveryService {
 
     public void createResults(PointType location) {
         String propGeolocation;
-        if (location.getAltitude() != null) {
-            propGeolocation = String.format("%s,%s,%s", location.getLatitude(), location.getLongitude(),
-                    location.getAltitude());
-        } else {
-            propGeolocation = String.format("%s,%s", location.getLatitude(), location.getLongitude());
-        }
+        propGeolocation = String.format("%s,%s,%s", location.getLatitude(), location.getLongitude(),
+                location.getAltitude());
         thingDiscovered(DiscoveryResultBuilder.create(SUN_THING).withLabel("Local Sun")
                 .withProperty("geolocation", propGeolocation).withRepresentationProperty("geolocation").build());
         thingDiscovered(DiscoveryResultBuilder.create(MOON_THING).withLabel("Local Moon")
