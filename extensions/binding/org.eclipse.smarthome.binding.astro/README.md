@@ -68,15 +68,15 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
     * **group** `distance`
         * **channel**: 
             * `date` (DateTime)
-            * `kilometer, miles` (Number)
+            * `distance` (Number:Length)
     * **group** `perigee`
         * **channel**: 
             * `date` (DateTime), 
-            * `kilometer, miles` (Number)
+            * `distance` (Number:Length)
     * **group** `apogee`
         * **channel**: 
             * `date` (DateTime)
-            * `kilometer, miles` (Number)
+            * `distance` (Number:Length)
     * **group** `zodiac`
         * **channel** 
             * `sign` (String), values: `ARIES, TAURUS, GEMINI, CANCER, LEO, VIRGO, LIBRA, SCORPIO, SAGITTARIUS, CAPRICORN, AQUARIUS, PISCES`
@@ -171,13 +171,14 @@ astro:sun:home [ geolocation="52.5200066,13.4049540,100", interval=60 ] {
 Items:
 
 ```
-DateTime Sunrise_Time       "Sunrise [%1$tH:%1$tM]"                   { channel="astro:sun:home:rise#start" }
-DateTime Sunset_Time        "Sunset [%1$tH:%1$tM]"                    { channel="astro:sun:home:set#start" }
-Number   Azimuth            "Azimuth"                                 { channel="astro:sun:home:position#azimuth" }
-Number   Elevation          "Elevation"                               { channel="astro:sun:home:position#elevation" }
-String   MoonPhase          "MoonPhase"                               { channel="astro:moon:home:phase#name" }
-Number   Total_Radiation    "Radiation [%.2f W/m\u00B2]"              { channel="astro:sun:home:radiation#total" }
-Number   Diffuse_Radiation  "Diffuse Radiation [%.2f W/m\u00B2]"      { channel="astro:sun:home:radiation#diffuse" }
+DateTime      Sunrise_Time       "Sunrise [%1$tH:%1$tM]"                   { channel="astro:sun:home:rise#start" }
+DateTime      Sunset_Time        "Sunset [%1$tH:%1$tM]"                    { channel="astro:sun:home:set#start" }
+Number        Azimuth            "Azimuth"                                 { channel="astro:sun:home:position#azimuth" }
+Number        Elevation          "Elevation"                               { channel="astro:sun:home:position#elevation" }
+String        MoonPhase          "MoonPhase"                               { channel="astro:moon:home:phase#name" }
+Number:Length MoonDistance       "MoonDistance [%.1f %unit%]"              { channel="astro:moon:home:distance#distance" }
+Number        Total_Radiation    "Radiation [%.2f W/m\u00B2]"              { channel="astro:sun:home:radiation#total" }
+Number        Diffuse_Radiation  "Diffuse Radiation [%.2f W/m\u00B2]"      { channel="astro:sun:home:radiation#diffuse" }
 ```
 
 Events:

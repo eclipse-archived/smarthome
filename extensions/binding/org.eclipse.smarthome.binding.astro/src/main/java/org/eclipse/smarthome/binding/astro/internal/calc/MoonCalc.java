@@ -31,11 +31,11 @@ import org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils;
  * the moon.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Introduced UoM
  * @see based on the calculations of
  *      http://www.computus.de/mondphase/mondphase.htm azimuth/elevation and
  *      zodiac based on http://lexikon.astronomie.info/java/sunmoon/
  */
-
 public class MoonCalc {
     private static final double NEW_MOON = 0;
     private static final double FULL_MOON = 0.5;
@@ -93,12 +93,12 @@ public class MoonCalc {
         MoonDistance apogee = moon.getApogee();
         double apogeeJd = getApogee(julianDate, decimalYear);
         apogee.setDate(DateTimeUtils.toCalendar(apogeeJd));
-        apogee.setKilometer(getDistance(apogeeJd));
+        apogee.setDistance(getDistance(apogeeJd));
 
         MoonDistance perigee = moon.getPerigee();
         double perigeeJd = getPerigee(julianDate, decimalYear);
         perigee.setDate(DateTimeUtils.toCalendar(perigeeJd));
-        perigee.setKilometer(getDistance(perigeeJd));
+        perigee.setDistance(getDistance(perigeeJd));
 
         return moon;
     }
@@ -113,7 +113,7 @@ public class MoonCalc {
 
         MoonDistance distance = moon.getDistance();
         distance.setDate(Calendar.getInstance());
-        distance.setKilometer(getDistance(julianDate));
+        distance.setDistance(getDistance(julianDate));
     }
 
     /**
