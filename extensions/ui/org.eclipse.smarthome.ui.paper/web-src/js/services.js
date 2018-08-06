@@ -158,6 +158,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                 return false;
         }
 
+        if (context === "ITEM") {
+            getItemOptions(parameter);
+        }
+
         if (context === "RULE") {
             parameter.options = parameter.options ? parameter.options : [];
             ruleRepository.getAll(function(rules) {
@@ -266,27 +270,11 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         return configParameters;
     }
 
-    var getItemConfigs = function(configParams) {
-        var configParameters = configParams;
-        var parameterItems = []
-        angular.forEach(configParameters, function(configParameter) {
-            parameterItems = parameterItems.concat($.grep(configParameter.parameters, function(value) {
-                return value.context && value.context.toUpperCase() == 'ITEM';
-            }));
-        })
-        if (parameterItems.length > 0) {
-            itemRepository.getAll(function(items) {
-                angular.forEach(configParameters, function(configParameter) {
-                    angular.forEach(configParameter.parameters, function(parameter) {
-                        if (parameter.context && parameter.context.toUpperCase() === 'ITEM') {
-                            var filteredItems = filterByAttributes(items, parameter.filterCriteria);
-                            parameter.options = $filter('orderBy')(filteredItems, 'label');
-                        }
-                    })
-                })
-            });
-        }
-        return configParameters;
+    var getItemOptions = function(parameter) {
+        return itemRepository.getAll().then(function(items) {
+            var filteredItems = filterByAttributes(items, parameter.filterCriteria);
+            parameter.options = $filter('orderBy')(filteredItems, 'label');
+        });
     }
 
     var filterByAttributes = function(arr, filters) {
@@ -387,7 +375,6 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                 }
                 renderingGroups.push(group);
             });
-            renderingGroups = getItemConfigs(renderingGroups)
             return getChannelsConfig(renderingGroups);
         },
 
