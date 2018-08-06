@@ -420,7 +420,8 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
 
     @Override
     public void updated(Item oldItem, Item item) {
-        // not needed here
+        removed(oldItem);
+        added(item);
     }
 
     /*
