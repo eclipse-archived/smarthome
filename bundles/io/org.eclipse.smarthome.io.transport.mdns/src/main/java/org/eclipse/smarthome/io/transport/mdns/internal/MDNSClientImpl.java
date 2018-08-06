@@ -217,7 +217,9 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     public void close() {
         for (JmDNS jmdns : jmdnsInstances.values()) {
             closeQuietly(jmdns);
+            logger.debug("mDNS service has been stopped ({})", jmdns.getName());
         }
+        jmdnsInstances.clear();
     }
 
     private void closeQuietly(JmDNS jmdns) {
@@ -257,6 +259,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
 
     @Override
     public void onChanged(List<CidrAddress> added, List<CidrAddress> removed) {
+        logger.debug("ip address change: added {}, removed {}", added, removed);
         deactivate();
         start();
     }
