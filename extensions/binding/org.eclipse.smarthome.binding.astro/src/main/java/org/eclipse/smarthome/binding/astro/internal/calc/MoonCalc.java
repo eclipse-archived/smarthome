@@ -129,12 +129,11 @@ public class MoonCalc {
         long parentNewMoonMillis = DateTimeUtils.toCalendar(parentNewMoon).getTimeInMillis();
         long ageRangeTimeMillis = phase.getNew().getTimeInMillis() - parentNewMoonMillis;
         long ageCurrentMillis = System.currentTimeMillis() - parentNewMoonMillis;
-        phase.setAgePercent(ageCurrentMillis * 100.0 / ageRangeTimeMillis);
-        phase.setAgeDegree(3.6 * phase.getAgePercent());
-
-        phase.setIllumination(getIllumination(DateTimeUtils.dateToJulianDate(calendar)));
-
-        int illumination = (int) phase.getIllumination();
+        double agePercent = ageCurrentMillis * 100.0 / ageRangeTimeMillis;
+        phase.setAgePercent(agePercent);
+        phase.setAgeDegree(3.6 * agePercent);
+        double illumination = getIllumination(DateTimeUtils.dateToJulianDate(calendar));
+        phase.setIllumination(illumination);
         boolean isWaxing = age < (29.530588853 / 2);
         if (DateTimeUtils.isSameDay(calendar, phase.getNew())) {
             phase.setName(MoonPhaseName.NEW);

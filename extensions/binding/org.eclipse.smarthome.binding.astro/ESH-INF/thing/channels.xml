@@ -26,17 +26,17 @@
 	</channel-group-type>
 
 	<channel-type id="azimuth">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Azimuth</label>
 		<description>The azimuth of the planet</description>
-		<state readOnly="true" pattern="%.2f °" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="elevation">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Elevation</label>
 		<description>The elevation of the planet</description>
-		<state readOnly="true" pattern="%.2f °" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="shadeLength">
@@ -106,10 +106,10 @@
 	</channel-type>
 
 	<channel-type id="duration">
-		<item-type>Number</item-type>
+		<item-type>Number:Time</item-type>
 		<label>Duration</label>
-		<description>The duration time in minutes of the event</description>
-		<state readOnly="true" pattern="%d min" />
+		<description>The duration of the event</description>
+		<state readOnly="true" pattern="%d %unit%" />
 	</channel-type>
 
 	<channel-type id="rangeEvent">
@@ -337,31 +337,31 @@
 	</channel-type>
 
 	<channel-type id="age">
-		<item-type>Number</item-type>
+		<item-type>Number:Time</item-type>
 		<label>Moon age</label>
 		<description>The age of the moon in days</description>
-		<state readOnly="true" pattern="%d d" />
+		<state readOnly="true" pattern="%d %unit%" />
 	</channel-type>
 
 	<channel-type id="ageDegree">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Moon age</label>
-		<description>The age of the moon in degree</description>
-		<state readOnly="true" pattern="%.2f °" />
+		<description>The age of the moon</description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="agePercent">
 		<item-type>Number</item-type>
 		<label>Moon age</label>
-		<description>The age of the moon in percent</description>
-		<state readOnly="true" pattern="%.2f %%" />
+		<description>The age of the moon</description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="illumination">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Moon illumination</label>
-		<description>The illumination of the moon in %</description>
-		<state readOnly="true" pattern="%.0f %%" />
+		<description>The illumination of the moon</description>
+		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
 
 	<channel-type id="phaseName">

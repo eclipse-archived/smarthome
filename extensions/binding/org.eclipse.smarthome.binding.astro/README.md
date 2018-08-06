@@ -31,10 +31,11 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
     * **group** `rise, set, noon, night, morningNight, astroDawn, nauticDawn, civilDawn, astroDusk, nauticDusk, civilDusk, eveningNight, daylight`
         * **channel** 
             * `start, end` (DateTime)
-            * `duration` (Number)
+            * `duration` (Number:Time)
     * **group** `position`
         * **channel** 
-            * `azimuth, elevation, shadeLength` (Number)
+            * `azimuth, elevation` (Number:Angle)
+            * `shadeLength` (Number)
     * **group** `radiation`
         * **channel** 
             * `direct, diffuse, total` (Number:Intensity)
@@ -56,11 +57,12 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
     * **group** `rise, set`
         * **channel** 
             * `start, end` (DateTime)
-            * `duration` (Number), **Note:** start and end is always equal, duration always 0.
     * **group** `phase`
         * **channel**: 
             * `firstQuarter, thirdQuarter, full, new` (DateTime)
-            * `age, agePercent, ageDegree, illumination` (Number)
+            * `age` (Number:Time)
+            * `ageDegree` (Number:Angle)
+            * `agePercent, illumination` (Number:Dimensionless)
             * `name` (String), values: `NEW, WAXING_CRESCENT, FIRST_QUARTER, WAXING_GIBBOUS, FULL, WANING_GIBBOUS, THIRD_QUARTER, WANING_CRESCENT`
     * **group** `eclipse`
         * **channel**: 
@@ -82,7 +84,7 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
             * `sign` (String), values: `ARIES, TAURUS, GEMINI, CANCER, LEO, VIRGO, LIBRA, SCORPIO, SAGITTARIUS, CAPRICORN, AQUARIUS, PISCES`
     * **group** `position`
         * **channel** 
-            * `azimuth, elevation` (Number)
+            * `azimuth, elevation` (Number:Angle)
 
 ### Trigger Channels
 
@@ -173,8 +175,8 @@ Items:
 ```
 DateTime         Sunrise_Time       "Sunrise [%1$tH:%1$tM]"                   { channel="astro:sun:home:rise#start" }
 DateTime         Sunset_Time        "Sunset [%1$tH:%1$tM]"                    { channel="astro:sun:home:set#start" }
-Number           Azimuth            "Azimuth"                                 { channel="astro:sun:home:position#azimuth" }
-Number           Elevation          "Elevation"                               { channel="astro:sun:home:position#elevation" }
+Number:Angle     Azimuth            "Azimuth"                                 { channel="astro:sun:home:position#azimuth" }
+Number:Angle     Elevation          "Elevation"                               { channel="astro:sun:home:position#elevation" }
 String           MoonPhase          "MoonPhase"                               { channel="astro:moon:home:phase#name" }
 Number:Length    MoonDistance       "MoonDistance [%.1f %unit%]"              { channel="astro:moon:home:distance#distance" }
 Number:Intensity Total_Radiation    "Radiation [%.2f %unit%]"                 { channel="astro:sun:home:radiation#total" }

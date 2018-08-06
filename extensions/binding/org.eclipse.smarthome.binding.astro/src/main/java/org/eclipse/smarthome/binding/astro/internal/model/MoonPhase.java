@@ -14,14 +14,21 @@ package org.eclipse.smarthome.binding.astro.internal.model;
 
 import java.util.Calendar;
 
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Time;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 
 /**
  * Holds the calculates moon phase informations.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Introduced UoM
  */
 public class MoonPhase {
     private Calendar firstQuarter;
@@ -94,8 +101,8 @@ public class MoonPhase {
     /**
      * Returns the age in days.
      */
-    public int getAge() {
-        return age;
+    public QuantityType<Time> getAge() {
+        return new QuantityType<Time>(age, SmartHomeUnits.DAY);
     }
 
     /**
@@ -108,8 +115,8 @@ public class MoonPhase {
     /**
      * Returns the illumination.
      */
-    public double getIllumination() {
-        return illumination;
+    public QuantityType<Dimensionless> getIllumination() {
+        return new QuantityType<Dimensionless>(illumination, SmartHomeUnits.PERCENT);
     }
 
     /**
@@ -136,8 +143,8 @@ public class MoonPhase {
     /**
      * Returns the age in degree.
      */
-    public double getAgeDegree() {
-        return ageDegree;
+    public QuantityType<Angle> getAgeDegree() {
+        return new QuantityType<Angle>(ageDegree, SmartHomeUnits.DEGREE_ANGLE);
     }
 
     /**
@@ -150,8 +157,8 @@ public class MoonPhase {
     /**
      * Returns the age in percent.
      */
-    public double getAgePercent() {
-        return agePercent;
+    public QuantityType<Dimensionless> getAgePercent() {
+        return new QuantityType<Dimensionless>(agePercent, SmartHomeUnits.PERCENT);
     }
 
     /**

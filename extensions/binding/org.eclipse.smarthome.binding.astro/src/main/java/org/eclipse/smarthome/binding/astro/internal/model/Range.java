@@ -14,14 +14,19 @@ package org.eclipse.smarthome.binding.astro.internal.model;
 
 import java.util.Calendar;
 
+import javax.measure.quantity.Time;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 
 /**
  * Range class which holds a start and a end calendar object.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Introduced UoM
  */
 public class Range {
     private Calendar start;
@@ -52,15 +57,15 @@ public class Range {
     /**
      * Returns the duration in minutes.
      */
-    public long getDuration() {
+    public QuantityType<Time> getDuration() {
         if (start == null || end == null) {
-            return -1;
+            return null;
         }
         if (start.after(end)) {
-            return 0;
+            return new QuantityType<Time>(0, SmartHomeUnits.MINUTE);
         }
         long diff = end.getTimeInMillis() - start.getTimeInMillis();
-        return diff / 60000;
+        return new QuantityType<Time>(diff / 60000, SmartHomeUnits.MINUTE);
     }
 
     /**
