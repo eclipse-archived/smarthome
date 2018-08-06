@@ -47,24 +47,24 @@
 	</channel-type>
 
 	<channel-type id="directRadiation">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Direct Radiation</label>
 		<description>Level of radiation after penetration of the atmospheric layer</description>
-		<state readOnly="true" pattern="%.2f W/m²" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="diffuseRadiation">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Diffuse Radiation</label>
 		<description>Level of radiation diffracted by clouds and atmosphere</description>
-		<state readOnly="true" pattern="%.2f W/m²" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="totalRadiation">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Total Radiation</label>
 		<description>Total quantity of radiation on the ground</description>
-		<state readOnly="true" pattern="%.2f W/m²" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<!-- sun range -->
