@@ -10,13 +10,15 @@ describe('factory configService', function() {
         expect(configService).toBeDefined();
     });
     describe('tests for Rendering model', function() {
-        var $httpBackend
-        var restConfig
-        var itemRepository
+        var $httpBackend;
+        var restConfig;
+        var itemRepository;
+        var $q;
         beforeEach(inject(function($injector, $rootScope, thingService) {
             $httpBackend = $injector.get('$httpBackend');
             restConfig = $injector.get('restConfig');
             itemRepository = $injector.get('itemRepository');
+            $q = $injector.get('$q');
         }));
         it('should accept empty config parameters', function() {
             var params = configService.getRenderingModel();
@@ -84,15 +86,21 @@ describe('factory configService', function() {
                 label : 'contact item'
             }]
             
-            spyOn(itemRepository, 'getAll').and.callFake(function(callback) {
-                callback(items)
-            });
+            var deferred = $q.defer();
+            var prom = deferred.promise;
+
+            spyOn(itemRepository, 'getAll').and.returnValue(prom);
             
             var params = configService.getRenderingModel(inputParams);
-            expect(params[0].parameters[0].element).toEqual("select");
-            expect(params[0].parameters[0].options.length).toEqual(1);
-            expect(params[0].parameters[0].options[0]).toBeDefined();
-            expect(params[0].parameters[0].options[0].label).toEqual('number item');
+            prom.then(function() {
+                expect(params[0].parameters[0].element).toEqual("select");
+                expect(params[0].parameters[0].options.length).toEqual(1);
+                expect(params[0].parameters[0].options[0]).toBeDefined();
+                expect(params[0].parameters[0].options[0].label).toEqual('number item');
+            })
+
+            deferred.resolve(items);
+
         });
         it('should return date widget for context DATE type=Text', function() {
             var inputParams = [ {
