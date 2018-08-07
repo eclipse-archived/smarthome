@@ -12,6 +12,11 @@ https://www.eclipse.org/legal/epl-2.0/.
 
 https://github.com/eclipse/smarthome
 
+Some code of this bundle originates from the Z-Smart Systems Bluegiga Java Library,
+the source of which can be found at -:
+
+https://github.com/zsmartsystems/com.zsmartsystems.bluetooth.bluegiga
+
 == Copyright Holders
 
 See the NOTICE file distributed with the source code at
