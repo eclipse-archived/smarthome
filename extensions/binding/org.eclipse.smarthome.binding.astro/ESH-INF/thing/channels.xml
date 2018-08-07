@@ -351,7 +351,7 @@
 	</channel-type>
 
 	<channel-type id="agePercent">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Moon age</label>
 		<description>The age of the moon</description>
 		<state readOnly="true" pattern="%.2f %unit%" />

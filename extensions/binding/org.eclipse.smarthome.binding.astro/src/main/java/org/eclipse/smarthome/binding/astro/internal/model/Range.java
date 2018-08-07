@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.model;
 
+import static org.eclipse.smarthome.core.library.unit.MetricPrefix.MILLI;
+
 import java.util.Calendar;
 
 import javax.measure.quantity.Time;
@@ -29,6 +31,7 @@ import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
  * @author Christoph Weitkamp - Introduced UoM
  */
 public class Range {
+
     private Calendar start;
     private Calendar end;
 
@@ -64,8 +67,8 @@ public class Range {
         if (start.after(end)) {
             return new QuantityType<Time>(0, SmartHomeUnits.MINUTE);
         }
-        long diff = end.getTimeInMillis() - start.getTimeInMillis();
-        return new QuantityType<Time>(diff / 60000, SmartHomeUnits.MINUTE);
+        return new QuantityType<Time>(end.getTimeInMillis() - start.getTimeInMillis(), MILLI(SmartHomeUnits.SECOND))
+                .toUnit(SmartHomeUnits.MINUTE);
     }
 
     /**
