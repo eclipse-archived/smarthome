@@ -17,7 +17,7 @@
          "name":"command",
          "type":"TEXT",
          "label":"Command",
-         "description":"the command to be sent",
+         "description":"the default command to be sent if none is passed as an input value",
          "required":true,
          "limitToOptions":false,
          "options":[
@@ -52,8 +52,8 @@
       {
         "name":"command",
         "type":"org.eclipse.smarthome.core.types.Command",
-        "label":"Command to send",
-        "description":"Command that will be send to the Item if none is specified in the configuration."
+        "label":"Command",
+        "description":"command that will be sent to the item."
       }
      ]
     }

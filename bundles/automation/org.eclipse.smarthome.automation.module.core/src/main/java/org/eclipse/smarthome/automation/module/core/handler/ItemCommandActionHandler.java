@@ -107,18 +107,16 @@ public class ItemCommandActionHandler extends BaseModuleHandler<Action> implemen
         if (itemName != null && eventPublisher != null && itemRegistry != null) {
             try {
                 Item item = itemRegistry.getItem(itemName);
+
                 Command commandObj = null;
-                if (command != null) {
-                    commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
-                } else {
-                    Object cmd = inputs.get(COMMAND);
-                    if (cmd instanceof Command) {
-                        if (item.getAcceptedCommandTypes().contains(cmd.getClass())) {
-                            commandObj = (Command) cmd;
-                        }
-                    } else {
-                        logger.warn("Passed input for '{}' is not of type 'Command'", COMMAND);
+                Object cmd = inputs.get(COMMAND);
+
+                if (cmd instanceof Command) {
+                    if (item.getAcceptedCommandTypes().contains(cmd.getClass())) {
+                        commandObj = (Command) cmd;
                     }
+                } else {
+                    commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
                 }
                 if (commandObj != null) {
                     ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
