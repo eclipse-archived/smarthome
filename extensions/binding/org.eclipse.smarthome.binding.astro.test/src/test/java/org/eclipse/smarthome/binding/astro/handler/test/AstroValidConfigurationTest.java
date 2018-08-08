@@ -29,7 +29,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.junit.Test;
 
 /**
- * OSGi tests for the {@link AstroThingHandler}
+ * Tests for the {@link AstroThingHandler}
  * <p>
  * This class tests the required configuration for the astro thing.
  *

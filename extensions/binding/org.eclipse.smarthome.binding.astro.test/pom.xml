@@ -13,7 +13,7 @@
   <artifactId>org.eclipse.smarthome.binding.astro.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 
-  <name>Astro Binding Tests</name>
+  <name>Eclipse SmartHome Astro Binding Tests</name>
 
   <build>
     <plugins>
