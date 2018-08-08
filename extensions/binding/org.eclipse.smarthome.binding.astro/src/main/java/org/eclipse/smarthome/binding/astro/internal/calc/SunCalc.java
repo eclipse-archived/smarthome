@@ -28,6 +28,7 @@ import org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils;
  * Calculates the SunPosition (azimuth, elevation) and Sun data.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Introduced UoM
  * @see based on the calculations of http://www.suncalc.net
  */
 public class SunCalc {
@@ -123,7 +124,7 @@ public class SunCalc {
         Sun sun = new Sun();
         for (int minutes = 0; minutes <= MINUTES_PER_DAY; minutes += CURVE_TIME_INTERVAL) {
             setPositionalInfo(cal, latitude, longitude, altitude, sun);
-            if (sun.getPosition().getElevation() < SUN_ANGLE) {
+            if (sun.getPosition().getElevationAsDouble() < SUN_ANGLE) {
                 return false;
             }
             cal.add(Calendar.MINUTE, CURVE_TIME_INTERVAL);
@@ -333,5 +334,4 @@ public class SunCalc {
     private double getSunriseJulianDate(double jtransit, double jset) {
         return jtransit - (jset - jtransit);
     }
-
 }

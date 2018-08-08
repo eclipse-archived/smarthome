@@ -14,25 +14,24 @@ package org.eclipse.smarthome.binding.astro.test.cases
 
 import static org.eclipse.smarthome.binding.astro.test.cases.AstroBindingTestsData.*
 
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime;
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
+import javax.measure.quantity.Time;
 
 import org.eclipse.smarthome.core.library.types.DateTimeType
-import org.eclipse.smarthome.core.library.types.DecimalType
+import org.eclipse.smarthome.core.library.types.QuantityType
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits
 
 /**
- * Test cases used in the {@link org.eclipse.smarthome.binding.astro.test.AstroStateTest}
+ * Test cases used in the {@link AstroStateTest}
  *
- * @author Petar Valchev - Initial implementation
- * @author Svilen Valakanov - Added test data from 
- *      <a href="http://www.suncalc.net">http://www.suncalc.net</a> and 
+ * @author Petar Valchev - Initial contribution
+ * @author Svilen Valakanov - Added test data from
+ *      <a href="http://www.suncalc.net">http://www.suncalc.net</a> and
  *      <a href="http://www.mooncalc.org">http://www.mooncalc.org</a>
  * @author Erdoan Hadzhiyusein - Adapted the class to work with the new DateTimeType
+ * @author Christoph Weitkamp - Introduced UoM
  */
 public class AstroParametrizedTestCases {
+
     public static final double TEST_LATITUDE = 22.4343
     public static final double TEST_LONGITUDE = 54.3225
     public static final int TEST_YEAR = 2016
@@ -52,7 +51,7 @@ public class AstroParametrizedTestCases {
 
         cases[2][0] = TEST_SUN_THING_ID
         cases[2][1] = "rise#duration"
-        cases[2][2] = new DecimalType(2)
+        cases[2][2] = new QuantityType<Time>(2, SmartHomeUnits.MINUTE)
 
         cases[3][0] = TEST_SUN_THING_ID
         cases[3][1] = "set#start"
@@ -64,7 +63,7 @@ public class AstroParametrizedTestCases {
 
         cases[5][0] = TEST_SUN_THING_ID
         cases[5][1] = "set#duration"
-        cases[5][2] = new DecimalType(2)
+        cases[5][2] = new QuantityType<Time>(2, SmartHomeUnits.MINUTE)
 
         cases[6][0] = TEST_SUN_THING_ID
         cases[6][1] = "noon#start"
@@ -76,7 +75,7 @@ public class AstroParametrizedTestCases {
 
         cases[8][0] = TEST_SUN_THING_ID
         cases[8][1] = "noon#duration"
-        cases[8][2] = new DecimalType(1)
+        cases[8][2] = new QuantityType<Time>(1, SmartHomeUnits.MINUTE)
 
         cases[9][0] = TEST_SUN_THING_ID
         cases[9][1] = "night#start"
@@ -88,7 +87,7 @@ public class AstroParametrizedTestCases {
 
         cases[11][0] = TEST_SUN_THING_ID
         cases[11][1] = "night#duration"
-        cases[11][2] = new DecimalType(589)
+        cases[11][2] = new QuantityType<Time>(589, SmartHomeUnits.MINUTE)
 
         cases[12][0] = TEST_SUN_THING_ID
         cases[12][1] = "morningNight#start"
@@ -100,7 +99,7 @@ public class AstroParametrizedTestCases {
 
         cases[14][0] = TEST_SUN_THING_ID
         cases[14][1] = "morningNight#duration"
-        cases[14][2] = new DecimalType(272)
+        cases[14][2] = new QuantityType<Time>(272, SmartHomeUnits.MINUTE)
 
         cases[15][0] = TEST_SUN_THING_ID
         cases[15][1] = "astroDawn#start"
@@ -112,7 +111,7 @@ public class AstroParametrizedTestCases {
 
         cases[17][0] = TEST_SUN_THING_ID
         cases[17][1] = "astroDawn#duration"
-        cases[17][2] = new DecimalType(26)
+        cases[17][2] = new QuantityType<Time>(26, SmartHomeUnits.MINUTE)
 
         cases[18][0] = TEST_SUN_THING_ID
         cases[18][1] = "nauticDawn#start"
@@ -124,7 +123,7 @@ public class AstroParametrizedTestCases {
 
         cases[20][0] = TEST_SUN_THING_ID
         cases[20][1] = "nauticDawn#duration"
-        cases[20][2] = new DecimalType(26)
+        cases[20][2] = new QuantityType<Time>(26, SmartHomeUnits.MINUTE)
 
         cases[21][0] = TEST_SUN_THING_ID
         cases[21][1] = "civilDawn#start"
@@ -136,7 +135,7 @@ public class AstroParametrizedTestCases {
 
         cases[23][0] = TEST_SUN_THING_ID
         cases[23][1] = "civilDawn#duration"
-        cases[23][2] = new DecimalType(22)
+        cases[23][2] = new QuantityType<Time>(22, SmartHomeUnits.MINUTE)
 
         cases[24][0] = TEST_SUN_THING_ID
         cases[24][1] = "astroDusk#start"
@@ -148,7 +147,7 @@ public class AstroParametrizedTestCases {
 
         cases[26][0] = TEST_SUN_THING_ID
         cases[26][1] = "astroDusk#duration"
-        cases[26][2] = new DecimalType(26)
+        cases[26][2] = new QuantityType<Time>(26, SmartHomeUnits.MINUTE)
 
         cases[27][0] = TEST_SUN_THING_ID
         cases[27][1] = "nauticDusk#start"
@@ -160,7 +159,7 @@ public class AstroParametrizedTestCases {
 
         cases[29][0] = TEST_SUN_THING_ID
         cases[29][1] = "nauticDusk#duration"
-        cases[29][2] = new DecimalType(26)
+        cases[29][2] = new QuantityType<Time>(26, SmartHomeUnits.MINUTE)
 
         cases[30][0] = TEST_SUN_THING_ID
         cases[30][1] = "civilDusk#start"
@@ -172,7 +171,7 @@ public class AstroParametrizedTestCases {
 
         cases[32][0] = TEST_SUN_THING_ID
         cases[32][1] = "civilDusk#duration"
-        cases[32][2] = new DecimalType(23)
+        cases[32][2] = new QuantityType<Time>(23, SmartHomeUnits.MINUTE)
 
         cases[33][0] = TEST_SUN_THING_ID
         cases[33][1] = "eveningNight#start"
@@ -184,7 +183,7 @@ public class AstroParametrizedTestCases {
 
         cases[35][0] = TEST_SUN_THING_ID
         cases[35][1] = "eveningNight#duration"
-        cases[35][2] = new DecimalType(318)
+        cases[35][2] = new QuantityType<Time>(318, SmartHomeUnits.MINUTE)
 
         cases[36][0] = TEST_SUN_THING_ID
         cases[36][1] = "daylight#start"
@@ -196,7 +195,7 @@ public class AstroParametrizedTestCases {
 
         cases[38][0] = TEST_SUN_THING_ID
         cases[38][1] = "daylight#duration"
-        cases[38][2] = new DecimalType(697)
+        cases[38][2] = new QuantityType<Time>(697, SmartHomeUnits.MINUTE)
 
         cases[39][0] = TEST_MOON_THING_ID
         cases[39][1] = "rise#start"
@@ -208,7 +207,7 @@ public class AstroParametrizedTestCases {
 
         cases[41][0] = TEST_MOON_THING_ID
         cases[41][1] = "rise#duration"
-        cases[41][2] = new DecimalType(0)
+        cases[41][2] = new QuantityType<Time>(0, SmartHomeUnits.MINUTE)
     }
 
     public List getCases(){

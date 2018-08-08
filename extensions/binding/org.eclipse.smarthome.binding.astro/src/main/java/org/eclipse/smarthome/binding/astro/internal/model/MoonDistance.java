@@ -12,23 +12,28 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.model;
 
+import static org.eclipse.smarthome.core.library.unit.MetricPrefix.KILO;
+import static org.eclipse.smarthome.core.library.unit.SIUnits.METRE;
+
 import java.util.Calendar;
+
+import javax.measure.quantity.Length;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.eclipse.smarthome.binding.astro.internal.util.DateTimeUtils;
+import org.eclipse.smarthome.core.library.types.QuantityType;
 
 /**
  * Holds a distance informations.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Christoph Weitkamp - Introduced UoM
  */
-
 public class MoonDistance {
-    private static final double KM_TO_MILES = 0.621371192;
 
     private Calendar date;
-    private double kilometer;
+    private double distance;
 
     /**
      * Returns the date of the calculated distance.
@@ -47,28 +52,20 @@ public class MoonDistance {
     /**
      * Returns the distance in kilometers.
      */
-    public double getKilometer() {
-        return kilometer;
+    public QuantityType<Length> getDistance() {
+        return new QuantityType<Length>(distance, KILO(METRE));
     }
 
     /**
      * Sets the distance in kilometers.
      */
-    public void setKilometer(double kilometer) {
-        this.kilometer = kilometer;
-    }
-
-    /**
-     * Returns the distance in miles.
-     */
-    public double getMiles() {
-        return kilometer * KM_TO_MILES;
+    public void setDistance(double kilometer) {
+        this.distance = kilometer;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("date", DateTimeUtils.getDate(date))
-                .append("kilometer", kilometer).append("miles", getMiles()).toString();
+                .append("distance", distance).toString();
     }
-
 }
