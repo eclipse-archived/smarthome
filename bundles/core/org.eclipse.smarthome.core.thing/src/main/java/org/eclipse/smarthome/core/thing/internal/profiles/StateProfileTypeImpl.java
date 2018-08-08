@@ -30,11 +30,14 @@ public class StateProfileTypeImpl implements StateProfileType {
     private final ProfileTypeUID profileTypeUID;
     private final String label;
     private final Collection<String> supportedItemTypes;
+    private final Collection<String> supportedItemTypesOfChannel;
 
-    public StateProfileTypeImpl(ProfileTypeUID profileTypeUID, String label, Collection<String> supportedItemTypes) {
+    public StateProfileTypeImpl(ProfileTypeUID profileTypeUID, String label, Collection<String> supportedItemTypes,
+            Collection<String> supportedItemTypesOfChannel) {
         this.profileTypeUID = profileTypeUID;
         this.label = label;
         this.supportedItemTypes = supportedItemTypes;
+        this.supportedItemTypesOfChannel = supportedItemTypesOfChannel;
     }
 
     @Override
@@ -50,6 +53,11 @@ public class StateProfileTypeImpl implements StateProfileType {
     @Override
     public String getLabel() {
         return label;
+    }
+
+    @Override
+    public Collection<String> getSupportedItemTypesOfChannel() {
+        return supportedItemTypesOfChannel;
     }
 
 }
