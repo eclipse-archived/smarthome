@@ -271,7 +271,7 @@
 
 	<channel-type id="sunPhaseName">
 		<item-type>String</item-type>
-		<label>The current sun phase</label>
+		<label>Sun phase</label>
 		<description>The name of the current sun phase</description>
 		<state readOnly="true">
 			<options>
@@ -366,7 +366,7 @@
 
 	<channel-type id="phaseName">
 		<item-type>String</item-type>
-		<label>Moonphase name</label>
+		<label>Moon phase</label>
 		<description>The name of the current moon phase</description>
 		<state readOnly="true">
 			<options>
@@ -443,7 +443,7 @@
 	<channel-type id="distance">
 		<item-type>Number:Length</item-type>
 		<label>Distance</label>
-		<description>The distance of the object.</description>
+		<description>The distance of the object</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 

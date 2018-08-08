@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="astro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="astro"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -23,7 +24,7 @@
 			</channel-group>
 			<channel-group id="perigee" typeId="distance">
 				<label>Perigee</label>
-				<description>The perigree of the moon</description>
+				<description>The perigee of the moon</description>
 			</channel-group>
 			<channel-group id="apogee" typeId="distance">
 				<label>Apogee</label>
@@ -39,6 +40,5 @@
 
 		<config-description-ref uri="thing-type:astro:config" />
 	</thing-type>
-
 
 </thing:thing-descriptions>
