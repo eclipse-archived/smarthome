@@ -52,7 +52,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     private ScheduledFuture<?> discoveryJob;
     private PointType previousLocation;
 
-    ThingUID bridgeUID;
+    private ThingUID bridgeUID;
 
     /**
      * Creates a WeatherUndergroundDiscoveryService with enabled autostart.

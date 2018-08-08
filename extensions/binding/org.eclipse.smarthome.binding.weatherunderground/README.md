@@ -36,7 +36,6 @@ The thing has a few configuration parameters:
 
 | Parameter | Description                                                              |
 |-----------|------------------------------------------------------------------------- |
-| apikey    | API key to access the Weather Underground service. Optional.             |
 | location  | Location to be considered by the Weather Underground service. Mandatory. |
 | language  | Language to be used by the Weather Underground service. Optional, the default is to use the language from the system locale. |
 | refresh   | Refresh interval in minutes. Optional, the default value is 30 minutes and the minimum value is 5 minutes.  |
@@ -60,10 +59,6 @@ For the language parameter Weather Underground uses a special set of language co
 
 The weather information that is retrieved is available as these channels:
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 | Channel Group ID | Channel ID | Item Type    | Description             |
 |------------------|------------|--------------|-------------------------|
 | Current          | location             | String               | Weather observation location |
@@ -71,15 +66,9 @@ The weather information that is retrieved is available as these channels:
 | Current          | observationTime      | DateTime             | Observation date and time |
 | Current          | conditions           | String               | Weather conditions |
 | Current          | temperature          | Number:Temperature   | Temperature |
-<<<<<<< HEAD
 | Current          | relativeHumidity     | Number:Dimensionless | Relative humidity |
 | Current          | windDirection        | String               | Wind direction |
 | Current          | windDirectionDegrees | Number:Angle         | Wind direction as an angle |
-=======
-| Current          | relativeHumidity     | Number:Dimensionless | Relative humidity in % |
-| Current          | windDirection        | String               | Wind direction |
-| Current          | windDirectionDegrees | Number:Angle         | Wind direction in degrees |
->>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 | Current          | windSpeed            | Number:Speed         | Wind speed |
 | Current          | windGust             | Number:Speed         | Wind gust |
 | Current          | pressure             | Number:Pressure      | Pressure |
@@ -89,11 +78,7 @@ The weather information that is retrieved is available as these channels:
 | Current          | windChill            | Number:Temperature   | Wind chill temperature |
 | Current          | feelingTemperature   | Number:Temperature   | Feeling temperature |
 | Current          | visibility           | Number:Length        | Visibility |
-<<<<<<< HEAD
 | Current          | solarRadiation       | Number:Intensity     | Solar radiation |
-=======
-| Current          | solarRadiation       | Number:Intensity     | Solar radiation in W/m2 | |
->>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 | Current          | UVIndex              | Number               | UV Index |
 | Current          | precipitationDay     | Number:Length        | Rain fall during the day |
 | Current          | precipitationHour    | Number:Length        | Rain fall during the last hour |
@@ -103,7 +88,6 @@ The weather information that is retrieved is available as these channels:
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | conditions                  | String               | Weather forecast conditions |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | minTemperature              | Number:Temperature   | Minimum temperature |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxTemperature              | Number:Temperature   | Maximum temperature |
-<<<<<<< HEAD
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity            | Number:Dimensionless | Relative humidity |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation          | Number:Dimensionless | Probability of precipitation |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | precipitationDay            | Number:Length        | Rain fall |
@@ -116,63 +100,6 @@ The weather information that is retrieved is available as these channels:
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindSpeed            | Number:Speed         | Average wind speed | 
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon                        | Image                | Icon representing the weather forecast conditions |
 | forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey                     | String               | Key used in the icon URL |
-=======
-| Channel Group ID | Channel ID | Item Type    | Description             | Configuration property |
-|------------------|------------|--------------|-------------------------|---------------------------------- |
-| Current | location | String | Weather observation location | |
-| Current | stationId | String | Weather station identifier | |
-| Current | observationTime | DateTime | Observation date and time | |
-| Current | conditions | String | Weather conditions | |
-| Current | temperature | Number | Temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| Current | relativeHumidity | Number | Relative humidity in % | |
-| Current | windDirection | String | Wind direction | |
-| Current | windDirectionDegrees | Number | Wind direction in degrees | |
-| Current | windSpeed | Number | Wind speed | SourceUnit: "kmh" or "mph"; default is "kmh" |
-| Current | windGust | Number | Wind gust | SourceUnit: "kmh" or "mph"; default is "kmh" |
-| Current | pressure | Number | Pressure | SourceUnit: "hPa" or "inHg"; default is "hPa" |
-| Current | pressureTrend | String | Pressure trend ("up", "stable" or "down") | |
-| Current | dewPoint | Number | Dew Point temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| Current | heatIndex | Number | Heat Index | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| Current | windChill | Number | Wind chill temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| Current | feelingTemperature | Number | Feeling temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| Current | visibility | Number | Visibility | SourceUnit: "km" or "mi"; default is "km" |
-| Current | solarRadiation | Number | Solar radiation in W/m2 | |
-| Current | UVIndex | Number | UV Index | |
-| Current | precipitationDay | Number | Rain fall during the day | SourceUnit: "mm" or "in"; default is "mm" |
-| Current | precipitationHour | Number | Rain fall during the last hour | SourceUnit: "mm" or "in"; default is "mm" |
-| Current | icon | Image | Icon representing the weather current conditions | |
-| Current | iconKey | String | Key used in the icon URL | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | forecastTime | DateTime | Forecast date and time | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | conditions | String | Weather forecast conditions | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | minTemperature | Number | Minimum temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxTemperature | Number | Maximum temperature | SourceUnit: "C" for degrees Celsius or "F" for degrees Fahrenheit; default is "C" |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity | Number | Relative humidity in % | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation | Number | Weather forecast conditions | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | precipitationDay | Number | Rain fall | SourceUnit: "mm" or "in"; default is "mm" |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | snow | Number | Snow fall | SourceUnit: "cm" or "in"; default is "cm" |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirection | String | Maximum wind direction | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirectionDegrees | Number | Maximum wind direction in degrees | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindSpeed | Number | Maximum wind speed | SourceUnit: "kmh" or "mph"; default is "kmh" |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirection | String | Average wind direction | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirectionDegrees | Number | Average wind direction in degrees | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindSpeed | Number | Average wind speed | SourceUnit: "kmh" or "mph"; default is "kmh" |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon | Image | Icon representing the weather forecast conditions | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey | String | Key used in the icon URL | |
->>>>>>> e37c9d0e5... Implements a bridge for weatherunderground. Solves issue #4000
-=======
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | relativeHumidity            | Number:Dimensionless | Relative humidity in % |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | probaPrecipitation          | Number:Dimensionless | Probability of precipitation in % |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | precipitationDay            | Number:Length        | Rain fall |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | snow                        | Number:Length        | Snow fall |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirection            | String               | Maximum wind direction | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindDirectionDegrees     | Number:Angle         | Maximum wind direction in degrees | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | maxWindSpeed                | Number:Speed         | Maximum wind speed |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirection        | String               | Average wind direction | |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindDirectionDegrees | Number:Angle         | Average wind direction in degrees |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | averageWindSpeed            | Number:Speed         | Average wind speed | 
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | icon                        | Image                | Icon representing the weather forecast conditions |
-| forecastToday forecastTomorrow forecastDay2 ... forecastDay9 | iconKey                     | String               | Key used in the icon URL |
->>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 
 
 ## Full Example

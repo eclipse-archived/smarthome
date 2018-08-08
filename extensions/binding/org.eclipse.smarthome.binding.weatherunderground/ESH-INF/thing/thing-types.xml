@@ -471,17 +471,8 @@
 	<channel-type id="probaPrecipitation">
 		<item-type>Number:Dimensionless</item-type>
 		<label>Precipitation Probability</label>
-<<<<<<< HEAD
 		<description>Probability of precipitation</description>
 		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
-=======
-		<description>Probability of precipitation in %</description>
-<<<<<<< HEAD
-		<state readOnly="true" min="0" max="100" pattern="%d %%">
->>>>>>> e37c9d0e5... Implements a bridge for weatherunderground. Solves issue #4000
-=======
-		<state readOnly="true" min="0" max="100" pattern="%d %unit%">
->>>>>>> b1f1449cb... Fixed unwanted changes in previous commit
 		</state>
 	</channel-type>
 
