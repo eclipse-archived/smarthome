@@ -120,14 +120,16 @@ angular.module('PaperUI.things') //
 
         angular.forEach(paramItemTypes, function(itemType) {
             addToAcceptedItemTypes(itemType);
-            if (itemType == "Color") {
-                addToAcceptedItemTypes("Switch");
-                addToAcceptedItemTypes("Dimmer");
-            } else if (itemType == "Dimmer") {
-                addToAcceptedItemTypes("Switch");
+            if (itemType == 'Color') {
+                addToAcceptedItemTypes('Switch');
+                addToAcceptedItemTypes('Dimmer');
+            } else if (itemType == 'Dimmer') {
+                addToAcceptedItemTypes('Switch');
+            } else if (itemType.indexOf('Number:') === 0) {
+                addToAcceptedItemTypes('Number');
             }
 
-        })
+        });
 
         return acceptedItemTypes;
     }
