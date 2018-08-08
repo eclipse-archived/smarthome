@@ -30,30 +30,27 @@
 	</thing-type>
 
 	<channel-type id="temperature">
-		<item-type>Number</item-type>
+		<item-type>Number:Temperature</item-type>
 		<label>Temperature</label>
-		<description>Current temperature in degrees celsius</description>
+		<description>Current temperature</description>
 		<category>Temperature</category>
-		<state readOnly="true" pattern="%.1f °C">
-		</state>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="humidity">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Humidity</label>
 		<description>Current humidity in %</description>
 		<category>Humidity</category>
-		<state readOnly="true" pattern="%d %%">
-		</state>
+		<state readOnly="true" pattern="%d %%" />
 	</channel-type>
 
 	<channel-type id="pressure">
-		<item-type>Number</item-type>
+		<item-type>Number:Pressure</item-type>
 		<label>Pressure</label>
-		<description>Current pressure in millibar</description>
+		<description>Current pressure</description>
 		<category>Pressure</category>
-		<state readOnly="true" pattern="%.1f hPa">
-		</state>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 </thing:thing-descriptions>
