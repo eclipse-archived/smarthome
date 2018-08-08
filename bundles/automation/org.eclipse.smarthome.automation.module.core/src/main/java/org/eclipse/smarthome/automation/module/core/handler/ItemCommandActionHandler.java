@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Benedikt Niehues - Initial contribution and API
  * @author Kai Kreuzer - refactored and simplified customized module handling
- * @author Stefan Triller - if config command is not set, use command from input variables
+ * @author Stefan Triller - use command from input first and if not set, use command from configuration
  *
  */
 public class ItemCommandActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
