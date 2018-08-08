@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="astro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="astro"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -25,17 +26,17 @@
 	</channel-group-type>
 
 	<channel-type id="azimuth">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Azimuth</label>
 		<description>The azimuth of the planet</description>
-		<state readOnly="true" pattern="%.2f °" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="elevation">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Elevation</label>
 		<description>The elevation of the planet</description>
-		<state readOnly="true" pattern="%.2f °" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="shadeLength">
@@ -46,24 +47,24 @@
 	</channel-type>
 
 	<channel-type id="directRadiation">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Direct Radiation</label>
 		<description>Level of radiation after penetration of the atmospheric layer</description>
-		<state readOnly="true" pattern="%.2f W/m²" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="diffuseRadiation">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Diffuse Radiation</label>
 		<description>Level of radiation diffracted by clouds and atmosphere</description>
-		<state readOnly="true" pattern="%.2f W/m²" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="totalRadiation">
-		<item-type>Number</item-type>
+		<item-type>Number:Intensity</item-type>
 		<label>Total Radiation</label>
 		<description>Total quantity of radiation on the ground</description>
-		<state readOnly="true" pattern="%.2f W/m²" />
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<!-- sun range -->
@@ -105,10 +106,10 @@
 	</channel-type>
 
 	<channel-type id="duration">
-		<item-type>Number</item-type>
+		<item-type>Number:Time</item-type>
 		<label>Duration</label>
-		<description>The duration time in minutes of the event</description>
-		<state readOnly="true" pattern="%d min" />
+		<description>The duration of the event</description>
+		<state readOnly="true" pattern="%d %unit%" />
 	</channel-type>
 
 	<channel-type id="rangeEvent">
@@ -336,31 +337,31 @@
 	</channel-type>
 
 	<channel-type id="age">
-		<item-type>Number</item-type>
+		<item-type>Number:Time</item-type>
 		<label>Moon age</label>
 		<description>The age of the moon in days</description>
-		<state readOnly="true" pattern="%d d" />
+		<state readOnly="true" pattern="%d %unit%" />
 	</channel-type>
 
 	<channel-type id="ageDegree">
-		<item-type>Number</item-type>
+		<item-type>Number:Angle</item-type>
 		<label>Moon age</label>
-		<description>The age of the moon in degree</description>
-		<state readOnly="true" pattern="%.2f °" />
+		<description>The age of the moon</description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="agePercent">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Moon age</label>
-		<description>The age of the moon in percent</description>
-		<state readOnly="true" pattern="%.2f %%" />
+		<description>The age of the moon</description>
+		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="illumination">
-		<item-type>Number</item-type>
+		<item-type>Number:Dimensionless</item-type>
 		<label>Moon illumination</label>
-		<description>The illumination of the moon in %</description>
-		<state readOnly="true" pattern="%.0f %%" />
+		<description>The illumination of the moon</description>
+		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
 
 	<channel-type id="phaseName">
@@ -427,8 +428,7 @@
 		<description>Distance data</description>
 		<channels>
 			<channel id="date" typeId="distanceDate" />
-			<channel id="miles" typeId="miles" />
-			<channel id="kilometer" typeId="kilometer" />
+			<channel id="distance" typeId="distance" />
 			<channel id="event" typeId="distanceEvent" />
 		</channels>
 	</channel-group-type>
@@ -440,18 +440,11 @@
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
-	<channel-type id="miles">
-		<item-type>Number</item-type>
-		<label>Miles</label>
-		<description>The distance in miles</description>
-		<state readOnly="true" pattern="%.1f miles" />
-	</channel-type>
-
-	<channel-type id="kilometer">
-		<item-type>Number</item-type>
-		<label>Kilometer</label>
-		<description>The distance in kilometers</description>
-		<state readOnly="true" pattern="%.1f km" />
+	<channel-type id="distance">
+		<item-type>Number:Length</item-type>
+		<label>Distance</label>
+		<description>The distance of the object.</description>
+		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="distanceEvent">

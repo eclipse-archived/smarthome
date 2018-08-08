@@ -12,16 +12,22 @@
  */
 package org.eclipse.smarthome.binding.astro.internal.model;
 
+import javax.measure.quantity.Angle;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 
 /**
  * Holds the calculated azimuth and elevation.
  *
  * @author Gerhard Riegler - Initial contribution
  * @author Gaël L'hopital - Added shade length
+ * @author Christoph Weitkamp - Introduced UoM
  */
 public class Position {
+
     private double azimuth;
     private double elevation;
     private double shadeLength;
@@ -38,8 +44,8 @@ public class Position {
     /**
      * Returns the azimuth.
      */
-    public double getAzimuth() {
-        return azimuth;
+    public QuantityType<Angle> getAzimuth() {
+        return new QuantityType<Angle>(azimuth, SmartHomeUnits.DEGREE_ANGLE);
     }
 
     /**
@@ -52,7 +58,11 @@ public class Position {
     /**
      * Returns the elevation.
      */
-    public double getElevation() {
+    public QuantityType<Angle> getElevation() {
+        return new QuantityType<Angle>(elevation, SmartHomeUnits.DEGREE_ANGLE);
+    }
+
+    public double getElevationAsDouble() {
         return elevation;
     }
 
@@ -82,5 +92,4 @@ public class Position {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("azimuth", azimuth)
                 .append("elevation", elevation).append("shadeLength", shadeLength).toString();
     }
-
 }

@@ -9,6 +9,8 @@ Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.astro
 Import-Package: 
  groovy.lang,
+ javax.measure,
+ javax.measure.quantity,
  org.apache.commons.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
@@ -20,6 +22,8 @@ Import-Package:
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.library.unit,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.test,
