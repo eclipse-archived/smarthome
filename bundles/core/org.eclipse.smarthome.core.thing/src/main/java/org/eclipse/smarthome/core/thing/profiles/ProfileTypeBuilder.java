@@ -75,7 +75,7 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      */
     public static ProfileTypeBuilder<TriggerProfileType> newTrigger(ProfileTypeUID profileTypeUID, String label) {
         return new ProfileTypeBuilder<>(profileTypeUID, label,
-                (leProfileTypeUID, leLabel, leSupportedItemTypes, supportedItemTypesOfChannel,
+                (leProfileTypeUID, leLabel, leSupportedItemTypes, leSupportedItemTypesOfChannel,
                         leSupportedChannelTypeUIDs) -> new TriggerProfileTypeImpl(leProfileTypeUID, leLabel,
                                 leSupportedItemTypes, leSupportedChannelTypeUIDs));
     }
@@ -121,6 +121,28 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      */
     public ProfileTypeBuilder<T> withSupportedChannelTypeUIDs(Collection<ChannelTypeUID> channelTypeUIDs) {
         supportedChannelTypeUIDs.addAll(channelTypeUIDs);
+        return this;
+    }
+
+    /**
+     * Declare that channels with these item type(s) are compatible with profiles of this type.
+     *
+     * @param supportedItemTypesOfChannel item types on channel to which this profile type is compatible with
+     * @return the builder itself
+     */
+    public ProfileTypeBuilder<T> withSupportedItemTypesOfChannel(String... supportedItemTypesOfChannel) {
+        this.supportedItemTypesOfChannel.addAll(Arrays.asList(supportedItemTypesOfChannel));
+        return this;
+    }
+
+    /**
+     * Declare that channels with these item type(s) are compatible with profiles of this type.
+     *
+     * @param supportedItemTypesOfChannel item types on channel to which this profile type is compatible with
+     * @return the builder itself
+     */
+    public ProfileTypeBuilder<T> withSupportedItemTypesOfChannel(Collection<String> supportedItemTypesOfChannel) {
+        this.supportedItemTypesOfChannel.addAll(supportedItemTypesOfChannel);
         return this;
     }
 
