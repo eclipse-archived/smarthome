@@ -2,20 +2,13 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.bindings').directive('bindingThingtypes', BindingThingtypes);
-
-    function BindingThingtypes() {
-        return {
-            restrict : 'E',
-            scope : {},
-            bindToController : {
-                binding : '='
-            },
-            controllerAs : '$ctrl',
-            templateUrl : 'partials/bindings/directive.binding-thingtypes.html',
-            controller : BindingThingtypesController
-        }
-    }
+    angular.module('PaperUI.bindings').directive('bindingThingtypes', {
+        bindings : {
+            binding : '='
+        },
+        templateUrl : 'partials/bindings/directive.binding-thingtypes.html',
+        controller : BindingThingtypesController
+    });
 
     function BindingThingtypesController() {
         var ctrl = this;

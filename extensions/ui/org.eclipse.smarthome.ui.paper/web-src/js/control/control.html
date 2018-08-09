@@ -179,7 +179,7 @@
 									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
 								</div>
 								<div ng-if="::(item.type === 'Location')" >
-                                     <location-control/>
+                                     <location-control item="item" on-update="updateItemState($event)"></location-control>
                                  </div>
 								<div ng-if="::(item.type === 'Image')" ng-controller="ImageItemController">
 									<div layout-align="start center" layout="row">

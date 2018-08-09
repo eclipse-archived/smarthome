@@ -303,6 +303,12 @@ angular.module('PaperUI.controllers.control', [ 'PaperUI.component' ]) //
         $scope.sendCommand($scope.item.state, false);
         $scope.editMode = false;
     };
+
+    $scope.updateItemState = function($event) {
+        if ($event.item) {
+            $scope.sendCommand($event.item.state, false);
+        }
+    }
 }).controller('DefaultItemController', function($scope, itemService) {
     $scope.longEditMode = $scope.shortEditMode = false;
     $scope.optionListChanged = function() {

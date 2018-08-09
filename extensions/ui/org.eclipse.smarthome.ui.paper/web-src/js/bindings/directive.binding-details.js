@@ -2,17 +2,10 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.bindings').directive('bindingDetail', BindingDetail);
-
-    function BindingDetail() {
-        return {
-            restrict : 'E',
-            scope : {},
-            controllerAs : '$ctrl',
-            templateUrl : 'partials/bindings/directive.binding-details.html',
-            controller : BindingDetailsController
-        }
-    }
+    angular.module('PaperUI.bindings').component('bindingDetail', {
+        templateUrl : 'partials/bindings/directive.binding-details.html',
+        controller : BindingDetailsController
+    });
 
     BindingDetailsController.$inject = [ '$routeParams', '$location', '$mdExpansionPanel', '$mdDialog', 'thingTypeRepository', 'bindingRepository', 'titleService' ];
 

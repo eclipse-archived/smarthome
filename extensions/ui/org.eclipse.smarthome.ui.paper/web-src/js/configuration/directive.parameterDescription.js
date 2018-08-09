@@ -1,21 +1,21 @@
-angular.module('PaperUI.directive.parameterDescription', []) //
-.directive('parameterDescription', function() {
-    return {
-        restrict : 'E',
-        scope : {
+;
+(function() {
+    'use strict';
+
+    angular.module('PaperUI.directive.parameterDescription', []).component('parameterDescription', {
+        bindings : {
             description : '='
         },
         templateUrl : 'partials/configuration/directive.parameterDescription.html',
-        link : function(scope, element, attrs, controllers) {
-            scope.showMore = function(event) {
-                if (event.target === event.currentTarget) { // we clicked the 'ellipsis' <div>, not the underlying <p>.
-                    element.addClass('show-more');
-                }
-            }
+        controller : function() {
+            var ctrl = this;
+            this.isShowMore = false;
 
-            scope.showLess = function() {
-                element.removeClass('show-more');
+            this.showMore = function(sm, $event) {
+                $event.stopImmediatePropagation();
+                ctrl.isShowMore = sm;
             }
         }
-    }
-});
+    });
+
+})();
