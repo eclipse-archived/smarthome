@@ -23,51 +23,67 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.Identifiable;
 
 /**
- * An automation Rule is built from {@link Module}s and consists of three parts:
+ * This interface is used to represent automation {@link Rule}s which receiving real-time data, reasoning on that data
+ * and invoking automated actions based on the result of that reasoning process. Automation Rules eliminate the need of
+ * human intervention when monitoring, managing and controlling of various devices is needed. They are built from
+ * {@link Module}s that belong to three sections:
  * <ul>
- * <li><b>Triggers:</b> a list of {@link Trigger} modules. Each {@link Trigger} from this list
- * can start the evaluation of the Rule. A Rule with an empty list of {@link Trigger}s can
- * only be triggered through the {@link RuleRegistry#runNow(String, boolean, java.util.Map)} method,
- * or directly executed with the {@link RuleRegistry#runNow(String)} method.
- * <li><b>Conditions:</b> a list of {@link Condition} modules. When a Rule is triggered, the
- * evaluation of the Rule {@link Condition}s will determine if the Rule will be executed.
- * A Rule will be executed only when all it's {@link Condition}s are satisfied. If the {@link Condition}s
- * list is empty, the Rule is considered satisfied.
- * <li><b>Actions:</b> a list of {@link Action} modules. These modules determine the actions that
- * will be performed when a Rule is executed.
+ * <li><b>Triggers:</b> a list of {@link Trigger} modules. Each {@link Trigger} from this list can start the evaluation
+ * of the Rule. A Rule with an empty list of {@link Trigger}s can only be triggered through the
+ * {@link #run(boolean, java.util.Map)} method, or directly executed with the {@link #run()} method.
+ * <li><b>Conditions:</b> a list of {@link Condition} modules. When a Rule is triggered, the evaluation of the Rule
+ * {@link Condition}s will determine if the Rule's {@link Action}s will be executed. A Rule will be executed only when
+ * all it's {@link Condition}s are satisfied. If the {@link Condition}s list is empty, the Rule is considered satisfied.
+ * <li><b>Actions:</b> a list of {@link Action} modules. These modules determine the actions that will be performed when
+ * a Rule is executed.
  * </ul>
- * Additionally, Rules can have <code><b>tags</b></code> - non-hierarchical keywords or terms for describing them.
- * They can help the user to classify or label the Rules, and to filter and search them.
+ * <p>
+ * Additionally, Rules can have {@code tags} - non-hierarchical keywords or terms for describing them. They can help the
+ * user to classify or label the Rules, and to filter and search them.
+ * <p>
+ * Manage the state (<b>enabled</b> or <b>disabled</b>) of the Rules:
+ * <ul>
+ * <li>A newly created Rule is always <b>enabled</b>.</li>
+ * <li>To check a Rule's state, use the {@link #isEnabled()} method.</li>
+ * <li>To change a Rule's state, use the {@link #setEnabled(boolean)} method.</li>
+ * <li>The status of a Rule enabled with {@link #setEnabled(boolean)}, is first set to {@link RuleStatus#INITIALIZING}.
+ * Further managing of the status is performed by {@link RuleManager}.</li>
+ * <li>The status of a Rule disabled with {@link #setEnabled(boolean)}, is set to {@link RuleStatus#UNINITIALIZED} with
+ * {@link RuleStatusDetail#DISABLED}.</li>
+ * <li>To check a Rule's status info, use the {@link #getStatusInfo()} method.</li>
+ * <li>To check a Rule's status, use the {@link #getStatus()} method.</li>
+ * </ul>
  *
  * @author Kai Kreuzer - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ *
  */
 @NonNullByDefault
 public interface Rule extends Identifiable<String> {
 
     /**
-     * This method is used to obtain the identifier of the Rule. It can be specified by the {@link Rule}'s
-     * creator, or randomly generated.
+     * Gets the unique identifier of the Rule. It can be specified by the {@link Rule}'s creator, or
+     * randomly generated.
      *
-     * @return an identifier of this {@link Rule}. Can't be {@code null}.
+     * @return the unique identifier of this {@link Rule}. Can't be {@code null}.
      */
     @Override
     String getUID();
 
     /**
-     * This method is used to obtain the {@link RuleTemplate} identifier of the template the {@link Rule} was created
-     * from. It will be used by the {@link RuleRegistry} to resolve the {@link Rule}: to validate the {@link Rule}'s
-     * configuration, as well as to create and configure the {@link Rule}'s modules. If a {@link Rule} has not been
-     * created from a template, or has been successfully resolved by the {@link RuleRegistry}, this method will return
-     * {@code null}.
+     * Gets the unique {@link RuleTemplate} identifier of the template the {@link Rule} was created from. It will be
+     * used by the {@link RuleRegistry} to resolve the {@link Rule}: to validate the {@link Rule}'s configuration, as
+     * well as to create and configure the {@link Rule}'s modules. If a {@link Rule} has not been created from a
+     * template, or has been successfully resolved by the {@link RuleRegistry}, this method will return {@code null}.
      *
-     * @return the identifier of the {@link Rule}'s {@link RuleTemplate}, or {@code null} if the {@link Rule} has not
-     *         been created from a template, or has been successfully resolved by the {@link RuleRegistry}.
+     * @return the identifier of the {@link Rule}'s {@link RuleTemplate}, or {@code null} if the {@link Rule} has
+     *         not been created from a template, or has been successfully resolved by the {@link RuleRegistry}.
      */
     @Nullable
     String getTemplateUID();
 
     /**
-     * This method is used to obtain the {@link Rule}'s human-readable name.
+     * Gets the {@link Rule}'s human-readable name.
      *
      * @return the {@link Rule}'s human-readable name, or {@code null}.
      */
@@ -75,15 +91,14 @@ public interface Rule extends Identifiable<String> {
     String getName();
 
     /**
-     * This method is used to obtain the {@link Rule}'s assigned tags.
+     * Gets the {@link Rule}'s assigned tags.
      *
      * @return the {@link Rule}'s assigned tags.
      */
     Set<String> getTags();
 
     /**
-     * This method is used to obtain the human-readable description of the purpose and consequences of the
-     * {@link Rule}'s execution.
+     * Gets the human-readable description of the purpose and consequences of the {@link Rule}'s execution.
      *
      * @return the {@link Rule}'s human-readable description, or {@code null}.
      */
@@ -91,60 +106,60 @@ public interface Rule extends Identifiable<String> {
     String getDescription();
 
     /**
-     * This method is used to obtain the {@link Rule}'s {@link Visibility}.
+     * Gets the {@link Rule}'s {@link Visibility}.
      *
      * @return the {@link Rule}'s {@link Visibility} value.
      */
     Visibility getVisibility();
 
     /**
-     * This method is used to obtain the {@link Rule}'s {@link Configuration}.
+     * Gets the {@link Rule}'s {@link Configuration}.
      *
      * @return current configuration values, or an empty {@link Configuration}.
      */
     Configuration getConfiguration();
 
     /**
-     * This method is used to obtain the {@link List} with {@link ConfigDescriptionParameter}s defining meta info for
-     * configuration properties of the {@link Rule}.
+     * Gets the {@link List} with {@link ConfigDescriptionParameter}s defining meta info for configuration properties
+     * of the {@link Rule}.
      *
      * @return a {@link List} of {@link ConfigDescriptionParameter}s.
      */
     List<ConfigDescriptionParameter> getConfigurationDescriptions();
 
     /**
-     * This method is used to get the conditions participating in {@link Rule}.
+     * Gets the conditions participating in the {@link Rule}.
      *
      * @return a list with the conditions that belong to this {@link Rule}.
      */
     List<Condition> getConditions();
 
     /**
-     * This method is used to get the actions participating in {@link Rule}.
+     * Gets the actions participating in the {@link Rule}.
      *
      * @return a list with the actions that belong to this {@link Rule}.
      */
     List<Action> getActions();
 
     /**
-     * This method is used to get the triggers participating in {@link Rule}.
+     * Gets the triggers participating in the {@link Rule}.
      *
      * @return a list with the triggers that belong to this {@link Rule}.
      */
     List<Trigger> getTriggers();
 
     /**
-     * Obtains the modules of the {@link Rule}.
+     * Gets the modules participating in the {@link Rule}.
      *
      * @return the modules of the {@link Rule} or empty list if the {@link Rule} has no modules.
      */
     List<Module> getModules();
 
     /**
-     * This method is used to get a {@link Module} participating in {@link Rule}
+     * Gets a {@link Module} participating in the {@link Rule}.
      *
-     * @param moduleId specifies the id of a module belonging to this {@link Rule}.
-     * @return module with specified id or {@code null} if it does not belong to this {@link Rule}.
+     * @param moduleId specifies the identifier of a module belonging to this {@link Rule}.
+     * @return module with specified identifier or {@code null} if such does not belong to this {@link Rule}.
      */
     default @Nullable Module getModule(String moduleId) {
         for (Module module : getModules()) {
@@ -154,5 +169,4 @@ public interface Rule extends Identifiable<String> {
         }
         return null;
     }
-
 }

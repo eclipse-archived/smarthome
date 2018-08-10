@@ -12,9 +12,7 @@
  */
 package org.eclipse.smarthome.automation.parser.gson.internal;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +21,7 @@ import org.eclipse.smarthome.automation.core.dto.RuleTemplateDTOMapper;
 import org.eclipse.smarthome.automation.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 
 import com.google.gson.reflect.TypeToken;
@@ -35,15 +34,14 @@ import com.google.gson.stream.JsonToken;
  * @author Kai Kreuzer - Initial Contribution
  *
  */
-public class TemplateGSONParser extends AbstractGSONParser<Template> {
+public class TemplateGSONParser extends AbstractGSONParser<RuleTemplate> {
 
     @Override
-    public Set<Template> parse(InputStreamReader reader) throws ParsingException {
-        JsonReader jr = new JsonReader(reader);
-        try {
+    public Set<RuleTemplate> parse(InputStreamReader reader) throws ParsingException {
+        Set<RuleTemplate> templates = new HashSet<>();
+        try (JsonReader jr = new JsonReader(reader)) {
             if (jr.hasNext()) {
                 JsonToken token = jr.peek();
-                Set<Template> templates = new HashSet<>();
                 if (JsonToken.BEGIN_ARRAY.equals(token)) {
                     List<RuleTemplateDTO> templateDtos = gson.fromJson(jr, new TypeToken<List<RuleTemplateDTO>>() {
                     }.getType());
@@ -54,16 +52,10 @@ public class TemplateGSONParser extends AbstractGSONParser<Template> {
                     RuleTemplateDTO template = gson.fromJson(jr, RuleTemplateDTO.class);
                     templates.add(RuleTemplateDTOMapper.map(template));
                 }
-                return templates;
             }
         } catch (Exception e) {
             throw new ParsingException(new ParsingNestedException(ParsingNestedException.TEMPLATE, null, e));
-        } finally {
-            try {
-                jr.close();
-            } catch (IOException e) {
-            }
         }
-        return Collections.emptySet();
+        return templates;
     }
 }

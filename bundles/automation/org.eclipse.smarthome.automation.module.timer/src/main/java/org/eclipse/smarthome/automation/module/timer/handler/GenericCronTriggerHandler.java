@@ -14,9 +14,9 @@ package org.eclipse.smarthome.automation.module.timer.handler;
 
 import java.text.ParseException;
 
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.module.timer.factory.TimerModuleHandlerFactory;
 import org.eclipse.smarthome.core.scheduler.CronExpression;

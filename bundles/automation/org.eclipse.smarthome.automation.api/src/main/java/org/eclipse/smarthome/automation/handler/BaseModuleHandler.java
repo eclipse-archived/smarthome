@@ -13,18 +13,31 @@
 package org.eclipse.smarthome.automation.handler;
 
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
+import org.eclipse.smarthome.automation.RuleManager;
 
 /**
- * This is a base class that can be used by any ModuleHandler implementation
+ * A base class that can be used to create a {@link ModuleHandler} implementation.
  *
  * @author Kai Kreuzer - Initial Contribution
  */
 public class BaseModuleHandler<T extends Module> implements ModuleHandler {
 
+    /**
+     * Holds the reference to the {@link Module} instance that it handles.
+     */
     protected T module;
+
+    /**
+     * Holds the {@link ModuleHandlerCallback} reference. The {@link ModuleHandler} uses this callback to communicate
+     * with the {@link RuleManager}.
+     */
     protected ModuleHandlerCallback callback;
 
+    /**
+     * Creates a {@link ModuleHandler} instance.
+     *
+     * @param module the {@link Module} instance that will be handled.
+     */
     public BaseModuleHandler(T module) {
         this.module = module;
     }
@@ -34,9 +47,11 @@ public class BaseModuleHandler<T extends Module> implements ModuleHandler {
         this.callback = callback;
     }
 
+    /**
+     * Clears the {@link ModuleHandlerCallback} reference and disposes the {@link ModuleHandler}.
+     */
     @Override
     public void dispose() {
         this.callback = null;
     }
-
 }

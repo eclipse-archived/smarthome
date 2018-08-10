@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.sample.moduletype.demo.internal.handlers;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -34,7 +35,7 @@ import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.
  * </pre>
  *
  * This handler prints to standard output {@link Action}'s typeUID + the UID of the rule for which is created.
- * 
+ *
  * @author Plamen Peev - Initial contribution
  */
 public class ConsolePrintAction extends BaseModuleHandler<Action> implements ActionHandler {
@@ -77,7 +78,7 @@ public class ConsolePrintAction extends BaseModuleHandler<Action> implements Act
      *
      *
      * @param context contains action input values and snapshot of all module output values. The output ids are defined
-     *            in form: ModuleId.outputId
+     *                in form: ModuleId.outputId
      * @return values map of values which must be set to outputs of the {@link Action}.
      */
     @Override
@@ -86,7 +87,7 @@ public class ConsolePrintAction extends BaseModuleHandler<Action> implements Act
         System.out
                 .println("Type UID: " + module.getTypeUID() + ", rule ID " + ruleUID + ", Input value: " + inputValue);
 
-        return null;
+        return Collections.emptyMap();
     }
 
 }

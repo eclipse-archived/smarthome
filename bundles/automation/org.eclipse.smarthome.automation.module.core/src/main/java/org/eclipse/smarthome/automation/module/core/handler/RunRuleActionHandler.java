@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +99,6 @@ public class RunRuleActionHandler extends BaseModuleHandler<Action> implements A
             }
         }
         // no outputs from this module
-        return null;
+        return Collections.emptyMap();
     }
 }

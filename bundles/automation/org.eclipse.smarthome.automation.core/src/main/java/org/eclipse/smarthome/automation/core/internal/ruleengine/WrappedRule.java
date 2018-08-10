@@ -35,6 +35,7 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 @NonNullByDefault
 public class WrappedRule {
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static <T extends WrappedModule, U extends Module> List<T> map(final List<U> in, Function<U, T> factory,
             final Collection<WrappedModule<Module, ModuleHandler>> coll) {
         return Collections.unmodifiableList(in.stream().map(module -> {
@@ -93,6 +94,10 @@ public class WrappedRule {
 
     public List<WrappedModule<Module, ModuleHandler>> getModules() {
         return modules;
+    }
+
+    public RuleStatus getStatus() {
+        return statusInfo.getStatus();
     }
 
 }

@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +102,6 @@ public class RuleEnablementActionHandler extends BaseModuleHandler<Action> imple
                 logger.warn("Action is not applied to {} because rule engine is not available.", uid);
             }
         }
-        return null;
+        return Collections.emptyMap();
     }
 }

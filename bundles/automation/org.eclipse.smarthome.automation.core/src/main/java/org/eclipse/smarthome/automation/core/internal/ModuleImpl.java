@@ -15,6 +15,7 @@ package org.eclipse.smarthome.automation.core.internal;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
@@ -22,15 +23,12 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * Modules are building components of the {@link Rule}s. Each ModuleImpl is
- * identified by id, which is unique in scope of the {@link Rule}. It also has a {@link ModuleType} which provides
- * meta
- * data of the module. The meta data
- * defines {@link Input}s, {@link Output}s and {@link ConfigDescriptionParameter}s parameters of the {@link ModuleImpl}.
+ * Modules are building components of the {@link Rule}s. Each ModuleImpl is identified by id, which is unique in scope
+ * of the {@link Rule}. It also has a {@link ModuleType} which provides meta data of the module. The meta data defines
+ * {@link Input}s, {@link Output}s and {@link ConfigDescriptionParameter}s of the {@link ModuleImpl}.
  * <br>
- * Setters of the module don't have immediate effect on the Rule. To apply the
- * changes, they should be set on the {@link Rule} and the Rule has to be
- * updated by RuleManager
+ * Setters of the module don't have immediate effect on the Rule. To apply the changes, the Module should be set on the
+ * {@link Rule} and the Rule has to be updated in {@link RuleRegistry} by invoking {@code update} method.
  *
  * @author Yordan Mihaylov - Initial Contribution
  *
@@ -70,11 +68,11 @@ public abstract class ModuleImpl implements Module {
     /**
      * Constructor of the module.
      *
-     * @param id the module id.
-     * @param typeUID unique id of the module type.
+     * @param id            the module id.
+     * @param typeUID       unique id of the module type.
      * @param configuration configuration values of the module.
-     * @param label the label
-     * @param description the description
+     * @param label         the label
+     * @param description   the description
      */
     public ModuleImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
             @Nullable String description) {

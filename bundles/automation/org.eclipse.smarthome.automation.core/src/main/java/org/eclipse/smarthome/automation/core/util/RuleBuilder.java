@@ -75,14 +75,14 @@ public class RuleBuilder {
     public static RuleBuilder create(Rule r) {
         return create(r.getUID()).withActions(r.getActions()).withConditions(r.getConditions())
                 .withTriggers(r.getTriggers()).withConfiguration(r.getConfiguration())
-                .withConfigurationDescriptions(r.getConfigurationDescriptions()).withDescription(r.getDescription())
-                .withName(r.getName()).withTags(r.getTags());
+                .withTemplateUID(r.getTemplateUID()).withConfigurationDescriptions(r.getConfigurationDescriptions())
+                .withDescription(r.getDescription()).withName(r.getName()).withTags(r.getTags());
     }
 
     public static RuleBuilder create(RuleTemplate template, String uid, @Nullable String name,
             Configuration configuration, Visibility visibility) {
         return create(uid).withActions(template.getActions()).withConditions(template.getConditions())
-                .withTriggers(template.getTriggers()).withConfiguration(configuration)
+                .withTriggers(template.getTriggers()).withConfiguration(configuration).withTemplateUID(null)
                 .withConfigurationDescriptions(template.getConfigurationDescriptions())
                 .withDescription(template.getDescription()).withName(name).withTags(template.getTags());
     }

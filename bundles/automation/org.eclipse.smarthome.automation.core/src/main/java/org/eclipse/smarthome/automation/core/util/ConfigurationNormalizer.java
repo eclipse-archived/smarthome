@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -26,7 +27,7 @@ import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class provides utility methods used by {@link RuleRegistry} to resolve and normalize the {@link RuleImpl}s
+ * This class provides utility methods used by {@link RuleRegistry} to resolve and normalize the {@link Rule}s
  * configuration values.
  *
  * @author Ana Dimova - Initial Contribution
@@ -35,21 +36,23 @@ import org.eclipse.smarthome.config.core.Configuration;
 public class ConfigurationNormalizer {
 
     /**
-     * Normalizes the configurations of the provided {@link ModuleImpl}s.
+     * Normalizes the configurations of the provided {@link Module}s.
      *
-     * @param modules a list of {@link ModuleImpl}s to normalize.
+     * @param modules    a list of {@link Module}s to normalize.
      * @param mtRegistry the {@link ModuleTypeRegistry} that provides the meta-data needed for the normalization.
      * @see ConfigurationNormalizer#normalizeConfiguration(Configuration, Map)
      */
     public static <T extends Module> void normalizeModuleConfigurations(List<T> modules,
             ModuleTypeRegistry mtRegistry) {
         for (Module module : modules) {
-            ModuleType mt = mtRegistry.get(module.getTypeUID());
-            if (mt != null) {
-                Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
-                        mt.getConfigurationDescriptions());
-                normalizeConfiguration(module.getConfiguration(), mapConfigDescriptions);
+            String moduleTypeUID = module.getTypeUID();
+            ModuleType mt = mtRegistry.get(moduleTypeUID);
+            if (mt == null) {
+                throw new IllegalStateException("Module Type \"" + moduleTypeUID + "\" not available.");
             }
+            Map<String, ConfigDescriptionParameter> mapConfigDescriptions = getConfigDescriptionMap(
+                    mt.getConfigurationDescriptions());
+            normalizeConfiguration(module.getConfiguration(), mapConfigDescriptions);
         }
     }
 
@@ -61,7 +64,7 @@ public class ConfigurationNormalizer {
      */
     public static Map<String, ConfigDescriptionParameter> getConfigDescriptionMap(
             List<ConfigDescriptionParameter> configDesc) {
-        Map<String, ConfigDescriptionParameter> mapConfigDescs = new HashMap<String, ConfigDescriptionParameter>();
+        Map<String, ConfigDescriptionParameter> mapConfigDescs = new HashMap<>();
         for (ConfigDescriptionParameter configDescriptionParameter : configDesc) {
             mapConfigDescs.put(configDescriptionParameter.getName(), configDescriptionParameter);
         }
@@ -72,7 +75,7 @@ public class ConfigurationNormalizer {
      * Normalizes the types of the configuration's parameters to the allowed ones. References are ignored. Null values
      * are replaced with the defaults and then normalized.
      *
-     * @param configuration the configuration to normalize.
+     * @param configuration        the configuration to normalize.
      * @param configDescriptionMap the meta-data of the configuration.
      */
     public static void normalizeConfiguration(Configuration configuration,

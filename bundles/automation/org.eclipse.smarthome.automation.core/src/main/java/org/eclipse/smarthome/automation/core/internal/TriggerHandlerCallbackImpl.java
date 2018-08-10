@@ -43,9 +43,9 @@ public class TriggerHandlerCallbackImpl implements TriggerHandlerCallback {
 
     private Future<?> future;
 
-    private final RuleEngineImpl re;
+    private final RuleEngine re;
 
-    protected TriggerHandlerCallbackImpl(RuleEngineImpl re, String ruleUID) {
+    protected TriggerHandlerCallbackImpl(RuleEngine re, String ruleUID) {
         this.re = re;
         this.ruleUID = ruleUID;
         executor = Executors.newSingleThreadExecutor();

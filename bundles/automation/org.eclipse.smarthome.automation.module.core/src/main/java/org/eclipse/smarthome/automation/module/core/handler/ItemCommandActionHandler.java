@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -122,7 +123,7 @@ public class ItemCommandActionHandler extends BaseModuleHandler<Action> implemen
                     "Command was not posted because either the configuration was not correct or a service was missing: ItemName: {}, Command: {}, eventPublisher: {}, ItemRegistry: {}",
                     itemName, command, eventPublisher, itemRegistry);
         }
-        return null;
+        return Collections.emptyMap();
     }
 
 }

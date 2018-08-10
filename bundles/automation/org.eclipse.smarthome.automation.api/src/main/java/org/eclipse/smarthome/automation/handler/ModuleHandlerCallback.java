@@ -10,25 +10,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation;
+package org.eclipse.smarthome.automation.handler;
 
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleManager;
+import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusDetail;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
 
 /**
- * This class is responsible to provide a {@link RegistryChangeListener} logic. A instance of it is added to
- * {@link RuleRegistry} service, to listen for changes when a single {@link Rule} has been added, updated, enabled,
- * disabled or removed and to involve Rule Engine to process these changes. Also to send a {@code run} command
- * for a single {@link Rule} to the Rule Engine.
+ * This class is responsible to provide a mechanism for communication between {@link ModuleHandler}s and the
+ * {@link RuleManager}. An instance of it is provided to every {@link ModuleHandler} to listen for changes when
+ * a {@link Rule} has been added, updated, enabled, disabled or removed and to involve {@link RuleManager} to
+ * enable / disable or to process the {@code run} command for a {@link Rule}.
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 @NonNullByDefault
-public interface RuleManager {
+public interface ModuleHandlerCallback {
 
     /**
      * Gets the <b>enabled</b> {@link RuleStatus} for a {@link Rule}. The <b>enabled</b> rule statuses are
@@ -50,14 +54,11 @@ public interface RuleManager {
      * {@link RuleStatus#RUNNING}. The <b>disabled</b> rule status is {@link RuleStatus#UNINITIALIZED} with
      * {@link RuleStatusDetail#DISABLED}.
      *
-     * @param uid       the unique identifier of the {@link Rule} that should be enabled/ disabled.
-     * @param isEnabled a new <b>enabled / disabled</b> boolean flag for the new status of the {@link Rule}. It can be
-     *                  {@link RuleStatus#UNINITIALIZED}, {@link RuleStatus#INITIALIZING} or {@link RuleStatus#IDLE} if
-     *                  the {@code isEnabled} is {@code true}, or {@link RuleStatus#UNINITIALIZED} with
-     *                  {@link RuleStatusDetail#DISABLED} if the {@code isEnabled} is {@code false}.
-     * @throws IllegalStateException when the rule status can't be persisted because of missing Storage service or when
-     *                               the rule has already removed from the registry or the rule is not in an appropriate
-     *                               state for the requested operation.
+     * @param uid       the unique identifier of the {@link Rule}.
+     * @param isEnabled a new <b>enabled / disabled</b> status of the {@link Rule}.
+     * @throws IllegalStateException when the rule status can't be persisted because of missing Storage service
+     *                               or when the rule has already removed from the registry or the rule is not in an
+     *                               appropriate state for the requested operation.
      */
     void setEnabled(String uid, boolean isEnabled);
 

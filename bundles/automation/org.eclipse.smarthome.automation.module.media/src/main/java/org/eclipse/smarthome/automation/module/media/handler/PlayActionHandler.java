@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.module.media.handler;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -52,7 +53,7 @@ public class PlayActionHandler extends BaseModuleHandler<Action> implements Acti
         } catch (AudioException e) {
             logger.error("Error playing sound '{}': {}", sound, e.getMessage());
         }
-        return null;
+        return Collections.emptyMap();
     }
 
 }

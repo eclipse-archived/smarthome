@@ -14,13 +14,14 @@ package org.eclipse.smarthome.automation.core.internal;
 
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 
 /**
- * This class defines connection between {@link Input} of the current {@link Module} and {@link Output} of the
- * external one. The current module is the module containing {@link Connection} instance and the external one is the
- * module where the current is connected to.<br>
+ * This class defines connection between {@link Input} of the current {@link Module} and {@link Output} of the external
+ * one. The current module is the module containing {@link Connection} instance and the external one is the module where
+ * the current is connected to. <br>
  * The input of the current module is defined by name of the {@link Input}. The {@link Output} of the external module is
  * defined by id of the module and name of the output.
  *
@@ -28,9 +29,12 @@ import org.eclipse.smarthome.automation.type.Output;
  */
 public class Connection {
 
+    public static final String REF_IDENTIFIER = "$";
+
     private final String ouputModuleId;
     private final String outputName;
     private final String inputName;
+    private final String[] referenceTokens;
 
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
@@ -42,14 +46,34 @@ public class Connection {
     public Connection(String inputName, String ouputModuleId, String outputName) {
         validate("inputName", inputName);
         validate("outputName", outputName);
+        int beginIndex = outputName.indexOf('.');
+        int squareBracketIndex = outputName.indexOf('[');
+        if (squareBracketIndex != -1 && squareBracketIndex < beginIndex) {
+            beginIndex = squareBracketIndex;
+        }
+        if (beginIndex == -1) {
+            beginIndex = squareBracketIndex;
+        }
+        // We have only output name
+        if (beginIndex == -1) {
+            this.outputName = outputName;
+            referenceTokens = null;
+        } else {
+            // Set the name of the output.
+            this.outputName = outputName.substring(0, beginIndex);
+            // Substring to get the reference
+            if (outputName.charAt(beginIndex) == '[') {
+                referenceTokens = ReferenceResolver.splitReferenceToTokens(outputName.substring(beginIndex));
+            } else {
+                referenceTokens = ReferenceResolver.splitReferenceToTokens(outputName.substring(beginIndex + 1));
+            }
+        }
         this.inputName = inputName;
         this.ouputModuleId = ouputModuleId;
-        this.outputName = outputName;
     }
 
     /**
-     * This method is used to get id of external {@link Module} of this
-     * connection.
+     * Gets the identifier of external {@link Module} of this connection.
      *
      * @return id of external {@link Module}
      */
@@ -58,18 +82,16 @@ public class Connection {
     }
 
     /**
-     * This method is used to get output name of external {@link Module} of this
-     * connection.
+     * Gets the output name of external {@link Module} of this connection.
      *
-     * @return name of {@link Output} of external {@link Module}
+     * @return name of {@link Output} of external {@link Module}.
      */
     public String getOutputName() {
         return outputName;
     }
 
     /**
-     * This method is used to get input name of current {@link Module} of this
-     * connection.
+     * Gets input name of current {@link Module} of this connection.
      *
      * @return name {@link Input} of the current {@link Module}
      */
@@ -78,20 +100,34 @@ public class Connection {
     }
 
     /**
-     * Compare two connection objects.
+     * Gets the reference tokens of this connection.
+     *
+     * @return the reference tokens.
+     */
+    public String[] getReferenceTokens() {
+        return referenceTokens;
+    }
+
+    /**
+     * Compares two connection objects. Two objects are equal if they own equal {@code inputName}.
+     *
+     * @return {@code true} when own equal {@code inputName} and {@code false} in the opposite.
      */
     @Override
     public boolean equals(Object obj) {
         return (inputName != null && obj instanceof Connection) && inputName.equals(((Connection) obj).getInputName());
     };
 
+    /**
+     * Returns the hash code of this object depends on the hash code of the {@code inputName} that it owns.
+     */
     @Override
     public int hashCode() {
         return inputName.hashCode();
     };
 
     /**
-     * This method is used to validate the connection.
+     * Validates the connection.
      *
      * @param field serves to construct an understandable message that indicates what property of the connection is not
      *              correct.
@@ -107,5 +143,4 @@ public class Connection {
     public String toString() {
         return "Connection " + ouputModuleId + "." + outputName + "->" + inputName;
     }
-
 }

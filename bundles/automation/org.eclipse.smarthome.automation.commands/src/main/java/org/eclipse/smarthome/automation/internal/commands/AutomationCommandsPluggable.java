@@ -377,8 +377,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      * You should always use that function to use a usage string that complies
      * to a standard format.
      *
-     * @param description
-     *            the description of the command
+     * @param description the description of the command
      * @return a usage string that complies to a standard format
      */
     protected String buildCommandUsage(final String description) {
@@ -391,10 +390,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements C
      * You should always use that function to use a usage string that complies
      * to a standard format.
      *
-     * @param syntax
-     *            the syntax format
-     * @param description
-     *            the description of the command
+     * @param syntax      the syntax format
+     * @param description the description of the command
      * @return a usage string that complies to a standard format
      */
     protected String buildCommandUsage(final String syntax, final String description) {

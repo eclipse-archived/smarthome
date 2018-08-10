@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.ModuleImpl;
-import org.eclipse.smarthome.automation.core.internal.RuleEngineImpl;
+import org.eclipse.smarthome.automation.core.internal.RuleEngine;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
@@ -56,17 +56,17 @@ import org.slf4j.LoggerFactory;
 public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
     private final ModuleTypeRegistry mtRegistry;
-    private final RuleEngineImpl ruleEngine;
+    private final RuleEngine ruleEngine;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * The constructor of system handler factory for composite module types.
      *
-     * @param context   is a bundle context
-     * @param mtManager is a module type manager
-     * @param re        is a rule engine
+     * @param context   is a bundle context.
+     * @param mtManager is a module type manager.
+     * @param re        is a rule engine.
      */
-    public CompositeModuleHandlerFactory(ModuleTypeRegistry mtRegistry, RuleEngineImpl re) {
+    public CompositeModuleHandlerFactory(ModuleTypeRegistry mtRegistry, RuleEngine re) {
         this.mtRegistry = mtRegistry;
         this.ruleEngine = re;
     }
@@ -158,7 +158,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * {@link ReferenceResolver#updateConfiguration(Configuration, Map, Logger)}.
      *
      * @param compositeConfig   configuration values of composite module.
-     * @param childModules      list of child modules
+     * @param childModules      list of child modules.
      * @param childModulePrefix defines UID of child module. The rule id is not enough for prefix when a composite type
      *                          is used more then one time in one and the same rule. For example the prefix can be:
      *                          ruleId:compositeModuleId:compositeModileId2.

@@ -15,7 +15,6 @@ package org.eclipse.smarthome.automation.handler;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
@@ -39,7 +38,6 @@ public interface ActionHandler extends ModuleHandler {
      *
      * @return a map with the {@code outputs} which are the result of the {@link Action}'s execution (may be null).
      */
-    @Nullable
     Map<String, Object> execute(Map<String, Object> context);
 
 }

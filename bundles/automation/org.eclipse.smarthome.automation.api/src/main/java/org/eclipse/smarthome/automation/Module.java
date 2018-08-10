@@ -27,9 +27,6 @@ import org.eclipse.smarthome.config.core.Configuration;
  * <p>
  * Each module has a {@link ModuleType} which provides meta data of the module. The meta data defines {@link Input}s,
  * {@link Output}s and {@link ConfigDescriptionParameter}s which are the building elements of the {@link Module}.
- * <br>
- * Setters of the module don't have immediate effect on the Rule. To apply the changes, the Module should be set on the
- * {@link Rule} and the Rule has to be updated in {@link RuleRegistry} by invoking {@code update} method.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - Initial Contribution

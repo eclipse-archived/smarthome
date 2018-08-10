@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class is implementation of {@link Condition} modules used in the {@link RuleEngineImpl}s.
+ * This class is implementation of {@link Condition} modules used in the {@link RuleEngine}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
@@ -36,12 +36,12 @@ public class ConditionImpl extends ModuleImpl implements Condition {
     /**
      * Constructor of {@link Condition} module object.
      *
-     * @param id id of the module.
-     * @param typeUID unique module type id.
+     * @param id            id of the module.
+     * @param typeUID       unique module type id.
      * @param configuration configuration values of the {@link Condition} module.
-     * @param label the label
-     * @param description description
-     * @param inputs set of {@link Input}s used by this module.
+     * @param label         the label
+     * @param description   description
+     * @param inputs        set of {@link Input}s used by this module.
      */
     public ConditionImpl(String id, String typeUID, @Nullable Configuration configuration, @Nullable String label,
             @Nullable String description, @Nullable Map<String, String> inputs) {
@@ -60,5 +60,4 @@ public class ConditionImpl extends ModuleImpl implements Condition {
     public Map<String, String> getInputs() {
         return inputs;
     }
-
 }
