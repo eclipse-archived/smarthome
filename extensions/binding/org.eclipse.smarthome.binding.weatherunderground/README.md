@@ -16,7 +16,7 @@ To use this binding, you first need to [register and get your API key](https://w
 
 ## Supported Things
 
-There is exactly one supported thing type, which represents the weather information for an observation location. It has the id `weather`.
+There is exactly two supported things type. The first one is the weather thing, which represents the weather information for an observation location. It has the id `weather`. The second one is the bridge thing, which allows one to add an API key only one time which all sub-sequents weather things will use. It has the id `bridge
 
 ## Discovery
 
@@ -36,7 +36,6 @@ The thing has a few configuration parameters:
 
 | Parameter | Description                                                              |
 |-----------|------------------------------------------------------------------------- |
-| apikey    | API key to access the Weather Underground service. Mandatory.            |
 | location  | Location to be considered by the Weather Underground service. Mandatory. |
 | language  | Language to be used by the Weather Underground service. Optional, the default is to use the language from the system locale. |
 | refresh   | Refresh interval in minutes. Optional, the default value is 30 minutes and the minimum value is 5 minutes.  |
@@ -129,6 +128,32 @@ Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX"
         Type averageWindSpeed : forecastToday#averageWindSpeed
 }
 ```
+Using the bridge (demo.items remains identical):
+
+```
+Bridge weatherunderground:bridge:myAPI "myAPI" [ apikey="XXXXXXXXXXXX" ] {
+        Thing weatherunderground:weather:paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ] {
+            Channels:
+                Type temperature : current#temperature
+                Type windSpeed : current#windSpeed
+                Type windGust : current#windGust
+                Type pressure : current#pressure
+                Type dewPoint : current#dewPoint
+                Type heatIndex : current#heatIndex
+                Type windChill : current#windChill
+                Type feelingTemperature : current#feelingTemperature
+                Type visibility : current#visibility
+                Type rainDay : current#precipitationDay
+                Type rainHour : current#precipitationHour
+                Type minTemperature : forecastToday#minTemperature
+                Type maxTemperature : forecastToday#maxTemperature
+                Type rainDay : forecastToday#precipitationDay
+                Type snow : forecastToday#snow
+                Type maxWindSpeed : forecastToday#maxWindSpeed
+                Type averageWindSpeed : forecastToday#averageWindSpeed
+        }
+}
+``
 
 demo.items:
 
