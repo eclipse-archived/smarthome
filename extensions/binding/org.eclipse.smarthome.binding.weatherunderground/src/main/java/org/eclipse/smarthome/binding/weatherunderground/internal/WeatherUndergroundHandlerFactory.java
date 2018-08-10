@@ -16,6 +16,8 @@ import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroun
 
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
 import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundBridgeHandler;
@@ -33,8 +35,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link WeatherUndergroundHandlerFactory} is responsible for creating things and thing
@@ -81,8 +81,9 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
         this.unitProvider = null;
     }
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Sets.union(BRIDGE_THING_TYPES_UIDS,
-            WeatherUndergroundBindingConstants.SUPPORTED_THING_TYPES_UIDS);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
+            .of(BRIDGE_THING_TYPES_UIDS, WeatherUndergroundBindingConstants.SUPPORTED_THING_TYPES_UIDS)
+            .flatMap(x -> x.stream()).collect(Collectors.toSet());
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

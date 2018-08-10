@@ -25,14 +25,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
-import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
-import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +44,11 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     private static final int DISCOVER_TIMEOUT_SECONDS = 10;
     private static final int LOCATION_CHANGED_CHECK_INTERVAL = 60;
 
-    private LocationProvider locationProvider;
+    private final LocationProvider locationProvider;
     private ScheduledFuture<?> discoveryJob;
     private PointType previousLocation;
 
-    private ThingUID bridgeUID;
+    private final ThingUID bridgeUID;
 
     /**
      * Creates a WeatherUndergroundDiscoveryService with enabled autostart.
@@ -62,17 +58,6 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
         super(SUPPORTED_THING_TYPES, DISCOVER_TIMEOUT_SECONDS, true);
         this.bridgeUID = bridgeUID;
         this.locationProvider = locationProvider;
-    }
-
-    @Override
-    protected void activate(Map<String, Object> configProperties) {
-        super.activate(configProperties);
-    }
-
-    @Override
-    @Modified
-    protected void modified(Map<String, Object> configProperties) {
-        super.modified(configProperties);
     }
 
     @Override
@@ -120,33 +105,6 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
         properties.put(LOCATION, String.format("%s,%s", location.getLatitude(), location.getLongitude()));
         thingDiscovered(DiscoveryResultBuilder.create(localWeatherThing).withLabel("Local Weather")
                 .withProperties(properties).withBridge(bridgeUID).build());
-    }
-
-    @Reference
-    protected void setLocationProvider(LocationProvider locationProvider) {
-        this.locationProvider = locationProvider;
-    }
-
-    protected void unsetLocationProvider(LocationProvider locationProvider) {
-        this.locationProvider = null;
-    }
-
-    @Reference
-    protected void setLocaleProvider(final LocaleProvider localeProvider) {
-        this.localeProvider = localeProvider;
-    }
-
-    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
-        this.localeProvider = null;
-    }
-
-    @Reference
-    protected void setTranslationProvider(TranslationProvider i18nProvider) {
-        this.i18nProvider = i18nProvider;
-    }
-
-    protected void unsetTranslationProvider(TranslationProvider i18nProvider) {
-        this.i18nProvider = null;
     }
 
 }

@@ -70,8 +70,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundHandler.class);
 
-    private Bridge bridge;
-
     private static final int DEFAULT_REFRESH_PERIOD = 30;
     private static final String FEATURE_CONDITIONS = "conditions";
     private static final String FEATURE_FORECAST10DAY = "forecast10day";
@@ -94,7 +92,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         forecastMap = initForecastDayMap();
     }
 
-    @SuppressWarnings("null")
     @Override
     public void initialize() {
         logger.debug("Initializing WeatherUnderground handler.");
@@ -109,18 +106,9 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         String errors = "";
         String statusDescr = null;
 
-        bridge = this.getBridge();
-        if (bridge == null) {
+        if (this.getBridge() == null) {
             logger.error("Error: you must configure a bridge");
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Bridge uninitialized");
-        } else {
-            WeatherUndergroundBridgeHandler handler = (WeatherUndergroundBridgeHandler) bridge.getHandler();
-            logger.debug("config apikey = {}", handler.getApikey());
-            if (StringUtils.trimToNull(handler.getApikey()) == null) {
-                errors += " Parameter 'apikey' must be configured.";
-                statusDescr = "@text/offline.conf-error-missing-apikey";
-                validConfig = false;
-            }
         }
 
         if (StringUtils.trimToNull(config.location) == null) {
@@ -409,8 +397,9 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         // Request new weather data to the Weather Underground service
         WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
         WeatherUndergroundBridgeHandler handler = null;
-        if (this.getBridge() != null) {
-            handler = (WeatherUndergroundBridgeHandler) this.getBridge().getHandler();
+        Bridge bridge = this.getBridge();
+        if (bridge != null) {
+            handler = (WeatherUndergroundBridgeHandler) bridge.getHandler();
         }
         if (handler != null) {
             weatherData = handler.getWeatherData(USUAL_FEATURES, StringUtils.trimToEmpty(config.location),
