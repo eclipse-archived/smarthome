@@ -26,19 +26,39 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  *
  */
 @NonNullByDefault
-public class TriggerProfileTypeImpl extends StateProfileTypeImpl implements TriggerProfileType {
+public class TriggerProfileTypeImpl implements TriggerProfileType {
 
+    private final ProfileTypeUID profileTypeUID;
     private final Collection<ChannelTypeUID> supportedChannelTypeUIDs;
+    private final String label;
+    private final Collection<String> supportedItemTypes;
 
     public TriggerProfileTypeImpl(ProfileTypeUID profileTypeUID, String label, Collection<String> supportedItemTypes,
             Collection<ChannelTypeUID> supportedChannelTypeUIDs) {
-        super(profileTypeUID, label, supportedItemTypes);
+        this.profileTypeUID = profileTypeUID;
+        this.label = label;
+        this.supportedItemTypes = supportedItemTypes;
         this.supportedChannelTypeUIDs = supportedChannelTypeUIDs;
     }
 
     @Override
     public Collection<ChannelTypeUID> getSupportedChannelTypeUIDs() {
         return supportedChannelTypeUIDs;
+    }
+
+    @Override
+    public Collection<String> getSupportedItemTypes() {
+        return supportedItemTypes;
+    }
+
+    @Override
+    public String getLabel() {
+        return label;
+    }
+
+    @Override
+    public ProfileTypeUID getUID() {
+        return profileTypeUID;
     }
 
 }

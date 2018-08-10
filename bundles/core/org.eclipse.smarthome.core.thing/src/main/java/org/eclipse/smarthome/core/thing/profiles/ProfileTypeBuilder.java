@@ -36,12 +36,13 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
     @FunctionalInterface
     private interface ProfileTypeFactory<T extends ProfileType> {
         T create(ProfileTypeUID profileTypeUID, String label, Collection<String> supportedItemTypes,
-                Collection<ChannelTypeUID> supportedChannelTypeUIDs);
+                Collection<String> supportedItemTypesOfChannel, Collection<ChannelTypeUID> supportedChannelTypeUIDs);
     }
 
     private final ProfileTypeFactory<T> profileTypeFactory;
     private final ProfileTypeUID profileTypeUID;
     private final Collection<String> supportedItemTypes = new HashSet<>();
+    private final Collection<String> supportedItemTypesOfChannel = new HashSet<>();
     private final Collection<ChannelTypeUID> supportedChannelTypeUIDs = new HashSet<>();
     private final String label;
 
@@ -60,9 +61,9 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      */
     public static ProfileTypeBuilder<StateProfileType> newState(ProfileTypeUID profileTypeUID, String label) {
         return new ProfileTypeBuilder<>(profileTypeUID, label,
-                (leProfileTypeUID, leLabel, leSupportedItemTypes,
+                (leProfileTypeUID, leLabel, leSupportedItemTypes, leSupportedItemTypesOfChannel,
                         leSupportedChannelTypeUIDs) -> new StateProfileTypeImpl(leProfileTypeUID, leLabel,
-                                leSupportedItemTypes));
+                                leSupportedItemTypes, leSupportedItemTypesOfChannel));
     }
 
     /**
@@ -74,7 +75,7 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
      */
     public static ProfileTypeBuilder<TriggerProfileType> newTrigger(ProfileTypeUID profileTypeUID, String label) {
         return new ProfileTypeBuilder<>(profileTypeUID, label,
-                (leProfileTypeUID, leLabel, leSupportedItemTypes,
+                (leProfileTypeUID, leLabel, leSupportedItemTypes, leSupportedItemTypesOfChannel,
                         leSupportedChannelTypeUIDs) -> new TriggerProfileTypeImpl(leProfileTypeUID, leLabel,
                                 leSupportedItemTypes, leSupportedChannelTypeUIDs));
     }
@@ -124,12 +125,35 @@ public final class ProfileTypeBuilder<T extends ProfileType> {
     }
 
     /**
+     * Declare that channels with these item type(s) are compatible with profiles of this type.
+     *
+     * @param supportedItemTypesOfChannel item types on channel to which this profile type is compatible with
+     * @return the builder itself
+     */
+    public ProfileTypeBuilder<T> withSupportedItemTypesOfChannel(String... supportedItemTypesOfChannel) {
+        this.supportedItemTypesOfChannel.addAll(Arrays.asList(supportedItemTypesOfChannel));
+        return this;
+    }
+
+    /**
+     * Declare that channels with these item type(s) are compatible with profiles of this type.
+     *
+     * @param supportedItemTypesOfChannel item types on channel to which this profile type is compatible with
+     * @return the builder itself
+     */
+    public ProfileTypeBuilder<T> withSupportedItemTypesOfChannel(Collection<String> supportedItemTypesOfChannel) {
+        this.supportedItemTypesOfChannel.addAll(supportedItemTypesOfChannel);
+        return this;
+    }
+
+    /**
      * Create a profile type instance with the previously given parameters.
      *
-     * @return the according subtype of
+     * @return the according subtype of {@link ProfileType}
      */
     public T build() {
-        return profileTypeFactory.create(profileTypeUID, label, supportedItemTypes, supportedChannelTypeUIDs);
+        return profileTypeFactory.create(profileTypeUID, label, supportedItemTypes, supportedItemTypesOfChannel,
+                supportedChannelTypeUIDs);
     }
 
 }
