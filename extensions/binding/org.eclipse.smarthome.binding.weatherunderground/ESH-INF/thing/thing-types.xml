@@ -5,11 +5,14 @@
 
 	<!-- WeatherUnderground Binding -->
 	<thing-type id="weather">
+	    	<supported-bridge-type-refs>
+            	    <bridge-type-ref id="bridge" />
+        	</supported-bridge-type-refs>
 		<label>Weather Information</label>
 		<description>Provides various weather data from the Weather Underground service</description>
 
 		<channel-groups>
-			<channel-group id="current" typeId="current" />
+		    <channel-group id="current" typeId="current" />
 			<channel-group id="forecastToday" typeId="forecast">
 				<label>Weather Forecast Today</label>
 				<description>This is the weather forecast for today</description>
@@ -53,11 +56,6 @@
 		</channel-groups>
 
 		<config-description>
-			<parameter name="apikey" type="text" required="true">
-				<context>password</context>
-				<label>API Key</label>
-				<description>API key to access the Weather Underground service</description>
-			</parameter>
 			<parameter name="location" type="text" required="true">
 				<label>Location of Weather Information</label>
 				<description>Multiple syntaxes are supported. Please read the binding documentation for more information</description>

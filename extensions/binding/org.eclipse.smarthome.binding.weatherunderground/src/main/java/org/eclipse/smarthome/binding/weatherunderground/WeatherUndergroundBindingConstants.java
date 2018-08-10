@@ -12,6 +12,11 @@
  */
 package org.eclipse.smarthome.binding.weatherunderground;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -19,6 +24,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * used across the whole binding.
  *
  * @author Laurent Garnier - Initial contribution
+ * @author Theo Giovanna - Added a bridge for the API key
  */
 public class WeatherUndergroundBindingConstants {
 
@@ -28,7 +34,14 @@ public class WeatherUndergroundBindingConstants {
 
     // List all Thing Type UIDs, related to the WeatherUnderground Binding
     public static final ThingTypeUID THING_TYPE_WEATHER = new ThingTypeUID(BINDING_ID, "weather");
+    public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+
+    public static final Set<ThingTypeUID> BRIDGE_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>(Arrays.asList(THING_TYPE_WEATHER));
 
     // Channel configuration Properties
     public static final String PROPERTY_SOURCE_UNIT = "SourceUnit";
+
+    // Bridge config properties
+    public static final String APIKEY = "apikey";
 }
