@@ -86,10 +86,12 @@ public class ProfileTypeResource implements RESTResource {
             @QueryParam("channelTypeUID") @ApiParam(value = "channel type filter", required = false) @Nullable String channelTypeUID,
             @QueryParam("itemType") @ApiParam(value = "item type filter", required = false) @Nullable String itemType) {
         Locale locale = localeService.getLocale(language);
-        Stream<ProfileTypeDTO> typeStream = profileTypeRegistry.getProfileTypes(locale).stream()
-                .filter(matchesChannelUID(channelTypeUID, locale)).filter(matchesItemType(itemType))
-                .map(t -> convertToProfileTypeDTO(t, locale));
-        return Response.ok(new Stream2JSONInputStream(typeStream)).build();
+        return Response.ok(new Stream2JSONInputStream(getProfileTypes(locale, channelTypeUID, itemType))).build();
+    }
+
+    protected Stream<ProfileTypeDTO> getProfileTypes(Locale locale, String channelTypeUID, String itemType) {
+        return profileTypeRegistry.getProfileTypes(locale).stream().filter(matchesChannelUID(channelTypeUID, locale))
+                .filter(matchesItemType(itemType)).map(t -> convertToProfileTypeDTO(t, locale));
     }
 
     private Predicate<ProfileType> matchesChannelUID(String channelTypeUID, Locale locale) {
