@@ -107,30 +107,6 @@ The weather information that is retrieved is available as these channels:
 demo.things:
 
 ```
-Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX", location="CDG", language="FR", refresh=15 ] {
-    Channels:
-        Type temperature : current#temperature
-        Type windSpeed : current#windSpeed
-        Type windGust : current#windGust
-        Type pressure : current#pressure
-        Type dewPoint : current#dewPoint
-        Type heatIndex : current#heatIndex
-        Type windChill : current#windChill
-        Type feelingTemperature : current#feelingTemperature
-        Type visibility : current#visibility
-        Type rainDay : current#precipitationDay
-        Type rainHour : current#precipitationHour
-        Type minTemperature : forecastToday#minTemperature
-        Type maxTemperature : forecastToday#maxTemperature
-        Type rainDay : forecastToday#precipitationDay
-        Type snow : forecastToday#snow
-        Type maxWindSpeed : forecastToday#maxWindSpeed
-        Type averageWindSpeed : forecastToday#averageWindSpeed
-}
-```
-Using the bridge (demo.items remains identical):
-
-```
 Bridge weatherunderground:bridge:myAPI "myAPI" [ apikey="XXXXXXXXXXXX" ] {
         Thing weatherunderground:weather:paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ] {
             Channels:
@@ -153,7 +129,7 @@ Bridge weatherunderground:bridge:myAPI "myAPI" [ apikey="XXXXXXXXXXXX" ] {
                 Type averageWindSpeed : forecastToday#averageWindSpeed
         }
 }
-``
+```
 
 demo.items:
 
