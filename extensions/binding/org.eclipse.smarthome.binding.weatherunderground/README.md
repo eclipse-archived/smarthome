@@ -16,7 +16,7 @@ To use this binding, you first need to [register and get your API key](https://w
 
 ## Supported Things
 
-There are exactly two supported things type. The first one is the bridge thing, which represents the connection to the Weather Underground service through the API key. It has the id `bridge`. The second one is the weather thing, which represents the weather information for an observed location. It has the id `weather`.  Each `weather` thing uses a `bridge` thing ; it cannot be set online if no `bridge` thing is defined.
+There are exactly two supported thing types. The first one is the bridge thing, which represents the connection to the Weather Underground service through the API key. It has the id `bridge`. The second one is the weather thing, which represents the weather information for an observed location. It has the id `weather`.  Each `weather` thing uses a `bridge` thing ; it cannot be set online if no `bridge` thing is defined.
 
 ## Discovery
 
