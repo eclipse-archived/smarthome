@@ -71,7 +71,6 @@ public class XmlRpcResponse implements RpcResponse {
      * SAX parser implementation to decode XML-RPC.
      *
      * @author Gerhard Riegler
-     * @since 1.9.0
      */
     private class XmlRpcHandler extends DefaultHandler {
         private List<Object> result = new ArrayList<Object>();
