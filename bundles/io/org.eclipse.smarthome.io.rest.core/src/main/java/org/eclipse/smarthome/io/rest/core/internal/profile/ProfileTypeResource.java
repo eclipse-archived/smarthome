@@ -179,29 +179,29 @@ public class ProfileTypeResource implements RESTResource {
     }
 
     @Reference
-    public void setLocaleService(LocaleService localeService) {
+    protected void setLocaleService(LocaleService localeService) {
         this.localeService = localeService;
     }
 
-    public void unsetLocaleService(LocaleService localeService) {
+    protected void unsetLocaleService(LocaleService localeService) {
         this.localeService = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void setProfileTypeRegistry(ProfileTypeRegistry registry) {
+    protected void setProfileTypeRegistry(ProfileTypeRegistry registry) {
         this.profileTypeRegistry = registry;
     }
 
-    public void unsetProfileTypeRegistry(ProfileTypeRegistry registry) {
+    protected void unsetProfileTypeRegistry(ProfileTypeRegistry registry) {
         this.profileTypeRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void setChannelTypeRegistry(ChannelTypeRegistry registry) {
+    protected void setChannelTypeRegistry(ChannelTypeRegistry registry) {
         this.channelTypeRegistry = registry;
     }
 
-    public void unsetChannelTypeRegistry(ChannelTypeRegistry registry) {
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry registry) {
         this.channelTypeRegistry = null;
     }
 }
