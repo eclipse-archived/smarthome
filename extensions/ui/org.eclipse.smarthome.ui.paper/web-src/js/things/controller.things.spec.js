@@ -188,7 +188,7 @@ describe('module PaperUI.things', function() {
         });
     });
     describe('tests for LinkChannelDialogController', function() {
-        var LinkChannelDialogController, scope, itemService, deferred;
+        var LinkChannelDialogController, scope, itemService, deferred, profileTypeRepository, prom;
         beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog, $q) {
             scope = $rootScope.$new();
             $rootScope.data.items = [ {
@@ -206,6 +206,15 @@ describe('module PaperUI.things', function() {
                     type : 'T'
                 } ]);
             });
+
+            profileTypeRepository = $injector.get('profileTypeRepository');
+            spyOn(profileTypeRepository, 'getAll').and.callFake(function() {
+                var deferred = $q.defer();
+                deferred.resolve();
+                prom = deferred.promise;
+                return prom;
+            });
+
             LinkChannelDialogController = $controller('LinkChannelDialogController', {
                 '$scope' : scope,
                 'params' : {
@@ -224,19 +233,21 @@ describe('module PaperUI.things', function() {
             expect(LinkChannelDialogController).toBeDefined();
         });
         it('should fetch items', function() {
-            expect(scope.items.length).toEqual(1);
-            expect(scope.itemsList.length).toEqual(2);
+            prom.then(function() {
+                expect(scope.items.length).toEqual(1);
+                expect(scope.itemsList.length).toEqual(2);
 
-            var createNewItem = {
-                name : '_createNew',
-                type : undefined
-            }
+                var createNewItem = {
+                    name : '_createNew',
+                    type : undefined
+                }
 
-            var itemTypeT = {
-                type : 'T'
-            }
-            expect(scope.itemsList).toContain(jasmine.objectContaining(createNewItem));
-            expect(scope.itemsList).toContain(jasmine.objectContaining(itemTypeT));
+                var itemTypeT = {
+                    type : 'T'
+                }
+                expect(scope.itemsList).toContain(jasmine.objectContaining(createNewItem));
+                expect(scope.itemsList).toContain(jasmine.objectContaining(itemTypeT));
+            });
         });
         it('should toggle items form', function() {
             scope.checkCreateOption();

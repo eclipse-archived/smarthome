@@ -6,7 +6,7 @@
 <div class="row includeConfig" ng-init="form={}">
 
 <div class="col-xs-12">
-    <profile-selection profile-model="$ctrl.link.configuration['profile']" channel-kind="$ctrl.channelKind"></profile-selection>
+    <profile-selection profile-model="$ctrl.link.configuration['profile']" channel="$ctrl.channel" item-type="$ctrl.itemType"></profile-selection>
 </div>
 
 <fieldset class="row" ng-if="$ctrl.hasConfig()">

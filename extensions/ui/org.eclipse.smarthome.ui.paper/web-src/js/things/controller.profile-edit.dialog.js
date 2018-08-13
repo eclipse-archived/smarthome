@@ -4,10 +4,10 @@
 
     angular.module('PaperUI.things').controller('ProfileEditDialogController', ProfileEditDialogController);
 
-    function ProfileEditDialogController($scope, $mdDialog, configDescriptionService, configService, linkService, toastService, linkConfigDescription, link, channelKind) {
+    function ProfileEditDialogController($scope, $mdDialog, configDescriptionService, configService, linkService, toastService, itemRepository, linkConfigDescription, link, channel) {
         var ctrl = this;
         this.link = link;
-        this.channelKind = channelKind;
+        this.channel = channel;
         this.linkConfigDescription = linkConfigDescription;
         this.expertMode = false;
 
@@ -20,11 +20,23 @@
         this.configuration = undefined;
         this.parameterGroups = undefined;
 
-        $scope.$watch(function watchFunction() {
-            return ctrl.link.configuration['profile'];
-        }, function(newValue) {
-            loadConfigDescriptionForProfile(newValue);
-        });
+        activate();
+
+        function activate() {
+            $scope.$watch(function watchFunction() {
+                return ctrl.link.configuration['profile'];
+            }, function(newValue) {
+                loadConfigDescriptionForProfile(newValue);
+            });
+
+            var item = itemRepository.find(function(element) {
+                return element.name == link.itemName;
+            });
+
+            if (item) {
+                ctrl.itemType = item.type;
+            }
+        }
 
         function cancel() {
             stripUnsetValues();

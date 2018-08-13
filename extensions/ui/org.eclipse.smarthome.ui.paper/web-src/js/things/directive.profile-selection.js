@@ -11,7 +11,8 @@
             replace : true,
             bindToController : {
                 profileModel : '=',
-                channelKind : '='
+                channel : '=',
+                itemType : '='
             },
             controllerAs : '$ctrl',
             templateUrl : 'partials/things/directive.profile-selection.html',
@@ -19,9 +20,9 @@
         }
     }
 
-    SelectProfileController.$inject = [ 'profileTypeRepository' ];
+    SelectProfileController.$inject = [ 'profileTypeService' ];
 
-    function SelectProfileController(profileTypeRepository) {
+    function SelectProfileController(profileTypeService) {
         var ctrl = this;
 
         this.profileList;
@@ -31,16 +32,10 @@
         this.$onInit = activate;
 
         function activate() {
-            return profileTypeRepository.getAll(function(profileList) {
-
-                // filter by channel kind
-                var profiles = [];
-                for (var i = 0; i < profileList.length; i++) {
-                    if (ctrl.channelKind === profileList[i].kind) {
-                        profiles.push(profileList[i]);
-                    }
-                }
-
+            return profileTypeService.getByChannel({
+                channelTypeUID : ctrl.channel.channelTypeUID,
+                itemType : ctrl.itemType
+            }).$promise.then(function(profiles) {
                 ctrl.profileList = profiles.sort(function(a, b) {
                     if (a.uid === 'system:default') {
                         return -1;
