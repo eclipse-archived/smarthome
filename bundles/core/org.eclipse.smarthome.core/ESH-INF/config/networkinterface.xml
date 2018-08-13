@@ -16,6 +16,15 @@
 			<limitToOptions>true</limitToOptions>
 			<advanced>true</advanced>
 		</parameter>
+		<parameter name="useOnlyOneAddress" type="boolean">
+			<label>Use only one address</label>
+			<description>Use only one IP address per interface and family</description>
+		</parameter>
+		<parameter name="ignoreIPv6" type="boolean">
+			<label>Ignore IPv6</label>
+			<description>Don't use IPv6 addresses</description>
+			<advanced>true</advanced>
+		</parameter>
 	</config-description>
 
 </config-description:config-descriptions>

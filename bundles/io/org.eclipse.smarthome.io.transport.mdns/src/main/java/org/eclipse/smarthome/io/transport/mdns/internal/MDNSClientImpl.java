@@ -34,12 +34,16 @@ import javax.jmdns.ServiceListener;
 
 import org.eclipse.smarthome.core.net.CidrAddress;
 import org.eclipse.smarthome.core.net.NetworkAddressChangeListener;
+import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.io.transport.mdns.MDNSClient;
 import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,21 +54,15 @@ import org.slf4j.LoggerFactory;
  * @author Gary Tse - Add NetworkAddressChangeListener to handle interface changes
  *
  */
-@Component(immediate = true, configurationPid = "org.eclipse.smarthome.TransportMDNS", property = {
-        "service.pid=org.eclipse.smarthome.TransportMDNS", "service.config.description.uri=system:transport-mdns",
-        "service.config.label=Transport MDNS Settings", "service.config.category=system" })
+@Component(immediate = true)
 public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
-
-    private static final String CONFIG_USER_ONLY_ONE_ADDRESS = "useOnlyOneAddress";
-    private static final String CONFIG_IGNORE_IPV6 = "ignoreIPv6";
 
     private final ConcurrentMap<InetAddress, JmDNS> jmdnsInstances = new ConcurrentHashMap<>();
 
     private final ConcurrentSkipListSet<ServiceDescription> activeServices = new ConcurrentSkipListSet<>();
 
-    private boolean useOnlyOneAddress;
-    private boolean ignoreIPv6;
+    private NetworkAddressService networkAddressService;
 
     private Set<InetAddress> getAllInetAddresses() {
         final Set<InetAddress> addresses = new HashSet<>();
@@ -83,20 +81,40 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             } catch (final SocketException ex) {
                 continue;
             }
+
+            InetAddress primaryIPv4HostAddress = null;
+
+            if (networkAddressService.isUseOnlyOneAddress()
+                    && networkAddressService.getPrimaryIpv4HostAddress() != null) {
+                final Enumeration<InetAddress> itAddresses = iface.getInetAddresses();
+                while (itAddresses.hasMoreElements()) {
+                    final InetAddress address = itAddresses.nextElement();
+                    if (address.getHostAddress().equals(networkAddressService.getPrimaryIpv4HostAddress())) {
+                        primaryIPv4HostAddress = address;
+                        break;
+                    }
+                }
+            }
+
             final Enumeration<InetAddress> itAddresses = iface.getInetAddresses();
             boolean ipv4addressAdded = false;
             boolean ipv6addressAdded = false;
             while (itAddresses.hasMoreElements()) {
                 final InetAddress address = itAddresses.nextElement();
                 if (address.isLoopbackAddress() || address.isLinkLocalAddress()
-                        || (ignoreIPv6 && address instanceof Inet6Address)) {
+                        || (networkAddressService.isIgnoreIPv6() && address instanceof Inet6Address)) {
                     continue;
                 }
-                if (useOnlyOneAddress) {
+                if (networkAddressService.isUseOnlyOneAddress()) {
                     // add only one address per interface and family
                     if (address instanceof Inet4Address) {
                         if (!ipv4addressAdded) {
-                            addresses.add(address);
+                            if (primaryIPv4HostAddress != null) {
+                                // use configured primary address instead of first one
+                                addresses.add(primaryIPv4HostAddress);
+                            } else {
+                                addresses.add(address);
+                            }
                             ipv4addressAdded = true;
                         }
                     } else if (address instanceof Inet6Address) {
@@ -119,8 +137,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     }
 
     @Activate
-    protected void activate(Map<String, Object> parameters) {
-        getConfigParameters(parameters);
+    protected void activate() {
         start();
     }
 
@@ -135,12 +152,6 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
                 // ignore so far
             }
         }
-    }
-
-    @Modified
-    protected void modified(Map<String, Object> parameters) {
-        deactivate();
-        activate(parameters);
     }
 
     @Deactivate
@@ -264,28 +275,12 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
         start();
     }
 
-    private void getConfigParameters(Map<String, Object> parameters) {
-        useOnlyOneAddress = getConfigParameter(parameters, CONFIG_USER_ONLY_ONE_ADDRESS, false);
-        ignoreIPv6 = getConfigParameter(parameters, CONFIG_IGNORE_IPV6, false);
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
+        this.networkAddressService = networkAddressService;
     }
 
-    private boolean getConfigParameter(Map<String, Object> parameters, String parameter, boolean defaultValue) {
-        if (parameters == null) {
-            return defaultValue;
-        }
-        Object value = parameters.get(parameter);
-        if (value == null) {
-            return defaultValue;
-        }
-        if (value instanceof Boolean) {
-            return (Boolean) value;
-        }
-        if (value instanceof String) {
-            return Boolean.valueOf((String) value);
-        } else {
-            logger.warn("ignoring invalid type {} for parameter {}, using default value {} instead",
-                    value.getClass().getName(), parameter, defaultValue);
-            return defaultValue;
-        }
+    protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
+        this.networkAddressService = null;
     }
 }
