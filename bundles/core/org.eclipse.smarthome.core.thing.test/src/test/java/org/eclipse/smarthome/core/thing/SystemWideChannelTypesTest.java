@@ -250,6 +250,6 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
                 .getChannelType(BAROMETRIC_PRESSURE_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(barometricPressureChannelType);
         assertEquals("Luftdruck", barometricPressureChannelType.getLabel());
-        assertEquals("Aktueller luftdruck.", barometricPressureChannelType.getDescription());
+        assertEquals("Aktueller Luftdruck.", barometricPressureChannelType.getDescription());
     }
 }
