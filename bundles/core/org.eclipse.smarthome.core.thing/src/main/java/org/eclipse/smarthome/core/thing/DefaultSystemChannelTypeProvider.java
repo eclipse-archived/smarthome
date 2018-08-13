@@ -229,7 +229,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_WIND_DIRECTION = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "wind-direction"), "Wind Direction", "Number:Angle")
-            .withCategory("Wind")
+            .withDescription("Current wind direction expressed as an angle").withCategory("Wind")
             .withStateDescription(
                     new StateDescription(BigDecimal.ZERO, new BigDecimal(360), null, "%.0f %unit%", true, null))
             .build();
@@ -238,7 +238,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * Wind-speed: system wide {@link ChannelType} which shows the wind speed
      */
     public static final ChannelType SYSTEM_WIND_SPEED = ChannelTypeBuilder
-            .state(new ChannelTypeUID(BINDING_ID, "wind-speed"), "Wind Speed", "Number:Speed").withCategory("Wind")
+            .state(new ChannelTypeUID(BINDING_ID, "wind-speed"), "Wind Speed", "Number:Speed")
+            .withDescription("Current wind speed").withCategory("Wind")
             .withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true).withPattern("%.1f %unit%")
                     .build().toStateDescription())
             .build();
@@ -247,10 +248,10 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * Outdoor-temperature: system wide {@link ChannelType} which shows the outdoor temperature
      */
     public static final ChannelType SYSTEM_OUTDOOR_TEMPERATURE = ChannelTypeBuilder
-            .state(new ChannelTypeUID(BINDING_ID, "outdoor-temperature"), "Current Outdoor Temperature",
-                    "Number:Temperature")
-            .withCategory("Temperature").withStateDescription(StateDescriptionFragmentBuilder.create()
-                    .withReadOnly(true).withPattern("%.1f %unit%").build().toStateDescription())
+            .state(new ChannelTypeUID(BINDING_ID, "outdoor-temperature"), "Outdoor Temperature", "Number:Temperature")
+            .withDescription("Current outdoor temperature").withCategory("Temperature")
+            .withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true).withPattern("%.1f %unit%")
+                    .build().toStateDescription())
             .build();
 
     /**
@@ -259,8 +260,9 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     public static final ChannelType SYSTEM_ATMOSPHERIC_HUMIDITY = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "atmospheric-humidity"), "Atmospheric Humidity",
                     "Number:Dimensionless")
-            .withCategory("Humidity").withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true)
-                    .withPattern("%.0f %%").build().toStateDescription())
+            .withDescription("Current atmospheric relative humidity").withCategory("Humidity")
+            .withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true).withPattern("%.0f %%")
+                    .build().toStateDescription())
             .build();
 
     /**
@@ -268,8 +270,9 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_BAROMETRIC_PRESSURE = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "barometric-pressure"), "Barometric Pressure", "Number:Pressure")
-            .withCategory("Pressure").withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true)
-                    .withPattern("%.3f %unit%").build().toStateDescription())
+            .withDescription("Current barometric pressure").withCategory("Pressure")
+            .withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true).withPattern("%.3f %unit%")
+                    .build().toStateDescription())
             .build();
 
     private static class LocalizedChannelTypeKey {
