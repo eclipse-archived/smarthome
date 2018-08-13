@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.ParameterOption;
@@ -63,7 +64,7 @@ import org.slf4j.LoggerFactory;
  * @author Yannick Schaus - Added ability to provide a item for feedback during listening phases
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  * @author Christoph Weitkamp - Added parameter to adjust the volume
- *
+ * @author Wouter Born - Sort TTS options
  */
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.voice", property = { //
         Constants.SERVICE_PID + "=org.eclipse.smarthome.voice", //
@@ -185,18 +186,10 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 if (tts != null) {
                     voice = getPreferredVoice(tts.getAvailableVoices());
                 }
-            } else if (selectedVoiceId.contains(":")) {
-                // it is a fully qualified unique id
-                String[] segments = selectedVoiceId.split(":");
-                tts = getTTS(segments[0]);
-                if (tts != null) {
-                    voice = getVoice(tts.getAvailableVoices(), segments[1]);
-                }
             } else {
-                // voiceId is not fully qualified
-                tts = getTTS();
-                if (tts != null) {
-                    voice = getVoice(tts.getAvailableVoices(), selectedVoiceId);
+                voice = getVoice(selectedVoiceId);
+                if (voice != null) {
+                    tts = getTTS(voice.getUID().split(":")[0]);
                 }
             }
             if (tts == null) {
@@ -280,6 +273,24 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
             }
         }
         return interpreter.interpret(localeProvider.getLocale(), text);
+    }
+
+    private Voice getVoice(String id) {
+        if (id.contains(":")) {
+            // it is a fully qualified unique id
+            String[] segments = id.split(":");
+            TTSService tts = getTTS(segments[0]);
+            if (tts != null) {
+                return getVoice(tts.getAvailableVoices(), segments[1]);
+            }
+        } else {
+            // voiceId is not fully qualified
+            TTSService tts = getTTS();
+            if (tts != null) {
+                return getVoice(tts.getAvailableVoices(), id);
+            }
+        }
+        return null;
     }
 
     private Voice getVoice(Set<Voice> voices, String id) {
@@ -645,6 +656,11 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     }
 
     @Override
+    public @Nullable Voice getDefaultVoice() {
+        return defaultVoice != null ? getVoice(defaultVoice) : null;
+    }
+
+    @Override
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
         if (uri.toString().equals(CONFIG_URI)) {
             if (CONFIG_DEFAULT_HLI.equals(param)) {
@@ -677,11 +693,14 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 return options;
             } else if (CONFIG_DEFAULT_VOICE.equals(param)) {
                 List<ParameterOption> options = new ArrayList<>();
-                for (Voice voice : getAllVoices()) {
+                Locale nullSafeLocale = locale != null ? locale : localeProvider.getLocale();
+                VoiceHelper.withSortedVoices(getTTSs().stream(), nullSafeLocale, (ttsService, voice) -> {
                     ParameterOption option = new ParameterOption(voice.getUID(),
-                            voice.getLabel() + " - " + voice.getLocale().getDisplayName());
+                            String.format("%s - %s - %s", ttsService.getLabel(nullSafeLocale),
+                                    voice.getLocale().getDisplayName(nullSafeLocale), voice.getLabel()));
                     options.add(option);
-                }
+                });
+
                 return options;
             }
         }

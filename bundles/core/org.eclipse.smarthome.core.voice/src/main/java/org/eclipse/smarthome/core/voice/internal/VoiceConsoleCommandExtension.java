@@ -14,12 +14,15 @@ package org.eclipse.smarthome.core.voice.internal;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.voice.TTSService;
 import org.eclipse.smarthome.core.voice.Voice;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
@@ -33,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
  * Console command extension for all voice features.
  *
  * @author Kai Kreuzer - Initial contribution and API
- *
+ * @author Wouter Born - Sort TTS voices
  */
 @Component(service = ConsoleCommandExtension.class)
 public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -43,6 +46,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_VOICES = "voices";
 
     private ItemRegistry itemRegistry;
+    private LocaleProvider localeProvider;
     private VoiceManager voiceManager;
 
     public VoiceConsoleCommandExtension() {
@@ -76,10 +80,21 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     return;
                 case SUBCMD_VOICES:
-                    for (Voice voice : voiceManager.getAllVoices()) {
-                        console.println(
-                                voice.getUID() + " " + voice.getLabel() + " - " + voice.getLocale().getDisplayName());
+                    Locale locale = localeProvider.getLocale();
+                    Voice v = voiceManager.getDefaultVoice();
+                    if (v == null) {
+                        TTSService tts = voiceManager.getTTS();
+                        if (tts != null) {
+                            v = voiceManager.getPreferredVoice(tts.getAvailableVoices());
+                        }
                     }
+                    final Voice defaultVoice = v;
+
+                    VoiceHelper.withSortedVoices(voiceManager.getTTSs().stream(), locale, (ttsService, voice) -> {
+                        console.println(String.format("%s%s - %s - %s (%s)", voice.equals(defaultVoice) ? "*" : "",
+                                ttsService.getLabel(locale), voice.getLocale().getDisplayName(locale), voice.getLabel(),
+                                voice.getUID()));
+                    });
                     return;
                 default:
                     break;
@@ -137,6 +152,15 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference
+    protected void setLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = null;
     }
 
     @Reference

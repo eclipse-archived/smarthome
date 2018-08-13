@@ -251,4 +251,12 @@ public interface VoiceManager {
      */
     Set<Voice> getAllVoices();
 
+    /**
+     * Returns the default voice used for TTS.
+     *
+     * @return the default voice or null, if no default voice is configured or if a default is configured, but no
+     *         according service is found
+     */
+    @Nullable
+    Voice getDefaultVoice();
 }
