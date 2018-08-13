@@ -5,7 +5,7 @@
     <!-- Weatherunderground Bridge -->
     <bridge-type id="bridge">
         <label>Weatherunderground Bridge</label>
-        <description>The weatherunderground bridge represents the Weatherunderground bridge for the API key.</description>
+        <description>The Weather Underground bridge represents a connection to the Weather Underground service</description>
 
         <config-description>
             <parameter name="apikey" type="text" required="true">

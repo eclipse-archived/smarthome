@@ -16,7 +16,7 @@ To use this binding, you first need to [register and get your API key](https://w
 
 ## Supported Things
 
-There is exactly two supported things type. The first one is the weather thing, which represents the weather information for an observation location. It has the id `weather`. The second one is the bridge thing, which allows one to add an API key only one time which all sub-sequents weather things will use. It has the id `bridge
+There are exactly two supported thing types. The first one is the bridge thing, which represents the connection to the Weather Underground service through the API key. It has the id `bridge`. The second one is the weather thing, which represents the weather information for an observed location. It has the id `weather`.  Each `weather` thing uses a `bridge` thing ; it cannot be set online if no `bridge` thing is defined.
 
 ## Discovery
 
@@ -24,13 +24,19 @@ If a system location is set, "Local Weather" will be automatically discovered fo
 
 If the system location is changed, the background discovery updates the configuration of "Local Weather" automatically.
 
-After adding this discovered thing, you will have to set the correct API key. 
+If a bridge is correctly configured, the discovered thing will automatically go online. 
 
 ## Binding Configuration
 
 The binding has no configuration options, all configuration is done at Thing and Channel levels.
 
 ## Thing Configuration
+
+The bridge only has one configuration parameter:
+
+| Parameter | Description                                                              |
+|-----------|------------------------------------------------------------------------- |
+| apikey    | API key to access the Weather Underground service. Mandatory.            |
 
 The thing has a few configuration parameters:
 
@@ -107,53 +113,10 @@ The weather information that is retrieved is available as these channels:
 demo.things:
 
 ```
-Thing weatherunderground:weather:CDG "Météo Paris CDG" [ apikey="XXXXXXXXXXXX", location="CDG", language="FR", refresh=15 ] {
-    Channels:
-        Type temperature : current#temperature
-        Type windSpeed : current#windSpeed
-        Type windGust : current#windGust
-        Type pressure : current#pressure
-        Type dewPoint : current#dewPoint
-        Type heatIndex : current#heatIndex
-        Type windChill : current#windChill
-        Type feelingTemperature : current#feelingTemperature
-        Type visibility : current#visibility
-        Type rainDay : current#precipitationDay
-        Type rainHour : current#precipitationHour
-        Type minTemperature : forecastToday#minTemperature
-        Type maxTemperature : forecastToday#maxTemperature
-        Type rainDay : forecastToday#precipitationDay
-        Type snow : forecastToday#snow
-        Type maxWindSpeed : forecastToday#maxWindSpeed
-        Type averageWindSpeed : forecastToday#averageWindSpeed
-}
-```
-Using the bridge (demo.items remains identical):
-
-```
 Bridge weatherunderground:bridge:myAPI "myAPI" [ apikey="XXXXXXXXXXXX" ] {
-        Thing weatherunderground:weather:paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ] {
-            Channels:
-                Type temperature : current#temperature
-                Type windSpeed : current#windSpeed
-                Type windGust : current#windGust
-                Type pressure : current#pressure
-                Type dewPoint : current#dewPoint
-                Type heatIndex : current#heatIndex
-                Type windChill : current#windChill
-                Type feelingTemperature : current#feelingTemperature
-                Type visibility : current#visibility
-                Type rainDay : current#precipitationDay
-                Type rainHour : current#precipitationHour
-                Type minTemperature : forecastToday#minTemperature
-                Type maxTemperature : forecastToday#maxTemperature
-                Type rainDay : forecastToday#precipitationDay
-                Type snow : forecastToday#snow
-                Type maxWindSpeed : forecastToday#maxWindSpeed
-                Type averageWindSpeed : forecastToday#averageWindSpeed
-        }
+        Thing weatherunderground:weather:paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ]
 }
-``
+```
 
 demo.items:
 
