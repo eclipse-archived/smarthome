@@ -67,20 +67,49 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         this("0,0,0");
     }
 
+    /**
+     * Constructs a HSBType instance with the given values
+     *
+     * @param h the hue value in the range from 0 <= h < 360
+     * @param s the saturation as a percent value
+     * @param b the brightness as a percent value
+     */
     public HSBType(DecimalType h, PercentType s, PercentType b) {
         this.hue = h.toBigDecimal();
         this.saturation = s.toBigDecimal();
         this.value = b.toBigDecimal();
+        validateValue(this.hue, this.saturation, this.value);
     }
 
+    /**
+     * Constructs a HSBType instance from a given string.
+     * The string has to be in comma-separated format with exactly three segments, which correspond to the hue,
+     * saturation and brightness values.
+     * where the hue value in the range from 0 <= h < 360 and the saturation and brightness are percent values.
+     *
+     * @param value a stringified HSBType value in the format "hue,saturation,brightness"
+     */
     public HSBType(String value) {
         List<String> constituents = Arrays.stream(value.split(",")).map(in -> in.trim()).collect(Collectors.toList());
         if (constituents.size() == 3) {
             this.hue = new BigDecimal(constituents.get(0));
             this.saturation = new BigDecimal(constituents.get(1));
             this.value = new BigDecimal(constituents.get(2));
+            validateValue(this.hue, this.saturation, this.value);
         } else {
             throw new IllegalArgumentException(value + " is not a valid HSBType syntax");
+        }
+    }
+
+    private void validateValue(BigDecimal hue, BigDecimal saturation, BigDecimal value) {
+        if (BigDecimal.ZERO.compareTo(hue) > 0 || BigDecimal.valueOf(360).compareTo(hue) <= 0) {
+            throw new IllegalArgumentException("Hue must be between 0 and 360");
+        }
+        if (BigDecimal.ZERO.compareTo(saturation) > 0 || BigDecimal.valueOf(100).compareTo(saturation) < 0) {
+            throw new IllegalArgumentException("Saturation must be between 0 and 100");
+        }
+        if (BigDecimal.ZERO.compareTo(value) > 0 || BigDecimal.valueOf(100).compareTo(value) < 0) {
+            throw new IllegalArgumentException("Brightness must be between 0 and 100");
         }
     }
 
