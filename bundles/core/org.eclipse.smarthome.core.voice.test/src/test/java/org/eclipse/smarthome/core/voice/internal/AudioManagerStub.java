@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  *
  * @author Velin Yordanov - Initial contribution
  * @author Christoph Weitkamp - Added parameter to adjust the volume
- *
+ * @author Wouter Born - Added methods for getting all sinks and sources
  */
 public class AudioManagerStub implements AudioManager {
     private SinkStub sink = new SinkStub();
@@ -39,8 +39,18 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
+    public Set<AudioSource> getAllSources() {
+        return Collections.emptySet();
+    }
+
+    @Override
     public AudioSink getSink() {
         return sink;
+    }
+
+    @Override
+    public Set<AudioSink> getAllSinks() {
+        return Collections.emptySet();
     }
 
     @Override
@@ -122,4 +132,5 @@ public class AudioManagerStub implements AudioManager {
     public Set<String> getSinks(String pattern) {
         return Collections.emptySet();
     }
+
 }
