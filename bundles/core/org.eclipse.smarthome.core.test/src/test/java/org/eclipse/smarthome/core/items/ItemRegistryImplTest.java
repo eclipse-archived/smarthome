@@ -12,35 +12,41 @@
  */
 package org.eclipse.smarthome.core.items;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
-import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.internal.items.ItemRegistryImpl;
 import org.eclipse.smarthome.core.items.events.ItemAddedEvent;
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent;
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
-import org.junit.After;
+import org.eclipse.smarthome.core.service.StateDescriptionService;
+import org.eclipse.smarthome.test.java.JavaTest;
+import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 
 /**
- * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.
+ * The {@link ItemRegistryImplTest} runs inside an OSGi container and tests the {@link ItemRegistry}.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Andre Fuechsel - extended with tag tests
@@ -48,7 +54,7 @@ import org.mockito.Mock;
  * @author Sebastian Janzen - added test for getItemsByTag
  */
 @SuppressWarnings("null")
-public class ItemRegistryOSGiTest extends JavaOSGiTest {
+public class ItemRegistryImplTest extends JavaTest {
 
     private final static String ITEM_NAME = "switchItem";
     private final static String CAMERA_ITEM_NAME1 = "cameraItem1";
@@ -63,14 +69,15 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     private ItemRegistry itemRegistry;
     private ManagedItemProvider itemProvider;
 
-    private @Mock EventSubscriber eventSubscriber;
+    @Mock
+    private EventPublisher eventPublisher;
 
     @Before
     public void setUp() {
         initMocks(this);
-        registerVolatileStorageService();
 
-        itemRegistry = getService(ItemRegistry.class);
+        ItemFactory coreItemFactory = new CoreItemFactory();
+
         GenericItem cameraItem1 = new SwitchItem(CAMERA_ITEM_NAME1);
         GenericItem cameraItem2 = new SwitchItem(CAMERA_ITEM_NAME2);
         GenericItem cameraItem3 = new NumberItem(CAMERA_ITEM_NAME3);
@@ -81,18 +88,33 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
         cameraItem3.addTag(CAMERA_TAG);
         cameraItem4.addTag(CAMERA_TAG_UPPERCASE);
 
-        itemProvider = getService(ManagedItemProvider.class);
+        // setup ManageItemProvider with necessary dependencies:
+        itemProvider = new ManagedItemProvider() {
+            {
+                setStorageService(new VolatileStorageService());
+                addItemFactory(coreItemFactory);
+            }
+        };
+
         itemProvider.add(new SwitchItem(ITEM_NAME));
         itemProvider.add(cameraItem1);
         itemProvider.add(cameraItem2);
         itemProvider.add(cameraItem3);
         itemProvider.add(cameraItem4);
-    }
 
-    @After
-    public void tearDown() {
-        unregisterService(eventSubscriber);
-        unregisterService(itemProvider);
+        // setup ItemRegistryImpl with necessary dependencies:
+        itemRegistry = new ItemRegistryImpl() {
+            {
+                addProvider(itemProvider);
+
+                setManagedProvider(itemProvider);
+                setEventPublisher(ItemRegistryImplTest.this.eventPublisher);
+                setCoreItemFactory(coreItemFactory);
+                setStateDescriptionService(mock(StateDescriptionService.class));
+                setUnitProvider(mock(UnitProvider.class));
+                setItemStateConverter(mock(ItemStateConverter.class));
+            }
+        };
     }
 
     @Test
@@ -112,29 +134,36 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     @Test
     public void assertGetItemsByTagReturnsItemFromRegisteredItemProvider() {
         List<Item> items = new ArrayList<>(itemRegistry.getItemsByTag(CAMERA_TAG));
-        assertThat(items.size(), is(4));
-        assertThat(items.get(0).getName(), is(equalTo(CAMERA_ITEM_NAME1)));
-        assertThat(items.get(1).getName(), is(equalTo(CAMERA_ITEM_NAME2)));
-        assertThat(items.get(2).getName(), is(equalTo(CAMERA_ITEM_NAME3)));
-        assertThat(items.get(3).getName(), is(equalTo(CAMERA_ITEM_NAME4)));
+        assertThat(items, hasSize(4));
+
+        List<String> itemNames = items.stream().map(i -> i.getName()).collect(toList());
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME1));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME2));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME3));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME4));
     }
 
     @Test
     public void assertGetItemsByTagInUppercaseReturnsItemFromRegisteredItemProvider() {
         List<Item> items = new ArrayList<>(itemRegistry.getItemsByTag(CAMERA_TAG_UPPERCASE));
-        assertThat(items.size(), is(4));
-        assertThat(items.get(0).getName(), is(equalTo(CAMERA_ITEM_NAME1)));
-        assertThat(items.get(1).getName(), is(equalTo(CAMERA_ITEM_NAME2)));
-        assertThat(items.get(2).getName(), is(equalTo(CAMERA_ITEM_NAME3)));
-        assertThat(items.get(3).getName(), is(equalTo(CAMERA_ITEM_NAME4)));
+        assertThat(items, hasSize(4));
+
+        List<String> itemNames = items.stream().map(i -> i.getName()).collect(toList());
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME1));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME2));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME3));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME4));
     }
 
     @Test
     public void assertGetItemsByTagAndTypeReturnsItemFromRegistereItemProvider() {
         List<Item> items = new ArrayList<>(itemRegistry.getItemsByTagAndType("Switch", CAMERA_TAG));
-        assertThat(items.size(), is(2));
-        assertThat(items.get(0).getName(), is(equalTo(CAMERA_ITEM_NAME1)));
-        assertThat(items.get(1).getName(), is(equalTo(CAMERA_ITEM_NAME2)));
+        assertThat(items, hasSize(2));
+
+        List<String> itemNames = items.stream().map(i -> i.getName()).collect(toList());
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME1));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME2));
+
     }
 
     @Test
@@ -152,9 +181,11 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
     @Test
     public void assertGetItemsByTagCanFilterByClassAndTag() {
         List<SwitchItem> items = new ArrayList<>(itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG));
-        assertThat(items.size(), is(2));
-        assertThat(items.get(0).getName(), is(equalTo(CAMERA_ITEM_NAME1)));
-        assertThat(items.get(1).getName(), is(equalTo(CAMERA_ITEM_NAME2)));
+        assertThat(items, hasSize(2));
+
+        List<String> itemNames = items.stream().map(i -> i.getName()).collect(toList());
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME1));
+        assertThat(itemNames, hasItem(CAMERA_ITEM_NAME2));
     }
 
     @Test
@@ -257,28 +288,24 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testItemAddedEvent() {
-        when(eventSubscriber.getSubscribedEventTypes()).thenReturn(Stream.of(ItemAddedEvent.TYPE).collect(toSet()));
-        registerService(eventSubscriber);
-
         Item item = new SwitchItem("SomeSwitch");
         itemRegistry.add(item);
 
-        waitForAssert(() -> verify(eventSubscriber).receive(isA(ItemAddedEvent.class)));
+        verify(eventPublisher).post(org.mockito.ArgumentMatchers.isA(ItemAddedEvent.class));
     }
 
     @Test
     public void testItemUpdatedEvent() {
         itemRegistry.add(new SwitchItem("SomeSwitch"));
-
-        when(eventSubscriber.getSubscribedEventTypes()).thenReturn(Stream.of(ItemUpdatedEvent.TYPE).collect(toSet()));
-        registerService(eventSubscriber);
+        InOrder inOrder = inOrder(eventPublisher);
+        inOrder.verify(eventPublisher).post(any());
 
         SwitchItem item = new SwitchItem("SomeSwitch");
         item.addTag(OTHER_TAG);
         itemRegistry.update(item);
 
         ArgumentCaptor<ItemUpdatedEvent> captor = ArgumentCaptor.forClass(ItemUpdatedEvent.class);
-        waitForAssert(() -> verify(eventSubscriber).receive(captor.capture()));
+        inOrder.verify(eventPublisher).post(captor.capture());
         assertTrue(captor.getValue().getItem().tags.contains(OTHER_TAG));
     }
 
@@ -288,13 +315,13 @@ public class ItemRegistryOSGiTest extends JavaOSGiTest {
         item.addTag(OTHER_TAG);
         itemRegistry.add(item);
 
-        when(eventSubscriber.getSubscribedEventTypes()).thenReturn(Stream.of(ItemRemovedEvent.TYPE).collect(toSet()));
-        registerService(eventSubscriber);
+        InOrder inOrder = inOrder(eventPublisher);
+        inOrder.verify(eventPublisher).post(any());
 
         itemRegistry.remove("SomeSwitch");
 
         ArgumentCaptor<ItemRemovedEvent> captor = ArgumentCaptor.forClass(ItemRemovedEvent.class);
-        waitForAssert(() -> verify(eventSubscriber).receive(captor.capture()));
+        inOrder.verify(eventPublisher).post(captor.capture());
         assertTrue(captor.getValue().getItem().tags.contains(OTHER_TAG));
     }
 

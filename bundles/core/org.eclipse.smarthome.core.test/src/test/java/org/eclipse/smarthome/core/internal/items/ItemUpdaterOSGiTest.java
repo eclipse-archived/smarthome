@@ -26,7 +26,6 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.ItemRegistryOSGiTest;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateChangedEvent;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -36,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.
+ * The {@link ItemUpdaterOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Andre Fuechsel - extended with tag tests
