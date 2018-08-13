@@ -125,7 +125,7 @@ public interface ThingHandlerCallback {
      * @return a preconfigured ChannelBuilder
      * @throw {@link IllegalArgumentException} if no channel with the given UID exists for the given thing
      */
-    ChannelBuilder editChannelBuilder(Thing thing, ChannelUID channelUID);
+    ChannelBuilder editChannel(Thing thing, ChannelUID channelUID);
 
     /**
      * Returns whether at least one item is linked for the given UID of the channel.

@@ -262,7 +262,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             assertNotNull(thc.get());
         });
 
-        ChannelBuilder channelBuilder = thc.get().editChannelBuilder(THING, CHANNEL_UID);
+        ChannelBuilder channelBuilder = thc.get().editChannel(THING, CHANNEL_UID);
         Channel channel = channelBuilder.build();
 
         assertNull(channel.getLabel());

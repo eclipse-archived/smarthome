@@ -286,7 +286,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         };
 
         @Override
-        public ChannelBuilder editChannelBuilder(Thing thing, ChannelUID channelUID) {
+        public ChannelBuilder editChannel(Thing thing, ChannelUID channelUID) {
             Channel channel = thing.getChannel(channelUID.getId());
             if (channel == null) {
                 throw new IllegalArgumentException(
