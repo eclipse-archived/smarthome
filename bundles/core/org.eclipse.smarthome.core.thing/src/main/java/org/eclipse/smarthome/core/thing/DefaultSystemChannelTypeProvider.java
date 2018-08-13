@@ -229,7 +229,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_WIND_DIRECTION = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "wind-direction"), "Wind Direction", "Number:Angle")
-            .withDescription("Current wind direction").withCategory("Wind")
+            .withDescription("Current wind direction expressed as an angle").withCategory("Wind")
             .withStateDescription(
                     new StateDescription(BigDecimal.ZERO, new BigDecimal(360), null, "%.0f %unit%", true, null))
             .build();
