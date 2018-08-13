@@ -41,7 +41,6 @@ public class HSBTypeTest {
     @Test
     public void testHsbToRgbConversion() {
         compareHsbToRgbValues("0,100,100", 255, 0, 0); // red
-        compareHsbToRgbValues("360,100,100", 255, 0, 0); // red
         compareHsbToRgbValues("0,0,0", 0, 0, 0); // black
         compareHsbToRgbValues("0,0,100", 255, 255, 255); // white
         compareHsbToRgbValues("120,100,100", 0, 255, 0); // green
@@ -172,5 +171,25 @@ public class HSBTypeTest {
         assertThat(hsb.getHue(), is(new DecimalType(1)));
         assertThat(hsb.getSaturation(), is(new PercentType(2)));
         assertThat(hsb.getBrightness(), is(new PercentType(3)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithIllegalHueValue() {
+        new HSBType("-13,85,51");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithIllegalHueValue2() {
+        new HSBType("360,85,51");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithIllegalSaturationValue() {
+        new HSBType("5,-85,51");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorWithIllegalBrightnessValue() {
+        new HSBType("5,85,151");
     }
 }
