@@ -47,6 +47,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     private ItemRegistry itemRegistry;
     private LocaleProvider localeProvider;
+    private VoiceHelper voiceHelper;
     private VoiceManager voiceManager;
 
     public VoiceConsoleCommandExtension() {
@@ -57,7 +58,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_SAY + " <text>", "speaks a text"),
                 buildCommandUsage(SUBCMD_INTERPRET + " <command>", "interprets a human language command"),
-                buildCommandUsage(SUBCMD_VOICES, "lists available voices of the active TTS service") });
+                buildCommandUsage(SUBCMD_VOICES, "lists available voices of the TTS services") });
     }
 
     @Override
@@ -90,8 +91,8 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     final Voice defaultVoice = v;
 
-                    VoiceHelper.withSortedVoices(voiceManager.getTTSs().stream(), locale, (ttsService, voice) -> {
-                        console.println(String.format("%s%s - %s - %s (%s)", voice.equals(defaultVoice) ? "*" : "",
+                    voiceHelper.withSortedVoices(voiceManager.getTTSs().stream(), locale, (ttsService, voice) -> {
+                        console.println(String.format("%s %s - %s - %s (%s)", voice.equals(defaultVoice) ? "*" : " ",
                                 ttsService.getLabel(locale), voice.getLocale().getDisplayName(locale), voice.getLabel(),
                                 voice.getUID()));
                     });
@@ -161,6 +162,15 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetLocaleProvider(LocaleProvider localeProvider) {
         this.localeProvider = null;
+    }
+
+    @Reference
+    protected void setVoiceHelper(VoiceHelper voiceHelper) {
+        this.voiceHelper = voiceHelper;
+    }
+
+    protected void unsetVoiceHelper(VoiceHelper voiceHelper) {
+        this.voiceHelper = null;
     }
 
     @Reference

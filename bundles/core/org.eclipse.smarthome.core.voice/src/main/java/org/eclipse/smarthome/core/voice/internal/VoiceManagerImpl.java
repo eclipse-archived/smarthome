@@ -111,6 +111,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     private final Map<String, String> defaultVoices = new HashMap<>();
     private AudioManager audioManager;
     private EventPublisher eventPublisher;
+    private VoiceHelper voiceHelper;
 
     @Activate
     protected void activate(Map<String, Object> config) {
@@ -542,6 +543,15 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.eventPublisher = null;
     }
 
+    @Reference
+    protected void setVoiceHelper(VoiceHelper voiceHelper) {
+        this.voiceHelper = voiceHelper;
+    }
+
+    protected void unsetVoiceHelper(VoiceHelper voiceHelper) {
+        this.voiceHelper = null;
+    }
+
     @Override
     public TTSService getTTS() {
         TTSService tts = null;
@@ -694,7 +704,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
             } else if (CONFIG_DEFAULT_VOICE.equals(param)) {
                 List<ParameterOption> options = new ArrayList<>();
                 Locale nullSafeLocale = locale != null ? locale : localeProvider.getLocale();
-                VoiceHelper.withSortedVoices(getTTSs().stream(), nullSafeLocale, (ttsService, voice) -> {
+                voiceHelper.withSortedVoices(getTTSs().stream(), nullSafeLocale, (ttsService, voice) -> {
                     ParameterOption option = new ParameterOption(voice.getUID(),
                             String.format("%s - %s - %s", ttsService.getLabel(nullSafeLocale),
                                     voice.getLocale().getDisplayName(nullSafeLocale), voice.getLabel()));

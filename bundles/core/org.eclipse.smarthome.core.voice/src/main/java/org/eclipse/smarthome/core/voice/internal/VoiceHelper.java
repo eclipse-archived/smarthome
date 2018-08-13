@@ -12,12 +12,8 @@
  */
 package org.eclipse.smarthome.core.voice.internal;
 
-import static java.util.Comparator.comparing;
-
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -25,12 +21,12 @@ import org.eclipse.smarthome.core.voice.TTSService;
 import org.eclipse.smarthome.core.voice.Voice;
 
 /**
- * {@link VoiceHelper} provides a utility method to consume sorted voices.
+ * {@link VoiceHelper} defines a utility method to consume sorted voices.
  *
  * @author Wouter Born - Initial contribution
  */
 @NonNullByDefault
-public class VoiceHelper {
+public interface VoiceHelper {
 
     /**
      * Consume sorted voices of a stream of TTS services with a {@link BiConsumer}.
@@ -46,19 +42,5 @@ public class VoiceHelper {
      * @param locale the locale used for sorting
      * @param consumer the {@link BiConsumer} with {@link TTSService} and {@link Voice} parameters
      */
-    public static void withSortedVoices(Stream<TTSService> ttsServices, Locale locale,
-            BiConsumer<TTSService, Voice> consumer) {
-        Stream<TTSService> sortedTTSs = ttsServices.sorted(comparing(s -> s.getLabel(locale)));
-
-        Comparator<Voice> voiceLocaleComparator = (Voice v1, Voice v2) -> {
-            return v1.getLocale().getDisplayName(locale).compareTo(v2.getLocale().getDisplayName(locale));
-        };
-
-        Function<TTSService, Stream<Voice>> getSortedVoices = (TTSService s) -> {
-            return s.getAvailableVoices().stream().sorted(voiceLocaleComparator.thenComparing(Voice::getLabel));
-        };
-
-        sortedTTSs.forEach(s -> getSortedVoices.apply(s).forEach(v -> consumer.accept(s, v)));
-    }
-
+    void withSortedVoices(Stream<TTSService> ttsServices, Locale locale, BiConsumer<TTSService, Voice> consumer);
 }

@@ -55,7 +55,7 @@ public class VoicesCommandTest extends VoiceConsoleCommandExtensionTest {
     public void testVoicesCommand() {
         String[] command = new String[] { SUBCMD_VOICES };
         Locale locale = Locale.getDefault();
-        String expectedText = String.format("*%s - %s - %s (%s)", ttsService.getLabel(locale),
+        String expectedText = String.format("* %s - %s - %s (%s)", ttsService.getLabel(locale),
                 voice.getLocale().getDisplayName(locale), voice.getLabel(), voice.getUID());
         extensionService.execute(command, console);
 
