@@ -176,18 +176,19 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
                 Locale.GERMAN);
         assertNotNull(brightnessChannelType);
         assertEquals("Helligkeit", brightnessChannelType.getLabel());
-        assertNull(brightnessChannelType.getDescription());
+        assertEquals("Steuert die Helligkeit und schaltet das Licht ein und aus.",
+                brightnessChannelType.getDescription());
 
         ChannelType colorChannelType = systemChannelTypeProvider.getChannelType(COLOR_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(colorChannelType);
         assertEquals("Farbe", colorChannelType.getLabel());
-        assertNull(colorChannelType.getDescription());
+        assertEquals("Steuert die Lichtfarbe.", colorChannelType.getDescription());
 
         ChannelType colorTemperatureChannelType = systemChannelTypeProvider
                 .getChannelType(COLOR_TEMPERATURE_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(colorTemperatureChannelType);
         assertEquals("Farbtemperatur", colorTemperatureChannelType.getLabel());
-        assertNull(colorTemperatureChannelType.getDescription());
+        assertEquals("Steuert die Farbtemperatur des Lichts.", colorTemperatureChannelType.getDescription());
 
         ChannelType volumeChannelType = systemChannelTypeProvider.getChannelType(VOLUME_CHANNEL_TYPE_UID,
                 Locale.GERMAN);
@@ -224,30 +225,31 @@ public class SystemWideChannelTypesTest extends JavaOSGiTest {
                 Locale.GERMAN);
         assertNotNull(windDirectionChannelType);
         assertEquals("Windrichtung", windDirectionChannelType.getLabel());
-        assertNull(windDirectionChannelType.getDescription());
+        assertEquals("Aktuelle Windrichtung ausgedrückt als Winkel.", windDirectionChannelType.getDescription());
 
         ChannelType windSpeedChannelType = systemChannelTypeProvider.getChannelType(WIND_SPEED_CHANNEL_TYPE_UID,
                 Locale.GERMAN);
         assertNotNull(windSpeedChannelType);
         assertEquals("Windgeschwindigkeit", windSpeedChannelType.getLabel());
-        assertNull(windSpeedChannelType.getDescription());
+        assertEquals("Aktuelle Windgeschwindigkeit.", windSpeedChannelType.getDescription());
 
         ChannelType outdoorTemperatureChannelType = systemChannelTypeProvider
                 .getChannelType(OUTDOOR_TEMPERATURE_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(outdoorTemperatureChannelType);
         assertEquals("Außentemperatur", outdoorTemperatureChannelType.getLabel());
-        assertNull(outdoorTemperatureChannelType.getDescription());
+        assertEquals("Aktuelle Außentemperatur.", outdoorTemperatureChannelType.getDescription());
 
         ChannelType atmosphericHumidityChannelType = systemChannelTypeProvider
                 .getChannelType(ATMOSPHERIC_HUMIDITY_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(atmosphericHumidityChannelType);
         assertEquals("Luftfeuchtigkeit", atmosphericHumidityChannelType.getLabel());
-        assertNull(atmosphericHumidityChannelType.getDescription());
+        assertEquals("Aktuelle atmosphärische relative Luftfeuchtigkeit.",
+                atmosphericHumidityChannelType.getDescription());
 
         ChannelType barometricPressureChannelType = systemChannelTypeProvider
                 .getChannelType(BAROMETRIC_PRESSURE_CHANNEL_TYPE_UID, Locale.GERMAN);
         assertNotNull(barometricPressureChannelType);
         assertEquals("Luftdruck", barometricPressureChannelType.getLabel());
-        assertNull(barometricPressureChannelType.getDescription());
+        assertEquals("Aktueller Luftdruck.", barometricPressureChannelType.getDescription());
     }
 }

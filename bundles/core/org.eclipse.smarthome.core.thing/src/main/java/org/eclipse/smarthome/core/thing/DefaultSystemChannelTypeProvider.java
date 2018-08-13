@@ -160,23 +160,26 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_BRIGHTNESS = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "brightness"), "Brightness", "Dimmer")
+            .withDescription("Controls the brightness and switches the light on and off").withCategory("DimmableLight")
             .withStateDescription(
                     new StateDescription(BigDecimal.ZERO, new BigDecimal(100), null, "%d %%", false, null))
-            .withCategory("Light").build();
+            .build();
 
     /**
      * Color: default system wide {@link ChannelType} which allows changing the color
      */
     public static final ChannelType SYSTEM_COLOR = ChannelTypeBuilder
-            .state(new ChannelTypeUID(BINDING_ID, "color"), "Color", "Color").withCategory("ColorLight").build();
+            .state(new ChannelTypeUID(BINDING_ID, "color"), "Color", "Color")
+            .withDescription("Controls the color of the light").withCategory("ColorLight").build();
 
     /**
      * Color-temperature: default system wide {@link ChannelType} which allows changing the color temperature
      */
     public static final ChannelType SYSTEM_COLOR_TEMPERATURE = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "color-temperature"), "Color Temperature", "Dimmer")
+            .withDescription("Controls the color temperature of the light").withCategory("ColorLight")
             .withStateDescription(new StateDescription(BigDecimal.ZERO, new BigDecimal(100), null, "%d", false, null))
-            .withCategory("ColorLight").build();
+            .build();
 
     // media channels
 
