@@ -98,7 +98,7 @@ angular.module('PaperUI.things') //
                     locals : {
                         linkConfigDescription : linkConfigDescription,
                         link : link,
-                        channelKind : channel.kind
+                        channel : channel
                     }
                 }).then(function(success) {
                     // store link
@@ -149,7 +149,7 @@ angular.module('PaperUI.things') //
             // normalMode
             allowNewItemCreation : $scope.advancedMode,
             link : link,
-            channelKind : channel.kind
+            channel : channel
         }
 
         $mdDialog.show({
@@ -177,7 +177,7 @@ angular.module('PaperUI.things') //
                             locals : {
                                 linkConfigDescription : undefined,
                                 link : link,
-                                channelKind : channel.kind
+                                channel : channel
                             }
                         }).then(function(success) {
                             if (success) {

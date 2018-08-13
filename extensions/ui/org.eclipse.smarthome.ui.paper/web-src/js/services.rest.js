@@ -229,6 +229,15 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
         getAll : {
             method : 'GET',
             isArray : true
+        },
+        getByChannel : {
+            method : 'GET',
+            params : {
+                channelTypeUID : '@channelTypeUID',
+                itemType : '@itemType'
+            },
+            url : restConfig.restPath + '/profile-types',
+            isArray : true
         }
     });
 }).factory('linkService', function($resource, restConfig) {
