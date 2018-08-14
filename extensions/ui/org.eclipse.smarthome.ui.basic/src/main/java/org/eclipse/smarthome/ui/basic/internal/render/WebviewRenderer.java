@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Reference;
  * This is an implementation of the {@link WidgetRenderer} interface, which
  * can produce HTML code for Webview widgets.
  *
- * @author Kai Kreuzer - Initial contribution and API
+ * @author Kai Kreuzer - Initial contribution
  *
  */
 @Component(service = WidgetRenderer.class)
@@ -56,15 +56,18 @@ public class WebviewRenderer extends AbstractWidgetRenderer {
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         Webview webview = (Webview) w;
         String snippet = getSnippet("webview");
+        snippet = preprocessSnippet(snippet, webview);
+        // Process the color tags
+        snippet = processColor(w, snippet);
+
+        snippet = StringUtils.replace(snippet, "%url%", webview.getUrl());
 
         int height = webview.getHeight();
         if (height == 0) {
-            height = 1;
+            height = 4; // set default height to something viewable
         }
-
-        snippet = preprocessSnippet(snippet, webview);
-        snippet = StringUtils.replace(snippet, "%url%", webview.getUrl());
-        snippet = StringUtils.replace(snippet, "%height%", Integer.toString(height * 36));
+        height = height * 36;
+        snippet = StringUtils.replace(snippet, "%height%", Integer.toString(height));
 
         sb.append(snippet);
         return null;
