@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.thing.internal.profiles;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
@@ -37,8 +38,8 @@ public class TriggerProfileTypeImpl implements TriggerProfileType {
             Collection<ChannelTypeUID> supportedChannelTypeUIDs) {
         this.profileTypeUID = profileTypeUID;
         this.label = label;
-        this.supportedItemTypes = supportedItemTypes;
-        this.supportedChannelTypeUIDs = supportedChannelTypeUIDs;
+        this.supportedItemTypes = Collections.unmodifiableCollection(supportedItemTypes);
+        this.supportedChannelTypeUIDs = Collections.unmodifiableCollection(supportedChannelTypeUIDs);
     }
 
     @Override
