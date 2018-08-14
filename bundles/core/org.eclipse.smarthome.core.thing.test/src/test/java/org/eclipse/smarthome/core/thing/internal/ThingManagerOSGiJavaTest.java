@@ -64,6 +64,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -230,6 +231,44 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         assertThat(channel.getAcceptedItemType(), is("Switch"));
         assertThat(channel.getDefaultTags().size(), is(1));
         assertThat(channel.getDefaultTags().iterator().next(), is("Test Tag"));
+    }
+
+    @Test
+    public void testEditChannelBuilder() throws Exception {
+        registerThingTypeProvider();
+        registerChannelTypeProvider();
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        ThingHandlerFactory thingHandlerFactory = new BaseThingHandlerFactory() {
+            @Override
+            public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
+                return true;
+            }
+
+            @Override
+            protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {
+                ThingHandler mockHandler = mock(ThingHandler.class);
+                doAnswer(a -> {
+                    thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                    return null;
+                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
+                when(mockHandler.getThing()).thenReturn(THING);
+                return mockHandler;
+            }
+        };
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        waitForAssert(() -> {
+            assertNotNull(thc.get());
+        });
+
+        ChannelBuilder channelBuilder = thc.get().editChannel(THING, CHANNEL_UID);
+        Channel channel = channelBuilder.build();
+
+        assertNull(channel.getLabel());
+        assertNull(channel.getDescription());
+        assertEquals("Switch", channel.getAcceptedItemType());
+        assertEquals(CHANNEL_TYPE_UID, channel.getChannelTypeUID());
     }
 
     @Test
@@ -532,9 +571,9 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     }
 
     private void registerChannelTypeProvider() throws Exception {
-        ChannelType channelType = new ChannelType(CHANNEL_TYPE_UID, false, "Switch", ChannelKind.STATE, "Test Label",
-                "Test Description", "Test Category", Collections.singleton("Test Tag"), null, null,
-                new URI("test:channel"));
+        ChannelType channelType = ChannelTypeBuilder.state(CHANNEL_TYPE_UID, "Test Label", "Switch")
+                .withDescription("Test Description").withCategory("Test Category").withTag("Test Tag")
+                .withConfigDescriptionURI(new URI("test:channel")).build();
 
         ChannelTypeProvider mockChannelTypeProvider = mock(ChannelTypeProvider.class);
         when(mockChannelTypeProvider.getChannelType(eq(CHANNEL_TYPE_UID), any())).thenReturn(channelType);
