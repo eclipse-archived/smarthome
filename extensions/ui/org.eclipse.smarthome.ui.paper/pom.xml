@@ -68,6 +68,7 @@
 					<execution>
 						<id>npm clean</id>
 						<goals>
+							<goal>install-node-and-npm</goal>
 							<goal>npm</goal>
 						</goals>
 						<phase>clean</phase>
