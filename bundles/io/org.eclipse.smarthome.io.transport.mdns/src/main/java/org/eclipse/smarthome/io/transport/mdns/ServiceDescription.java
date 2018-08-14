@@ -77,4 +77,10 @@ public class ServiceDescription {
             return false;
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ServiceDescription [serviceType=" + serviceType + ", serviceName=" + serviceName + ", servicePort="
+                + servicePort + "]";
+    }
 }

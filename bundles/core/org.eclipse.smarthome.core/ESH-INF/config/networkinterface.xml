@@ -17,12 +17,13 @@
 			<advanced>true</advanced>
 		</parameter>
 		<parameter name="useOnlyOneAddress" type="boolean">
-			<label>Use only one address</label>
+			<label>Single IP Address per Interface</label>
 			<description>Use only one IP address per interface and family</description>
+			<advanced>true</advanced>
 		</parameter>
 		<parameter name="ignoreIPv6" type="boolean">
 			<label>Ignore IPv6</label>
-			<description>Don't use IPv6 addresses</description>
+			<description>Don't use IPv6 Addresses</description>
 			<advanced>true</advanced>
 		</parameter>
 	</config-description>

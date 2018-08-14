@@ -149,7 +149,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             try {
                 registerService(description);
             } catch (IOException e) {
-                // ignore so far
+                logger.warn("Exception while registering service {}", description, e);
             }
         }
     }
@@ -172,6 +172,10 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     @Override
     public void registerService(ServiceDescription description) throws IOException {
         activeServices.add(description);
+        registerServiceInternal(description);
+    }
+
+    private void registerServiceInternal(ServiceDescription description) throws IOException {
         for (JmDNS instance : jmdnsInstances.values()) {
             logger.debug("Registering new service {} at {}:{} ({})", description.serviceType,
                     instance.getInetAddress().getHostAddress(), description.servicePort, instance.getName());
@@ -181,6 +185,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             instance.registerService(serviceInfo);
         }
     }
+
 
     @Override
     public void unregisterService(ServiceDescription description) {
@@ -275,7 +280,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
         start();
     }
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    @Reference
     protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
         this.networkAddressService = networkAddressService;
     }
