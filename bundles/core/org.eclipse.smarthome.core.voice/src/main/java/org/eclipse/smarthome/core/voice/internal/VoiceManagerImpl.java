@@ -16,13 +16,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
@@ -111,7 +114,6 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     private final Map<String, String> defaultVoices = new HashMap<>();
     private AudioManager audioManager;
     private EventPublisher eventPublisher;
-    private VoiceHelper voiceHelper;
 
     @Activate
     protected void activate(Map<String, Object> config) {
@@ -190,7 +192,7 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
             } else {
                 voice = getVoice(selectedVoiceId);
                 if (voice != null) {
-                    tts = getTTS(voice.getUID().split(":")[0]);
+                    tts = getTTS(voice);
                 }
             }
             if (tts == null) {
@@ -543,15 +545,6 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
         this.eventPublisher = null;
     }
 
-    @Reference
-    protected void setVoiceHelper(VoiceHelper voiceHelper) {
-        this.voiceHelper = voiceHelper;
-    }
-
-    protected void unsetVoiceHelper(VoiceHelper voiceHelper) {
-        this.voiceHelper = null;
-    }
-
     @Override
     public TTSService getTTS() {
         TTSService tts = null;
@@ -571,6 +564,10 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     @Override
     public TTSService getTTS(String id) {
         return ttsServices.get(id);
+    }
+
+    private TTSService getTTS(Voice voice) {
+        return getTTS(voice.getUID().split(":")[0]);
     }
 
     @Override
@@ -658,11 +655,19 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
 
     @Override
     public Set<Voice> getAllVoices() {
-        Set<Voice> voices = new HashSet<>();
-        for (TTSService tts : ttsServices.values()) {
-            voices.addAll(tts.getAvailableVoices());
-        }
-        return voices;
+        return getAllVoicesSorted(localeProvider.getLocale());
+    }
+
+    private Set<Voice> getAllVoicesSorted(Locale locale) {
+        Comparator<Voice> byTTSLabel = (Voice v1, Voice v2) -> {
+            return getTTS(v1).getLabel(locale).compareTo(getTTS(v2).getLabel(locale));
+        };
+        Comparator<Voice> byVoiceLocale = (Voice v1, Voice v2) -> {
+            return v1.getLocale().getDisplayName(locale).compareTo(v2.getLocale().getDisplayName(locale));
+        };
+        return ttsServices.values().stream().map(s -> s.getAvailableVoices()).flatMap(Collection::stream)
+                .sorted(byTTSLabel.thenComparing(byVoiceLocale).thenComparing(Voice::getLabel))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
@@ -702,15 +707,17 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
                 }
                 return options;
             } else if (CONFIG_DEFAULT_VOICE.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
                 Locale nullSafeLocale = locale != null ? locale : localeProvider.getLocale();
-                voiceHelper.withSortedVoices(getTTSs().stream(), nullSafeLocale, (ttsService, voice) -> {
-                    ParameterOption option = new ParameterOption(voice.getUID(),
-                            String.format("%s - %s - %s", ttsService.getLabel(nullSafeLocale),
-                                    voice.getLocale().getDisplayName(nullSafeLocale), voice.getLabel()));
-                    options.add(option);
-                });
-
+                List<ParameterOption> options = new ArrayList<>();
+                for (Voice voice : getAllVoicesSorted(nullSafeLocale)) {
+                    TTSService tts = getTTS(voice);
+                    if (tts != null) {
+                        ParameterOption option = new ParameterOption(voice.getUID(),
+                                String.format("%s - %s - %s", tts.getLabel(nullSafeLocale),
+                                        voice.getLocale().getDisplayName(nullSafeLocale), voice.getLabel()));
+                        options.add(option);
+                    }
+                }
                 return options;
             }
         }

@@ -245,9 +245,16 @@ public interface VoiceManager {
     Collection<HumanLanguageInterpreter> getHLIs();
 
     /**
-     * Returns all available voices in the system from all TTS services.
+     * Returns a sorted set of all available voices in the system from all TTS services.
      *
-     * @return a set of available voices
+     * The voices in the set are sorted by:
+     * <ol>
+     * <li>Voice TTSService label (localized with the default locale)
+     * <li>Voice locale (localized with the default locale)
+     * <li>Voice label
+     * </ol>
+     *
+     * @return a sorted set of available voices
      */
     Set<Voice> getAllVoices();
 

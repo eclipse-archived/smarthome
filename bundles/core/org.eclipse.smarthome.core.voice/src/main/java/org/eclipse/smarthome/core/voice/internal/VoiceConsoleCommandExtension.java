@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -47,7 +48,6 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     private ItemRegistry itemRegistry;
     private LocaleProvider localeProvider;
-    private VoiceHelper voiceHelper;
     private VoiceManager voiceManager;
 
     public VoiceConsoleCommandExtension() {
@@ -82,20 +82,15 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     return;
                 case SUBCMD_VOICES:
                     Locale locale = localeProvider.getLocale();
-                    Voice v = voiceManager.getDefaultVoice();
-                    if (v == null) {
-                        TTSService tts = voiceManager.getTTS();
-                        if (tts != null) {
-                            v = voiceManager.getPreferredVoice(tts.getAvailableVoices());
+                    Voice defaultVoice = getDefaultVoice();
+                    for (Voice voice : voiceManager.getAllVoices()) {
+                        TTSService ttsService = voiceManager.getTTS(voice.getUID().split(":")[0]);
+                        if (ttsService != null) {
+                            console.println(String.format("%s %s - %s - %s (%s)",
+                                    voice.equals(defaultVoice) ? "*" : " ", ttsService.getLabel(locale),
+                                    voice.getLocale().getDisplayName(locale), voice.getLabel(), voice.getUID()));
                         }
                     }
-                    final Voice defaultVoice = v;
-
-                    voiceHelper.withSortedVoices(voiceManager.getTTSs().stream(), locale, (ttsService, voice) -> {
-                        console.println(String.format("%s %s - %s - %s (%s)", voice.equals(defaultVoice) ? "*" : " ",
-                                ttsService.getLabel(locale), voice.getLocale().getDisplayName(locale), voice.getLabel(),
-                                voice.getUID()));
-                    });
                     return;
                 default:
                     break;
@@ -103,6 +98,17 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
         } else {
             printUsage(console);
         }
+    }
+
+    private @Nullable Voice getDefaultVoice() {
+        Voice defaultVoice = voiceManager.getDefaultVoice();
+        if (defaultVoice == null) {
+            TTSService tts = voiceManager.getTTS();
+            if (tts != null) {
+                defaultVoice = voiceManager.getPreferredVoice(tts.getAvailableVoices());
+            }
+        }
+        return defaultVoice;
     }
 
     private void interpret(String[] args, Console console) {
@@ -162,15 +168,6 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetLocaleProvider(LocaleProvider localeProvider) {
         this.localeProvider = null;
-    }
-
-    @Reference
-    protected void setVoiceHelper(VoiceHelper voiceHelper) {
-        this.voiceHelper = voiceHelper;
-    }
-
-    protected void unsetVoiceHelper(VoiceHelper voiceHelper) {
-        this.voiceHelper = null;
     }
 
     @Reference
