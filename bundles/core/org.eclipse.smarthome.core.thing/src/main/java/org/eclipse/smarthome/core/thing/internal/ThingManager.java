@@ -286,6 +286,16 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         };
 
         @Override
+        public ChannelBuilder editChannel(Thing thing, ChannelUID channelUID) {
+            Channel channel = thing.getChannel(channelUID.getId());
+            if (channel == null) {
+                throw new IllegalArgumentException(
+                        "Channel " + channelUID + "does not exist for thing " + thing.getUID());
+            }
+            return ChannelBuilder.create(channel);
+        }
+
+        @Override
         public boolean isChannelLinked(ChannelUID channelUID) {
             return !itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
         }

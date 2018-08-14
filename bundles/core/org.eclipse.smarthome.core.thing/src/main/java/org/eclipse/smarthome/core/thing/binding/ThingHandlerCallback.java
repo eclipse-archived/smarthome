@@ -106,7 +106,7 @@ public interface ThingHandlerCallback {
     void channelTriggered(Thing thing, ChannelUID channelUID, String event);
 
     /**
-     * Create a {@link ChannelBuilder} which is preconfigured with values from the given channel type.
+     * Creates a {@link ChannelBuilder} which is preconfigured with values from the given channel type.
      *
      * @param channelUID the UID of the channel to be created
      * @param channelTypeUID the channel type UID for which the channel should be created
@@ -114,6 +114,18 @@ public interface ThingHandlerCallback {
      * @throw {@link IllegalArgumentException} if the referenced channel type is not known
      */
     ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelTypeUID channelTypeUID);
+
+    /**
+     * Creates a {@link ChannelBuilder} which is preconfigured with values from the given channel and allows to modify
+     * it. The methods {@link BaseThingHandler#editThing(Thing)} and {@link BaseThingHandler#updateThing(Thing)} must be
+     * called to persist the changes.
+     *
+     * @param thing thing (must not be null)
+     * @param channelUID the UID of the channel to be edited
+     * @return a preconfigured ChannelBuilder
+     * @throw {@link IllegalArgumentException} if no channel with the given UID exists for the given thing
+     */
+    ChannelBuilder editChannel(Thing thing, ChannelUID channelUID);
 
     /**
      * Returns whether at least one item is linked for the given UID of the channel.
