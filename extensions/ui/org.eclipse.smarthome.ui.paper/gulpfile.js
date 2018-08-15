@@ -227,7 +227,8 @@ gulp.task('serve', ['test'], function () {
 
 
 gulp.task('inject', ['build'], function () {
-   var target = gulp.src('./web/index.html');
+   var target = gulp.src('./web-src/index.html.template').pipe(rename('index.html'));
+
    // It's not necessary to read the files (will speed up things), we're only after their paths:
    var files;
    console.log("MODE: " + (isDevelopment ? "DEV" : "PROD"));
@@ -290,7 +291,7 @@ gulp.task('inject', ['build'], function () {
             return '<script src="' + newPath  + '"></script>';
         }
     }))
-      .pipe(isDevelopment ? gulp.dest('./web-src'):gulp.dest('./web'));
+      .pipe(isDevelopment ? gulp.dest('./web-src') : gulp.dest('./web'));
   });
 
 gulp.task('test',['inject'], function (done) {
