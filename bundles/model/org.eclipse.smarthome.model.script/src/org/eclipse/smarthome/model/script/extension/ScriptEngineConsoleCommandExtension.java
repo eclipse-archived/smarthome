@@ -19,10 +19,14 @@ import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This class provides the script engine as a console command
@@ -30,6 +34,7 @@ import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
  * @author Oliver Libutzki - Initial contribution
  *
  */
+@Component(service = ConsoleCommandExtension.class)
 public class ScriptEngineConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private ScriptEngine scriptEngine;
@@ -67,6 +72,7 @@ public class ScriptEngineConsoleCommandExtension extends AbstractConsoleCommandE
         return Collections.singletonList(buildCommandUsage("<script to execute>", "Executes a script"));
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setScriptEngine(ScriptEngine scriptEngine) {
         this.scriptEngine = scriptEngine;
     }

@@ -23,6 +23,12 @@ import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author Davy Vanherbergen - Initial contribution
  * @author Kai Kreuzer - renamed and removed interface
  */
+@Component(immediate = true, service = ScriptServiceUtil.class)
 public class ScriptServiceUtil {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptServiceUtil.class);
@@ -50,6 +57,7 @@ public class ScriptServiceUtil {
 
     public List<ActionService> actionServices = new CopyOnWriteArrayList<ActionService>();
 
+    @Activate
     public void activate(final BundleContext bc) {
         if (instance != null) {
             throw new IllegalStateException("ScriptServiceUtil should only be activated once!");
@@ -58,6 +66,7 @@ public class ScriptServiceUtil {
         logger.debug("ScriptServiceUtil started");
     }
 
+    @Deactivate
     public void deactivate() {
         logger.debug("ScriptServiceUtil stopped");
         instance = null;
@@ -103,6 +112,7 @@ public class ScriptServiceUtil {
         return actionServices;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addActionService(ActionService actionService) {
         this.actionServices.add(actionService);
     }
@@ -111,6 +121,7 @@ public class ScriptServiceUtil {
         this.actionServices.remove(actionService);
     }
 
+    @Reference
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -119,6 +130,7 @@ public class ScriptServiceUtil {
         this.itemRegistry = null;
     }
 
+    @Reference
     public void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -127,6 +139,7 @@ public class ScriptServiceUtil {
         this.thingRegistry = null;
     }
 
+    @Reference
     public void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -135,6 +148,7 @@ public class ScriptServiceUtil {
         this.eventPublisher = null;
     }
 
+    @Reference
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
