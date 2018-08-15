@@ -51,12 +51,12 @@ public class HomematicDeviceDiscoveryServiceTest extends JavaTest {
     private HomematicBridgeHandler homematicBridgeHandler;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         this.homematicBridgeHandler = mockHomematicBridgeHandler();
         this.homematicDeviceDiscoveryService = new HomematicDeviceDiscoveryService(homematicBridgeHandler);
     }
 
-    private HomematicBridgeHandler mockHomematicBridgeHandler() {
+    private HomematicBridgeHandler mockHomematicBridgeHandler() throws IOException {
         HomematicBridgeHandler homematicBridgeHandler = mock(HomematicBridgeHandler.class);
         Bridge bridge = createHomematicBridge();
         HomematicGateway homematicGateway = mockHomematicGateway();
@@ -69,14 +69,10 @@ public class HomematicDeviceDiscoveryServiceTest extends JavaTest {
         return homematicBridgeHandler;
     }
 
-    private HomematicGateway mockHomematicGateway() {
+    private HomematicGateway mockHomematicGateway() throws IOException {
         HomematicGateway homematicGateway = mock(HomematicGateway.class);
 
-        try {
-            when(homematicGateway.getInstallMode()).thenReturn(60);
-        } catch (IOException e) {
-            // will not occur since the methods throwing it have been mocked
-        }
+        when(homematicGateway.getInstallMode()).thenReturn(60);
 
         return homematicGateway;
     }
@@ -98,54 +94,38 @@ public class HomematicDeviceDiscoveryServiceTest extends JavaTest {
     }
 
     @Test
-    public void testDevicesAreLoadedFromBridgeDuringDiscovery() {
+    public void testDevicesAreLoadedFromBridgeDuringDiscovery() throws IOException {
         startScanAndWaitForLoadedDevices();
 
-        try {
-            verify(homematicBridgeHandler.getGateway()).loadAllDeviceMetadata();
-        } catch (IOException e) {
-            // will not occur since the method throwing it is mocked
-        }
+        verify(homematicBridgeHandler.getGateway()).loadAllDeviceMetadata();
     }
 
     @Test
-    public void testInstallModeIsNotActiveDuringInitialDiscovery() {
+    public void testInstallModeIsNotActiveDuringInitialDiscovery() throws IOException {
         startScanAndWaitForLoadedDevices();
 
-        try {
-            verify(homematicBridgeHandler.getGateway(), never()).setInstallMode(eq(true), anyInt());
-        } catch (IOException e) {
-            // will not occur since the method throwing it is mocked
-        }
+        verify(homematicBridgeHandler.getGateway(), never()).setInstallMode(eq(true), anyInt());
     }
 
     @Test
-    public void testInstallModeIsActiveDuringSubsequentDiscovery() {
+    public void testInstallModeIsActiveDuringSubsequentDiscovery() throws IOException {
         homematicBridgeHandler.getThing()
                 .setStatusInfo(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, ""));
 
         startScanAndWaitForLoadedDevices();
 
-        try {
-            verify(homematicBridgeHandler.getGateway()).setInstallMode(true, 60);
-        } catch (IOException e) {
-            // will not occur since the method throwing it is mocked
-        }
+        verify(homematicBridgeHandler.getGateway()).setInstallMode(true, 60);
     }
 
     @Test
-    public void testStoppingDiscoveryDisablesInstallMode() {
+    public void testStoppingDiscoveryDisablesInstallMode() throws IOException {
         homematicBridgeHandler.getThing()
                 .setStatusInfo(new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, ""));
         homematicDeviceDiscoveryService.startScan();
 
         homematicDeviceDiscoveryService.stopScan();
 
-        try {
-            verify(homematicBridgeHandler.getGateway()).setInstallMode(false, 0);
-        } catch (IOException e) {
-            // will not occur since the method throwing it is mocked
-        }
+        verify(homematicBridgeHandler.getGateway()).setInstallMode(false, 0);
     }
 
     private void startScanAndWaitForLoadedDevices() {
