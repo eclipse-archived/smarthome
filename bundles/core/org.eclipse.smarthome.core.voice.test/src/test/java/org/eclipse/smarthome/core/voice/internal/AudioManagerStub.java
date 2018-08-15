@@ -79,12 +79,12 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
-    public void playFile(String fileName, String sink) throws AudioException {
+    public void playFile(String fileName, String sinkId) throws AudioException {
 
     }
 
     @Override
-    public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
+    public void playFile(String fileName, String sinkId, PercentType volume) throws AudioException {
 
     }
 
@@ -109,16 +109,6 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
-    public Set<String> getSourceIds() {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<String> getSinkIds() {
-        return Collections.emptySet();
-    }
-
-    @Override
     public Set<String> getSourceIds(String pattern) {
         return Collections.emptySet();
     }
@@ -129,7 +119,7 @@ public class AudioManagerStub implements AudioManager {
     }
 
     @Override
-    public Set<String> getSinks(String pattern) {
+    public Set<String> getSinkIds(String pattern) {
         return Collections.emptySet();
     }
 
