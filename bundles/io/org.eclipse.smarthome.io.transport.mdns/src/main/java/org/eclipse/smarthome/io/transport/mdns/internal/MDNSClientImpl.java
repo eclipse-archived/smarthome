@@ -102,7 +102,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             while (itAddresses.hasMoreElements()) {
                 final InetAddress address = itAddresses.nextElement();
                 if (address.isLoopbackAddress() || address.isLinkLocalAddress()
-                        || (networkAddressService.isIgnoreIPv6() && address instanceof Inet6Address)) {
+                        || (!networkAddressService.isUseIPv6() && address instanceof Inet6Address)) {
                     continue;
                 }
                 if (networkAddressService.isUseOnlyOneAddress()) {

@@ -68,7 +68,7 @@ public class NetUtil implements NetworkAddressService {
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
     private static final String POLL_INTERVAL = "pollInterval";
     private static final String USE_ONLY_ONE_ADDRESS = "useOnlyOneAddress";
-    private static final String IGNORE_IPV6 = "ignoreIPv6";
+    private static final String USE_IPV6 = "useIPv6";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     /**
@@ -82,7 +82,7 @@ public class NetUtil implements NetworkAddressService {
     private @Nullable String primaryAddress;
     private @Nullable String configuredBroadcastAddress;
     private boolean useOnlyOneAddress;
-    private boolean ignoreIPv6;
+    private boolean useIPv6;
 
     // must be initialized before activate due to OSGi reference
     private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
@@ -132,7 +132,7 @@ public class NetUtil implements NetworkAddressService {
         }
 
         useOnlyOneAddress = getConfigParameter(config, USE_ONLY_ONE_ADDRESS, false);
-        ignoreIPv6 = getConfigParameter(config, IGNORE_IPV6, false);
+        useIPv6 = getConfigParameter(config, USE_IPV6, true);
 
         Object pollIntervalSecondsObj = null;
         int pollIntervalSeconds = POLL_INTERVAL_SECONDS;
@@ -192,8 +192,8 @@ public class NetUtil implements NetworkAddressService {
      * @return ignore IPv6
      */
     @Override
-    public boolean isIgnoreIPv6() {
-        return ignoreIPv6;
+    public boolean isUseIPv6() {
+        return useIPv6;
     }
 
 

@@ -52,9 +52,9 @@ public interface NetworkAddressService {
     boolean isUseOnlyOneAddress();
     
     /**
-     * Ignore IPv6. If set, IPv6 addresses should be completely ignored by listeners.
+     * Use IPv6. If not set, IPv6 addresses should be completely ignored by listeners.
      * 
-     * @return ignore IPv6
+     * @return use IPv6
      */
-    boolean isIgnoreIPv6();
+    boolean isUseIPv6();
 }
