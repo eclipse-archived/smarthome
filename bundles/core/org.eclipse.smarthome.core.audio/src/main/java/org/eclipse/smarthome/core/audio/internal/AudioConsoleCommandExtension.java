@@ -12,12 +12,19 @@
  */
 package org.eclipse.smarthome.core.audio.internal;
 
+import static java.util.Comparator.comparing;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioManager;
+import org.eclipse.smarthome.core.audio.AudioSink;
+import org.eclipse.smarthome.core.audio.AudioSource;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
@@ -31,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - refactored to match AudioManager implementation
  * @author Christoph Weitkamp - Added parameter to adjust the volume
- *
+ * @author Wouter Born - Sort audio sink and source options
  */
 @Component(service = ConsoleCommandExtension.class)
 public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -42,6 +49,7 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_SINKS = "sinks";
 
     private AudioManager audioManager;
+    private LocaleProvider localeProvider;
 
     public AudioConsoleCommandExtension() {
         super("audio", "Commands around audio enablement features.");
@@ -96,20 +104,28 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void listSources(Console console) {
-        if (audioManager.getSourceIds().size() > 0) {
-            for (String source : audioManager.getSourceIds()) {
-                console.println(source);
-            }
+        Set<AudioSource> sources = audioManager.getAllSources();
+        if (sources.size() > 0) {
+            AudioSource defaultSource = audioManager.getSource();
+            Locale locale = localeProvider.getLocale();
+            sources.stream().sorted(comparing(s -> s.getLabel(locale))).forEach(source -> {
+                console.println(String.format("%s %s (%s)", source.equals(defaultSource) ? "*" : " ",
+                        source.getLabel(locale), source.getId()));
+            });
         } else {
             console.println("No audio sources found.");
         }
     }
 
     private void listSinks(Console console) {
-        if (audioManager.getSinkIds().size() > 0) {
-            for (String sink : audioManager.getSinkIds()) {
-                console.println(sink);
-            }
+        Set<AudioSink> sinks = audioManager.getAllSinks();
+        if (sinks.size() > 0) {
+            AudioSink defaultSink = audioManager.getSink();
+            Locale locale = localeProvider.getLocale();
+            sinks.stream().sorted(comparing(s -> s.getLabel(locale))).forEach(sink -> {
+                console.println(String.format("%s %s (%s)", sink.equals(defaultSink) ? "*" : " ", sink.getLabel(locale),
+                        sink.getId()));
+            });
         } else {
             console.println("No audio sinks found.");
         }
@@ -187,6 +203,15 @@ public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetAudioManager(AudioManager audioManager) {
         this.audioManager = null;
+    }
+
+    @Reference
+    protected void setLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = null;
     }
 
 }

@@ -25,7 +25,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added parameter to adjust the volume
- *
+ * @author Wouter Born - Added methods for getting all sinks and sources
  */
 @NonNullByDefault
 public interface AudioManager {
@@ -143,6 +143,13 @@ public interface AudioManager {
     AudioSource getSource();
 
     /**
+     * Retrieves all audio sources
+     *
+     * @return all audio sources
+     */
+    Set<AudioSource> getAllSources();
+
+    /**
      * Retrieves an AudioSink.
      * If a default name is configured and the service available, this is returned. If no default name is configured,
      * the first available service is returned, if one exists. If no service with the default name is found, null is
@@ -153,6 +160,13 @@ public interface AudioManager {
      */
     @Nullable
     AudioSink getSink();
+
+    /**
+     * Retrieves all audio sinks
+     *
+     * @return all audio sinks
+     */
+    Set<AudioSink> getAllSinks();
 
     /**
      * Retrieves the ids of all sources
