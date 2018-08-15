@@ -12,10 +12,13 @@
  */
 package org.eclipse.smarthome.core.voice.internal;
 
+import static java.util.stream.Collectors.*;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +28,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
@@ -659,15 +661,30 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     }
 
     private Set<Voice> getAllVoicesSorted(Locale locale) {
+        return ttsServices.values().stream().map(s -> s.getAvailableVoices()).flatMap(Collection::stream)
+                .sorted(createVoiceComparator(locale))
+                .collect(collectingAndThen(toCollection(LinkedHashSet::new), Collections::unmodifiableSet));
+    }
+
+    /**
+     * Creates a comparator which compares voices using the given locale in the following order:
+     * <ol>
+     * <li>Voice TTSService label (localized with the given locale)
+     * <li>Voice locale display name (localized with the given locale)
+     * <li>Voice label
+     * </ol>
+     *
+     * @param locale the locale used for comparing {@link TTSService} labels and {@link Voice} locale display names
+     * @return the localized voice comparator
+     */
+    private Comparator<Voice> createVoiceComparator(Locale locale) {
         Comparator<Voice> byTTSLabel = (Voice v1, Voice v2) -> {
             return getTTS(v1).getLabel(locale).compareTo(getTTS(v2).getLabel(locale));
         };
         Comparator<Voice> byVoiceLocale = (Voice v1, Voice v2) -> {
             return v1.getLocale().getDisplayName(locale).compareTo(v2.getLocale().getDisplayName(locale));
         };
-        return ttsServices.values().stream().map(s -> s.getAvailableVoices()).flatMap(Collection::stream)
-                .sorted(byTTSLabel.thenComparing(byVoiceLocale).thenComparing(Voice::getLabel))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return byTTSLabel.thenComparing(byVoiceLocale).thenComparing(Voice::getLabel);
     }
 
     @Override

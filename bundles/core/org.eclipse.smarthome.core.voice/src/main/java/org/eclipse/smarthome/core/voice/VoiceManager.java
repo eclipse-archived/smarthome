@@ -250,7 +250,7 @@ public interface VoiceManager {
      * The voices in the set are sorted by:
      * <ol>
      * <li>Voice TTSService label (localized with the default locale)
-     * <li>Voice locale (localized with the default locale)
+     * <li>Voice locale display name (localized with the default locale)
      * <li>Voice label
      * </ol>
      *
