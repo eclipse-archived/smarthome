@@ -14,23 +14,17 @@ package org.eclipse.smarthome.model.script.internal.engine.action;
 
 import org.eclipse.smarthome.core.transform.actions.Transformation;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * This class registers an OSGi service for the Transformation action.
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(immediate = true)
 public class TransformationActionService implements ActionService {
 
     public TransformationActionService() {
-    }
-
-    public void activate() {
-    }
-
-    public void deactivate() {
-        // deallocate Resources here that are no longer needed and
-        // should be reset when activating this binding again
     }
 
     @Override

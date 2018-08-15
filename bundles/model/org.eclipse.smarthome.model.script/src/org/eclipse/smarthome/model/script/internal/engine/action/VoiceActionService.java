@@ -15,12 +15,15 @@ package org.eclipse.smarthome.model.script.internal.engine.action;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.model.script.actions.Voice;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This class registers an OSGi service for the voice action.
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component(immediate = true)
 public class VoiceActionService implements ActionService {
 
     public static VoiceManager voiceManager;
@@ -35,6 +38,7 @@ public class VoiceActionService implements ActionService {
         return Voice.class;
     }
 
+    @Reference
     protected void setVoiceManager(VoiceManager voiceManager) {
         VoiceActionService.voiceManager = voiceManager;
     }

@@ -23,6 +23,10 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - added delayed execution
  *
  */
+@Component(service = ScriptItemRefresher.class, immediate = true)
 public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptItemRefresher.class);
@@ -42,9 +47,10 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
     ModelRepository modelRepository;
     private ItemRegistry itemRegistry;
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> job;
 
+    @Reference
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
@@ -56,6 +62,7 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         this.modelRepository = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
         this.itemRegistry.addRegistryChangeListener(this);
@@ -66,6 +73,7 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         this.itemRegistry = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addActionService(ActionService actionService) {
         scheduleScriptRefresh();
     }
