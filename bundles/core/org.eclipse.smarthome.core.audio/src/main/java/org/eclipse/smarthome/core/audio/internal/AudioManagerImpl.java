@@ -12,13 +12,14 @@
  */
 package org.eclipse.smarthome.core.audio.internal;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - removed unwanted dependencies
  * @author Christoph Weitkamp - Added getSupportedStreams() and UnsupportedAudioStreamException
  * @author Christoph Weitkamp - Added parameter to adjust the volume
- *
+ * @author Wouter Born - Sort audio sink and source options
  */
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.audio", property = { //
         Constants.SERVICE_PID + "=org.eclipse.smarthome.audio", //
@@ -227,6 +228,11 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
+    public Set<AudioSource> getAllSources() {
+        return new HashSet<>(audioSources.values());
+    }
+
+    @Override
     public AudioSink getSink() {
         AudioSink sink = null;
         if (defaultSink != null) {
@@ -240,6 +246,11 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
             logger.debug("No AudioSink service available!");
         }
         return sink;
+    }
+
+    @Override
+    public Set<AudioSink> getAllSinks() {
+        return new HashSet<>(audioSinks.values());
     }
 
     @Override
@@ -289,19 +300,11 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
         if (uri.toString().equals(CONFIG_URI)) {
             if (CONFIG_DEFAULT_SOURCE.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
-                for (AudioSource source : audioSources.values()) {
-                    ParameterOption option = new ParameterOption(source.getId(), source.getLabel(locale));
-                    options.add(option);
-                }
-                return options;
+                return audioSources.values().stream().sorted(comparing(s -> s.getLabel(locale)))
+                        .map(s -> new ParameterOption(s.getId(), s.getLabel(locale))).collect(toList());
             } else if (CONFIG_DEFAULT_SINK.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
-                for (AudioSink sink : audioSinks.values()) {
-                    ParameterOption option = new ParameterOption(sink.getId(), sink.getLabel(locale));
-                    options.add(option);
-                }
-                return options;
+                return audioSinks.values().stream().sorted(comparing(s -> s.getLabel(locale)))
+                        .map(s -> new ParameterOption(s.getId(), s.getLabel(locale))).collect(toList());
             }
         }
         return null;
