@@ -15,6 +15,8 @@ package org.eclipse.smarthome.core.voice.voiceconsolecommandextension;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Locale;
+
 import org.eclipse.smarthome.core.voice.internal.SinkStub;
 import org.eclipse.smarthome.core.voice.internal.TTSServiceStub;
 import org.eclipse.smarthome.core.voice.internal.VoiceStub;
@@ -52,8 +54,9 @@ public class VoicesCommandTest extends VoiceConsoleCommandExtensionTest {
     @Test
     public void testVoicesCommand() {
         String[] command = new String[] { SUBCMD_VOICES };
-        String expectedText = String.format("%s %s - %s", voice.getUID(), voice.getLabel(),
-                voice.getLocale().getDisplayName());
+        Locale locale = Locale.getDefault();
+        String expectedText = String.format("* %s - %s - %s (%s)", ttsService.getLabel(locale),
+                voice.getLocale().getDisplayName(locale), voice.getLabel(), voice.getUID());
         extensionService.execute(command, console);
 
         assertThat(console.getPrintedText(), is(expectedText));
