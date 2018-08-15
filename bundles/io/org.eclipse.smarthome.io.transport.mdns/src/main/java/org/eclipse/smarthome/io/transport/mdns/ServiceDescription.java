@@ -44,4 +44,43 @@ public class ServiceDescription {
         this.serviceProperties = serviceProperties;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((serviceName == null) ? 0 : serviceName.hashCode());
+        result = prime * result + servicePort;
+        result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ServiceDescription other = (ServiceDescription) obj;
+        if (serviceName == null) {
+            if (other.serviceName != null)
+                return false;
+        } else if (!serviceName.equals(other.serviceName))
+            return false;
+        if (servicePort != other.servicePort)
+            return false;
+        if (serviceType == null) {
+            if (other.serviceType != null)
+                return false;
+        } else if (!serviceType.equals(other.serviceType))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceDescription [serviceType=" + serviceType + ", serviceName=" + serviceName + ", servicePort="
+                + servicePort + "]";
+    }
 }

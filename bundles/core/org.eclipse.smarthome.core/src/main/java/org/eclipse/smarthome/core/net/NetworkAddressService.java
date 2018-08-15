@@ -42,4 +42,19 @@ public interface NetworkAddressService {
      */
     @Nullable
     String getConfiguredBroadcastAddress();
+    
+    /**
+     * Use only one address per interface and family (IPv4 and IPv6). If set listeners should bind only to one address
+     * per interface and family.
+     * 
+     * @return use only one address per interface and family
+     */
+    boolean isUseOnlyOneAddress();
+    
+    /**
+     * Use IPv6. If not set, IPv6 addresses should be completely ignored by listeners.
+     * 
+     * @return use IPv6
+     */
+    boolean isUseIPv6();
 }

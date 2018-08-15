@@ -67,6 +67,8 @@ public class NetUtil implements NetworkAddressService {
     private static final String PRIMARY_ADDRESS = "primaryAddress";
     private static final String BROADCAST_ADDRESS = "broadcastAddress";
     private static final String POLL_INTERVAL = "pollInterval";
+    private static final String USE_ONLY_ONE_ADDRESS = "useOnlyOneAddress";
+    private static final String USE_IPV6 = "useIPv6";
     private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 
     /**
@@ -79,6 +81,8 @@ public class NetUtil implements NetworkAddressService {
 
     private @Nullable String primaryAddress;
     private @Nullable String configuredBroadcastAddress;
+    private boolean useOnlyOneAddress;
+    private boolean useIPv6;
 
     // must be initialized before activate due to OSGi reference
     private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
@@ -127,6 +131,9 @@ public class NetUtil implements NetworkAddressService {
             configuredBroadcastAddress = broadcastAddressConf;
         }
 
+        useOnlyOneAddress = getConfigParameter(config, USE_ONLY_ONE_ADDRESS, false);
+        useIPv6 = getConfigParameter(config, USE_IPV6, true);
+
         Object pollIntervalSecondsObj = null;
         int pollIntervalSeconds = POLL_INTERVAL_SECONDS;
         try {
@@ -166,6 +173,29 @@ public class NetUtil implements NetworkAddressService {
         }
         return primaryIP;
     }
+
+
+    /**
+     * Use only one address per interface and family (IPv4 and IPv6). If set listeners should bind only to one address
+     * per interface and family.
+     * 
+     * @return use only one address per interface and family
+     */
+    @Override
+    public boolean isUseOnlyOneAddress() {
+        return useOnlyOneAddress;
+    }
+
+    /**
+     * Use IPv6. If not set, IPv6 addresses should be completely ignored by listeners.
+     * 
+     * @return use IPv6
+     */
+    @Override
+    public boolean isUseIPv6() {
+        return useIPv6;
+    }
+
 
     /**
      * @deprecated Please use the NetworkAddressService with {@link #getPrimaryIpv4HostAddress()}
@@ -596,6 +626,24 @@ public class NetUtil implements NetworkAddressService {
         }
     }
 
+    private boolean getConfigParameter(Map<String, Object> parameters, String parameter, boolean defaultValue) {
+        if (parameters == null) {
+            return defaultValue;
+        }
+        Object value = parameters.get(parameter);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof String) {
+            return Boolean.valueOf((String) value);
+        } else {
+            return defaultValue;
+        }
+    }
+
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     protected void addNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
         networkAddressChangeListeners.add(listener);
@@ -613,5 +661,4 @@ public class NetUtil implements NetworkAddressService {
     protected void unsetSafeCaller(SafeCaller safeCaller) {
         this.safeCaller = null;
     }
-
 }
