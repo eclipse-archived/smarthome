@@ -187,9 +187,9 @@ public class NetUtil implements NetworkAddressService {
     }
 
     /**
-     * Ignore IPv6. If set, IPv6 addresses should be completely ignored by listeners.
+     * Use IPv6. If not set, IPv6 addresses should be completely ignored by listeners.
      * 
-     * @return ignore IPv6
+     * @return use IPv6
      */
     @Override
     public boolean isUseIPv6() {
