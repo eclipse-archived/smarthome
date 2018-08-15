@@ -14,12 +14,16 @@ package org.eclipse.smarthome.core.voice.internal;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.voice.TTSService;
 import org.eclipse.smarthome.core.voice.Voice;
 import org.eclipse.smarthome.core.voice.VoiceManager;
 import org.eclipse.smarthome.core.voice.text.InterpretationException;
@@ -33,7 +37,7 @@ import org.osgi.service.component.annotations.Reference;
  * Console command extension for all voice features.
  *
  * @author Kai Kreuzer - Initial contribution and API
- *
+ * @author Wouter Born - Sort TTS voices
  */
 @Component(service = ConsoleCommandExtension.class)
 public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -43,6 +47,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_VOICES = "voices";
 
     private ItemRegistry itemRegistry;
+    private LocaleProvider localeProvider;
     private VoiceManager voiceManager;
 
     public VoiceConsoleCommandExtension() {
@@ -53,7 +58,7 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_SAY + " <text>", "speaks a text"),
                 buildCommandUsage(SUBCMD_INTERPRET + " <command>", "interprets a human language command"),
-                buildCommandUsage(SUBCMD_VOICES, "lists available voices of the active TTS service") });
+                buildCommandUsage(SUBCMD_VOICES, "lists available voices of the TTS services") });
     }
 
     @Override
@@ -76,9 +81,15 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     }
                     return;
                 case SUBCMD_VOICES:
+                    Locale locale = localeProvider.getLocale();
+                    Voice defaultVoice = getDefaultVoice();
                     for (Voice voice : voiceManager.getAllVoices()) {
-                        console.println(
-                                voice.getUID() + " " + voice.getLabel() + " - " + voice.getLocale().getDisplayName());
+                        TTSService ttsService = voiceManager.getTTS(voice.getUID().split(":")[0]);
+                        if (ttsService != null) {
+                            console.println(String.format("%s %s - %s - %s (%s)",
+                                    voice.equals(defaultVoice) ? "*" : " ", ttsService.getLabel(locale),
+                                    voice.getLocale().getDisplayName(locale), voice.getLabel(), voice.getUID()));
+                        }
                     }
                     return;
                 default:
@@ -87,6 +98,17 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
         } else {
             printUsage(console);
         }
+    }
+
+    private @Nullable Voice getDefaultVoice() {
+        Voice defaultVoice = voiceManager.getDefaultVoice();
+        if (defaultVoice == null) {
+            TTSService tts = voiceManager.getTTS();
+            if (tts != null) {
+                defaultVoice = voiceManager.getPreferredVoice(tts.getAvailableVoices());
+            }
+        }
+        return defaultVoice;
     }
 
     private void interpret(String[] args, Console console) {
@@ -137,6 +159,15 @@ public class VoiceConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference
+    protected void setLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = null;
     }
 
     @Reference
