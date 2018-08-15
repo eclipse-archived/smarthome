@@ -157,6 +157,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     @Deactivate
     public void deactivate() {
         close();
+        activeServices.clear();
     }
 
     @Override
