@@ -14,21 +14,17 @@ package org.eclipse.smarthome.model.script.internal.engine.action;
 
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * This class registers an OSGi service for the Persistence action.
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
+@Component
 public class PersistenceActionService implements ActionService {
 
     public PersistenceActionService() {
-    }
-
-    public void activate() {
-    }
-
-    public void deactivate() {
     }
 
     @Override

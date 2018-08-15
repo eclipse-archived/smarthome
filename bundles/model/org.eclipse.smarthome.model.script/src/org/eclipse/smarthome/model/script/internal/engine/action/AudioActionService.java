@@ -15,7 +15,10 @@ package org.eclipse.smarthome.model.script.internal.engine.action;
 import org.eclipse.smarthome.core.audio.AudioManager;
 import org.eclipse.smarthome.model.script.actions.Audio;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+@Component
 public class AudioActionService implements ActionService {
 
     public static AudioManager audioManager;
@@ -30,6 +33,7 @@ public class AudioActionService implements ActionService {
         return Audio.class;
     }
 
+    @Reference
     protected void setAudioManager(AudioManager audioManager) {
         AudioActionService.audioManager = audioManager;
     }
