@@ -147,7 +147,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
         }
         for (ServiceDescription description : activeServices) {
             try {
-                registerService(description);
+                registerServiceInternal(description);
             } catch (IOException e) {
                 logger.warn("Exception while registering service {}", description, e);
             }
@@ -276,7 +276,7 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     @Override
     public void onChanged(List<CidrAddress> added, List<CidrAddress> removed) {
         logger.debug("ip address change: added {}, removed {}", added, removed);
-        deactivate();
+        close();
         start();
     }
 
