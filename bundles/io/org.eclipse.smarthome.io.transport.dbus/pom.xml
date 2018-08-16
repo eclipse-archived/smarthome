@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome DBus Transport</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.transport.dbus</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.transport.dbus</bundle.namespace>
-  </properties>
-
 </project>

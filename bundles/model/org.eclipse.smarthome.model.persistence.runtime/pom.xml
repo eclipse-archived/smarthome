@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Model Persistence Runtime</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.persistence.runtime</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.persistence.runtime</bundle.namespace>
-  </properties>
 </project>

@@ -15,11 +15,6 @@
 
 	<name>Eclipse SmartHome Paper UI</name>
 
-	<properties>
-		<bundle.symbolicName>org.eclipse.smarthome.ui.paper</bundle.symbolicName>
-		<bundle.namespace>org.eclipse.smarthome.ui.paper</bundle.namespace>
-	</properties>
-
 	<build>
 		<plugins>
 			<plugin>

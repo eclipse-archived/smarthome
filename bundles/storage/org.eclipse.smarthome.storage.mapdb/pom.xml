@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome MapDB Storage</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.storage.mapdb</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.storage.mapdb</bundle.namespace>
-  </properties>
-
 </project>

@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Automation Core Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.core.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.core.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

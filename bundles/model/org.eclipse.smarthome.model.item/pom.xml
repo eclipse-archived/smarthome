@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Model Items</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.item</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.item</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

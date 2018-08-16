@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Mqtt Transport I/O Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.transport.mqtt.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.transport.mqtt.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

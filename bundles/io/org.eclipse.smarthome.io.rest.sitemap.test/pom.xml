@@ -14,11 +14,6 @@
 
   <name>Eclipse SmartHome Sitemap REST Interface Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.rest.sitemap.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.rest.sitemap.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

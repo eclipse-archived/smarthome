@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome AutoUpdate Binding</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.autoupdate</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.autoupdate</bundle.namespace>
-  </properties>
-
 </project>

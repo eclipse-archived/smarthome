@@ -14,11 +14,6 @@
 
   <name>Eclipse SmartHome IO REST Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.rest.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.rest.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

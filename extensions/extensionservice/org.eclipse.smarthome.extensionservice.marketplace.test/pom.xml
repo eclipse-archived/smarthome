@@ -13,9 +13,4 @@
 
   <name>Eclipse SmartHome IoT Marketplace Extension Service Test</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.extensionservice.marketplace.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.extensionservice.marketplace.test</bundle.namespace>
-  </properties>
-
 </project>

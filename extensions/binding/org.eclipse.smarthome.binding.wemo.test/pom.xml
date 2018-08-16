@@ -13,11 +13,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Wemo Binding Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.binding.wemo.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.binding.wemo.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

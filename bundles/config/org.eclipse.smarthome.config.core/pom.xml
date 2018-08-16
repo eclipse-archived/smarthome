@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Configuration Core</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.config.core</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.config.core</bundle.namespace>
-  </properties>
-
 </project>

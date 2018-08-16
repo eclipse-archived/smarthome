@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome UI</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.ui</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.ui</bundle.namespace>
-  </properties>
-
 </project>

@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Provider File</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.provider.file</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.provider.file</bundle.namespace>
-  </properties>
-
 </project>

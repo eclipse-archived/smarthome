@@ -14,11 +14,6 @@
 
   <name>Eclipse SmartHome IO UPnP Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.transport.upnp.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.transport.upnp.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

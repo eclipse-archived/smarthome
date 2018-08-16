@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Core Thing XML</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.thing.xml</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.thing.xml</bundle.namespace>
-  </properties>
-
 </project>

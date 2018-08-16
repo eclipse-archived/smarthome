@@ -16,9 +16,4 @@
 
   <name>Eclipse SmartHome LIFX Binding</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.binding.lifx</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.binding.lifx</bundle.namespace>
-  </properties>
-
 </project>
