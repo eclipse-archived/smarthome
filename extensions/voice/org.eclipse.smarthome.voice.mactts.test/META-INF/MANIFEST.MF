@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse SmartHome Mac TTS Tests
+Bundle-Name: Eclipse SmartHome macOS Text-to-Speech Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.voice.mactts.test
 Bundle-Vendor: Eclipse.org/SmartHome
