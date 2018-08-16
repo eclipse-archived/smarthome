@@ -214,9 +214,9 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         console.println("");
 
         if (thing.getConfiguration().getProperties().isEmpty()) {
-            console.println("No configuration properties");
+            console.println("No configuration parameters");
         } else {
-            console.println("Configuration properties:");
+            console.println("Configuration parameters:");
             for (Map.Entry<String, Object> entry : thing.getConfiguration().getProperties().entrySet()) {
                 console.println("\t" + entry.getKey() + " : " + entry.getValue());
             }
