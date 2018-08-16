@@ -23,7 +23,7 @@ import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -33,7 +33,7 @@ import org.junit.Test
  * @author Oliver Libutzki - Initital contribution
  *
  */
-class ManagedThingProviderOSGiTest extends OSGiTest {
+class ManagedThingProviderOSGiTest extends JavaOSGiTest {
 
 	
 	ManagedThingProvider managedThingProvider

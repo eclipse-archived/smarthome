@@ -19,8 +19,8 @@ import static org.junit.matchers.JUnitMatchers.*
 import org.eclipse.smarthome.core.binding.BindingInfo
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry
 import org.eclipse.smarthome.core.i18n.LocaleProvider
-import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -28,7 +28,7 @@ import org.osgi.framework.Bundle
 import org.osgi.service.cm.Configuration
 import org.osgi.service.cm.ConfigurationAdmin
 
-class BindingInfoI18nTest extends OSGiTest {
+class BindingInfoI18nTest extends JavaOSGiTest {
 
     static final String TEST_BUNDLE_NAME = "yahooweather.bundle"
 

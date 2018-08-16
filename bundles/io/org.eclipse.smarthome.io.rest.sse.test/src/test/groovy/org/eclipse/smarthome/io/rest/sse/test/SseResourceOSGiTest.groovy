@@ -17,10 +17,10 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.Test
 
-class SseResourceOSGiTest extends OSGiTest {
+class SseResourceOSGiTest extends JavaOSGiTest {
 
     @Test
     public void testValidInvalidFilters() {
@@ -45,8 +45,8 @@ class SseResourceOSGiTest extends OSGiTest {
         assertThat SseUtil.isValidTopicFilter("////////////"), is(true)
         assertThat SseUtil.isValidTopicFilter("*/added"), is(true)
         assertThat SseUtil.isValidTopicFilter("*added"), is(true)
-        
-        
+
+
     }
 
     @Test
@@ -99,7 +99,7 @@ class SseResourceOSGiTest extends OSGiTest {
         regexes = SseUtil.convertToRegex("*/added")
         assertThat "smarthome/items/anyitem/added".matches(regexes[0]), is(true);
         assertThat "smarthome/items/anyitem/removed".matches(regexes[0]), is(false);
-        
+
         regexes = SseUtil.convertToRegex("*added")
         assertThat "smarthome/items/anyitem/added".matches(regexes[0]), is(true);
         assertThat "smarthome/items/anyitem/removed".matches(regexes[0]), is(false);

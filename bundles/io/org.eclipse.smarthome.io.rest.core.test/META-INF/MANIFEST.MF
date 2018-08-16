@@ -38,7 +38,6 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.rest,
- org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,

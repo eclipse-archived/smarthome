@@ -17,6 +17,7 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.osgi.service.cm

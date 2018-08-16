@@ -44,6 +44,7 @@ import org.osgi.framework.ServiceRegistration;
  * methods, are unregistered automatically in the tear down of the test.
  *
  * @author Markus Rathgeb - Create a pure Java implementation based on the Groovy {@code OSGiTest} class
+ * @author Tanya Georgieva - Merge OSGiTest and JavaOSGiTest
  */
 @NonNullByDefault
 public class JavaOSGiTest extends JavaTest {
@@ -53,19 +54,18 @@ public class JavaOSGiTest extends JavaTest {
 
     @Before
     public void bindBundleContext() {
-        bundleContext = initBundleContext();
+        bundleContext = getBundleContext();
         assertThat(bundleContext, is(notNullValue()));
     }
 
     /**
-     * Initialize the {@link BundleContext}, which is used for registration and unregistration of OSGi services.
-     *
-     * <p>
-     * This uses the bundle context of the test class itself.
+     * Returns the {@link BundleContext}, which is used for registration and unregistration of OSGi
+     * services. By default it uses the bundle context of the test class itself. This method can be overridden
+     * by concrete implementations to provide another bundle context.
      *
      * @return bundle context
      */
-    private @Nullable BundleContext initBundleContext() {
+    protected @Nullable BundleContext getBundleContext() {
         final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
             return bundle.getBundleContext();
@@ -316,5 +316,4 @@ public class JavaOSGiTest extends JavaTest {
             }
         });
     }
-
 }

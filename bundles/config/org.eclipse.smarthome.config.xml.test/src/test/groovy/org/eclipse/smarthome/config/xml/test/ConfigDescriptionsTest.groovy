@@ -21,8 +21,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
-import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -34,7 +34,7 @@ import org.osgi.framework.Bundle
  * @author Alex Tugarev - Initial contribution; Extended tests for options and filters
  * @author Thomas Höfer - Added unit
  */
-class ConfigDescriptionsTest extends OSGiTest {
+class ConfigDescriptionsTest extends JavaOSGiTest {
 
     static final String TEST_BUNDLE_NAME = "ConfigDescriptionsTest.bundle"
     static final String FRAGMENT_TEST_HOST_NAME = "ConfigDescriptionsFragmentTest.host"

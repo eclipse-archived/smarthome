@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.link.events.ItemChannelLinkAddedEvent
 import org.eclipse.smarthome.core.thing.link.events.ItemChannelLinkRemovedEvent
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.Before
 import org.junit.Test
 
@@ -31,7 +31,7 @@ import com.google.common.collect.Sets
  *
  * @author Dennis Nobel - Initial contribution
  */
-class LinkEventOSGiTest extends OSGiTest {
+class LinkEventOSGiTest extends JavaOSGiTest {
 
 
     ItemChannelLinkRegistry itemChannelLinkRegistry

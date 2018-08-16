@@ -23,7 +23,7 @@ import org.eclipse.smarthome.core.items.events.ItemAddedEvent
 import org.eclipse.smarthome.core.items.events.ItemRemovedEvent
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.model.core.ModelRepository
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -39,7 +39,7 @@ import com.google.common.collect.Sets
  * @author Stefan Triller - Added test for ItemAddedEvents with multiple model files
  *
  */
-class GenericItemProviderTest extends OSGiTest {
+class GenericItemProviderTest extends JavaOSGiTest {
 
 
     private final static String TESTMODEL_NAME = "testModel.items"

@@ -75,7 +75,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.State
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -87,7 +87,7 @@ import com.google.common.collect.Sets
 /**
  * {@link ThingManagerOSGiTest} tests the {@link ThingManager}.
  */
-class ThingManagerOSGiTest extends OSGiTest {
+class ThingManagerOSGiTest extends JavaOSGiTest {
 
     ManagedThingProvider managedThingProvider
     ThingLinkManager thingLinkManager

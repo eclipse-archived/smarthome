@@ -47,7 +47,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -61,7 +61,7 @@ import com.google.common.collect.ImmutableSet
  * @author Dennis Nobel - Added test for bridgeInitialized and bridgeDisposed callbacks
  * @auther Thomas Höfer - Added config status tests
  */
-class BindingBaseClassesOSGiTest extends OSGiTest {
+class BindingBaseClassesOSGiTest extends JavaOSGiTest {
 
 
     ManagedThingProvider managedThingProvider

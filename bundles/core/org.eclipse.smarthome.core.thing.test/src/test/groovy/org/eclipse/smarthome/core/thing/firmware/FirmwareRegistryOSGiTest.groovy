@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware
 import org.eclipse.smarthome.core.thing.testutil.i18n.DefaultLocaleSetter
-import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.java.JavaOSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -34,7 +34,7 @@ import org.osgi.service.cm.ConfigurationAdmin
  * @author Thomas Höfer - Initial contribution
  * @author Dimitar Ivanov - Adapted the test for registry using thing and version instead of firmware UID
  */
-final class FirmwareRegistryOSGiTest extends OSGiTest {
+final class FirmwareRegistryOSGiTest extends JavaOSGiTest {
 
     private static final int EXPECT_0_FIRMWARES = 0
     private static final int EXPECT_2_FIRMWARES = 2
