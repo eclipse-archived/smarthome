@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Core Modules</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.module.core</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.module.core</bundle.namespace>
-  </properties>
-
 </project>

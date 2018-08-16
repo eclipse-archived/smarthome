@@ -12,11 +12,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Core Binding XML Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.binding.xml.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.binding.xml.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

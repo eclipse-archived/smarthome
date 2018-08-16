@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Network I/O</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.net</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.net</bundle.namespace>
-  </properties>
 </project>

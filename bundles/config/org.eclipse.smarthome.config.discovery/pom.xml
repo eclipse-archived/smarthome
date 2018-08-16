@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Configuration Discovery</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.config.discovery</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.config.discovery</bundle.namespace>
-  </properties>
-
 </project>

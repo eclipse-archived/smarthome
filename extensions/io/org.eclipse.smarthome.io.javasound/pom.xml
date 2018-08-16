@@ -13,9 +13,4 @@
 
   <name>Eclipse SmartHome JavaSound I/O</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.javasound</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.javasound</bundle.namespace>
-  </properties>
-
 </project>

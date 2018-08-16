@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome UPnP Transport</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.transport.upnp</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.transport.upnp</bundle.namespace>
-  </properties>
-
 </project>

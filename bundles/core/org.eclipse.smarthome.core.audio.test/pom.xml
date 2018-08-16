@@ -13,11 +13,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse Smarthome Audio Test</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.audio.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.audio.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

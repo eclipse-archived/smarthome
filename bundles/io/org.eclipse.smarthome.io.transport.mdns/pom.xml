@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome mDNS Service</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.transport.mdns</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.transport.mdns</bundle.namespace>
-  </properties>
 </project>

@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Model Core</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.core</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.core</bundle.namespace>
-  </properties>
-
 </project>

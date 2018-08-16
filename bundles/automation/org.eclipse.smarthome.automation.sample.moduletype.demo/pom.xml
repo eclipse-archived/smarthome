@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Module Type Demo</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.sample.moduletype.demo</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.sample.moduletype.demo</bundle.namespace>
-  </properties>
-
 </project>

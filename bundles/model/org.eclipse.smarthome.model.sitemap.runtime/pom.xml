@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Model Sitemap Runtime</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.sitemap.runtime</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.sitemap.runtime</bundle.namespace>
-  </properties>
 </project>

@@ -12,11 +12,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Configuration mDNS Discovery Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.config.discovery.mdns.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.config.discovery.mdns.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

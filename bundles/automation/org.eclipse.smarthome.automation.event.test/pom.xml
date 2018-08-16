@@ -12,11 +12,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Automation Event Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.event.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.event.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

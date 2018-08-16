@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Model Rules Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.rule.tests</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.rule.tests</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

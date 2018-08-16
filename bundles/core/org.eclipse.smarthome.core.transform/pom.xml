@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Core Transformation Service</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.transform</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.transform</bundle.namespace>
-  </properties>
-
 </project>

@@ -13,9 +13,4 @@
 
   <name>Eclipse SmartHome Classic UI</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.ui.classic</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.ui.classic</bundle.namespace>
-  </properties>
-
 </project>

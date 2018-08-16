@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome UI Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.ui.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.ui.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

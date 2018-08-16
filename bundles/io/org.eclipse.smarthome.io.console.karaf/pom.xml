@@ -16,11 +16,6 @@
 
   <name>Eclipse SmartHome Console for OSGi runtime Karaf</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.console.karaf</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.console.karaf</bundle.namespace>
-  </properties>
-
   <!-- This dependency is added as long as the bundles are not available in a p2 repo of the target platform. -->
   <dependencies>
     <dependency>

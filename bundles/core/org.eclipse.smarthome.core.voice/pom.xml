@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Core Voice</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.voice</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.voice</bundle.namespace>
-  </properties>
-
 </project>

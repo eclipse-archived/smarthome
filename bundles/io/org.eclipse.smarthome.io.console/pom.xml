@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Console</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.console</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.console</bundle.namespace>
-  </properties>
 </project>
