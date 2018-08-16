@@ -9,11 +9,12 @@
  * http://www.eclipse.org/legal/epl-2.0
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * @author Tanya Georgieva - Refactor the groovy file to java
  */
 package org.eclipse.smarthome.test;
 
+/**
+ * @author Tanya Georgieva - Refactor the groovy file to java
+ */
 public class AsyncResultWrapper<T> {
     private T wrappedObject;
     private boolean isSet = false;
