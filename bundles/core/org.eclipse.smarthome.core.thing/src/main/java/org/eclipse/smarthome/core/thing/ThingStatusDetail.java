@@ -37,14 +37,38 @@ public enum ThingStatusDetail {
      */
     GONE;
 
+    public static final UninitializedStatus UNINITIALIZED = new UninitializedStatus();
+    public static final NoneOnlyStatus INITIALIZING = new NoneOnlyStatus();
+    public static final NoneOnlyStatus UNKNOWN = new NoneOnlyStatus();
     public static final OnlineStatus ONLINE = new OnlineStatus();
-
     public static final OfflineStatus OFFLINE = new OfflineStatus();
+    public static final NoneOnlyStatus REMOVING = new NoneOnlyStatus();
+    public static final NoneOnlyStatus REMOVED = new NoneOnlyStatus();
+
+    public static final class NoneOnlyStatus {
+        private NoneOnlyStatus() {
+        }
+
+        public ThingStatusDetail NONE = ThingStatusDetail.NONE;
+    }
+
+    public static final class UninitializedStatus {
+        private UninitializedStatus() {
+        }
+
+        public ThingStatusDetail NONE = ThingStatusDetail.NONE;
+        public ThingStatusDetail HANDLER_MISSING_ERROR = ThingStatusDetail.HANDLER_MISSING_ERROR;
+        public ThingStatusDetail HANDLER_REGISTERING_ERROR = ThingStatusDetail.HANDLER_REGISTERING_ERROR;
+        public ThingStatusDetail HANDLER_CONFIGURATION_PENDING = ThingStatusDetail.HANDLER_CONFIGURATION_PENDING;
+        public ThingStatusDetail HANDLER_INITIALIZING_ERROR = ThingStatusDetail.HANDLER_INITIALIZING_ERROR;
+        public ThingStatusDetail BRIDGE_UNINITIALIZED = ThingStatusDetail.BRIDGE_UNINITIALIZED;
+    };
 
     public static final class OnlineStatus {
         private OnlineStatus() {
         }
 
+        public ThingStatusDetail NONE = ThingStatusDetail.NONE;
         public ThingStatusDetail CONFIGURATION_PENDING = ThingStatusDetail.CONFIGURATION_PENDING;
     };
 
@@ -52,11 +76,13 @@ public enum ThingStatusDetail {
         private OfflineStatus() {
         }
 
+        public ThingStatusDetail NONE = ThingStatusDetail.NONE;
         public ThingStatusDetail COMMUNICATION_ERROR = ThingStatusDetail.COMMUNICATION_ERROR;
         public ThingStatusDetail CONFIGURATION_ERROR = ThingStatusDetail.CONFIGURATION_ERROR;
         public ThingStatusDetail BRIDGE_OFFLINE = ThingStatusDetail.BRIDGE_OFFLINE;
         public ThingStatusDetail FIRMWARE_UPDATING = ThingStatusDetail.FIRMWARE_UPDATING;
         public ThingStatusDetail DUTY_CYCLE = ThingStatusDetail.DUTY_CYCLE;
+        public ThingStatusDetail GONE = ThingStatusDetail.GONE;
     };
 
 }
