@@ -247,7 +247,7 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.webaudio/${project.version}</bundle>
   </feature>
 
-  <feature name="esh-voice-mactts" description="MacOS Text-to-Speech" version="${project.version}">
+  <feature name="esh-voice-mactts" description="macOS Text-to-Speech" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.voice/org.eclipse.smarthome.voice.mactts/${project.version}</bundle>
   </feature>
