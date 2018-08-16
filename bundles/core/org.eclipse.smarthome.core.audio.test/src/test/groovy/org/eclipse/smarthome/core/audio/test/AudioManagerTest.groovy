@@ -234,9 +234,6 @@ public class AudioManagerTest extends AudioOSGiTest {
                 audioManager.getAllSources().contains(audioSourceMock),
                 is(true)
         assertThat "The source ${audioSourceMock.getId()} was not added to the set of sources",
-                audioManager.getSourceIds().contains(audioSourceMock.getId()),
-                is(true)
-        assertThat "The source ${audioSourceMock.getId()} was not added to the set of sources",
                 audioManager.getSourceIds(audioSourceMock.getId()).contains(audioSourceMock.getId()),
                 is(true)
     }
@@ -258,10 +255,7 @@ public class AudioManagerTest extends AudioOSGiTest {
                 audioManager.getAllSinks().contains(audioSinkFake),
                 is(true)
         assertThat "The sink ${audioSinkFake.getId()} was not added to the set of sinks",
-                audioManager.getSinkIds().contains(audioSinkFake.getId()),
-                is(true)
-        assertThat "The sink ${audioSinkFake.getId()} was not added to the set of sinks",
-                audioManager.getSinks(audioSinkFake.getId()).contains(audioSinkFake.getId()),
+                audioManager.getSinkIds(audioSinkFake.getId()).contains(audioSinkFake.getId()),
                 is(true)
     }
 

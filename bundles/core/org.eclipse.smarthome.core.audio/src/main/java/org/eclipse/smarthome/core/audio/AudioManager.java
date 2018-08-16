@@ -80,20 +80,20 @@ public interface AudioManager {
      * Plays an audio file from the "sounds" folder using the given audio sink.
      *
      * @param fileName The file from the "sounds" folder
-     * @param sink The id of the audio sink to use or null for the default
+     * @param sinkId The id of the audio sink to use or null for the default
      * @throws AudioException in case the file does not exist or cannot be opened
      */
-    void playFile(String fileName, @Nullable String sink) throws AudioException;
+    void playFile(String fileName, @Nullable String sinkId) throws AudioException;
 
     /**
      * Plays an audio file with the given volume from the "sounds" folder using the given audio sink.
      *
      * @param fileName The file from the "sounds" folder
-     * @param sink The id of the audio sink to use or null for the default
+     * @param sinkId The id of the audio sink to use or null for the default
      * @param volume The volume to be used or null if the default notification volume should be used
      * @throws AudioException in case the file does not exist or cannot be opened
      */
-    void playFile(String fileName, @Nullable String sink, @Nullable PercentType volume) throws AudioException;
+    void playFile(String fileName, @Nullable String sinkId, @Nullable PercentType volume) throws AudioException;
 
     /**
      * Stream audio from the passed url using the default audio sink.
@@ -169,20 +169,6 @@ public interface AudioManager {
     Set<AudioSink> getAllSinks();
 
     /**
-     * Retrieves the ids of all sources
-     *
-     * @return ids of all sources
-     */
-    Set<String> getSourceIds();
-
-    /**
-     * Retrieves the ids of all sinks
-     *
-     * @return ids of all sources
-     */
-    Set<String> getSinkIds();
-
-    /**
      * Get a list of source ids that match a given pattern
      *
      * @param pattern pattern to search, can include `*` and `?` placeholders
@@ -205,6 +191,6 @@ public interface AudioManager {
      * @param pattern pattern to search, can include `*` and `?` placeholders
      * @return ids of matching sinks
      */
-    Set<String> getSinks(String pattern);
+    Set<String> getSinkIds(String pattern);
 
 }
