@@ -16,11 +16,6 @@
 
   <name>Eclipse Smarthome OneWire Binding Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.binding.onewire.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.binding.onewire</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

@@ -16,9 +16,4 @@
 
   <name>Eclipse SmartHome Core REST UI Logging Module</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.rest.log</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.rest.log</bundle.namespace>
-  </properties>
-
 </project>

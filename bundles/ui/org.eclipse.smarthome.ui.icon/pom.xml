@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome UI Icon Support</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.ui.icon</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.ui.icon</bundle.namespace>
-  </properties>
-
 </project>

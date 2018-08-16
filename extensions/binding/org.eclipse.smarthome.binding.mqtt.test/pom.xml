@@ -14,11 +14,6 @@
 
   <name>Eclipse SmartHome MQTT Binding Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.binding.mqtt.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.binding.mqtt</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

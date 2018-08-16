@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Core Persistence</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.core.persistence</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.core.persistence</bundle.namespace>
-  </properties>
-
 </project>

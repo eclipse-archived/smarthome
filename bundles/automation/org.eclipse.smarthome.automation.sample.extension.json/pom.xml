@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Sample JSON</name>
 
-  <properties>
-    <bundle.namespace>org.eclipse.smarthome.automation.sample.extension.json</bundle.namespace>
-    <bunlde.symbolicName>org.eclipse.smarthome.automation.sample.extension.json</bunlde.symbolicName>
-  </properties>
-
 </project>

@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome MQTT Transport</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.transport.mqtt</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.transport.mqtt</bundle.namespace>
-  </properties>
-
 </project>

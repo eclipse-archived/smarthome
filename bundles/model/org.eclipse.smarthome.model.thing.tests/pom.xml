@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Thing Model Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.thing.tests</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.thing.tests</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

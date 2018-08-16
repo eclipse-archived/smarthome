@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Commands</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.commands</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.commands</bundle.namespace>
-  </properties>
-
 </project>

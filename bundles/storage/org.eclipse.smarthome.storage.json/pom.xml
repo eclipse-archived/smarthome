@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome JSON Storage</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.storage.json</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.storage.json</bundle.namespace>
-  </properties>
-
 </project>

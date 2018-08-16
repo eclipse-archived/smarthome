@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Core REST Interface</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.rest.core</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.rest.core</bundle.namespace>
-  </properties>
 </project>
