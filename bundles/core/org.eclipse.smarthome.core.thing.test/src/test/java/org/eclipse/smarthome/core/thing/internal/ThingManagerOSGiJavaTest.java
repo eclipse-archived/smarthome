@@ -60,9 +60,10 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -80,9 +81,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 /**
+ * OSGi tests for {@link ThingManager}.
  *
- * @author Simon Kaufmann - initial contribution and API.
- *
+ * @author Simon Kaufmann - Initial contribution
  */
 public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
@@ -91,15 +92,16 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private ReadyService readyService;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
 
-    private final String CONFIG_PARAM_NAME = "test";
-    private final ChannelTypeUID CHANNEL_TYPE_UID = new ChannelTypeUID("binding", "channel");
-    private final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("binding:thing");
-    private final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "thing");
+    private static final String CONFIG_PARAM_NAME = "test";
+    private static final ChannelTypeUID CHANNEL_TYPE_UID = new ChannelTypeUID("binding", "channel");
+    private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("binding:thing");
+    private static final ThingUID THING_UID = new ThingUID(THING_TYPE_UID, "thing");
 
-    private final ThingTypeUID BRIDGE_TYPE_UID = new ThingTypeUID("binding:bridge");
-    private final ThingUID BRIDGE_UID = new ThingUID(BRIDGE_TYPE_UID, "bridge");
+    private static final ThingTypeUID BRIDGE_TYPE_UID = new ThingTypeUID("binding:bridge");
+    private static final ThingUID BRIDGE_UID = new ThingUID(BRIDGE_TYPE_UID, "bridge");
 
-    private final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, "channel");
+    private static final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, "channel");
+
     private Thing THING;
     private URI CONFIG_DESCRIPTION_THING;
     private URI CONFIG_DESCRIPTION_CHANNEL;
@@ -194,33 +196,28 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     }
 
     @Test
+    public void testThatIsLinkedReturnsFalse() throws Exception {
+        AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
+
+        assertFalse(thc.get().isChannelLinked(CHANNEL_UID));
+    }
+
+    @Test
+    public void testThatIsLinkedReturnsTrue() throws Exception {
+        AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
+
+        ManagedItemChannelLinkProvider managedItemChannelLinkProvider = getService(
+                ManagedItemChannelLinkProvider.class);
+        assertNotNull(managedItemChannelLinkProvider);
+
+        managedItemChannelLinkProvider.add(new ItemChannelLink("item", CHANNEL_UID));
+
+        assertTrue(thc.get().isChannelLinked(CHANNEL_UID));
+    }
+
+    @Test
     public void testCreateChannelBuilder() throws Exception {
-        registerThingTypeProvider();
-        registerChannelTypeProvider();
-        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
-        ThingHandlerFactory thingHandlerFactory = new BaseThingHandlerFactory() {
-            @Override
-            public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
-                return true;
-            }
-
-            @Override
-            protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {
-                ThingHandler mockHandler = mock(ThingHandler.class);
-                doAnswer(a -> {
-                    thc.set((ThingHandlerCallback) a.getArguments()[0]);
-                    return null;
-                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
-                when(mockHandler.getThing()).thenReturn(THING);
-                return mockHandler;
-            }
-        };
-        registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
-        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-
-        waitForAssert(() -> {
-            assertNotNull(thc.get());
-        });
+        AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
 
         ChannelBuilder channelBuilder = thc.get().createChannelBuilder(new ChannelUID(THING_UID, "test"),
                 CHANNEL_TYPE_UID);
@@ -235,32 +232,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
     @Test
     public void testEditChannelBuilder() throws Exception {
-        registerThingTypeProvider();
-        registerChannelTypeProvider();
-        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
-        ThingHandlerFactory thingHandlerFactory = new BaseThingHandlerFactory() {
-            @Override
-            public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
-                return true;
-            }
-
-            @Override
-            protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {
-                ThingHandler mockHandler = mock(ThingHandler.class);
-                doAnswer(a -> {
-                    thc.set((ThingHandlerCallback) a.getArguments()[0]);
-                    return null;
-                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
-                when(mockHandler.getThing()).thenReturn(THING);
-                return mockHandler;
-            }
-        };
-        registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
-        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-
-        waitForAssert(() -> {
-            assertNotNull(thc.get());
-        });
+        AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
 
         ChannelBuilder channelBuilder = thc.get().editChannel(THING, CHANNEL_UID);
         Channel channel = channelBuilder.build();
@@ -617,4 +589,33 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         }
     };
 
+    private AtomicReference<ThingHandlerCallback> initializeThingHandlerCallback() throws Exception {
+        registerThingTypeProvider();
+        registerChannelTypeProvider();
+        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
+        ThingHandlerFactory thingHandlerFactory = new BaseThingHandlerFactory() {
+            @Override
+            public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
+                return true;
+            }
+
+            @Override
+            protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {
+                ThingHandler mockHandler = mock(ThingHandler.class);
+                doAnswer(a -> {
+                    thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                    return null;
+                }).when(mockHandler).setCallback(any(ThingHandlerCallback.class));
+                when(mockHandler.getThing()).thenReturn(THING);
+                return mockHandler;
+            }
+        };
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.getName());
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        waitForAssert(() -> {
+            assertNotNull(thc.get());
+        });
+        return thc;
+    }
 }
