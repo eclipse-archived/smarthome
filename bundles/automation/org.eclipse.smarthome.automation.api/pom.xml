@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation API</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.api</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.api</bundle.namespace>
-  </properties>
-
 </project>

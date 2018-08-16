@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Mac TTS Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.voice.mactts.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.voice.mactts.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

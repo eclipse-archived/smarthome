@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Java Demo</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.sample.java.demo</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.sample.java.demo</bundle.namespace>
-  </properties>
-
 </project>

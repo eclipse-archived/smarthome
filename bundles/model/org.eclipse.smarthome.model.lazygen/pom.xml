@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Model Lazy Generation</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.lazygen</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.lazygen</bundle.namespace>
-  </properties>
 </project>

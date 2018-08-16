@@ -16,9 +16,4 @@
 
   <name>Eclipse SmartHome Console for OSGi Console RFC 147</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.console.rfc147</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.console.rfc147</bundle.namespace>
-  </properties>
-
 </project>

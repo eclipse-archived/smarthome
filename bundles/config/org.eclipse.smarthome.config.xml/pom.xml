@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Configuration XML</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.config.xml</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.config.xml</bundle.namespace>
-  </properties>
-
 </project>

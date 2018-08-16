@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="onewire" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+	<bridge-type id="owserver">
+		<label>OW Server</label>
+		<description>An owserver instance</description>
+		<config-description>
+			<parameter name="network-address" type="text">
+				<context>network_address</context>
+				<label>Network Address</label>
+				<description>Network address of the host running the owserver</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="port" type="integer">
+				<label>Port</label>
+				<description>Listening port of the owserver</description>
+				<default>4304</default>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</bridge-type>
+</thing:thing-descriptions>

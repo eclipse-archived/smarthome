@@ -15,11 +15,6 @@
 
   <name>Magic Bundle Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.magic.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.magic</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

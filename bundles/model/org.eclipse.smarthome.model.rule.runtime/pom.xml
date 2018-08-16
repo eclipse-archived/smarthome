@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Model Rules Runtime</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.rule.runtime</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.rule.runtime</bundle.namespace>
-  </properties>
 </project>

@@ -15,11 +15,6 @@
 
   <name>Eclipse SmartHome Configuration Dispatcher Tests</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.config.dispatch.test</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.config.dispatch.test</bundle.namespace>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

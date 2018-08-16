@@ -15,8 +15,4 @@
 
   <name>Eclipse SmartHome Thing Model Runtime</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.model.thing.runtime</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.model.thing.runtime</bundle.namespace>
-  </properties>
 </project>

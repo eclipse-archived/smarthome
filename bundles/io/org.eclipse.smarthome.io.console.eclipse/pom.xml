@@ -16,9 +16,4 @@
 
   <name>Eclipse SmartHome Console for OSGi framework Eclipse Equinox</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.console.eclipse</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.console.eclipse</bundle.namespace>
-  </properties>
-
 </project>

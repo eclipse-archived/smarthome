@@ -15,9 +15,4 @@
 
   <name>Eclipse SmartHome Automation Sample Extension Java</name>
 
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.automation.sample.extension.java</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.automation.sample.extension.java</bundle.namespace>
-  </properties>
-
 </project>

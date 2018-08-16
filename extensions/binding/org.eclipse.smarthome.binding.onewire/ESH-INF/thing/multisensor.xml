@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="onewire" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+	<thing-type id="ms-th">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>Multisensor TH</label>
+		<description>A 1-wire multisensor (DS2438-based)</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+			<channel id="humidity" typeId="humidityconf" />
+			<channel id="absolutehumidity" typeId="absolutehumidity" />
+			<channel id="dewpoint" typeId="dewpoint" />
+			<channel id="supplyvoltage" typeId="voltage" />
+		</channels>
+		<properties>
+			<property name="sensorCount">1</property>
+		</properties>
+		<config-description>
+			<parameter name="id" type="text">
+				<label>Sensor ID</label>
+				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+	<thing-type id="ms-tv">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>Multisensor TV</label>
+		<description>A 1-wire multisensor (DS2438-based)</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+			<channel id="voltage" typeId="voltage" />
+			<channel id="supplyvoltage" typeId="voltage" />
+		</channels>
+		<properties>
+			<property name="sensorCount">1</property>
+		</properties>
+		<config-description>
+			<parameter name="id" type="text">
+				<label>Sensor ID</label>
+				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+	<thing-type id="bms">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>Multisensor BMS</label>
+		<description>1-wire multisensor (DS2438-based)</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+			<channel id="humidity" typeId="humidity" />
+			<channel id="absolutehumidity" typeId="absolutehumidity" />
+			<channel id="dewpoint" typeId="dewpoint" />
+			<channel id="supplyvoltage" typeId="voltage" />
+		</channels>
+		<properties>
+			<property name="modelId">BMS</property>
+			<property name="vendor">Elaborated Networks</property>
+			<property name="sensorCount">2</property>
+			<property name="prodDate"></property>
+			<property name="hwRevision"></property>
+		</properties>
+		<config-description>
+			<parameter name="id" type="text">
+				<label>TH(S) sensor ID</label>
+				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="id1" type="text">
+				<context>network_address</context>
+				<label>Temperature sensor ID</label>
+				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="lightsensor" type="boolean">
+				<label>Ambient light</label>
+				<description>Ambient light connected</description>
+				<default>false</default>
+				<required>false</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+			<parameter name="temperaturesensor" type="text">
+				<label>Temperature Sensor</label>
+				<options>
+					<option value="DS2438">internal (DS2438)</option>
+					<option value="DS18B20">external (DS18B20)</option>
+				</options>
+				<default>DS2438</default>
+				<limitToOptions>true</limitToOptions>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+	<thing-type id="ams">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>Multisensor AMS</label>
+		<description>1-wire multisensor (DS2438-based)</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+			<channel id="humidity" typeId="humidity" />
+			<channel id="absolutehumidity" typeId="absolutehumidity" />
+			<channel id="dewpoint" typeId="dewpoint" />
+			<channel id="supplyvoltage" typeId="voltage" />
+			<channel id="voltage" typeId="voltage" />
+			<channel id="digital0" typeId="dio">
+				<label>Digital I/O 0</label>
+			</channel>
+			<channel id="digital1" typeId="dio">
+				<label>Digital I/O 1</label>
+			</channel>
+		</channels>
+		<properties>
+			<property name="modelId">AMS</property>
+			<property name="vendor">Elaborated Networks</property>
+			<property name="sensorCount">4</property>
+			<property name="prodDate"></property>
+			<property name="hwRevision"></property>
+		</properties>
+		<config-description>
+			<parameter name="id" type="text">
+				<label>TH(S) sensor ID</label>
+				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="id1" type="text">
+				<context>network_address</context>
+				<label>Temperature sensor ID</label>
+				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="id2" type="text">
+				<context>network_address</context>
+				<label>AI sensor ID</label>
+				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="id3" type="text">
+				<context>network_address</context>
+				<label>Digital I/O sensor ID</label>
+				<description>Sensor ID of the DS2413 sensor in format: xx.xxxxxxxxxxxx</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="lightsensor" type="boolean">
+				<label>Ambient light</label>
+				<description>Ambient light connected</description>
+				<default>false</default>
+				<required>false</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time for analog channels</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+			<parameter name="refreshdigital" type="integer" min="1">
+				<label>Refresh Time for digital channels</label>
+				<description>Time in seconds after which the digital I/Os are refreshed</description>
+				<default>10</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+			<parameter name="temperaturesensor" type="text">
+				<label>Temperature Sensor</label>
+				<options>
+					<option value="DS2438">internal (DS2438)</option>
+					<option value="DS18B20">external (DS18B20)</option>
+				</options>
+				<default>DS2438</default>
+				<limitToOptions>true</limitToOptions>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+</thing:thing-descriptions>
