@@ -1,0 +1,34 @@
+<div layout="row" layout-align="start center">
+	<div flex="40" layout="row" layout-align="start center">
+		<p>
+			<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'trending_up')}}</i>{{::$ctrl.getLabel($ctrl.item, 'Value')}}
+		</p>
+	</div>
+	<div flex="60" layout="row" layout-align="end center">
+		<div ng-if="::$ctrl.item.readOnly">
+			<h2 class="state">{{$ctrl.item.stateText}}</h2>
+		</div>
+		<div layout="row" layout-align="end center" ng-if="::(!$ctrl.item.readOnly && !$ctrl.isOptionList($ctrl.item))">
+			<h2 class="state edit" ng-if="!$ctrl.editMode" ng-click="$ctrl.editState()">{{$ctrl.item.stateText}}</h2>
+			<form name="controlForm">
+				<md-input-container ng-show="$ctrl.editMode">
+				    <input name="{{::$ctrl.item.name}}"
+				           ng-model="$ctrl.item.state"
+				           aria-label={{::$ctrl.item.label}}
+				           type="number"
+				           ng-min="::$ctrl.item.stateDescription.minimum"
+				           ng-max="::$ctrl.item.stateDescription.maximum"
+				           step="{{::$ctrl.item.stateDescription.step}}"
+				           ng-required="true">
+				</md-input-container>
+				<i class="md-button control-button material-icons" 
+				   ng-disabled="controlForm[$ctrl.item.name].$invalid"
+				   ng-show="$ctrl.editMode"
+				   ng-click="controlForm[$ctrl.item.name].$invalid || $ctrl.updateState()">check</i>
+			</form>
+		</div>
+	</div>
+</div>
+<div layout="row" layout-align="start center" ng-if="::($ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)">
+    <item-state-dropdown item="$ctrl.item" on-change="$ctrl.updateState()"></item-state-dropdown>
+</div>

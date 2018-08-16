@@ -38,6 +38,9 @@ angular.module('PaperUI.services').factory('util', function($filter, dateTime) {
                 if ("%" === unit) {
                     unit = "%%";
                 }
+                if (!unit) {
+                    unit = '';
+                }
                 var pattern = item.stateDescription.pattern.replace('%unit%', unit)
                 return sprintf(pattern, state);
             }

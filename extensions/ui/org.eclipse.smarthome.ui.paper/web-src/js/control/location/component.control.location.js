@@ -2,16 +2,17 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.controllers.control').component('locationControl', {
+    angular.module('PaperUI.control').component('locationControl', {
         bindings : {
-            item : '<',
-            onUpdate : '&'
+            item : '<'
         },
-        templateUrl : 'partials/control/directive.control.location.html',
-        controller : locationController
+        templateUrl : 'partials/control/location/component.control.location.html',
+        controller : LocationItemController
     });
 
-    function locationController() {
+    LocationItemController.$inject = [ 'controlItemService' ];
+
+    function LocationItemController(controlItemService) {
         var ctrl = this;
         this.formattedState;
         this.editMode = false;
@@ -23,12 +24,21 @@
         this.onMapUpdate = onMapUpdate;
 
         this.$onChanges = onChanges;
+        this.$onInit = activate;
 
         function onChanges(changes) {
             if (changes.item) {
-                this.item = angular.copy(this.item);
+                ctrl.item = angular.copy(this.item);
                 ctrl.formattedState = updateFormattedState();
             }
+        }
+
+        function activate() {
+            controlItemService.onStateChange(ctrl.item.name, function(stateObject) {
+                ctrl.item.state = stateObject.value;
+                controlItemService.updateStateText(ctrl.item);
+                ctrl.formattedState = updateFormattedState();
+            });
         }
 
         function updateFormattedState() {
@@ -47,11 +57,7 @@
 
         function updateState() {
             ctrl.editMode = false;
-            ctrl.onUpdate({
-                $event : {
-                    item : ctrl.item
-                }
-            });
+            controlItemService.sendCommand(ctrl.item, ctrl.item.state);
             ctrl.formattedState = updateFormattedState();
         }
 

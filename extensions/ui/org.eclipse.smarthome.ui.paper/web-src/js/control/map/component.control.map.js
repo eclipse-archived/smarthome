@@ -2,19 +2,91 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.component', []).component('mapComponent', {
+    angular.module('PaperUI.control').component('mapComponent', {
         bindings : {
             model : '<',
             readOnly : '<',
             onUpdate : '&'
         },
-        templateUrl : 'partials/control/map-component/directive.component.map.html',
+        templateUrl : 'partials/control/map/component.control.map.html',
         controller : MapController
     });
 
-    MapController.$inject = [ 'mapSourceService' ];
+    MapController.$inject = [ '$timeout', 'mapSourceService' ];
 
-    function MapController(mapSourceService) {
+    function MapController($timeout, mapSourceService) {
+
+        var Drag = function(callback) {
+
+            ol.interaction.Pointer.call(this, {
+                handleDownEvent : Drag.prototype.handleDownEvent,
+                handleDragEvent : Drag.prototype.handleDragEvent,
+                handleMoveEvent : Drag.prototype.handleMoveEvent,
+                handleUpEvent : Drag.prototype.handleUpEvent
+            });
+
+            this.coordinate_ = null;
+            this.cursor_ = 'pointer';
+            this.feature_ = null;
+            this.previousCursor_ = undefined;
+            this.callback_ = callback;
+        }
+
+        ol.inherits(Drag, ol.interaction.Pointer);
+
+        Drag.prototype.handleDownEvent = function(evt) {
+            var map = evt.map;
+
+            var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                return feature;
+            });
+
+            if (feature) {
+                this.coordinate_ = evt.coordinate;
+                this.feature_ = feature;
+            }
+
+            return !!feature;
+        };
+
+        Drag.prototype.handleDragEvent = function(evt) {
+            var deltaX = evt.coordinate[0] - this.coordinate_[0];
+            var deltaY = evt.coordinate[1] - this.coordinate_[1];
+
+            var geometry = /** @type {ol.geom.SimpleGeometry} */
+            (this.feature_.getGeometry());
+            geometry.translate(deltaX, deltaY);
+
+            this.coordinate_[0] = evt.coordinate[0];
+            this.coordinate_[1] = evt.coordinate[1];
+        };
+
+        Drag.prototype.handleMoveEvent = function(evt) {
+            if (this.cursor_) {
+                var map = evt.map;
+                var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                    return feature;
+                });
+                var element = evt.map.getTargetElement();
+                if (feature) {
+                    if (element.style.cursor != this.cursor_) {
+                        this.previousCursor_ = element.style.cursor;
+                        element.style.cursor = this.cursor_;
+                    }
+                } else if (this.previousCursor_ !== undefined) {
+                    element.style.cursor = this.previousCursor_;
+                    this.previousCursor_ = undefined;
+                }
+            }
+        };
+
+        Drag.prototype.handleUpEvent = function() {
+            this.callback_(this.coordinate_);
+            this.coordinate_ = null;
+            this.feature_ = null;
+            return false;
+        };
+
         var ctrl = this;
         this.map;
         this.point;
@@ -50,8 +122,6 @@
                 return;
             }
 
-            ol.inherits(Drag, ol.interaction.Pointer);
-
             ctrl.hasMapSource = true
             var element = 'map';
 
@@ -67,17 +137,17 @@
                     if (altitude != null) {
                         model += (',' + altitude);
                     }
-                    ctrl.onUpdate({
-                        $event : {
-                            location : model
-                        }
-                    });
+
+                    $timeout(function() {
+                        ctrl.onUpdate({
+                            $event : {
+                                location : model
+                            }
+                        });
+                    }, 0);
+
                 });
             }
-
-            ctrl.point = new ol.geom.Point(ol.proj.fromLonLat([ 0, 0 ]));
-
-            ctrl.map.addLayer(createVectorLayer(ctrl.point));
         }
 
         function createMap(element, coordinateCallback) {
@@ -85,13 +155,16 @@
                 source : mapSourceService.getMapSource()
             });
 
+            ctrl.point = new ol.geom.Point(ol.proj.fromLonLat([ 0, 0 ]));
+            var vectorLayer = createVectorLayer(ctrl.point);
+
             var drag = [];
             if (coordinateCallback) {
                 drag = ol.interaction.defaults().extend([ new Drag(coordinateCallback) ]);
             }
 
             var map = new ol.Map({
-                layers : [ mapLayer ],
+                layers : [ mapLayer, vectorLayer ],
                 target : element,
                 view : new ol.View({
                     center : ol.proj.fromLonLat([ 0, 0 ]),
@@ -157,74 +230,4 @@
             return [ latitude, longitude, altitude ];
         }
     }
-
-    var Drag = function(callback) {
-
-        ol.interaction.Pointer.call(this, {
-            handleDownEvent : Drag.prototype.handleDownEvent,
-            handleDragEvent : Drag.prototype.handleDragEvent,
-            handleMoveEvent : Drag.prototype.handleMoveEvent,
-            handleUpEvent : Drag.prototype.handleUpEvent
-        });
-
-        this.coordinate_ = null;
-        this.cursor_ = 'pointer';
-        this.feature_ = null;
-        this.previousCursor_ = undefined;
-        this.callback_ = callback;
-
-    }
-
-    Drag.prototype.handleDownEvent = function(evt) {
-        var map = evt.map;
-
-        var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-            return feature;
-        });
-
-        if (feature) {
-            this.coordinate_ = evt.coordinate;
-            this.feature_ = feature;
-        }
-
-        return !!feature;
-    };
-
-    Drag.prototype.handleDragEvent = function(evt) {
-        var deltaX = evt.coordinate[0] - this.coordinate_[0];
-        var deltaY = evt.coordinate[1] - this.coordinate_[1];
-
-        var geometry = /** @type {ol.geom.SimpleGeometry} */
-        (this.feature_.getGeometry());
-        geometry.translate(deltaX, deltaY);
-
-        this.coordinate_[0] = evt.coordinate[0];
-        this.coordinate_[1] = evt.coordinate[1];
-    };
-
-    Drag.prototype.handleMoveEvent = function(evt) {
-        if (this.cursor_) {
-            var map = evt.map;
-            var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-                return feature;
-            });
-            var element = evt.map.getTargetElement();
-            if (feature) {
-                if (element.style.cursor != this.cursor_) {
-                    this.previousCursor_ = element.style.cursor;
-                    element.style.cursor = this.cursor_;
-                }
-            } else if (this.previousCursor_ !== undefined) {
-                element.style.cursor = this.previousCursor_;
-                this.previousCursor_ = undefined;
-            }
-        }
-    };
-
-    Drag.prototype.handleUpEvent = function() {
-        this.callback_(this.coordinate_);
-        this.coordinate_ = null;
-        this.feature_ = null;
-        return false;
-    };
 })()
