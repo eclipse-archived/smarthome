@@ -39,6 +39,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -122,11 +123,13 @@ public class DmxBridgeHandlerTest extends JavaTest {
         waitForAssert(() -> assertEquals(ThingStatus.ONLINE, bridge.getStatusInfo().getStatus()));
     }
 
+    @Ignore("https://github.com/eclipse/smarthome/issues/6015#issuecomment-411313627")
     @Test
     public void assertSendDmxDataIsCalled() {
         Mockito.verify(bridgeHandler, after(500).atLeast(9)).sendDmxData();
     }
 
+    @Ignore("https://github.com/eclipse/smarthome/issues/6015")
     @Test
     public void assertMuteChannelMutesOutput() {
         bridgeHandler.handleCommand(CHANNEL_UID_MUTE, OnOffType.ON);
