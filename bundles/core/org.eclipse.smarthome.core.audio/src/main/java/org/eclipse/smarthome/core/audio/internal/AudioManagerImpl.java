@@ -167,18 +167,18 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public void playFile(String fileName, String sink) throws AudioException {
-        playFile(fileName, sink, null);
+    public void playFile(String fileName, String sinkId) throws AudioException {
+        playFile(fileName, sinkId, null);
     }
 
     @Override
-    public void playFile(String fileName, String sink, PercentType volume) throws AudioException {
+    public void playFile(String fileName, String sinkId, PercentType volume) throws AudioException {
         Objects.requireNonNull(fileName, "File cannot be played as fileName is null.");
 
         File file = new File(
                 ConfigConstants.getConfigFolder() + File.separator + SOUND_DIR + File.separator + fileName);
         FileAudioStream is = new FileAudioStream(file);
-        play(is, sink, volume);
+        play(is, sinkId, volume);
     }
 
     @Override
@@ -254,16 +254,6 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public Set<String> getSourceIds() {
-        return new HashSet<>(audioSources.keySet());
-    }
-
-    @Override
-    public Set<String> getSinkIds() {
-        return new HashSet<>(audioSinks.keySet());
-    }
-
-    @Override
     public Set<String> getSourceIds(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
         Set<String> matchedSources = new HashSet<>();
@@ -283,17 +273,17 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Override
-    public Set<String> getSinks(String pattern) {
+    public Set<String> getSinkIds(String pattern) {
         String regex = pattern.replace("?", ".?").replace("*", ".*?");
-        Set<String> matchedSinks = new HashSet<>();
+        Set<String> matchedSinkIds = new HashSet<>();
 
-        for (String aSink : audioSinks.keySet()) {
-            if (aSink.matches(regex)) {
-                matchedSinks.add(aSink);
+        for (String sinkId : audioSinks.keySet()) {
+            if (sinkId.matches(regex)) {
+                matchedSinkIds.add(sinkId);
             }
         }
 
-        return matchedSinks;
+        return matchedSinkIds;
     }
 
     @Override
