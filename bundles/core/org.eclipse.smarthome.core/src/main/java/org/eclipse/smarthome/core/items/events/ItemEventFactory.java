@@ -281,7 +281,8 @@ public class ItemEventFactory extends AbstractEventFactory {
             boolean isConfirmation) {
         assertValidArguments(itemName, state, "state");
         String topic = buildTopic(ITEM_STATE_PREDICTED_EVENT_TOPIC, itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(getStateType(state), state.toFullString());
+        ItemStatePredictedEventPayloadBean bean = new ItemStatePredictedEventPayloadBean(getStateType(state),
+                state.toFullString(), isConfirmation);
         String payload = serializePayload(bean);
         return new ItemStatePredictedEvent(topic, payload, itemName, state, isConfirmation);
     }
