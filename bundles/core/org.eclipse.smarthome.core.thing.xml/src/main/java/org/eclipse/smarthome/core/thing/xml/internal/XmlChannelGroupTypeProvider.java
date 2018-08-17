@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Simon Kaufmann - factored out from {@link XmlChannelTypeProvider}
  * @author Christoph Weitkamp - factored out common aspects into {@link ThingTypeI18nLocalizationService}
  */
-@Component(immediate = false, property = { "esh.scope=core.xml.channelGroups" })
+@Component(immediate = true, property = { "esh.scope=core.xml.channelGroups" })
 public class XmlChannelGroupTypeProvider extends AbstractXmlBasedProvider<UID, ChannelGroupType>
         implements ChannelGroupTypeProvider {
 

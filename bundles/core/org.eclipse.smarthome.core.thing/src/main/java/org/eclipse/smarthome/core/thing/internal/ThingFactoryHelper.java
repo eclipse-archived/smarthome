@@ -121,7 +121,7 @@ public class ThingFactoryHelper {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private static <T> T withChannelTypeRegistry(Function<ChannelTypeRegistry, T> consumer) {
         BundleContext bundleContext = FrameworkUtil.getBundle(ThingFactoryHelper.class).getBundleContext();
-        ServiceReference ref = bundleContext.getServiceReference(ChannelGroupTypeRegistry.class.getName());
+        ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
         try {
             ChannelTypeRegistry channelTypeRegistry = null;
             if (ref != null) {
