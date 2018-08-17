@@ -403,7 +403,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         }
         if (handler != null) {
             weatherData = handler.getWeatherData(USUAL_FEATURES, StringUtils.trimToEmpty(config.location),
-                    this.localeProvider, this.gson);
+                    config.language, this.localeProvider, this.gson);
 
             if (weatherData != null) {
                 updateStatus(ThingStatus.ONLINE);
