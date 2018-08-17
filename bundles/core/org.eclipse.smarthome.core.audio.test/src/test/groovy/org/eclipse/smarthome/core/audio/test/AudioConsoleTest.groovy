@@ -34,7 +34,7 @@ public class AudioConsoleTest extends AudioOSGiTest {
 
     private def consoleOutput
     private def consoleMock = [println: {String s -> consoleOutput = s}] as Console
-    
+
     private def testTimeout = 1;
 
     @Before
@@ -82,8 +82,8 @@ public class AudioConsoleTest extends AudioOSGiTest {
 
         waitForAssert({
             assertThat "The given volume was invalid",
-                consoleOutput,
-                is(null)
+                    consoleOutput,
+                    is(null)
         })
     }
 
@@ -129,7 +129,7 @@ public class AudioConsoleTest extends AudioOSGiTest {
         waitForAssert({
             assertThat "The listed sink was not as expected",
                     consoleOutput,
-                    is(audioSinkFake.getId())
+                    is(String.format("* %s %s", audioSinkFake.getId(), audioSinkFake.getLabel(null)))
         })
     }
 
@@ -143,13 +143,13 @@ public class AudioConsoleTest extends AudioOSGiTest {
         waitForAssert({
             assertThat "The listed source was not as expected",
                     consoleOutput,
-                    is(audioSourceMock.getId())
+                    is(String.format("* %s %s", audioSourceMock.getId(), audioSourceMock.getLabel(null)))
         })
     }
 
     protected AudioConsoleCommandExtension getAudioConsoleCommandExtension(){
         audioConsoleCommandExtension = getService(ConsoleCommandExtension, AudioConsoleCommandExtension)
-        
+
         assertThat "Could not get AudioConsoleCommandExtension",
                 audioConsoleCommandExtension,
                 is(notNullValue())
