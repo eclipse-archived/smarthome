@@ -42,6 +42,7 @@
     <module>org.eclipse.smarthome.automation.sample.java.demo</module>
     <module>org.eclipse.smarthome.automation.sample.json.demo</module>
     <module>org.eclipse.smarthome.automation.sample.moduletype.demo</module>
+    <module>org.eclipse.smarthome.automation.thingsupport</module>
   </modules>
 
   <dependencies>

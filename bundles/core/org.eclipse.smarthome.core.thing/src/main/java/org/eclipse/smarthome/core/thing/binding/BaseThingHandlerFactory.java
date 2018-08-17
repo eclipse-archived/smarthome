@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -170,6 +172,14 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         ServiceRegistration<T> serviceRegistration = (ServiceRegistration<T>) bundleContext
                 .registerService(type.getName(), thingHandler, null);
         return serviceRegistration;
+    }
+
+    protected ServiceRegistration<?> registerActionService(Thing thing, ThingHandler handler,
+            AnnotatedThingActions actionProvider) {
+        Dictionary<String, String> properties = new Hashtable<>();
+        properties.put(AnnotatedThingActions.ACTION_THING_UID, thing.getUID().getAsString());
+
+        return this.bundleContext.registerService(AnnotatedThingActions.class, actionProvider, properties);
     }
 
     @Override
