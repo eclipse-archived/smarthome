@@ -53,23 +53,22 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * @author Michael Grammling - Initial Contribution
  * @author Ivan Iliev - Added support for system wide channel types
  *
- * @see ThingTypeXmlProviderFactory
  */
 public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
 
-    private Logger logger = LoggerFactory.getLogger(ThingTypeXmlProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(ThingTypeXmlProvider.class);
 
-    private Bundle bundle;
-    private AbstractXmlConfigDescriptionProvider configDescriptionProvider;
-    private XmlThingTypeProvider thingTypeProvider;
+    private final Bundle bundle;
+    private final AbstractXmlConfigDescriptionProvider configDescriptionProvider;
+    private final XmlThingTypeProvider thingTypeProvider;
 
     // temporary cache
-    private List<ThingTypeXmlResult> thingTypeRefs;
-    private List<ChannelGroupTypeXmlResult> channelGroupTypeRefs;
-    private List<ChannelTypeXmlResult> channelTypeRefs;
+    private final List<ThingTypeXmlResult> thingTypeRefs;
+    private final List<ChannelGroupTypeXmlResult> channelGroupTypeRefs;
+    private final List<ChannelTypeXmlResult> channelTypeRefs;
 
-    private XmlChannelTypeProvider channelTypeProvider;
-    private XmlChannelGroupTypeProvider channelGroupTypeProvider;
+    private final XmlChannelTypeProvider channelTypeProvider;
+    private final XmlChannelGroupTypeProvider channelGroupTypeProvider;
 
     public ThingTypeXmlProvider(Bundle bundle, AbstractXmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider,

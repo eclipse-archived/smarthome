@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -41,14 +42,20 @@ public interface ChannelTypeProvider {
     ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale);
 
     /**
-     * @see ChannelTypeRegistry#getChannelGroupType(ChannelGroupTypeUID, Locale)
+     * @deprecated The {@link ChannelGroupTypeProvider} is now to be implemented/used instead.
      */
+    @Deprecated
     @Nullable
-    ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale);
+    default ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale) {
+        return null;
+    }
 
     /**
-     * @see ChannelTypeRegistry#getChannelGroupTypes(Locale)
+     * @deprecated The {@link ChannelGroupTypeProvider} is now to be implemented/used instead.
      */
+    @Deprecated
     @Nullable
-    Collection<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale);
+    default Collection<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
+        return Collections.emptyList();
+    }
 }

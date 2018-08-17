@@ -47,6 +47,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -159,12 +160,13 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
         when(channelTypeProvider.getChannelTypes(any())).thenReturn(channelTypes.values());
         when(channelTypeProvider.getChannelType(any(), any()))
                 .thenAnswer(invocation -> channelTypes.get(invocation.getArgument(0)));
-
-        when(channelTypeProvider.getChannelGroupTypes(any())).thenReturn(channelGroupTypes.values());
-        when(channelTypeProvider.getChannelGroupType(any(), any()))
-                .thenAnswer(invocation -> channelGroupTypes.get(invocation.getArgument(0)));
-
         registerService(channelTypeProvider);
+
+        ChannelGroupTypeProvider channelGroupTypeProvider = mock(ChannelGroupTypeProvider.class);
+        when(channelGroupTypeProvider.getChannelGroupTypes(any())).thenReturn(channelGroupTypes.values());
+        when(channelGroupTypeProvider.getChannelGroupType(any(), any()))
+                .thenAnswer(invocation -> channelGroupTypes.get(invocation.getArgument(0)));
+        registerService(channelGroupTypeProvider);
 
         managedItemProvider.add(new StringItem(ITEM_GENERIC));
         managedItemProvider.add(new StringItem(ITEM_SPECIFIC));

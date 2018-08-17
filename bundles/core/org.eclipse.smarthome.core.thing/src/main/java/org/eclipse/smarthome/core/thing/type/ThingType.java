@@ -274,16 +274,16 @@ public class ThingType extends AbstractDescriptionType {
             @SuppressWarnings("rawtypes")
             ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
             try {
-                ChannelTypeRegistry channelTypeRegistry = null;
+                ChannelGroupTypeRegistry channelGroupTypeRegistry = null;
                 if (ref != null) {
-                    channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
+                    channelGroupTypeRegistry = (ChannelGroupTypeRegistry) bundleContext.getService(ref);
                 }
 
                 for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
                     if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
                         ChannelGroupType channelGroupType = null;
-                        if (channelTypeRegistry != null) {
-                            channelGroupType = channelTypeRegistry
+                        if (channelGroupTypeRegistry != null) {
+                            channelGroupType = channelGroupTypeRegistry
                                     .getChannelGroupType(channelGroupDefinition.getTypeUID());
                         }
                         if (channelGroupType != null) {

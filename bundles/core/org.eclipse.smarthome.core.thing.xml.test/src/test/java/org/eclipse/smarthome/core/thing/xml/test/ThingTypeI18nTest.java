@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -38,6 +39,7 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
 
     private ThingTypeProvider thingTypeProvider;
     private ChannelTypeRegistry channelTypeRegistry;
+    private ChannelGroupTypeRegistry channelGroupTypeRegistry;
 
     @Before
     public void setUp() {
@@ -46,6 +48,9 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
 
         channelTypeRegistry = getService(ChannelTypeRegistry.class);
         assertNotNull(channelTypeRegistry);
+
+        channelGroupTypeRegistry = getService(ChannelGroupTypeRegistry.class);
+        assertNotNull(channelGroupTypeRegistry);
     }
 
     @After
@@ -87,7 +92,7 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
                 .filter(it -> it.toString().equals("yahooweather:weather-with-group")).findFirst().get();
         assertNotNull(weatherGroupType);
 
-        ChannelGroupType channelGroupType = channelTypeRegistry
+        ChannelGroupType channelGroupType = channelGroupTypeRegistry
                 .getChannelGroupType(weatherGroupType.getChannelGroupDefinitions().get(0).getTypeUID(), Locale.GERMAN);
         assertNotNull(channelGroupType);
 
@@ -147,7 +152,7 @@ public class ThingTypeI18nTest extends JavaOSGiTest {
                 .stream().filter(it -> it.getId().equals("forecastToday")).findFirst().get();
         assertNotNull(forecastTodayChannelGroupDefinition);
 
-        ChannelGroupType forecastTodayChannelGroupType = channelTypeRegistry
+        ChannelGroupType forecastTodayChannelGroupType = channelGroupTypeRegistry
                 .getChannelGroupType(forecastTodayChannelGroupDefinition.getTypeUID(), Locale.GERMAN);
         assertNotNull(forecastTodayChannelGroupType);
         assertEquals(3, forecastTodayChannelGroupType.getChannelDefinitions().size());

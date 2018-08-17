@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Collection;
 
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.test.SyntheticBundleInstaller;
@@ -38,7 +39,7 @@ public class ChannelTypesTest extends JavaOSGiTest {
     private static final String TEST_BUNDLE_NAME = "ChannelTypesTest.bundle";
 
     private ChannelTypeProvider channelTypeProvider;
-    private ChannelTypeProvider channelGroupTypeProvider;
+    private ChannelGroupTypeProvider channelGroupTypeProvider;
 
     @Before
     public void setUp() {
@@ -46,7 +47,7 @@ public class ChannelTypesTest extends JavaOSGiTest {
         channelTypeProvider = getService(ChannelTypeProvider.class,
                 serviceReference -> "core.xml.channels".equals(serviceReference.getProperty("esh.scope")));
         assertThat(channelTypeProvider, is(notNullValue()));
-        channelGroupTypeProvider = getService(ChannelTypeProvider.class,
+        channelGroupTypeProvider = getService(ChannelGroupTypeProvider.class,
                 serviceReference -> "core.xml.channelGroups".equals(serviceReference.getProperty("esh.scope")));
         assertThat(channelGroupTypeProvider, is(notNullValue()));
     }

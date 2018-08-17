@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -73,11 +74,12 @@ public class ThingFactoryHelper {
             }
         }
         List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-        withChannelTypeRegistry(channelTypeRegistry -> {
+        withChannelGroupTypeRegistry(channelGroupTypeRegistry -> {
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
                 ChannelGroupType channelGroupType = null;
-                if (channelTypeRegistry != null) {
-                    channelGroupType = channelTypeRegistry.getChannelGroupType(channelGroupDefinition.getTypeUID());
+                if (channelGroupTypeRegistry != null) {
+                    channelGroupType = channelGroupTypeRegistry
+                            .getChannelGroupType(channelGroupDefinition.getTypeUID());
                 }
                 if (channelGroupType != null) {
                     List<ChannelDefinition> channelGroupChannelDefinitions = channelGroupType.getChannelDefinitions();
@@ -100,9 +102,26 @@ public class ThingFactoryHelper {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static <T> T withChannelGroupTypeRegistry(Function<ChannelGroupTypeRegistry, T> consumer) {
+        BundleContext bundleContext = FrameworkUtil.getBundle(ThingFactoryHelper.class).getBundleContext();
+        ServiceReference ref = bundleContext.getServiceReference(ChannelGroupTypeRegistry.class.getName());
+        try {
+            ChannelGroupTypeRegistry channelGroupTypeRegistry = null;
+            if (ref != null) {
+                channelGroupTypeRegistry = (ChannelGroupTypeRegistry) bundleContext.getService(ref);
+            }
+            return consumer.apply(channelGroupTypeRegistry);
+        } finally {
+            if (ref != null) {
+                bundleContext.ungetService(ref);
+            }
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static <T> T withChannelTypeRegistry(Function<ChannelTypeRegistry, T> consumer) {
         BundleContext bundleContext = FrameworkUtil.getBundle(ThingFactoryHelper.class).getBundleContext();
-        ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
+        ServiceReference ref = bundleContext.getServiceReference(ChannelGroupTypeRegistry.class.getName());
         try {
             ChannelTypeRegistry channelTypeRegistry = null;
             if (ref != null) {
