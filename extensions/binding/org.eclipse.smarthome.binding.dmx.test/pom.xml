@@ -10,7 +10,7 @@
   <artifactId>org.eclipse.smarthome.binding.dmx.test</artifactId>
   <version>0.10.0-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
-  <name>Eclipse Smarthome DMX Binding Tests</name>
+  <name>Eclipse SmartHome DMX Binding Tests</name>
   <build>
     <plugins>
       <plugin>

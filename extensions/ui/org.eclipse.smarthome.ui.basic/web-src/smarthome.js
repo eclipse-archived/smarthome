@@ -1,5 +1,5 @@
 /**
- * Eclipse Smarthome BasicUI javascript
+ * Eclipse SmartHome BasicUI javascript
  *
  * @author Vlad Ivanov — initial version
  */

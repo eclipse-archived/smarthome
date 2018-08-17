@@ -14,7 +14,7 @@
 	<artifactId>org.eclipse.smarthome.binding.onewire</artifactId>
 	<version>0.10.0-SNAPSHOT</version>
 
-	<name>Eclipse Smarthome OneWire Binding</name>
+	<name>Eclipse SmartHome OneWire Binding</name>
 	<packaging>eclipse-plugin</packaging>
 
 </project>
