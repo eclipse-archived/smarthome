@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: Synthetic Test Bundle
+Bundle-Name: Eclipse SmartHome Synthetic Test Bundle
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: BundleInfoTestNoAuthor.bundle;singleton:=true
 Bundle-Version: 0.0.1.qualifier

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: FSInternetRadio Binding
+Bundle-Name: Eclipse SmartHome FSInternetRadio Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio;singl
  eton:=true

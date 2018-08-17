@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the Network I/O bundle
+Bundle-Name: Eclipse SmartHome Net I/O Bundle Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.net.test
 Bundle-Vendor: Eclipse.org/SmartHome

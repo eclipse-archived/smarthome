@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the Eclipse SmartHome MapDB Storage
+Bundle-Name: Eclipse SmartHome MapDB Storage Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb.test
 Bundle-Vendor: Eclipse.org/SmartHome
