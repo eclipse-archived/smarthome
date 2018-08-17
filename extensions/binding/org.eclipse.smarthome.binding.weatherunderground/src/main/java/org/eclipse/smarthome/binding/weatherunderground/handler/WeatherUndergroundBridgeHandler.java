@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants;
-import org.eclipse.smarthome.binding.weatherunderground.internal.config.WeatherUndergroundConfiguration;
 import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonData;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
@@ -430,7 +429,7 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
      * @return the weather data object mapping the JSON response or null in case of error
      */
     protected @Nullable WeatherUndergroundJsonData getWeatherData(Set<String> features, String location,
-            LocaleProvider localeProvider, Gson gsonWeather) {
+            String language, LocaleProvider localeProvider, Gson gsonWeather) {
         WeatherUndergroundJsonData result = null;
         boolean resultOk = false;
         String error = null;
@@ -438,15 +437,12 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
         String statusDescr = null;
 
         try {
-            // Build a valid URL for the Weather Underground service using
-            // the requested features and the thing configuration settings
-            WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
 
             String urlStr = URL_QUERY.replace("%APIKEY%", StringUtils.trimToEmpty(getApikey()));
 
             urlStr = urlStr.replace("%FEATURES%", String.join("/", features));
 
-            String lang = StringUtils.trimToEmpty(config.language);
+            String lang = StringUtils.trimToEmpty(language);
             if (lang.isEmpty()) {
                 // If language is not set in the configuration, you try deducing it from the system language
                 lang = LANG_ISO_TO_WU_CODES.get(localeProvider.getLocale().getLanguage().toUpperCase());
