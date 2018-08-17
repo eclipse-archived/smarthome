@@ -11,7 +11,7 @@
 
   <artifactId>org.eclipse.smarthome.core.audio.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
-  <name>Eclipse Smarthome Audio Test</name>
+  <name>Eclipse SmartHome Audio Test</name>
 
   <build>
     <plugins>

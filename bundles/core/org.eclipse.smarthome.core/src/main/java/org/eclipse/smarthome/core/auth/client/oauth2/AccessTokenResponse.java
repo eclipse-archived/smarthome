@@ -27,7 +27,7 @@ import org.eclipse.jdt.annotation.NonNull;
  * 4.4.3 - Client Credentials Grant - Access Token Response
  *
  * @author Michael Bock - Initial contribution
- * @author Gary Tse - Adaptation for Eclipse Smarthome
+ * @author Gary Tse - Adaptation for Eclipse SmartHome
  */
 public final class AccessTokenResponse implements Serializable, Cloneable {
 

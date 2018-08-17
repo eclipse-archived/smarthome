@@ -195,7 +195,7 @@ Description:
 
 You can try to play with these values and see what will happen.
 
-#### Smarthome Commands
+#### SmartHome Commands
 
 To see the automation objects that this demo provides you can use `smarthome automation` group commands.
 

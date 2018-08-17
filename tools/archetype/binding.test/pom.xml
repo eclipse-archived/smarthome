@@ -12,7 +12,7 @@
   <artifactId>org.eclipse.smarthome.archetype.binding.test</artifactId>
 
   <packaging>maven-archetype</packaging>
-  <name>Eclipse Smarthome Binding Archetype Testsuite</name>
+  <name>Eclipse SmartHome Binding Archetype Testsuite</name>
 
   <description>This is the Maven-Archetype for building tests for bindings for Eclipse SmartHome.</description>
 
