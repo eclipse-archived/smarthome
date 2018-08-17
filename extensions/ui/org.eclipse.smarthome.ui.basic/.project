@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>org.eclipse.smarthome.ui.basic</name>
-	<comment>This is the runtime component of the Eclipse Smarthome</comment>
+	<comment>This is the runtime component of the Eclipse SmartHome</comment>
 	<projects>
 	</projects>
 	<buildSpec>
