@@ -18,7 +18,6 @@ import java.util.Locale;
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.i18n.ChannelGroupTypeI18nLocalizationService;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -30,7 +29,7 @@ import org.osgi.service.component.annotations.Reference;
  * {@link XmlChannelGroupTypeProvider} provides channel group types from XML files.
  *
  * @author Simon Kaufmann - factored out from {@link XmlChannelTypeProvider}
- * @author Christoph Weitkamp - factored out common aspects into {@link ThingTypeI18nLocalizationService}
+ * @author Christoph Weitkamp - factored out common aspects into ThingTypeI18nLocalizationService
  */
 @Component(immediate = true, property = { "esh.scope=core.xml.channelGroups" })
 public class XmlChannelGroupTypeProvider extends AbstractXmlBasedProvider<UID, ChannelGroupType>

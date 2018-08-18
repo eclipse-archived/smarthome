@@ -18,7 +18,6 @@ import java.util.Locale;
 import org.eclipse.smarthome.config.xml.AbstractXmlBasedProvider;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.i18n.ChannelTypeI18nLocalizationService;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -33,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Kai Kreuzer - fixed concurrency issues
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  * @author Henning Treu - QuantityType implementation
- * @author Christoph Weitkamp - factored out common aspects into {@link ThingTypeI18nLocalizationService}
+ * @author Christoph Weitkamp - factored out common aspects into ThingTypeI18nLocalizationService
  */
 @Component(immediate = true, property = { "esh.scope=core.xml.channels" })
 public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, ChannelType> implements ChannelTypeProvider {
@@ -51,13 +50,13 @@ public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, Channe
     }
 
     @Reference
-    public void setThingTypeI18nLocalizationService(
-            final ChannelTypeI18nLocalizationService thingTypeI18nLocalizationService) {
-        this.channelTypeI18nLocalizationService = thingTypeI18nLocalizationService;
+    public void setChannelTypeI18nLocalizationService(
+            final ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = channelTypeI18nLocalizationService;
     }
 
-    public void unsetThingTypeI18nLocalizationService(
-            final ChannelTypeI18nLocalizationService thingTypeI18nLocalizationService) {
+    public void unsetChannelTypeI18nLocalizationService(
+            final ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
         this.channelTypeI18nLocalizationService = null;
     }
 
