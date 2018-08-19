@@ -255,13 +255,13 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             scanJob.cancel(true);
             scanJob = null;
         }
-        if (deviceClient != null) {
-            deviceClient.shutdown();
-            deviceClient = null;
-        }
         if (endPoint != null) {
             endPoint.destroy();
             endPoint = null;
+        }
+        if (deviceClient != null) {
+            deviceClient.shutdown();
+            deviceClient = null;
         }
         super.dispose();
     }
