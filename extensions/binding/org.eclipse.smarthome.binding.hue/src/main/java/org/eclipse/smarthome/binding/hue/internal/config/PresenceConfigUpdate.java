@@ -24,6 +24,7 @@ import org.eclipse.smarthome.binding.hue.internal.ConfigUpdate;
 public class PresenceConfigUpdate extends ConfigUpdate {
     /**
      * enable/disable the sensor
+     * When off, state changes of the sensor are not reflected in the sensor resource. Default is "true"
      *
      * @param on
      */

@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.measure.quantity.Temperature;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.HueBindingConstants;
@@ -26,7 +28,8 @@ import org.eclipse.smarthome.binding.hue.handler.HueSensorHandler;
 import org.eclipse.smarthome.binding.hue.internal.FullSensor;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -48,7 +51,7 @@ public class TemperatureHandler extends HueSensorHandler {
     protected void doSensorStateChanged(@Nullable HueBridge bridge, @NonNull FullSensor sensor, Configuration config) {
         Object tmp = sensor.getState().get("temperature");
         BigDecimal value = new BigDecimal(String.valueOf(tmp));
-        DecimalType temperature = new DecimalType(value.divide(new BigDecimal(100)));
+        QuantityType<Temperature> temperature = new QuantityType<>(value.divide(new BigDecimal(100)), SIUnits.CELSIUS);
         updateState(HueBindingConstants.CHANNEL_TEMPERATURE, temperature);
     }
 

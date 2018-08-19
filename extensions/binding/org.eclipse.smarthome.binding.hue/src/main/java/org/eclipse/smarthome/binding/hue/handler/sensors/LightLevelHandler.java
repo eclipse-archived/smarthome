@@ -14,9 +14,12 @@ package org.eclipse.smarthome.binding.hue.handler.sensors;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LIGHT_LEVEL_SENSOR;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.measure.quantity.Illuminance;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -25,8 +28,9 @@ import org.eclipse.smarthome.binding.hue.handler.HueSensorHandler;
 import org.eclipse.smarthome.binding.hue.internal.FullSensor;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
@@ -61,7 +65,12 @@ public class LightLevelHandler extends HueSensorHandler {
         boolean daylight = Boolean.parseBoolean(String.valueOf(oDaylight));
         updateState(HueBindingConstants.CHANNEL_DAYLIGHT, daylight ? OnOffType.ON : OnOffType.OFF);
 
-        updateState(HueBindingConstants.CHANNEL_LIGHTLEVEL, new DecimalType(String.valueOf(oLightLevel)));
+        // calculate lux, according to
+        // https://developers.meethue.com/documentation/supported-sensors#clip_zll_lightlevel
+        BigDecimal lightlevel = new BigDecimal(String.valueOf(oLightLevel));
+        double lux = Math.pow(10, (lightlevel.subtract(new BigDecimal(1)).divide(new BigDecimal(10000))).doubleValue());
+
+        updateState(HueBindingConstants.CHANNEL_LIGHTLEVEL, new QuantityType<Illuminance>(lux, SmartHomeUnits.LUX));
 
         if (sensor.getConfig().containsKey(FullSensor.CONFIG_THOLD_DARK)) {
             config.put(FullSensor.CONFIG_THOLD_DARK, sensor.getConfig().get(FullSensor.CONFIG_THOLD_DARK));

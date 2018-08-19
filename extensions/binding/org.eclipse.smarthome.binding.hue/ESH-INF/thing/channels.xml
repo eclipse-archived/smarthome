@@ -42,7 +42,7 @@
 	</channel-type>
 
 	<channel-type id="lightlevel">
-		<item-type>Number</item-type>
+		<item-type>Number:Illuminance</item-type>
 		<label>Light Level</label>
 		<description> The detected lightlevel in logarithmic lux
         </description>
@@ -61,15 +61,15 @@
 		</tags>
 	</channel-type>
 
-    <channel-type id="daylight">
-        <item-type>Switch</item-type>
-        <label>Daylight</label>
-        <description> lightlevel is above the daylight threshold
+	<channel-type id="daylight">
+		<item-type>Switch</item-type>
+		<label>Daylight</label>
+		<description> lightlevel is above the daylight threshold
         </description>
-        <tags>
-            <tag>Lighting</tag>
-        </tags>
-    </channel-type>
+		<tags>
+			<tag>Lighting</tag>
+		</tags>
+	</channel-type>
 
 
 	<!-- Dimmer Switch Channel -->

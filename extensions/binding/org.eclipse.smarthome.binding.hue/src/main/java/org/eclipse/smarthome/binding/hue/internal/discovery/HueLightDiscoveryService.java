@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.handler.LightStatusListener;
+import org.eclipse.smarthome.binding.hue.handler.SensorStatusListener;
 import org.eclipse.smarthome.binding.hue.handler.sensors.DimmerSwitchHandler;
 import org.eclipse.smarthome.binding.hue.handler.sensors.LightLevelHandler;
 import org.eclipse.smarthome.binding.hue.handler.sensors.PresenceHandler;
@@ -57,7 +58,8 @@ import org.slf4j.LoggerFactory;
  * @author Samuel Leisering - Added sensor support
  */
 @NonNullByDefault
-public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
+public class HueLightDiscoveryService extends AbstractDiscoveryService
+        implements LightStatusListener, SensorStatusListener {
 
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
@@ -88,12 +90,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     public void activate() {
         hueBridgeHandler.registerLightStatusListener(this);
+        hueBridgeHandler.registerSensorStatusListener(this);
     }
 
     @Override
     public void deactivate() {
         removeOlderResults(new Date().getTime(), hueBridgeHandler.getThing().getUID());
         hueBridgeHandler.unregisterLightStatusListener(this);
+        hueBridgeHandler.unregisterSensorStatusListener(this);
+
     }
 
     @Override
@@ -191,5 +196,25 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
                 .get(light.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
 
         return thingTypeId != null ? new ThingTypeUID(BINDING_ID, thingTypeId) : null;
+    }
+
+    @Override
+    public void onSensorStateChanged(@Nullable HueBridge bridge, FullSensor sensor) {
+        // nothing to do
+    }
+
+    @Override
+    public void onSensorRemoved(@Nullable HueBridge bridge, FullSensor sensor) {
+        ThingUID thingUID = getThingUID(sensor);
+
+        if (thingUID != null) {
+            thingRemoved(thingUID);
+        }
+
+    }
+
+    @Override
+    public void onSensorAdded(@Nullable HueBridge bridge, FullSensor sensor) {
+        onObjectAddedInternal(sensor);
     }
 }

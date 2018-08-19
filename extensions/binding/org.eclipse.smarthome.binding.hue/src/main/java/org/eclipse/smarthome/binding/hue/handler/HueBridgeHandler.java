@@ -197,6 +197,19 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
 
                 }
             }
+
+            // Check for removed sensors
+            for (Entry<String, FullSensor> fullSensorEntry : lastSensorStateCopy.entrySet()) {
+                lastSensorStates.remove(fullSensorEntry.getKey());
+                logger.debug("Hue Sensor {} removed.", fullSensorEntry.getKey());
+                for (SensorStatusListener sensorStatusListener : sensorStatusListeners) {
+                    try {
+                        sensorStatusListener.onSensorRemoved(hueBridge, fullSensorEntry.getValue());
+                    } catch (Exception e) {
+                        logger.error("An exception occurred while calling the Sensor Listeners", e);
+                    }
+                }
+            }
         }
 
     };
