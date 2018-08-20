@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the Eclipse SmartHome Json Storage
+Bundle-Name: Eclipse SmartHome Json Storage Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.storage.json.test
 Bundle-Vendor: Eclipse.org/SmartHome

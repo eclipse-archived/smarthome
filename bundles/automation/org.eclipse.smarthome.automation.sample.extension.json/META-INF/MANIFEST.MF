@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Activator: org.eclipse.smarthome.automation.internal.sample.json.internal.handler.Activator
 Bundle-ManifestVersion: 2
-Bundle-Name: Automation Sample JSON
+Bundle-Name: Eclipse SmartHome Automation Sample JSON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.extension.j
  son

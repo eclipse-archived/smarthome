@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: org.eclipse.smarthome.io.mqttembeddedbroker
 Bundle-ManifestVersion: 2
-Bundle-Name: Embedded Mqtt Broker
+Bundle-Name: Eclipse SmartHome Embedded Mqtt Broker
 Bundle-SymbolicName: org.eclipse.smarthome.io.mqttembeddedbroker;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

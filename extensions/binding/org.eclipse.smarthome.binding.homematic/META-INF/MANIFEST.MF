@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ActivationPolicy: lazy
 Bundle-Copyright: Eclipse Public License v2.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Homematic Binding
+Bundle-Name: Eclipse SmartHome Homematic Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.homematic;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Eclipse.org/SmartHome

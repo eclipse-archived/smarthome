@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: org.eclipse.smarthome.io.transport.mqtt.test
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the Mqtt transport I/O bundle
+Bundle-Name: Eclipse SmartHome MQTT Transport Bundle Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.mqtt.test
 Bundle-Vendor: Eclipse.org/SmartHome

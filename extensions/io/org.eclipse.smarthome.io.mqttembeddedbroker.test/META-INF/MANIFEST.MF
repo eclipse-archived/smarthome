@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: MqttBroker Binding Tests
+Bundle-Name: Eclipse SmartHome MqttBroker Binding Tests
 Bundle-SymbolicName: org.eclipse.smarthome.io.mqttembeddedbroker.test;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bluetooth Binding
+Bundle-Name: Eclipse SmartHome Bluetooth Binding
 Bundle-SymbolicName: 
  org.eclipse.smarthome.binding.bluetooth;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome

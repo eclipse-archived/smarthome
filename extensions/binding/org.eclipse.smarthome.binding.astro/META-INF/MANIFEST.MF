@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ActivationPolicy: lazy
 Bundle-Copyright: Eclipse Public License v1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Astro Binding
+Bundle-Name: Eclipse SmartHome Astro Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.astro;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome

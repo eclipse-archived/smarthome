@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the Xslt Transformation Service
+Bundle-Name: Eclipse SmartHome Xslt Transformation Service Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.transform.xslt.test
 Bundle-Vendor: Eclipse.org/SmartHome
