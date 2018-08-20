@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -104,6 +105,11 @@ public class ThingTypeI18nLocalizationService {
     @Activate
     protected void activate() {
         channelI18nUtil = new ChannelI18nUtil(channelTypeI18nLocalizationService, channelTypeRegistry);
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        channelI18nUtil = null;
     }
 
     private List<ChannelGroupDefinition> createLocalizedChannelGroupDefinitions(final Bundle bundle,
