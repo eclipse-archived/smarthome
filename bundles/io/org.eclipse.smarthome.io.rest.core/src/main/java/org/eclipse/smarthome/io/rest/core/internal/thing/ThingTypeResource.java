@@ -44,6 +44,7 @@ import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -89,6 +90,7 @@ public class ThingTypeResource implements RESTResource {
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
     private ChannelTypeRegistry channelTypeRegistry;
+    private ChannelGroupTypeRegistry channelGroupTypeRegistry;
 
     private LocaleService localeService;
 
@@ -117,6 +119,15 @@ public class ThingTypeResource implements RESTResource {
 
     protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setChannelGroupTypeRegistry(ChannelGroupTypeRegistry channelGroupTypeRegistry) {
+        this.channelGroupTypeRegistry = channelGroupTypeRegistry;
+    }
+
+    protected void unsetChannelGroupTypeRegistry(ChannelGroupTypeRegistry channelGroupTypeRegistry) {
+        this.channelGroupTypeRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
@@ -199,7 +210,7 @@ public class ThingTypeResource implements RESTResource {
         List<ChannelGroupDefinitionDTO> channelGroupDefinitionDTOs = new ArrayList<>();
         for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
             String id = channelGroupDefinition.getId();
-            ChannelGroupType channelGroupType = channelTypeRegistry
+            ChannelGroupType channelGroupType = channelGroupTypeRegistry
                     .getChannelGroupType(channelGroupDefinition.getTypeUID(), locale);
 
             // Default to the channelGroupDefinition label to override the
@@ -273,6 +284,6 @@ public class ThingTypeResource implements RESTResource {
     @Override
     public boolean isSatisfied() {
         return thingTypeRegistry != null && configDescriptionRegistry != null && channelTypeRegistry != null
-                && localeService != null;
+                && channelGroupTypeRegistry != null && localeService != null;
     }
 }

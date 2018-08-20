@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -42,6 +43,7 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
 
     private ThingTypeProvider thingTypeProvider;
     private ChannelTypeRegistry channelTypeRegistry;
+    private ChannelGroupTypeRegistry channelGroupTypeRegistry;
 
     @Before
     public void setUp() {
@@ -50,6 +52,9 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
 
         channelTypeRegistry = getService(ChannelTypeRegistry.class);
         assertThat(channelTypeRegistry, is(notNullValue()));
+
+        channelGroupTypeRegistry = getService(ChannelGroupTypeRegistry.class);
+        assertThat(channelGroupTypeRegistry, is(notNullValue()));
     }
 
     @After
@@ -61,7 +66,7 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
     public void systemChannelsInChannelGroupsShouldLoadAndUnload() throws Exception {
         int initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size();
         int initialNumberOfChannelTypes = channelTypeRegistry.getChannelTypes().size();
-        int initialNumberOfChannelGroupTypes = channelTypeRegistry.getChannelGroupTypes().size();
+        int initialNumberOfChannelGroupTypes = channelGroupTypeRegistry.getChannelGroupTypes().size();
 
         // install test bundle
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, SYSTEM_CHANNELS_IN_CHANNEL_GROUPS_BUNDLE_NAME);
@@ -70,7 +75,7 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
         Collection<ThingType> thingTypes = thingTypeProvider.getThingTypes(null);
         assertThat(thingTypes.size(), is(initialNumberOfThingTypes + 1));
         assertThat(channelTypeRegistry.getChannelTypes().size(), is(initialNumberOfChannelTypes + 1));
-        assertThat(channelTypeRegistry.getChannelGroupTypes().size(), is(initialNumberOfChannelGroupTypes + 1));
+        assertThat(channelGroupTypeRegistry.getChannelGroupTypes().size(), is(initialNumberOfChannelGroupTypes + 1));
 
         // uninstall test bundle
         bundle.uninstall();
@@ -78,7 +83,7 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
 
         assertThat(thingTypeProvider.getThingTypes(null).size(), is(initialNumberOfThingTypes));
         assertThat(channelTypeRegistry.getChannelTypes().size(), is(initialNumberOfChannelTypes));
-        assertThat(channelTypeRegistry.getChannelGroupTypes().size(), is(initialNumberOfChannelGroupTypes));
+        assertThat(channelGroupTypeRegistry.getChannelGroupTypes().size(), is(initialNumberOfChannelGroupTypes));
 
     }
 
@@ -94,7 +99,7 @@ public class SystemChannelsInChannelGroupsTest extends JavaOSGiTest {
 
         assertThat(thingTypes.size(), is(1));
 
-        List<ChannelGroupType> channelGroupTypes = channelTypeRegistry.getChannelGroupTypes();
+        List<ChannelGroupType> channelGroupTypes = channelGroupTypeRegistry.getChannelGroupTypes();
 
         ChannelGroupType channelGroup = channelGroupTypes.stream()
                 .filter(it -> it.getUID().equals(new ChannelGroupTypeUID("SystemChannelsInChannelGroups:channelGroup")))

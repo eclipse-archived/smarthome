@@ -26,14 +26,13 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
- * The {@link ChannelTypeRegistry} tracks all {@link ChannelType}s and {@link ChannelGroupType}s provided by registered
- * {@link ChannelTypeProvider}s.
+ * The {@link ChannelTypeRegistry} tracks all {@link ChannelType}s provided by registered {@link ChannelTypeProvider}s.
  *
  * @author Dennis Nobel - Initial contribution
  *
  */
 @NonNullByDefault
-@Component(immediate = true, service = ChannelTypeRegistry.class)
+@Component(service = ChannelTypeRegistry.class)
 public class ChannelTypeRegistry {
 
     private final List<ChannelTypeProvider> channelTypeProviders = new CopyOnWriteArrayList<>();
@@ -86,60 +85,6 @@ public class ChannelTypeRegistry {
             ChannelType channelType = channelTypeProvider.getChannelType(channelTypeUID, locale);
             if (channelType != null) {
                 return channelType;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns all channel group types with the default {@link Locale}.
-     *
-     * @return all channel group types or empty list if no channel group type exists
-     */
-    public List<ChannelGroupType> getChannelGroupTypes() {
-        return getChannelGroupTypes(null);
-    }
-
-    /**
-     * Returns all channel group types for the given {@link Locale}.
-     *
-     * @param locale (can be null)
-     * @return all channel group types or empty list if no channel group type exists
-     */
-    public List<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
-        List<ChannelGroupType> channelGroupTypes = new ArrayList<>();
-        for (ChannelTypeProvider channelTypeProvider : channelTypeProviders) {
-            channelGroupTypes.addAll(channelTypeProvider.getChannelGroupTypes(locale));
-        }
-        return Collections.unmodifiableList(channelGroupTypes);
-    }
-
-    /**
-     * Returns the channel group type for the given UID with the default {@link Locale}.
-     *
-     * @return channel group type or null if no channel group type for the given UID exists
-     */
-    @Nullable
-    public ChannelGroupType getChannelGroupType(@Nullable ChannelGroupTypeUID channelGroupTypeUID) {
-        return getChannelGroupType(channelGroupTypeUID, null);
-    }
-
-    /**
-     * Returns the channel group type for the given UID and the given {@link Locale}.
-     *
-     * @param locale (can be null)
-     * @return channel group type or null if no channel group type for the given UID exists
-     */
-    @Nullable
-    public ChannelGroupType getChannelGroupType(@Nullable ChannelGroupTypeUID channelGroupTypeUID,
-            @Nullable Locale locale) {
-        if (channelGroupTypeUID == null) {
-            return null;
-        }
-        for (ChannelTypeProvider channelTypeProvider : channelTypeProviders) {
-            ChannelGroupType channelGroupType = channelTypeProvider.getChannelGroupType(channelGroupTypeUID, locale);
-            if (channelGroupType != null) {
-                return channelGroupType;
             }
         }
         return null;

@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
@@ -239,11 +240,14 @@ class ThingFactoryTest extends OSGiTest{
             getChannelTypes: { channelTypes },
             getChannelType: { ChannelTypeUID uid, Locale locale ->
                 channelTypes.find { it.UID == uid }
-            },
+            }
+        ] as ChannelTypeProvider)
+
+        registerService([
             getChannelGroupTypes: { channelGroupTypes },
             getChannelGroupType: { ChannelGroupTypeUID uid, Locale locale ->
                 channelGroupTypes.find { it.UID == uid }
             },
-        ] as ChannelTypeProvider)
+        ] as ChannelGroupTypeProvider)
     }
 }

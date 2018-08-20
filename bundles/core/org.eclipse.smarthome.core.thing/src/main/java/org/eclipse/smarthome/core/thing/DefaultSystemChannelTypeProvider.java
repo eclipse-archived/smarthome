@@ -25,9 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
+import org.eclipse.smarthome.core.thing.i18n.ChannelTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -52,9 +50,9 @@ import org.osgi.service.component.annotations.Reference;
  * @author Moritz Kammerer - Added system trigger types
  * @author Christoph Weitkamp - Added support for translation
  * @author Stefan Triller - Added more system channels
- * @author Christoph Weitkamp - factored out common i18n aspects into {@link ThingTypeI18nLocalizationService}
+ * @author Christoph Weitkamp - factored out common i18n aspects into ThingTypeI18nLocalizationService
  */
-@Component(immediate = true)
+@Component
 public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     static final String BINDING_ID = "system";
@@ -327,7 +325,6 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     }
 
-    private static final Collection<ChannelGroupType> CHANNEL_GROUP_TYPES = Collections.emptyList();
     private static final Collection<ChannelType> CHANNEL_TYPES = Collections
             .unmodifiableList(Stream.of(SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY,
                     SYSTEM_CHANNEL_BATTERY_LEVEL, SYSTEM_TRIGGER, SYSTEM_RAWBUTTON, SYSTEM_BUTTON, SYSTEM_RAWROCKER,
@@ -338,7 +335,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     private final Map<LocalizedChannelTypeKey, ChannelType> localizedChannelTypeCache = new ConcurrentHashMap<>();
 
-    private ThingTypeI18nLocalizationService thingTypeI18nLocalizationService;
+    private ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
     private BundleResolver bundleResolver;
 
     @Override
@@ -364,25 +361,15 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         return null;
     }
 
-    @Override
-    public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
-        return null;
-    }
-
-    @Override
-    public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
-        return CHANNEL_GROUP_TYPES;
-    }
-
     @Reference
-    public void setThingTypeI18nLocalizationService(
-            final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
-        this.thingTypeI18nLocalizationService = thingTypeI18nLocalizationService;
+    public void setChannelTypeI18nLocalizationService(
+            final ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = channelTypeI18nLocalizationService;
     }
 
-    public void unsetThingTypeI18nLocalizationService(
-            final ThingTypeI18nLocalizationService thingTypeI18nLocalizationService) {
-        this.thingTypeI18nLocalizationService = null;
+    public void unsetChannelTypeI18nLocalizationService(
+            final ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = null;
     }
 
     @Reference
@@ -412,10 +399,10 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
     }
 
     private @Nullable ChannelType localize(Bundle bundle, ChannelType channelType, Locale locale) {
-        if (thingTypeI18nLocalizationService == null) {
+        if (channelTypeI18nLocalizationService == null) {
             return null;
         }
-        return thingTypeI18nLocalizationService.createLocalizedChannelType(bundle, channelType, locale);
+        return channelTypeI18nLocalizationService.createLocalizedChannelType(bundle, channelType, locale);
     }
 
     private LocalizedChannelTypeKey getLocalizedChannelTypeKey(UID uid, Locale locale) {
