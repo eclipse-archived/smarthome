@@ -45,10 +45,10 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
     /**
      * Create a system handler for modules of {@link CompositeActionType} type.
      *
-     * @param action parent action module instance. The action which has {@link CompositeActionType} type.
-     * @param mt {@link CompositeActionType} instance of the parent module
-     * @param mapModuleToHandler map of pairs child action module to its action handler
-     * @param ruleUID UID of rule where the parent action is part of.
+     * @param action             parent action module instance. The action which has {@link CompositeActionType} type.
+     * @param mt                 {@link CompositeActionType} instance of the parent module.
+     * @param mapModuleToHandler map of pairs child action module to its action handler.
+     * @param ruleUID            UID of rule where the parent action is part of.
      */
     public CompositeActionHandler(Action action, CompositeActionType mt,
             LinkedHashMap<Action, ActionHandler> mapModuleToHandler, String ruleUID) {
@@ -63,7 +63,7 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
      */
     @Override
     public Map<String, Object> execute(Map<String, Object> context) {
-        final Map<String, Object> result = new HashMap<String, Object>();
+        final Map<String, Object> result = new HashMap<>();
         final List<Action> children = getChildren();
         final Map<String, Object> compositeContext = getCompositeContext(context);
         for (Action child : children) {
@@ -78,8 +78,8 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
                         String childOuputRef = output.getReference();
                         if (childOuputRef != null && childOuputRef.length() > childOuputName.length()) {
                             childOuputRef = childOuputRef.substring(childOuputName.length());
-                            result.put(output.getName(), ReferenceResolver
-                                    .resolveComplexDataReference(childResult.getValue(), childOuputRef));
+                            result.put(output.getName(), ReferenceResolver.resolveComplexDataReference(
+                                    childResult.getValue(), ReferenceResolver.splitReferenceToTokens(childOuputRef)));
                         } else {
                             result.put(output.getName(), childResult.getValue());
                         }
@@ -88,18 +88,18 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
             }
 
         }
-        return result.size() > 0 ? result : null;
+        return result.size() > 0 ? result : Collections.emptyMap();
     }
 
     /**
      * Create a map of links between child outputs and parent outputs. These links are base on the refecences defined in
      * the outputs of parent action.
      *
-     * @param outputs outputs of the parent action. The action of {@link CompositeActionType}
-     * @return map of links between child action outputs and parent output
+     * @param outputs outputs of the parent action. The action of {@link CompositeActionType}.
+     * @return map of links between child action outputs and parent output.
      */
     protected Map<String, Output> getCompositeOutputMap(List<Output> outputs) {
-        Map<String, Output> result = new HashMap<String, Output>(11);
+        Map<String, Output> result = new HashMap<>();
         if (outputs != null) {
             for (Output output : outputs) {
                 String refs = output.getReference();

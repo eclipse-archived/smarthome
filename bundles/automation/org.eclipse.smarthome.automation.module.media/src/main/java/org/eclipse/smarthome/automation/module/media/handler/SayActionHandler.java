@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.module.media.handler;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -43,6 +44,6 @@ public class SayActionHandler extends BaseModuleHandler<Action> implements Actio
         String text = module.getConfiguration().get(PARAM_TEXT).toString();
         String sink = (String) module.getConfiguration().get(PARAM_SINK);
         voiceManager.say(text, null, sink);
-        return null;
+        return Collections.emptyMap();
     }
 }

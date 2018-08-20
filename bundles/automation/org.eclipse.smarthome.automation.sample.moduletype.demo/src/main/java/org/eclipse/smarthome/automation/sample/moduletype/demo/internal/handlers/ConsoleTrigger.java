@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.sample.moduletype.demo.internal.factory.HandlerFactory;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -95,7 +95,7 @@ public class ConsoleTrigger extends BaseTriggerModuleHandler implements EventHan
     /**
      * Constructs a {@link ConsoleTrigger} instance.
      *
-     * @param module - the {@link Trigger} for which the instance is created.
+     * @param module  - the {@link Trigger} for which the instance is created.
      * @param context - a bundle's execution context within the Framework.
      */
     public ConsoleTrigger(final Trigger module, final BundleContext context) {

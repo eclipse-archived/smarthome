@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This class is implementation of {@link Action} modules used in the {@link RuleEngineImpl}s.
+ * This class is implementation of {@link Action} modules used in the {@link RuleEngine}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
@@ -38,12 +38,12 @@ public class ActionImpl extends ModuleImpl implements Action {
     /**
      * Constructor of Action object.
      *
-     * @param UID action unique id.
-     * @param typeUID module type unique id.
+     * @param UID           action unique id.
+     * @param typeUID       module type unique id.
      * @param configuration map of configuration values.
-     * @param label the label
-     * @param description description
-     * @param inputs set of connections to other modules (triggers and other actions).
+     * @param label         the label
+     * @param description   description
+     * @param inputs        set of connections to other modules (triggers and other actions).
      */
     public ActionImpl(String UID, String typeUID, @Nullable Configuration configuration, @Nullable String label,
             @Nullable String description, @Nullable Map<String, String> inputs) {

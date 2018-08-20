@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
@@ -37,7 +38,6 @@ import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.core.util.RuleBuilder;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -45,6 +45,7 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -120,16 +121,20 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     private final Logger logger = LoggerFactory.getLogger(RuleRegistryImpl.class.getName());
 
     /**
+     * The storage for the disable information.
+     */
+    private Storage<Boolean> disabledRulesStorage;
+
+    /**
      * Delay between rule's re-initialization tries.
      */
     private long scheduleReinitializationDelay;
-    private ModuleTypeRegistry moduleTypeRegistry;
     private RuleTemplateRegistry templateRegistry;
 
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
      */
-    private final Map<String, Set<String>> mapTemplateToRules = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> mapTemplateToRules = new HashMap<>();
 
     /**
      * Constructor that is responsible to invoke the super constructor with appropriate providerClazz
@@ -192,25 +197,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * Bind the {@link ModuleTypeRegistry} service - called from DS.
-     *
-     * @param moduleTypeRegistry a {@link ModuleTypeRegistry} service.
-     */
-    @Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
-    protected void setModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.moduleTypeRegistry = moduleTypeRegistry;
-    }
-
-    /**
-     * Unbind the {@link ModuleTypeRegistry} service - called from DS.
-     *
-     * @param moduleTypeRegistry a {@link ModuleTypeRegistry} service.
-     */
-    protected void unsetModuleTypeRegistry(ModuleTypeRegistry moduleTypeRegistry) {
-        this.moduleTypeRegistry = null;
-    }
-
-    /**
      * Bind the {@link RuleTemplateRegistry} service - called from DS.
      *
      * @param templateRegistry a {@link RuleTemplateRegistry} service.
@@ -236,21 +222,25 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * This method is used to register a {@link Rule} into the {@link RuleEngineImpl}. First the {@link Rule} become
-     * {@link RuleStatus#UNINITIALIZED}.
-     * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
-     * If the verification fails, the Rule will stay {@link RuleStatus#UNINITIALIZED}.
+     * Bind the {@link StorageService} - called from DS.
      *
-     * @param rule a {@link Rule} instance which have to be added into the {@link RuleEngineImpl}.
-     * @return a copy of the added {@link Rule}
-     * @throws RuntimeException
-     *                                  when passed module has a required configuration property and it is not specified
-     *                                  in rule definition
-     *                                  nor
-     *                                  in the module's module type definition.
-     * @throws IllegalArgumentException
-     *                                  when a module id contains dot or when the rule with the same UID already exists.
+     * @param storageService the {@link StorageService} instance.
      */
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setStorageService(StorageService storageService) {
+        this.disabledRulesStorage = storageService.<Boolean> getStorage(RuleEngine.DISABLED_RULE_STORAGE,
+                this.getClass().getClassLoader());
+    }
+
+    /**
+     * Unbind the {@link StorageService} - called from DS.
+     *
+     * @param storageService the {@link StorageService} instance.
+     */
+    protected void unsetStorageService(StorageService storageService) {
+        this.disabledRulesStorage = null;
+    }
+
     @Override
     public Rule add(Rule rule) {
         super.add(rule);
@@ -323,7 +313,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     @Override
     public Collection<Rule> getByTag(String tag) {
-        Collection<Rule> result = new LinkedList<Rule>();
+        Collection<Rule> result = new LinkedList<>();
         if (tag != null) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
@@ -344,8 +334,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
 
     @Override
     public Collection<Rule> getByTags(String... tags) {
-        Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
-        Collection<Rule> result = new LinkedList<Rule>();
+        Set<String> tagSet = tags != null ? new HashSet<>(Arrays.asList(tags)) : null;
+        Collection<Rule> result = new LinkedList<>();
         if (tagSet == null || tagSet.isEmpty()) {
             for (Collection<Rule> rules : elementMap.values()) {
                 for (Rule rule : rules) {
@@ -387,8 +377,16 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             return rule;
         } else {
             RuleImpl resolvedRule = (RuleImpl) RuleBuilder
-                    .create(template, rule.getUID(), rule.getName(), rule.getConfiguration(), rule.getVisibility())
-                    .build();
+                    .create(template, uid, rule.getName(), rule.getConfiguration(), rule.getVisibility()).build();
+            @Nullable
+            String ruleDescription = rule.getDescription();
+            if (ruleDescription != null) {
+                resolvedRule.setDescription(ruleDescription);
+            }
+            Set<String> tags = rule.getTags();
+            if (!tags.isEmpty()) {
+                resolvedRule.setTags(tags);
+            }
             resolveConfigurations(resolvedRule);
             updateRuleTemplateMapping(templateUID, uid, true);
             return resolvedRule;
@@ -407,7 +405,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         synchronized (this) {
             Set<String> ruleUIDs = mapTemplateToRules.get(templateUID);
             if (ruleUIDs == null) {
-                ruleUIDs = new HashSet<String>();
+                ruleUIDs = new HashSet<>();
                 mapTemplateToRules.put(templateUID, ruleUIDs);
             }
             if (resolved) {
@@ -421,7 +419,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     protected void addProvider(Provider<Rule> provider) {
         super.addProvider(provider);
-        Collection<Rule> rules = new LinkedList<Rule>(elementMap.get(provider));
+        Collection<Rule> rules = new LinkedList<>(elementMap.get(provider));
         for (Rule rule : rules) {
             try {
                 Rule resolvedRule = resolveRuleByTemplate(rule);
@@ -466,12 +464,21 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             if (element != resolvedRule && provider instanceof ManagedRuleProvider) {
                 update(resolvedRule);
             } else {
-                super.updated(provider, oldElement, resolvedRule);
+                super.updated(provider, oldElement, element);
             }
         } else {
             throw new IllegalArgumentException(
                     String.format("The rule '%s' is not updated, not matching with any existing rule", uid));
         }
+    }
+
+    @Override
+    public void removed(Provider<Rule> provider, Rule element) {
+        Storage<Boolean> disabledRulesStorage = this.disabledRulesStorage;
+        if (disabledRulesStorage != null) {
+            disabledRulesStorage.remove(element.getUID());
+        }
+        super.removed(provider, element);
     }
 
     @Override
@@ -503,18 +510,17 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     private void resolveConfigurations(Rule rule) {
         List<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
         Configuration configuration = rule.getConfiguration();
-        ConfigurationNormalizer.normalizeConfiguration(configuration,
-                ConfigurationNormalizer.getConfigDescriptionMap(configDescriptions));
-        Map<String, Object> configurationProperties = configuration.getProperties();
-        if (rule.getTemplateUID() == null) {
-            String uid = rule.getUID();
-            try {
+        try {
+            ConfigurationNormalizer.normalizeConfiguration(configuration,
+                    ConfigurationNormalizer.getConfigDescriptionMap(configDescriptions));
+            Map<String, Object> configurationProperties = configuration.getProperties();
+            if (rule.getTemplateUID() == null) {
                 validateConfiguration(configDescriptions, new HashMap<>(configurationProperties));
                 resolveModuleConfigReferences(rule.getModules(), configurationProperties);
-                ConfigurationNormalizer.normalizeModuleConfigurations(rule.getModules(), moduleTypeRegistry);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(String.format("The rule '%s' has incorrect configurations", uid), e);
             }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    String.format("The rule '%s' has incorrect configurations", rule.getUID()), e);
         }
     }
 
@@ -640,26 +646,24 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
      *                          values.
      */
     private void resolveModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
-        if (modules != null) {
-            StringBuffer statusDescription = new StringBuffer();
-            for (Module module : modules) {
-                try {
-                    ReferenceResolver.updateConfiguration(module.getConfiguration(), ruleConfiguration, logger);
-                } catch (IllegalArgumentException e) {
-                    statusDescription.append(" in module[" + module.getId() + "]: " + e.getLocalizedMessage() + ";");
-                }
+        StringBuffer statusDescription = new StringBuffer();
+        for (Module module : modules) {
+            try {
+                ReferenceResolver.updateConfiguration(module.getConfiguration(), ruleConfiguration, logger);
+            } catch (IllegalArgumentException e) {
+                statusDescription.append(" in module[" + module.getId() + "]: " + e.getLocalizedMessage() + ";");
             }
-            String statusDescriptionStr = statusDescription.toString();
-            if (!statusDescriptionStr.isEmpty()) {
-                throw new IllegalArgumentException(String.format("Incorrect configurations: %s", statusDescriptionStr));
-            }
+        }
+        String statusDescriptionStr = statusDescription.toString();
+        if (!statusDescriptionStr.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Incorrect configurations: %s", statusDescriptionStr));
         }
     }
 
     @Override
     public void added(RuleTemplate element) {
         String templateUID = element.getUID();
-        Set<String> rules = new HashSet<String>();
+        Set<String> rules = new HashSet<>();
         synchronized (this) {
             Set<String> rulesForResolving = mapTemplateToRules.get(templateUID);
             if (rulesForResolving != null) {
@@ -705,8 +709,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     /**
-     * Getter for {@link #scheduleReinitializationDelay} used by {@link RuleEngineImpl} to schedule rule's
-     * re-initialization
+     * Getter for {@link #scheduleReinitializationDelay} used by {@link RuleEngine} to schedule rule re-initialization
      * tries.
      *
      * @return the {@link #scheduleReinitializationDelay}.

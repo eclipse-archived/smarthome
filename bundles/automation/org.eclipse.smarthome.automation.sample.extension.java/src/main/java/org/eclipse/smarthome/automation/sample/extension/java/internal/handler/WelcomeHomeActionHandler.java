@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.sample.extension.java.internal.handler;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -37,14 +38,14 @@ public class WelcomeHomeActionHandler extends BaseModuleHandler<Action> implemen
     public Map<String, Object> execute(Map<String, Object> context) {
         getDevice(module.getConfiguration());
         getResult(module.getConfiguration());
-        return null;
+        return Collections.emptyMap();
     }
 
     /**
      * This method provides the way to configure which device to execute the action.
      *
      * @param configration
-     *            of the {@link Action} module.
+     *                     of the {@link Action} module.
      * @return
      *         the string representing the device.
      */
@@ -56,7 +57,7 @@ public class WelcomeHomeActionHandler extends BaseModuleHandler<Action> implemen
      * This method provides the way to configure the command which to be executed.
      *
      * @param configration
-     *            of the {@link Action} module.
+     *                     of the {@link Action} module.
      * @return
      *         the command which to be executed.
      */

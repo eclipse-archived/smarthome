@@ -12,14 +12,27 @@
  */
 package org.eclipse.smarthome.automation.handler;
 
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.Trigger;
+
 /**
- * This Handler interface is used by the RuleManager to set a callback interface to
- * itself. The callback has to implemented {@link TriggerHandlerCallback} interface
- * and it is used to notify the RuleManager when {@link TriggerHandler} was triggered
+ * This interface provides common functionality for processing {@link Trigger} modules. It is used to set a callback
+ * interface to itself. The callback has to implemented {@link TriggerHandlerCallback} interface and it is used to
+ * notify when the rule's {@link Trigger} was triggered.
  *
+ * @see ModuleHandler
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
 public interface TriggerHandler extends ModuleHandler {
+
+    /**
+     * Injects the {@link TriggerHandlerCallback} instance to the handler through this method.
+     *
+     * @param callback a {@link TriggerHandlerCallback} instance that can be used to notify when the {@link Rule}
+     *                 should trigger its execution.
+     */
+    @Override
+    void setCallback(ModuleHandlerCallback callback);
 }

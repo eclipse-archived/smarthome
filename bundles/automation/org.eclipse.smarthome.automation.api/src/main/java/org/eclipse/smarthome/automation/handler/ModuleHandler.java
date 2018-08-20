@@ -13,20 +13,26 @@
 package org.eclipse.smarthome.automation.handler;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
- * A common interface for all module Handler interfaces. The Handler interfaces are
- * bridge between RuleManager and external modules used by the RuleManager.
+ * This interface is used as common interface for all Module Handlers. The {@link ModuleHandler}s provide the logic
+ * behind the rule's modules. Each of them is used to process a different type of modules described by corresponding
+ * {@link ModuleType} definition.
+ * <p>
+ * Module Handlers provide a mechanism to extend the capabilities of the automation module by providing new
+ * {@link ModuleType}s and the logic needed for processing them.
+ * <p>
+ * {@link ModuleHandler} instances are created by {@link ModuleHandlerFactory}s.
  *
- * @author Yordan Mihaylov - Initial Contribution
  * @see ModuleHandlerFactory
+ * @author Yordan Mihaylov - Initial Contribution
  */
 @NonNullByDefault
 public interface ModuleHandler {
 
     /**
-     * The method is called by RuleManager to free resources when {@link ModuleHandler} is released.
+     * Releases the reserved resources when a {@link ModuleHandler} instance is not needed anymore.
      */
     public void dispose();
 

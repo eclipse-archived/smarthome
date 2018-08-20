@@ -12,12 +12,12 @@
  */
 package org.eclipse.smarthome.automation.parser.gson.internal;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
+import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
@@ -39,9 +39,8 @@ public class RuleGSONParser extends AbstractGSONParser<Rule> {
 
     @Override
     public Set<Rule> parse(InputStreamReader reader) throws ParsingException {
-        JsonReader jr = new JsonReader(reader);
-        try {
-            Set<Rule> rules = new HashSet<>();
+        Set<Rule> rules = new HashSet<>();
+        try (JsonReader jr = new JsonReader(reader)) {
             if (jr.hasNext()) {
                 JsonToken token = jr.peek();
                 if (JsonToken.BEGIN_ARRAY.equals(token)) {
@@ -58,13 +57,13 @@ public class RuleGSONParser extends AbstractGSONParser<Rule> {
             }
         } catch (Exception e) {
             throw new ParsingException(new ParsingNestedException(ParsingNestedException.RULE, null, e));
-        } finally {
-            try {
-                jr.close();
-            } catch (IOException e) {
-            }
         }
-        return Collections.emptySet();
+        return rules;
     }
 
+    @Override
+    public void serialize(Set<Rule> dataObjects, OutputStreamWriter writer) throws Exception {
+        Set<RuleDTO> ruleDTOs = dataObjects.stream().map(RuleDTOMapper::map).collect(Collectors.toSet());
+        gson.toJson(ruleDTOs, writer);
+    }
 }

@@ -12,9 +12,9 @@
  */
 package org.eclipse.smarthome.automation.module.script.rulesupport.internal.delegates;
 
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 

@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.automation.internal.sample.json.internal.handler;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -46,7 +47,7 @@ public class SampleActionHandler extends BaseModuleHandler<Action> implements Ac
         if (message == null) {
             message = "";
         }
-        return null;
+        return Collections.emptyMap();
     }
 
     private Object getMessage(Map<String, ?> inputs) {

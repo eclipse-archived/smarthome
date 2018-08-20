@@ -56,9 +56,8 @@ public class RuleImpl implements Rule {
     protected @Nullable String description;
 
     /**
-     * Constructor for creating an empty {@link Rule} with a specified rule identifier.
-     * When {@code null} is passed for the {@code uid} parameter, the {@link Rule}'s identifier will be randomly
-     * generated.
+     * Creates an empty {@link Rule} with a specified rule identifier. When {@code null} is passed for the
+     * {@code uid} parameter, the {@link Rule}'s identifier will be randomly generated.
      *
      * @param uid the rule's identifier, or {@code null} if a random identifier should be generated.
      */
@@ -67,26 +66,28 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * Utility constructor for creating a {@link Rule} from a set of modules, or from a template.
-     * When {@code null} is passed for the {@code uid} parameter, the {@link Rule}'s identifier will be randomly
-     * generated.
+     * Creates a {@link Rule} from a set of modules, or from a template. When {@code null} is passed for the
+     * {@code uid} parameter, the {@link Rule}'s identifier will be randomly generated.
      *
-     * @param uid the {@link Rule}'s identifier, or {@code null} if a random identifier should be generated.
-     * @param name the rule's name
-     * @param description the rule's description
-     * @param tags the tags
-     * @param triggers the {@link Rule}'s triggers list, or {@code null} if the {@link Rule} should have no triggers or
-     *            will be created from a template.
-     * @param conditions the {@link Rule}'s conditions list, or {@code null} if the {@link Rule} should have no
-     *            conditions, or will be created from a template.
-     * @param actions the {@link Rule}'s actions list, or {@code null} if the {@link Rule} should have no actions, or
-     *            will be created from a template.
-     * @param configDescriptions metadata describing the configuration of the {@link Rule}.
-     * @param configuration the values that will configure the modules of the {@link Rule}.
-     * @param templateUID the {@link RuleTemplate} identifier of the template that will be used by the
-     *            {@link RuleRegistry} to validate the {@link Rule}'s configuration, as well as to create and configure
-     *            the {@link Rule}'s modules, or null if the {@link Rule} should not be created from a template.
-     * @param visibility the {@link Rule}'s visibility
+     * @param uid                the {@link Rule}'s identifier, or {@code null} if a random identifier should be
+     *                           generated.
+     * @param name               the rule's user-readable name.
+     * @param description        the rule's human-readable description of the purpose and consequences of the
+     *                           {@link Rule}'s execution.
+     * @param tags               the {@link Rule}'s assigned tags.
+     * @param triggers           the {@link Rule}'s triggers list, or {@code null} if the {@link Rule} should
+     *                           have no triggers or will be created from a template.
+     * @param conditions         the {@link Rule}'s conditions list, or {@code null} if the {@link Rule} should
+     *                           have no conditions, or will be created from a template.
+     * @param actions            the {@link Rule}'s actions list, or {@code null} if the {@link Rule} should
+     *                           have no actions, or will be created from a template.
+     * @param configDescriptions meta-data describing the configuration of the {@link Rule}.
+     * @param configuration      the values that will configure the modules of the {@link Rule}.
+     * @param templateUID        the {@link RuleTemplate} identifier of the template that will be used by the
+     *                           {@link RuleRegistry} to validate the {@link Rule}'s configuration, as well as to
+     *                           create and configure the {@link Rule}'s modules, or null if the {@link Rule}
+     *                           should not be created from a template.
+     * @param visibility         the {@link Rule}'s visibility.
      */
     public RuleImpl(@Nullable String uid, final @Nullable String name, final @Nullable String description,
             final @Nullable Set<String> tags, @Nullable List<Trigger> triggers, @Nullable List<Condition> conditions,
@@ -122,9 +123,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the {@link RuleTemplate} identifier of the template that will be used to by the
-     * {@link RuleRegistry} to resolve the {@link RuleImpl}: to validate the {@link RuleImpl}'s configuration, as well
-     * as to create and configure the {@link RuleImpl}'s modules.
+     * Specifies the {@link RuleTemplate} identifier of the template that will be used to by the {@link RuleRegistry} to
+     * resolve the {@link Rule}: to validate the {@link Rule}'s configuration, as well as to create and configure the
+     * {@link Rule}'s modules.
      */
     public void setTemplateUID(@Nullable String templateUID) {
         this.templateUID = templateUID;
@@ -137,9 +138,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the {@link RuleImpl}'s human-readable name.
+     * Specifies the {@link Rule}'s human-readable name.
      *
-     * @param ruleName the {@link RuleImpl}'s human-readable name, or {@code null}.
+     * @param ruleName the {@link Rule}'s human-readable name, or {@code null}.
      */
     public void setName(@Nullable String ruleName) {
         name = ruleName;
@@ -151,9 +152,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the {@link RuleImpl}'s assigned tags.
+     * Specifies the {@link Rule}'s assigned tags.
      *
-     * @param ruleTags the {@link RuleImpl}'s assigned tags.
+     * @param ruleTags the {@link Rule}'s assigned tags.
      */
     public void setTags(@Nullable Set<String> ruleTags) {
         tags = ruleTags == null ? Collections.emptySet() : Collections.unmodifiableSet(ruleTags);
@@ -166,10 +167,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify human-readable description of the purpose and consequences of the
-     * {@link RuleImpl}'s execution.
+     * Specifies human-readable description of the purpose and consequences of the {@link Rule}'s execution.
      *
-     * @param ruleDescription the {@link RuleImpl}'s human-readable description, or {@code null}.
+     * @param ruleDescription the {@link Rule}'s human-readable description, or {@code null}.
      */
     public void setDescription(@Nullable String ruleDescription) {
         description = ruleDescription;
@@ -181,9 +181,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the {@link RuleImpl}'s {@link Visibility}.
+     * Specifies the {@link Rule}'s {@link Visibility}.
      *
-     * @param visibility the {@link RuleImpl}'s {@link Visibility} value.
+     * @param visibility the {@link Rule}'s {@link Visibility} value.
      */
     public void setVisibility(@Nullable Visibility visibility) {
         this.visibility = visibility == null ? Visibility.VISIBLE : visibility;
@@ -195,12 +195,13 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the {@link RuleImpl}'s {@link Configuration}.
+     * Specifies the {@link Rule}'s {@link Configuration}.
      *
      * @param ruleConfiguration the new configuration values.
      */
     public void setConfiguration(@Nullable Configuration ruleConfiguration) {
-        this.configuration = ruleConfiguration == null ? new Configuration() : ruleConfiguration;
+        this.configuration = ruleConfiguration == null ? new Configuration()
+                : new Configuration(ruleConfiguration.getProperties());
     }
 
     @Override
@@ -209,8 +210,8 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to describe with {@link ConfigDescriptionParameter}s the meta info for configuration
-     * properties of the {@link RuleImpl}.
+     * Describes with {@link ConfigDescriptionParameter}s the meta-info for configuration properties of the
+     * {@link Rule}.
      */
     public void setConfigurationDescriptions(@Nullable List<ConfigDescriptionParameter> configDescriptions) {
         this.configDescriptions = configDescriptions == null ? Collections.emptyList()
@@ -223,9 +224,9 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the conditions participating in {@link RuleImpl}.
+     * Specifies the conditions participating in this {@link Rule} instance.
      *
-     * @param conditions a list with the conditions that should belong to this {@link RuleImpl}.
+     * @param conditions a list with the conditions that should belong to this {@link Rule}.
      */
     public void setConditions(@Nullable List<Condition> conditions) {
         this.conditions = conditions == null ? Collections.emptyList() : Collections.unmodifiableList(conditions);
@@ -242,18 +243,18 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * This method is used to specify the actions participating in {@link RuleImpl}
+     * Specifies the actions participating in {@link Rule}.
      *
-     * @param actions a list with the actions that should belong to this {@link RuleImpl}.
+     * @param actions a list with the actions that should belong to this {@link Rule}.
      */
     public void setActions(@Nullable List<Action> actions) {
         this.actions = actions == null ? Collections.emptyList() : Collections.unmodifiableList(actions);
     }
 
     /**
-     * This method is used to specify the triggers participating in {@link RuleImpl}
+     * Specifies the triggers participating in {@link Rule}.
      *
-     * @param triggers a list with the triggers that should belong to this {@link RuleImpl}.
+     * @param triggers a list with the triggers that should belong to this {@link Rule}.
      */
     public void setTriggers(@Nullable List<Trigger> triggers) {
         this.triggers = triggers == null ? Collections.emptyList() : Collections.unmodifiableList(triggers);
@@ -262,7 +263,7 @@ public class RuleImpl implements Rule {
     @Override
     public List<Module> getModules() {
         final List<Module> result;
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         modules.addAll(triggers);
         modules.addAll(conditions);
         modules.addAll(actions);
@@ -270,6 +271,9 @@ public class RuleImpl implements Rule {
         return result;
     }
 
+    /**
+     * Returns the hash code of this object depends on the hash code of the UID that it owns.
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -278,6 +282,9 @@ public class RuleImpl implements Rule {
         return result;
     }
 
+    /**
+     * Compares the rule with some object. They are equal when they are {@link Rule} instances and own equal UIDs.
+     */
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) {
@@ -286,14 +293,13 @@ public class RuleImpl implements Rule {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof RuleImpl)) {
+        if (!(obj instanceof Rule)) {
             return false;
         }
-        RuleImpl other = (RuleImpl) obj;
-        if (!uid.equals(other.uid)) {
+        Rule other = (Rule) obj;
+        if (!uid.equals(other.getUID())) {
             return false;
         }
         return true;
     }
-
 }

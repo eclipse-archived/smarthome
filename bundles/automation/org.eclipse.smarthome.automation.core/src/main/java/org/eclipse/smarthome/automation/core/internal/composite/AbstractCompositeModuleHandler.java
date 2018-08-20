@@ -20,12 +20,12 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -43,10 +43,10 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  *
  * @author Yordan Mihaylov - Initial Contribution
  *
- * @param <M> type of module. It can be {@link Trigger}, {@link Condition} or {@link Action}
- * @param <MT> type of module type. It can be {@link TriggerType}, {@link ConditionType} or {@link ActionType}
+ * @param <M> type of module. It can be {@link Trigger}, {@link Condition} or {@link Action}.
+ * @param <MT> type of module type. It can be {@link TriggerType}, {@link ConditionType} or {@link ActionType}.
  * @param <H> type of module handler. It can be {@link TriggerHandler}, {@link ConditionHandler} or
- *            {@link ActionHandler}
+ *        {@link ActionHandler}.
  */
 public abstract class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleType, H extends ModuleHandler>
         implements ModuleHandler {
@@ -59,10 +59,10 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
      * This constructor creates composite module handler base on composite module, module type of the module and map of
      * pairs of child module instances and corresponding handlers.
      *
-     * @param module module of composite type.
-     * @param moduleType composite module type. This is the type of module.
+     * @param module             module of composite type.
+     * @param moduleType         composite module type. This is the type of module.
      * @param mapModuleToHandler map containing pairs of child modules instances (defined by module type) and their
-     *            handlers
+     *                           handlers.
      */
     public AbstractCompositeModuleHandler(M module, MT moduleType, LinkedHashMap<M, H> mapModuleToHandler) {
         this.module = module;
@@ -74,10 +74,10 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
      * Creates internal composite context which will be used for resolving child module's context.
      *
      * @param context contains composite inputs and composite configuration.
-     * @return context that will be passed to the child module
+     * @return context that will be passed to the child module.
      */
     protected Map<String, Object> getCompositeContext(Map<String, ?> context) {
-        Map<String, Object> result = new HashMap<String, Object>(context);
+        Map<String, Object> result = new HashMap<>(context);
         result.putAll(module.getConfiguration().getProperties());
         return result;
     }
@@ -85,7 +85,7 @@ public abstract class AbstractCompositeModuleHandler<M extends Module, MT extend
     /**
      * Creates child context that will be passed to the child handler.
      *
-     * @param child Composite ModuleImpl's child
+     * @param child            Composite ModuleImpl's child.
      * @param compositeContext context with which child context will be resolved.
      * @return child context ready to be passed to the child for execution.
      */

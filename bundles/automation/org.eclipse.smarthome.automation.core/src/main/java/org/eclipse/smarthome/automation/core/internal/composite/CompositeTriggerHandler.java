@@ -19,11 +19,11 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ReferenceResolver;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
@@ -47,10 +47,10 @@ public class CompositeTriggerHandler
     /**
      * Constructor of this system handler.
      *
-     * @param trigger trigger of composite type (parent trigger).
-     * @param mt module type of parent trigger
-     * @param mapModuleToHandler map of pairs child triggers to their handlers
-     * @param ruleUID UID of rule where the parent trigger is part of
+     * @param trigger            trigger of composite type (parent trigger).
+     * @param mt                 module type of parent trigger.
+     * @param mapModuleToHandler map of pairs child triggers to their handlers.
+     * @param ruleUID            UID of rule where the parent trigger is part of.
      */
     public CompositeTriggerHandler(Trigger trigger, CompositeTriggerType mt,
             LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler, String ruleUID) {
@@ -71,7 +71,7 @@ public class CompositeTriggerHandler
     public void triggered(Trigger trigger, Map<String, ?> context) {
         if (callback != null) {
             List<Output> outputs = moduleType.getOutputs();
-            Map<String, Object> result = new HashMap<String, Object>(11);
+            Map<String, Object> result = new HashMap<>();
             for (Output output : outputs) {
                 String refs = output.getReference();
                 if (refs != null) {
@@ -91,7 +91,7 @@ public class CompositeTriggerHandler
                         if (idx < ref.length()) {
                             String outputId = ref.substring(0, idx);
                             value = ReferenceResolver.resolveComplexDataReference(context.get(outputId),
-                                    ref.substring(idx + 1));
+                                    ReferenceResolver.splitReferenceToTokens(ref.substring(idx + 1)));
                         } else {
                             value = context.get(ref);
                         }
@@ -165,5 +165,4 @@ public class CompositeTriggerHandler
     public void runNow(String uid, boolean considerConditions, Map<String, Object> context) {
         callback.runNow(uid, considerConditions, context);
     }
-
 }
