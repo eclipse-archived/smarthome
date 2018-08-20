@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.i18n.ChannelTypeI18nLocalizationService;
-import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -51,9 +50,9 @@ import org.osgi.service.component.annotations.Reference;
  * @author Moritz Kammerer - Added system trigger types
  * @author Christoph Weitkamp - Added support for translation
  * @author Stefan Triller - Added more system channels
- * @author Christoph Weitkamp - factored out common i18n aspects into {@link ThingTypeI18nLocalizationService}
+ * @author Christoph Weitkamp - factored out common i18n aspects into ThingTypeI18nLocalizationService
  */
-@Component(immediate = true)
+@Component
 public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     static final String BINDING_ID = "system";
