@@ -23,7 +23,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @see ChannelGroupTypeRegistry
  *
- * @author Dennis Nobel - Initial contribution
+ * @author Henning Treu - Initial contribution
  */
 @NonNullByDefault
 public interface ChannelGroupTypeProvider {

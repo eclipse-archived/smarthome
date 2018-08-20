@@ -93,11 +93,11 @@ public class ChannelGroupTypeRegistry {
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addChannelTypeProvider(ChannelGroupTypeProvider channelGroupTypeProvider) {
+    protected void addChannelGroupTypeProvider(ChannelGroupTypeProvider channelGroupTypeProvider) {
         this.channelGroupTypeProviders.add(channelGroupTypeProvider);
     }
 
-    protected void removeChannelTypeProvider(ChannelGroupTypeProvider channelGroupTypeProvider) {
+    protected void removeChannelGroupTypeProvider(ChannelGroupTypeProvider channelGroupTypeProvider) {
         this.channelGroupTypeProviders.remove(channelGroupTypeProvider);
     }
 
