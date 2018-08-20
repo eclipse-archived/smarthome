@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * The {@link ChannelGroupTypeRegistry} tracks all {@link ChannelGroupType}s provided by
  * registered {@link ChannelGroupTypeProvider}s.
  *
- * @author Dennis Nobel - Initial contribution
+ * @author Henning Treu - Initial contribution
  *
  */
 @NonNullByDefault

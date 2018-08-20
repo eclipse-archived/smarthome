@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.core.thing.i18n;
+package org.eclipse.smarthome.core.thing.internal.i18n;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,9 @@ import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.thing.i18n.ChannelGroupTypeI18nLocalizationService;
+import org.eclipse.smarthome.core.thing.i18n.ChannelTypeI18nLocalizationService;
+import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
@@ -36,7 +39,7 @@ import org.osgi.framework.Bundle;
  *
  */
 @NonNullByDefault
-class ChannelI18nUtil {
+public class ChannelI18nUtil {
 
     private final ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
 
@@ -48,14 +51,14 @@ class ChannelI18nUtil {
      * @param channelTypeI18nLocalizationService an instance of {@link ChannelTypeI18nLocalizationService}.
      * @param channelTypeRegistry the {@link ChannelTypeRegistry}.
      */
-    ChannelI18nUtil(ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService,
+    public ChannelI18nUtil(ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService,
             ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeI18nLocalizationService = channelTypeI18nLocalizationService;
         this.channelTypeRegistry = channelTypeRegistry;
 
     }
 
-    List<ChannelDefinition> createLocalizedChannelDefinitions(final Bundle bundle,
+    public List<ChannelDefinition> createLocalizedChannelDefinitions(final Bundle bundle,
             final List<ChannelDefinition> channelDefinitions,
             final Function<ChannelDefinition, @Nullable String> channelLabelResolver,
             final Function<ChannelDefinition, @Nullable String> channelDescriptionResolver,
