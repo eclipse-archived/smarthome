@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: BlueGiga Bluetooth Adapter
+Bundle-Name: Eclipse SmartHome BlueGiga Bluetooth Adapter
 Bundle-SymbolicName: org.eclipse.smarthome.binding.bluetooth.bluegiga
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: BoseSoundTouch Binding
+Bundle-Name: Eclipse SmartHome BoseSoundTouch Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.bosesoundtouch;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

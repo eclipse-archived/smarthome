@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Blukii Binding
+Bundle-Name: Eclipse SmartHome Blukii Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.bluetooth.blukii
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

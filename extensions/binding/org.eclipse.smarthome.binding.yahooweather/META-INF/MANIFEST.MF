@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: YahooWeather Binding
+Bundle-Name: Eclipse SmartHome YahooWeather Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: 
  org.eclipse.smarthome.binding.yahooweather;singleton:=true

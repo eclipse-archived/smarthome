@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ActivationPolicy: lazy
 Bundle-ManifestVersion: 2
-Bundle-Name: OneWire Binding
+Bundle-Name: Eclipse SmartHome OneWire Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.onewire;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier

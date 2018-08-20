@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: WeatherUnderground Binding
+Bundle-Name: Eclipse SmartHome WeatherUnderground Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.weatherunderground;si
  ngleton:=true

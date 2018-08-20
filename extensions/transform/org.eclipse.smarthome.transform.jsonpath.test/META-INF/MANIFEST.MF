@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the JSonPath Transformation Service
+Bundle-Name: Eclipse SmartHome JSonPath Transformation Service Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.transform.jsonpath.test
 Bundle-Vendor: Eclipse.org/SmartHome
