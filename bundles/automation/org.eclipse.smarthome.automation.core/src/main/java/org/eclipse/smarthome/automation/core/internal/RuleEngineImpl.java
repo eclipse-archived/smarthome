@@ -306,6 +306,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
 
                 @Override
                 public void updated(Rule oldRule, Rule rule) {
+                    removed(oldRule);
                     added(rule);
                 }
             };
