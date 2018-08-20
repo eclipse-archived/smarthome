@@ -39,7 +39,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Christoph Weitkamp - factored out from {@link XmlChannelTypeProvider} and {@link XmlChannelGroupTypeProvider}
  * @author Henning Treu - factored out from {@link ThingTypeI18nLocalizationService}
  */
-@Component(immediate = true, service = ChannelTypeI18nLocalizationService.class)
+@Component(service = ChannelTypeI18nLocalizationService.class)
 @NonNullByDefault
 public class ChannelTypeI18nLocalizationService {
 

@@ -53,7 +53,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Kai Kreuzer - fixed concurrency issues
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
-@Component(immediate = true, property = { "esh.scope=core.xml.thing" })
+@Component(property = { "esh.scope=core.xml.thing" })
 public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingType>
         implements ThingTypeProvider, XmlDocumentProviderFactory<List<?>> {
 

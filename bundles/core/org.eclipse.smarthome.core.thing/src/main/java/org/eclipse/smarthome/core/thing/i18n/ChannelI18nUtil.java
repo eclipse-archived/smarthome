@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  */
 @NonNullByDefault
-@Component(immediate = true, service = ChannelI18nUtil.class)
+@Component(service = ChannelI18nUtil.class)
 public class ChannelI18nUtil {
 
     @NonNullByDefault({})

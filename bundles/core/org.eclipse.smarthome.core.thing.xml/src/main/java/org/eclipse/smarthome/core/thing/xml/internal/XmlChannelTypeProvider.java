@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Henning Treu - QuantityType implementation
  * @author Christoph Weitkamp - factored out common aspects into ThingTypeI18nLocalizationService
  */
-@Component(immediate = true, property = { "esh.scope=core.xml.channels" })
+@Component(property = { "esh.scope=core.xml.channels" })
 public class XmlChannelTypeProvider extends AbstractXmlBasedProvider<UID, ChannelType> implements ChannelTypeProvider {
 
     private ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
