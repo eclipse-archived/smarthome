@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
@@ -52,7 +53,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Kai Kreuzer - fixed concurrency issues
  * @author Simon Kaufmann - factored out common aspects into {@link AbstractXmlBasedProvider}
  */
-@Component(immediate = true, property = { "esh.scope=core.xml.thing" })
+@Component(property = { "esh.scope=core.xml.thing" })
 public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingType>
         implements ThingTypeProvider, XmlDocumentProviderFactory<List<?>> {
 
@@ -67,7 +68,7 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingTyp
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
     private ReadyService readyService;
 
-    private ScheduledExecutorService scheduler = ThreadPoolManager
+    private final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(XmlDocumentBundleTracker.THREAD_POOL_NAME);
     private Future<?> trackerJob;
 
@@ -132,11 +133,11 @@ public class XmlThingTypeProvider extends AbstractXmlBasedProvider<UID, ThingTyp
     }
 
     @Reference(target = "(esh.scope=core.xml.channelGroups)")
-    public void setChannelGroupTypeProvider(ChannelTypeProvider channelGroupTypeProvider) {
+    public void setChannelGroupTypeProvider(ChannelGroupTypeProvider channelGroupTypeProvider) {
         this.channelGroupTypeProvider = (XmlChannelGroupTypeProvider) channelGroupTypeProvider;
     }
 
-    public void unsetChannelGroupTypeProvider(ChannelTypeProvider channelGroupTypeProvider) {
+    public void unsetChannelGroupTypeProvider(ChannelGroupTypeProvider channelGroupTypeProvider) {
         this.channelGroupTypeProvider = null;
     }
 

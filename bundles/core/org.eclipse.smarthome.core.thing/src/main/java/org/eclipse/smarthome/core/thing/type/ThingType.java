@@ -20,12 +20,8 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 
 /**
  * The {@link ThingType} describes a concrete type of a {@link Thing}.
@@ -250,58 +246,6 @@ public class ThingType extends AbstractDescriptionType {
      */
     public Map<String, String> getProperties() {
         return properties;
-    }
-
-    /**
-     * Returns a channel type UID for the given channel UID from the thing type. The channel UID must be a channel,
-     * which is defined in a thing, which thing types matches this thing type.
-     *
-     * @param channelUID channel UID
-     * @return channel type UID or null if no matching channel type UID could be found in the thing type
-     */
-    @SuppressWarnings("unchecked")
-    public @Nullable ChannelTypeUID getChannelTypeUID(ChannelUID channelUID) {
-        if (!channelUID.isInGroup()) {
-            for (ChannelDefinition channelDefinition : this.getChannelDefinitions()) {
-                if (channelDefinition.getId().equals(channelUID.getId())) {
-                    return channelDefinition.getChannelTypeUID();
-                }
-            }
-        } else {
-            List<ChannelGroupDefinition> channelGroupDefinitions = this.getChannelGroupDefinitions();
-
-            BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-            @SuppressWarnings("rawtypes")
-            ServiceReference ref = bundleContext.getServiceReference(ChannelTypeRegistry.class.getName());
-            try {
-                ChannelTypeRegistry channelTypeRegistry = null;
-                if (ref != null) {
-                    channelTypeRegistry = (ChannelTypeRegistry) bundleContext.getService(ref);
-                }
-
-                for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                    if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
-                        ChannelGroupType channelGroupType = null;
-                        if (channelTypeRegistry != null) {
-                            channelGroupType = channelTypeRegistry
-                                    .getChannelGroupType(channelGroupDefinition.getTypeUID());
-                        }
-                        if (channelGroupType != null) {
-                            for (ChannelDefinition channelDefinition : channelGroupType.getChannelDefinitions()) {
-                                if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
-                                    return channelDefinition.getChannelTypeUID();
-                                }
-                            }
-                        }
-                    }
-                }
-            } finally {
-                if (ref != null) {
-                    bundleContext.ungetService(ref);
-                }
-            }
-        }
-        return null;
     }
 
     public @Nullable String getCategory() {

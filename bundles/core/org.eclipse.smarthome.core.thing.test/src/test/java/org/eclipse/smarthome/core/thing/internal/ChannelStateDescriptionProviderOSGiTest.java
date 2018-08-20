@@ -51,8 +51,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -143,16 +141,6 @@ public class ChannelStateDescriptionProviderOSGiTest extends JavaOSGiTest {
                     }
                 }
                 return null;
-            }
-
-            @Override
-            public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
-                return null;
-            }
-
-            @Override
-            public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
-                return Collections.emptySet();
             }
         });
 

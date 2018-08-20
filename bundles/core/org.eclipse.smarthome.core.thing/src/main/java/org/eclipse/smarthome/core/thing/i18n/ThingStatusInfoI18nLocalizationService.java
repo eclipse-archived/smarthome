@@ -49,7 +49,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Thomas Höfer - Initial contribution
  * @author Henning Sudbrock - Permit translations from thing handler parent bundles
  */
-@Component(immediate = true, service = ThingStatusInfoI18nLocalizationService.class)
+@Component(service = ThingStatusInfoI18nLocalizationService.class)
 public final class ThingStatusInfoI18nLocalizationService {
 
     private TranslationProvider i18nProvider;
