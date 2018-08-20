@@ -108,12 +108,16 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
                 establishConnection();
             }
         } else {
-            if (isOldFirmware()) {
-                /*
-                 * older firmware - fall back to authentication with security code
-                 * in this case the Thing configuration will not be persisted
-                 */
-                logger.warn("Gateway with old firmware - please consider upgrading to the latest version.");
+            String currentFirmware = thing.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION);
+            if (isNullOrEmpty(currentFirmware)
+                    || MIN_SUPPORTED_VERSION.compareTo(new TradfriVersion(currentFirmware)) > 0) {
+                // older firmware - fall back to authentication with security code
+                // in this case the Thing configuration will not be persisted
+                if (!isNullOrEmpty(currentFirmware)) {
+                    // show warning only if we already have set the firmware property
+                    logger.warn("Gateway with old firmware '{}' - please consider upgrading to the latest version.",
+                            currentFirmware);
+                }
 
                 Configuration editedConfig = editConfiguration();
                 editedConfig.put(TradfriBindingConstants.GATEWAY_CONFIG_IDENTITY, "");
@@ -251,13 +255,13 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             scanJob.cancel(true);
             scanJob = null;
         }
-        if (deviceClient != null) {
-            deviceClient.shutdown();
-            deviceClient = null;
-        }
         if (endPoint != null) {
             endPoint.destroy();
             endPoint = null;
+        }
+        if (deviceClient != null) {
+            deviceClient.shutdown();
+            deviceClient = null;
         }
         super.dispose();
     }
@@ -360,16 +364,6 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     private boolean isNullOrEmpty(String string) {
         return string == null || string.isEmpty();
-    }
-
-    /**
-     * Checks current firmware in the thing properties and compares it with the value of {@link #MIN_SUPPORTED_VERSION}
-     *
-     * @return true if current firmware is older than {@value #MIN_SUPPORTED_VERSION}
-     */
-    private boolean isOldFirmware() {
-        String currentFirmware = thing.getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION);
-        return currentFirmware == null || MIN_SUPPORTED_VERSION.compareTo(new TradfriVersion(currentFirmware)) > 0;
     }
 
     @Override
