@@ -357,7 +357,7 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
     }
 
     @Test
-    public void assertThatARuleSwitchesFromIDLEtoUNINITIALIZEDifAModuleHanlderDisappearsAndBackToIDLEifItAppearsAgain()
+    public void assertThatARuleSwitchesFromIDLEtoUNINITIALIZEDifAModuleHandlerDisappearsAndBackToIDLEifItAppearsAgain()
             throws BundleException {
         logger.info(
                 "assert that a rule switches from IDLE to UNINITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again");
@@ -551,6 +551,84 @@ public class AutomationIntegrationTest extends JavaOSGiTest {
         }, 3000, 100);
 
         ruleRegistry.remove(rule.getUID());
+    }
+
+    @Test
+    public void assertThatRuleCanBeUpdated() throws ItemNotFoundException {
+        Configuration triggerConfig = new Configuration(Collections.singletonMap("eventTopic", "runNowEventTopic/*"));
+        Map<String, Object> params = new HashMap<>();
+        params.put("itemName", "myLampItem3");
+        params.put("command", "ON");
+        Configuration actionConfig = new Configuration(params);
+        List<Trigger> triggers = Collections.singletonList(ModuleBuilder.createTrigger().withId("GenericEventTriggerId")
+                .withTypeUID("core.GenericEventTrigger").withConfiguration(triggerConfig).build());
+        List<Action> actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandActionId")
+                .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
+
+        String ruleId = "runNowRule" + new Random().nextInt();
+        Rule rule = RuleBuilder.create(ruleId).withTriggers(triggers).withActions(actions).build();
+        logger.info("Rule created: {}", rule.getUID());
+
+        ruleRegistry.add(rule);
+
+        // TEST RULE
+        waitForAssert(() -> {
+            assertThat(ruleEngine.getStatusInfo(rule.getUID()).getStatus(), is(RuleStatus.IDLE));
+        }, 3000, 100);
+
+        EventSubscriber itemEventHandler = new EventSubscriber() {
+
+            @Override
+            public @NonNull Set<@NonNull String> getSubscribedEventTypes() {
+                return Collections.singleton(ItemCommandEvent.TYPE);
+            }
+
+            @Override
+            public @Nullable EventFilter getEventFilter() {
+                return null;
+            }
+
+            @Override
+            public void receive(@NonNull Event e) {
+                logger.info("Event: {}", e.getTopic());
+                if (e.getTopic().contains("myLampItem3")) {
+                    itemEvent = e;
+                }
+            }
+
+        };
+        registerService(itemEventHandler);
+
+        ruleEngine.runNow(rule.getUID());
+        waitForAssert(() -> {
+            assertThat(itemEvent, is(notNullValue()));
+        }, 3000, 100);
+        waitForAssert(() -> {
+            assertThat(((ItemCommandEvent) itemEvent).getItemCommand(), is(OnOffType.ON));
+        }, 3000, 100);
+
+        params.put("command", "OFF");
+        actionConfig = new Configuration(params);
+        actions = Collections.singletonList(ModuleBuilder.createAction().withId("ItemPostCommandActionId")
+                .withTypeUID("core.ItemCommandAction").withConfiguration(actionConfig).build());
+
+        Rule updatedRule = RuleBuilder.create(ruleId).withTriggers(triggers).withActions(actions).build();
+        ruleRegistry.update(updatedRule);
+        waitForAssert(() -> {
+            assertThat(ruleEngine.getStatusInfo(updatedRule.getUID()).getStatus(), is(RuleStatus.IDLE));
+        }, 3000, 100);
+        logger.info("Rule updated: {}", updatedRule.getUID());
+        itemEvent = null;
+
+        ruleEngine.runNow(updatedRule.getUID());
+        waitForAssert(() -> {
+            assertThat(itemEvent, is(notNullValue()));
+        }, 3000, 100);
+        waitForAssert(() -> {
+            assertThat(((ItemCommandEvent) itemEvent).getItemCommand(), is(OnOffType.OFF));
+        }, 3000, 100);
+
+        ruleRegistry.remove(updatedRule.getUID());
     }
 
     @Test
