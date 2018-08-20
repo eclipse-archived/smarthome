@@ -27,9 +27,11 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -54,6 +56,32 @@ public class ThingTypeI18nLocalizationService {
     @NonNullByDefault({})
     private ChannelGroupTypeRegistry channelGroupTypeRegistry;
 
+    @NonNullByDefault({})
+    private ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
+
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
+
+    @Reference
+    protected void setChannelTypeI18nLocalizationService(
+            ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = channelTypeI18nLocalizationService;
+    }
+
+    protected void unsetChannelTypeI18nLocalizationService(
+            ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
+    }
+
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
@@ -72,13 +100,9 @@ public class ThingTypeI18nLocalizationService {
         this.channelGroupTypeRegistry = null;
     }
 
-    @Reference
-    protected void setChannelI18nUtil(ChannelI18nUtil channelI18nUtil) {
-        this.channelI18nUtil = channelI18nUtil;
-    }
-
-    protected void unsetChannelI18nUtil(ChannelI18nUtil channelI18nUtil) {
-        this.channelI18nUtil = null;
+    @Activate
+    protected void activate() {
+        channelI18nUtil = new ChannelI18nUtil(channelTypeI18nLocalizationService, channelTypeRegistry);
     }
 
     private List<ChannelGroupDefinition> createLocalizedChannelGroupDefinitions(final Bundle bundle,

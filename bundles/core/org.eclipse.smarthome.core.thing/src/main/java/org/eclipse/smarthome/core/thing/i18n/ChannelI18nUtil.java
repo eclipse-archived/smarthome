@@ -24,8 +24,6 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.osgi.framework.Bundle;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * A utility service which localises {@link ChannelDefinition}.
@@ -38,33 +36,23 @@ import org.osgi.service.component.annotations.Reference;
  *
  */
 @NonNullByDefault
-@Component(service = ChannelI18nUtil.class)
-public class ChannelI18nUtil {
+class ChannelI18nUtil {
 
-    @NonNullByDefault({})
-    private ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
+    private final ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
 
-    @NonNullByDefault({})
-    private ChannelTypeRegistry channelTypeRegistry;
+    private final ChannelTypeRegistry channelTypeRegistry;
 
-    @Reference
-    protected void setChannelTypeI18nLocalizationService(
-            ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+    /**
+     * Create a new util instance and pass the appropriate dependencies.
+     *
+     * @param channelTypeI18nLocalizationService an instance of {@link ChannelTypeI18nLocalizationService}.
+     * @param channelTypeRegistry the {@link ChannelTypeRegistry}.
+     */
+    ChannelI18nUtil(ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService,
+            ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeI18nLocalizationService = channelTypeI18nLocalizationService;
-    }
-
-    protected void unsetChannelTypeI18nLocalizationService(
-            ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
-        this.channelTypeI18nLocalizationService = null;
-    }
-
-    @Reference
-    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = channelTypeRegistry;
-    }
 
-    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
-        this.channelTypeRegistry = null;
     }
 
     List<ChannelDefinition> createLocalizedChannelDefinitions(final Bundle bundle,

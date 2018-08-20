@@ -22,7 +22,9 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -45,6 +47,32 @@ public class ChannelGroupTypeI18nLocalizationService {
     @NonNullByDefault({})
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
+    @NonNullByDefault({})
+    private ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService;
+
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
+
+    @Reference
+    protected void setChannelTypeI18nLocalizationService(
+            ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = channelTypeI18nLocalizationService;
+    }
+
+    protected void unsetChannelTypeI18nLocalizationService(
+            ChannelTypeI18nLocalizationService channelTypeI18nLocalizationService) {
+        this.channelTypeI18nLocalizationService = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
+    }
+
     @Reference
     protected void setTranslationProvider(TranslationProvider i18nProvider) {
         this.thingTypeI18nUtil = new ThingTypeI18nUtil(i18nProvider);
@@ -54,13 +82,9 @@ public class ChannelGroupTypeI18nLocalizationService {
         this.thingTypeI18nUtil = null;
     }
 
-    @Reference
-    protected void setChannelI18nUtil(ChannelI18nUtil channelI18nUtil) {
-        this.channelI18nUtil = channelI18nUtil;
-    }
-
-    protected void unsetChannelI18nUtil(ChannelI18nUtil channelI18nUtil) {
-        this.channelI18nUtil = null;
+    @Activate
+    protected void activate() {
+        channelI18nUtil = new ChannelI18nUtil(channelTypeI18nLocalizationService, channelTypeRegistry);
     }
 
     public ChannelGroupType createLocalizedChannelGroupType(Bundle bundle, ChannelGroupType channelGroupType,
