@@ -80,6 +80,7 @@ import org.eclipse.smarthome.core.thing.firmware.dto.FirmwareStatusDTO;
 import org.eclipse.smarthome.core.thing.i18n.ThingStatusInfoI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -225,7 +226,7 @@ public class ThingResource implements RESTResource {
             // we create the Thing exactly the way we received it, i.e. we
             // cannot take its thing type into account for automatically
             // populating channels and properties.
-            thing = ThingDTOMapper.map(thingBean);
+            thing = ThingDTOMapper.map(thingBean, thingTypeRegistry.getThingType(thingTypeUID) instanceof BridgeType);
         } else {
             return getThingResponse(Status.BAD_REQUEST, thing, locale,
                     "A UID must be provided, since no binding can create the thing!");
