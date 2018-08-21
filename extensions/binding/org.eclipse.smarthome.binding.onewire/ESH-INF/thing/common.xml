@@ -71,14 +71,14 @@
 	</channel-type>
 	<!-- Voltage Channel -->
 	<channel-type id="voltage">
-		<item-type>Number:Voltage</item-type>
+		<item-type>Number:ElectricPotential</item-type>
 		<label>Voltage</label>
 		<description>The voltage measured by the sensor</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 	<!-- Supply-Voltage Channel -->
 	<channel-type id="supplyvoltage">
-		<item-type>Number:Voltage</item-type>
+		<item-type>Number:ElectricPotential</item-type>
 		<label>Supply Voltage</label>
 		<description>The sensor's supply voltage</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
@@ -92,7 +92,7 @@
 	</channel-type>
 	<!-- Current Channel -->
 	<channel-type id="current">
-		<item-type>Number:Current</item-type>
+		<item-type>Number:ElectricCurrent</item-type>
 		<label>Current</label>
 		<description>The current measured by the sensor</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
