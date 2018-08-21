@@ -679,10 +679,10 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
      */
     private Comparator<Voice> createVoiceComparator(Locale locale) {
         Comparator<Voice> byTTSLabel = (Voice v1, Voice v2) -> {
-            return getTTS(v1).getLabel(locale).compareTo(getTTS(v2).getLabel(locale));
+            return getTTS(v1).getLabel(locale).compareToIgnoreCase(getTTS(v2).getLabel(locale));
         };
         Comparator<Voice> byVoiceLocale = (Voice v1, Voice v2) -> {
-            return v1.getLocale().getDisplayName(locale).compareTo(v2.getLocale().getDisplayName(locale));
+            return v1.getLocale().getDisplayName(locale).compareToIgnoreCase(v2.getLocale().getDisplayName(locale));
         };
         return byTTSLabel.thenComparing(byVoiceLocale).thenComparing(Voice::getLabel);
     }
@@ -696,46 +696,29 @@ public class VoiceManagerImpl implements VoiceManager, ConfigOptionProvider {
     public Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale) {
         if (uri.toString().equals(CONFIG_URI)) {
             if (CONFIG_DEFAULT_HLI.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
-                for (HumanLanguageInterpreter hli : humanLanguageInterpreters.values()) {
-                    ParameterOption option = new ParameterOption(hli.getId(), hli.getLabel(locale));
-                    options.add(option);
-                }
-                return options;
+                return humanLanguageInterpreters.values().stream()
+                        .sorted((hli1, hli2) -> hli1.getLabel(locale).compareToIgnoreCase(hli2.getLabel(locale)))
+                        .map(hli -> new ParameterOption(hli.getId(), hli.getLabel(locale))).collect(toList());
             } else if (CONFIG_DEFAULT_KS.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
-                for (KSService ks : ksServices.values()) {
-                    ParameterOption option = new ParameterOption(ks.getId(), ks.getLabel(locale));
-                    options.add(option);
-                }
-                return options;
+                return ksServices.values().stream()
+                        .sorted((ks1, ks2) -> ks1.getLabel(locale).compareToIgnoreCase(ks2.getLabel(locale)))
+                        .map(ks -> new ParameterOption(ks.getId(), ks.getLabel(locale))).collect(toList());
             } else if (CONFIG_DEFAULT_STT.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
-                for (STTService stt : sttServices.values()) {
-                    ParameterOption option = new ParameterOption(stt.getId(), stt.getLabel(locale));
-                    options.add(option);
-                }
-                return options;
+                return sttServices.values().stream()
+                        .sorted((stt1, stt2) -> stt1.getLabel(locale).compareToIgnoreCase(stt2.getLabel(locale)))
+                        .map(stt -> new ParameterOption(stt.getId(), stt.getLabel(locale))).collect(toList());
             } else if (CONFIG_DEFAULT_TTS.equals(param)) {
-                List<ParameterOption> options = new ArrayList<>();
-                for (TTSService tts : ttsServices.values()) {
-                    ParameterOption option = new ParameterOption(tts.getId(), tts.getLabel(locale));
-                    options.add(option);
-                }
-                return options;
+                return ttsServices.values().stream()
+                        .sorted((tts1, tts2) -> tts1.getLabel(locale).compareToIgnoreCase(tts2.getLabel(locale)))
+                        .map(tts -> new ParameterOption(tts.getId(), tts.getLabel(locale))).collect(toList());
             } else if (CONFIG_DEFAULT_VOICE.equals(param)) {
                 Locale nullSafeLocale = locale != null ? locale : localeProvider.getLocale();
-                List<ParameterOption> options = new ArrayList<>();
-                for (Voice voice : getAllVoicesSorted(nullSafeLocale)) {
-                    TTSService tts = getTTS(voice);
-                    if (tts != null) {
-                        ParameterOption option = new ParameterOption(voice.getUID(),
-                                String.format("%s - %s - %s", tts.getLabel(nullSafeLocale),
-                                        voice.getLocale().getDisplayName(nullSafeLocale), voice.getLabel()));
-                        options.add(option);
-                    }
-                }
-                return options;
+                return getAllVoicesSorted(nullSafeLocale)
+                        .stream().filter(v -> getTTS(v) != null).map(
+                                v -> new ParameterOption(v.getUID(),
+                                        String.format("%s - %s - %s", getTTS(v).getLabel(nullSafeLocale),
+                                                v.getLocale().getDisplayName(nullSafeLocale), v.getLabel())))
+                        .collect(toList());
             }
         }
         return null;
