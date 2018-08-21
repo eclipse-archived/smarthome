@@ -118,9 +118,9 @@
   </feature>
 
   <feature name="esh.tp-jmdns" description="An implementation of multi-cast DNS in Java." version="${project.version}">
-    <capability>esh.tp;feature=jmdns;version=3.5.2</capability>
+    <capability>esh.tp;feature=jmdns;version=3.5.4</capability>
 
-    <bundle>mvn:org.jmdns/jmdns/3.5.2</bundle>
+    <bundle>mvn:org.jmdns/jmdns/3.5.4</bundle>
   </feature>
 
   <feature name="esh.tp-lsp4j" description="Eclipse LSP4J" version="${project.version}">
