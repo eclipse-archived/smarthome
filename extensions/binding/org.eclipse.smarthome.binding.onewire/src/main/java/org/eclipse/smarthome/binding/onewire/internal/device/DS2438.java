@@ -35,6 +35,8 @@ import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link DS2438} class defines an DS2438 device
@@ -43,6 +45,8 @@ import org.eclipse.smarthome.core.types.State;
  */
 @NonNullByDefault
 public class DS2438 extends AbstractOwDevice {
+    private final Logger logger = LoggerFactory.getLogger(DS2438.class);
+
     public enum LightSensorType {
         ElabNetV1,
         ElabNetV2
@@ -140,6 +144,7 @@ public class DS2438 extends AbstractOwDevice {
             if (enabledChannels.contains(CHANNEL_VOLTAGE)) {
                 State voltage = new QuantityType<ElectricPotential>(
                         (DecimalType) bridgeHandler.readDecimalType(sensorId, VOLTAGE_PARAMETER), SmartHomeUnits.VOLT);
+                logger.trace("read voltage {} from {}", voltage, sensorId);
                 callback.postUpdate(CHANNEL_VOLTAGE, voltage);
             }
 

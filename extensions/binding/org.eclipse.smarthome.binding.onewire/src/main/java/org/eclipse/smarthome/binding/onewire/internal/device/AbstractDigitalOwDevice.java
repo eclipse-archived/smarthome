@@ -32,6 +32,8 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link AbstractDigitalOwDevice} class defines an abstract digital I/O device
@@ -40,6 +42,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
  */
 @NonNullByDefault
 public abstract class AbstractDigitalOwDevice extends AbstractOwDevice {
+    private final Logger logger = LoggerFactory.getLogger(AbstractDigitalOwDevice.class);
 
     protected OwDeviceParameter fullInParam = new OwDeviceParameter();
     protected OwDeviceParameter fullOutParam = new OwDeviceParameter();
