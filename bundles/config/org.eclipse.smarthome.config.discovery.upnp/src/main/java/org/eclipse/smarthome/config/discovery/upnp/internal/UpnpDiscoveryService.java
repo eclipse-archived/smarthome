@@ -19,13 +19,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.net.CidrAddress;
 import org.eclipse.smarthome.core.net.NetworkAddressChangeListener;
+import org.eclipse.smarthome.core.net.NetworkAddressService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.UpnpService;
@@ -52,8 +52,9 @@ import org.slf4j.LoggerFactory;
  * @author Tim Roberts - Added primary address change
  *
  */
-@Component(immediate = true, service = { DiscoveryService.class, NetworkAddressChangeListener.class }, configurationPid = "discovery.upnp")
-public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener, NetworkAddressChangeListener {
+@Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.upnp")
+public class UpnpDiscoveryService extends AbstractDiscoveryService
+        implements RegistryListener, NetworkAddressChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 
@@ -87,6 +88,15 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
     protected void unsetUpnpService(UpnpService upnpService) {
         this.upnpService = null;
+    }
+
+    @Reference
+    protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
+        networkAddressService.addNetworkAddressChangeListener(this);
+    }
+
+    protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
+        networkAddressService.removeNetworkAddressChangeListener(this);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

@@ -20,8 +20,7 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * This is an interface for listeners who wants to be notified for the change of network address.
  * There are only network address adds, and removes; it makes no effort to correlate
- * which existing network is changed. Listeners should register themselves
- * with this interface as a service.
+ * which existing network is changed. Listeners should register themselves at the {@link NetworkAddressService}.
  *
  * @see NetUtil
  *
