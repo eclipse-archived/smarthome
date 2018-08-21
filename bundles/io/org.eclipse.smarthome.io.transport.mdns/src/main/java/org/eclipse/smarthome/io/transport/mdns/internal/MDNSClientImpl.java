@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Gary Tse - Add NetworkAddressChangeListener to handle interface changes
  *
  */
-@Component(immediate = true)
+@Component(immediate = true, service = MDNSClient.class)
 public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 
@@ -278,9 +278,11 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
     @Reference
     protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
         this.networkAddressService = networkAddressService;
+        networkAddressService.addNetworkAddressChangeListener(this);
     }
 
     protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
+        networkAddressService.removeNetworkAddressChangeListener(this);
         this.networkAddressService = null;
     }
 }

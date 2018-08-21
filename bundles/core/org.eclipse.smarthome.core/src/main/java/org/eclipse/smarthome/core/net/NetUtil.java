@@ -44,8 +44,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +85,8 @@ public class NetUtil implements NetworkAddressService {
     // must be initialized before activate due to OSGi reference
     private Set<NetworkAddressChangeListener> networkAddressChangeListeners = ConcurrentHashMap.newKeySet();
 
-    private @Nullable Collection<CidrAddress> lastKnownInterfaceAddresses;
-    private @Nullable ScheduledExecutorService scheduledExecutorService = ThreadPoolManager
+    private Collection<CidrAddress> lastKnownInterfaceAddresses = Collections.emptyList();
+    private final ScheduledExecutorService scheduledExecutorService = ThreadPoolManager
             .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
     private @Nullable ScheduledFuture<?> networkInterfacePollFuture = null;
 
@@ -107,7 +105,6 @@ public class NetUtil implements NetworkAddressService {
         if (networkInterfacePollFuture != null) {
             networkInterfacePollFuture.cancel(true);
             networkInterfacePollFuture = null;
-            scheduledExecutorService = null; // do not shut it down
         }
     }
 
@@ -174,11 +171,10 @@ public class NetUtil implements NetworkAddressService {
         return primaryIP;
     }
 
-
     /**
      * Use only one address per interface and family (IPv4 and IPv6). If set listeners should bind only to one address
      * per interface and family.
-     * 
+     *
      * @return use only one address per interface and family
      */
     @Override
@@ -188,7 +184,7 @@ public class NetUtil implements NetworkAddressService {
 
     /**
      * Use IPv6. If not set, IPv6 addresses should be completely ignored by listeners.
-     * 
+     *
      * @return use IPv6
      */
     @Override
@@ -196,6 +192,17 @@ public class NetUtil implements NetworkAddressService {
         return useIPv6;
     }
 
+    // These are NOT OSGi service injections, but listeners have to register themselves at this service.
+    // This is required in order to avoid cyclic dependencies, see https://github.com/eclipse/smarthome/issues/6073
+    @Override
+    public void addNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
+        networkAddressChangeListeners.add(listener);
+    }
+
+    @Override
+    public void removeNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
+        networkAddressChangeListeners.remove(listener);
+    }
 
     /**
      * @deprecated Please use the NetworkAddressService with {@link #getPrimaryIpv4HostAddress()}
@@ -642,15 +649,6 @@ public class NetUtil implements NetworkAddressService {
         } else {
             return defaultValue;
         }
-    }
-
-    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    protected void addNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
-        networkAddressChangeListeners.add(listener);
-    }
-
-    protected void removeNetworkAddressChangeListener(NetworkAddressChangeListener listener) {
-        networkAddressChangeListeners.remove(listener);
     }
 
     @Reference
