@@ -179,14 +179,15 @@ public class DeviceImpl extends AbstractGeneralDeviceInformations implements Dev
         } else if (deviceJsonObject.get(JSONApiResponseKeysEnum.ZONE_ID_Lower_Z.getKey()) != null) {
             zoneId = deviceJsonObject.get(JSONApiResponseKeysEnum.ZONE_ID_Lower_Z.getKey()).getAsInt();
         }
-        if (deviceJsonObject.get(JSONApiResponseKeysEnum.GROUPS.getKey()).isJsonArray()) {
+        JsonElement groups = deviceJsonObject.get(JSONApiResponseKeysEnum.GROUPS.getKey());
+        if (groups != null && groups.isJsonArray()) {
             JsonArray array = deviceJsonObject.get(JSONApiResponseKeysEnum.GROUPS.getKey()).getAsJsonArray();
             for (int i = 0; i < array.size(); i++) {
                 if (array.get(i) != null) {
                     initAddGroup(array.get(i).getAsShort());
                 }
             }
-        } else if (deviceJsonObject.get(JSONApiResponseKeysEnum.GROUPS.getKey()).isJsonObject()) {
+        } else if (groups != null && groups.isJsonObject()) {
             for (Entry<String, JsonElement> entry : deviceJsonObject.get(JSONApiResponseKeysEnum.GROUPS.getKey())
                     .getAsJsonObject().entrySet()) {
                 initAddGroup(entry.getValue().getAsJsonObject().get(JSONApiResponseKeysEnum.ID.getKey()).getAsShort());
