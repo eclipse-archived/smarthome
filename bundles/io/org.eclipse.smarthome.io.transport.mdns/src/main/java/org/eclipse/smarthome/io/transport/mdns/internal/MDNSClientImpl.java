@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
@@ -40,10 +38,7 @@ import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +53,9 @@ import org.slf4j.LoggerFactory;
 public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 
-    private final ConcurrentMap<InetAddress, JmDNS> jmdnsInstances = new ConcurrentHashMap<>();
+    private final Map<InetAddress, JmDNS> jmdnsInstances = new ConcurrentHashMap<>();
 
-    private final ConcurrentSkipListSet<ServiceDescription> activeServices = new ConcurrentSkipListSet<>();
+    private final Set<ServiceDescription> activeServices = ConcurrentHashMap.newKeySet();
 
     private NetworkAddressService networkAddressService;
 
@@ -186,7 +181,6 @@ public class MDNSClientImpl implements MDNSClient, NetworkAddressChangeListener 
             instance.registerService(serviceInfo);
         }
     }
-
 
     @Override
     public void unregisterService(ServiceDescription description) {
