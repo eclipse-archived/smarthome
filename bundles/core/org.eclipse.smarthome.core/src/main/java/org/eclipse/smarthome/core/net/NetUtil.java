@@ -93,7 +93,8 @@ public class NetUtil implements NetworkAddressService {
     private @NonNullByDefault({}) SafeCaller safeCaller;
 
     @Activate
-    protected void activate(Map<String, @Nullable Object> props) {
+    protected void activate(Map<String, Object> props) {
+        lastKnownInterfaceAddresses = Collections.emptyList();
         modified(props);
     }
 
@@ -108,7 +109,7 @@ public class NetUtil implements NetworkAddressService {
     }
 
     @Modified
-    public synchronized void modified(Map<String, @Nullable Object> config) {
+    public synchronized void modified(Map<String, Object> config) {
         String primaryAddressConf = (String) config.get(PRIMARY_ADDRESS);
         String oldPrimaryAddress = primaryAddress;
         if (primaryAddressConf == null || primaryAddressConf.isEmpty() || !isValidIPConfig(primaryAddressConf)) {
@@ -632,8 +633,10 @@ public class NetUtil implements NetworkAddressService {
         }
     }
 
-    private boolean getConfigParameter(Map<String, @Nullable Object> parameters, String parameter,
-            boolean defaultValue) {
+    private boolean getConfigParameter(Map<String, Object> parameters, String parameter, boolean defaultValue) {
+        if (parameters == null) {
+            return defaultValue;
+        }
         Object value = parameters.get(parameter);
         if (value == null) {
             return defaultValue;
