@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>pom</artifactId>
+    <groupId>org.eclipse.smarthome.io</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>org.eclipse.smarthome.io.iota</artifactId>
+  <packaging>eclipse-plugin</packaging>
+
+  <name>Eclipse SmartHome Iota IO</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <delete 
+                  dir="lib/mam"
+                  includeemptydirs="true"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.3.2</version>
+        <executions>
+            <execution>
+                <id>github-mam-clone</id>
+                <goals>
+                    <goal>exec</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                    <executable>git</executable>
+                    <arguments>
+                        <argument>clone</argument>
+                        <argument>https://github.com/GiovannaTheo/mam.client.js.git</argument>
+                        <argument>lib/mam/</argument>
+                    </arguments>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.0</version>
+
+        <configuration>
+          <nodeVersion>v8.1.2</nodeVersion>
+          <npmVersion>5.8.0</npmVersion>
+          <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+          <environmentVariables>
+            <npm_config_cache>${project.basedir}/npm_cache</npm_config_cache>
+            <npm_config_tmp>${project.basedir}/npm_tmp</npm_config_tmp>
+          </environmentVariables>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>Install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <!-- optional: default phase is "generate-resources" -->
+            <phase>generate-resources</phase>
+          </execution>
+
+          
+          <execution>
+            <id>mam install</id>
+            <goals>
+                <goal>npm</goal>
+            </goals>
+            <configuration>
+                <arguments>install --prefix ./lib/mam/</arguments>
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Iota Binding Tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.binding.iota.test;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.binding.iota
+Import-Package: 
+ com.google.gson,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.binding.iota.handler,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.test.java,
+ org.eclipse.smarthome.test.storage,
+ org.hamcrest;core=split,
+ org.hamcrest.core,
+ org.junit,
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing,
+ org.osgi.framework,
+ org.osgi.service.device,
+ org.slf4j

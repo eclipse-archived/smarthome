@@ -1,0 +1,30 @@
+{
+    "name": "mam.client.js",
+    "private": false,
+    "version": "0.0.2",
+    "main": "lib/mam/lib/mam.client.js",
+    "scripts": {
+        "node": "webpack --progress --colors --watch --env node",
+        "web": "browserify -r .lib/mam/src/node.js:mam.web.js > .lib/mam/lib/mam.web.js",
+        "build": "webpack"
+    },
+    "engines": {
+        "node": ">=6"
+    },
+    "dependencies": {
+        "babel-polyfill": "^6.26.0",
+        "browserify": "^16.1.1",
+        "iota.crypto.js": "iotaledger/iota.crypto.js",
+        "iota.lib.js": "^0.4.2",
+        "pify": "^3.0.0"
+    },
+    "devDependencies": {
+        "babel-cli": "6.26.0",
+        "babel-core": "6.26.0",
+        "babel-eslint": "8.0.1",
+        "babel-loader": "7.1.2",
+        "babel-plugin-add-module-exports": "0.2.1",
+        "babel-preset-env": "1.6.1",
+        "webpack": "3.7.1"
+    }
+}

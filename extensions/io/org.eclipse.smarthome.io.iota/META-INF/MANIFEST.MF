@@ -1,0 +1,45 @@
+Manifest-Version: 1.0
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: ., lib/jota-0.9.11-SNAPSHOT-jar-with-dependencies.jar
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Iota IO
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.iota;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: 
+ org.apache.commons.collections,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.core.metadata,
+ org.eclipse.smarthome.config.core.status,
+ org.eclipse.smarthome.core.common,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.storage,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.util,
+ org.eclipse.smarthome.io.iota,
+ org.eclipse.smarthome.io.iota.automation,
+ org.eclipse.smarthome.io.iota.metadata,
+ org.eclipse.smarthome.io.iota.utils,
+ org.eclipse.smarthome.model.script.engine.action,
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.osgi.service.component,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Export-Package: org.eclipse.smarthome.io.iota;x-internal=true,
+ org.eclipse.smarthome.io.iota.automation;x-internal=true,
+ org.eclipse.smarthome.io.iota.metadata;x-internal=true,
+ org.eclipse.smarthome.io.iota.utils

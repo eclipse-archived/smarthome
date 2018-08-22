@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="iota" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+    <!-- IOTA Bridge -->
+    <bridge-type id="bridge">
+        <label>IOTA Bridge</label>
+        <description>The IOTA bridge represents the node instance on which transactions are issued.</description>
+        <config-description>
+            <parameter name="host" type="text" required="true">
+                <label>Node's host</label>
+                <description>Defines the host used by IOTA API</description>
+            </parameter>
+            <parameter name="protocol" type="text" required="true">
+                <options>
+                    <option value="https">https</option>
+                    <option value="http">http</option>
+                </options>
+                <label>Node's protocol</label>
+                <description>Defines the protocol used by IOTA API</description>
+            </parameter>
+            <parameter name="port" type="integer" required="true">
+                <label>Node's port</label>
+                <description>Defines the port used by IOTA API</description>
+            </parameter>
+        </config-description>
+    </bridge-type>
+</thing:thing-descriptions>

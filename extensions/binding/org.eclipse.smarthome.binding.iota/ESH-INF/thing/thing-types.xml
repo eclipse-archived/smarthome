@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bindingId="iota" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+   <!-- IOTA Binding -->
+   <thing-type id="topic" extensible="text,number,percentage,onoff">
+      <supported-bridge-type-refs>
+          <bridge-type-ref id="bridge"/>
+      </supported-bridge-type-refs>
+      <label>Topic</label>
+      <description>This thing represents a topic</description>
+      <config-description>
+         <parameter name="root" type="text" required="true">
+            <label>Root Address</label>
+            <description>The root address from which item states should be retrieved from</description>
+         </parameter>
+         <parameter name="refresh" type="integer" min="30">
+            <label>Refresh interval</label>
+            <description>Specifies the refresh interval in seconds, default to 60</description>
+            <default>60</default>
+         </parameter>
+         <parameter name="mode" type="text" required="true">
+            <options>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+                <option value="restricted">Restricted</option>
+            </options>
+            <label>MAM Mode</label>
+            <description>The mode of the channel on which to fetch data</description>
+        </parameter>
+        <parameter name="key" type="text" required="false">
+            <label>Private Key</label>
+            <description>Leave blank for non-restricted mode, otherwise enter the private key you want to use</description>
+         </parameter>
+      </config-description>
+   </thing-type>
+   
+   <thing-type id="wallet" extensible="balance">
+      <supported-bridge-type-refs>
+          <bridge-type-ref id="bridge"/>
+      </supported-bridge-type-refs>
+      <label>IOTA Wallet Information</label>
+      <description>Provides the balances of IOTA wallets</description>
+      <config-description>
+         <parameter name="refresh" type="integer" min="30">
+            <label>Refresh interval</label>
+            <description>Specifies the refresh interval in seconds, default to 60.</description>
+            <default>60</default>
+         </parameter>
+      </config-description>
+   </thing-type>
+   
+   <channel-type id="balance">
+      <item-type>Number</item-type>
+      <label>Balance</label>
+      <state readOnly="true" pattern="%.5f Miota"> </state>
+      <config-description>
+         <parameter name="address" type="text" required="true">
+            <label>Wallet address</label>
+            <description>The address of the IOTA wallet you want to listen to</description>
+         </parameter>
+      </config-description>
+   </channel-type>
+   
+   <channel-type id="text">
+        <item-type>String</item-type>
+        <label>Text value</label>
+        <state readOnly="true"> </state>
+        <config-description>
+            <parameter name="transformationPattern" type="text">
+                <label>Transformation pattern</label>
+                <description>Any supported transformation can be used. An example for a received JSON from a IOTA state topic would be a pattern of JSONPATH:$.thingNumber.status.state for a json [{"NAME": name, "STATUS": { "TOPIC": topic, "STATE": state, "TIME": time }}]. If used, the topic is ignored, and the state will be the value pointed by the transformation pattern.</description>
+                <default></default>
+            </parameter>
+        </config-description>
+    </channel-type>
+
+    <channel-type id="number">
+        <item-type>Number</item-type>
+        <label>Number value</label>
+        <state readOnly="true" pattern="%.2f"> </state>
+        <config-description>
+            <parameter name="transformationPattern" type="text">
+                <label>Transformation pattern</label>
+                <description>Any supported transformation can be used. An example for a received JSON from a IOTA state topic would be a pattern of JSONPATH:$.thingNumber.status.state for a json [{"NAME": name, "STATUS": { "TOPIC": topic, "STATE": state, "TIME": time }}]. If used, the topic is ignored, and the state will be the value pointed by the transformation pattern.</description>
+                <default></default>
+            </parameter>
+            <parameter name="isfloat" type="boolean">
+                <label>Is Decimal?</label>
+                <description>Set to true if the IOTA topic expects a float/double decimal instead of an integer value</description>
+                <default>false</default>
+            </parameter>
+        </config-description>
+    </channel-type>
+
+    <channel-type id="percentage">
+        <item-type>Dimmer</item-type>
+        <label>Percentage value</label>
+        <state readOnly="true" pattern="%.2f"> </state>
+        <config-description>
+            <parameter name="transformationPattern" type="text">
+                <label>Transformation pattern</label>
+                <description>Any supported transformation can be used. An example for a received JSON from a IOTA state topic would be a pattern of JSONPATH:$.thingNumber.status.state for a json [{"NAME": name, "STATUS": { "TOPIC": topic, "STATE": state, "TIME": time }}]. If used, the topic is ignored, and the state will be the value pointed by the transformation pattern.</description>
+                <default></default>
+            </parameter>
+            <parameter name="isfloat" type="boolean">
+                <label>Is Decimal?</label>
+                <description>Set to true if the IOTA topic expects a float/double decimal instead of an integer value</description>
+                <default>false</default>
+            </parameter>
+        </config-description>
+    </channel-type>
+
+    <channel-type id="onoff">
+        <item-type>Switch</item-type>
+        <label>On/Off value</label>
+        <state readOnly="true"> </state>
+        <config-description>
+            <parameter name="transformationPattern" type="text">
+                <label>Transformation pattern</label>
+                <description>Any supported transformation can be used. An example for a received JSON from a IOTA state topic would be a pattern of JSONPATH:$.thingNumber.status.state for a json [{"NAME": name, "STATUS": { "TOPIC": topic, "STATE": state, "TIME": time }}]. If used, the topic is ignored, and the state will be the value pointed by the transformation pattern.</description>
+                <default></default>
+            </parameter>
+            <parameter name="on" type="text">
+                <label>ON value</label>
+                <description>A number (like 1, 10) or a string (like ON) that is recognised as on state.</description>
+                <default>0</default>
+                <advanced>true</advanced>
+            </parameter>
+            <parameter name="off" type="text">
+                <label>OFF value</label>
+                <description>A number (like 0, -10) or a string (like OFF) that is recognised as off state.</description>
+                <default>1</default>
+                <advanced>true</advanced>
+            </parameter>
+            <parameter name="inverse" type="boolean">
+                <label>Inverse</label>
+                <description>Inverse the meaning. A received "ON" will switch the thing channel off and vice versa.</description>
+                <default>false</default>
+                <advanced>true</advanced>
+            </parameter>
+        </config-description>
+    </channel-type>
+    
+</thing:thing-descriptions>

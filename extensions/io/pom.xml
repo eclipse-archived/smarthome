@@ -16,6 +16,8 @@
   <name>Eclipse SmartHome I/O Services</name>
 
   <modules>
+    <module>org.eclipse.smarthome.io.iota</module>
+    <module>org.eclipse.smarthome.io.iota.test</module>
     <module>org.eclipse.smarthome.io.javasound</module>
     <module>org.eclipse.smarthome.io.mqttembeddedbroker</module>
     <module>org.eclipse.smarthome.io.mqttembeddedbroker.test</module>

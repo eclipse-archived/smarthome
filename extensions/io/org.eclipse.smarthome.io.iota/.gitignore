@@ -1,0 +1,4 @@
+node/
+npm_cache/
+npm_tmp/
+lib/mam/

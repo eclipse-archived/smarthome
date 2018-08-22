@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+    http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+	<config-description uri="iota:iotaapi">
+		<parameter name="protocol" type="text" required="true">
+			<label>Protocol</label>
+			<description>Defines the protocol used by IOTA API</description>
+			<default>https</default>
+		</parameter>
+		<parameter name="host" type="text" required="true">
+			<label>Host</label>
+			<description>Defines the host used by IOTA API</description>
+			<default>nodes.testnet.iota.org</default>
+		</parameter>
+		<parameter name="port" type="integer" required="true">
+			<label>Port</label>
+			<description>Defines the port used by IOTA API</description>
+			<default>443</default>
+		</parameter>
+	</config-description>
+</config-description:config-descriptions>

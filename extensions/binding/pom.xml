@@ -34,6 +34,8 @@
     <module>org.eclipse.smarthome.binding.hue.test</module>
     <module>org.eclipse.smarthome.binding.fsinternetradio</module>
     <module>org.eclipse.smarthome.binding.fsinternetradio.test</module>
+    <module>org.eclipse.smarthome.binding.iota</module>
+    <module>org.eclipse.smarthome.binding.iota.test</module>
     <module>org.eclipse.smarthome.binding.lifx</module>
     <module>org.eclipse.smarthome.binding.lirc</module>
     <module>org.eclipse.smarthome.binding.mqtt</module>
