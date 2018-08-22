@@ -93,7 +93,6 @@ public class NetUtil implements NetworkAddressService {
     private @NonNullByDefault({}) SafeCaller safeCaller;
 
     @Activate
-        lastKnownInterfaceAddresses = Collections.emptyList();
     protected void activate(Map<String, @Nullable Object> props) {
         modified(props);
     }
