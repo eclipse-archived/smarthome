@@ -58,6 +58,14 @@ public class ChannelUID extends UID {
     }
 
     /**
+     * @param channelGroupUID the unique identifier of the channel group the channel belongs to
+     * @param id the channel's id
+     */
+    public ChannelUID(ChannelGroupUID channelGroupUID, String id) {
+        super(toSegments(channelGroupUID.getThingUID(), channelGroupUID.getId(), id));
+    }
+
+    /**
      * @param thingUID the unique identifier of the thing the channel belongs to
      * @param groupId the channel's group id
      * @param id the channel's id
