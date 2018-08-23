@@ -171,6 +171,11 @@ public abstract class RpcClient<T> {
      * Loads all datapoint metadata into the given channel.
      */
     public void addChannelDatapoints(HmChannel channel, HmParamsetType paramsetType) throws IOException {
+        if (isDummyChannel(channel) && paramsetType != HmParamsetType.MASTER) {
+            // The dummy channel only has a MASTER Paramset, so there is nothing to load
+            return;
+        }
+
         RpcRequest<T> request = createRpcRequest("getParamsetDescription");
         request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
         request.addArg(paramsetType.toString());
@@ -181,6 +186,11 @@ public abstract class RpcClient<T> {
      * Sets all datapoint values for the given channel.
      */
     public void setChannelDatapointValues(HmChannel channel, HmParamsetType paramsetType) throws IOException {
+        if (isDummyChannel(channel) && paramsetType != HmParamsetType.MASTER) {
+            // The dummy channel only has a MASTER Paramset, so there is nothing to load
+            return;
+        }
+
         RpcRequest<T> request = createRpcRequest("getParamset");
         request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
         request.addArg(paramsetType.toString());
@@ -391,11 +401,18 @@ public abstract class RpcClient<T> {
 
     /**
      * Returns the address suffix that specifies the channel for a given HmChannel. This is either a colon ":" followed
-     * by the channel number, or the empty string. The empty string is returned for the channel -1, since this channel
-     * encapsulates the ParamSets of a device that do not belong to one of its channels.
+     * by the channel number, or the empty string for a dummy channel.
      */
     private String getChannelSuffix(HmChannel channel) {
-        return channel.getNumber() != -1 ? ":" + channel.getNumber() : "";
+        return isDummyChannel(channel) ? "" : ":" + channel.getNumber();
+    }
+
+    /**
+     * Checks whether a channel is a dummy channel. The dummy channel of a device encapsulates the MASTER Paramset that
+     * does not belong to one of its channels.
+     */
+    private boolean isDummyChannel(HmChannel channel) {
+        return channel.getNumber() == -1;
     }
 
 }

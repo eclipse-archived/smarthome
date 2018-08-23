@@ -47,6 +47,13 @@ public class DimmerHelper {
         return hmChannel;
     }
 
+    public static HmChannel createDimmerDummyChannel() {
+        HmChannel hmChannel = new HmChannel("HM-LC-Dim1-Pl3", -1);
+        hmChannel.setDevice(createDimmerHmDevice());
+
+        return hmChannel;
+    }
+
     public static HmDatapoint createDimmerHmDatapoint() {
         HmDatapoint hmDatapoint = new HmDatapoint();
         hmDatapoint.setName("DIMMER");
