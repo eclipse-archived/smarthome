@@ -143,8 +143,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     break;
             }
         } else {
-            printInboxEntries(console,
-                    inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList()));
+            printUsage(console);
         }
     }
 
@@ -192,14 +191,13 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage("lists all current inbox entries"),
-                buildCommandUsage(SUBCMD_LIST, "lists all current inbox entries"),
+        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all current inbox entries"),
                 buildCommandUsage(SUBCMD_LIST_IGNORED, "lists all ignored inbox entries"),
                 buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <label>", "creates a thing for an inbox entry"),
                 buildCommandUsage(SUBCMD_CLEAR, "clears all current inbox entries"),
-                buildCommandUsage(SUBCMD_REMOVE + " id <thingUID>", "remove the inbox entry having a certain thing id"),
+                buildCommandUsage(SUBCMD_REMOVE + " id <thingUID>", "remove the inbox entry of a given thing id"),
                 buildCommandUsage(SUBCMD_REMOVE + " type <thingTypeUID>",
-                        "remove all inbox entries of a certain thing type"),
+                        "remove all inbox entries of a given thing type"),
                 buildCommandUsage(SUBCMD_IGNORE + " <thingUID>", "ignores an inbox entry permanently") });
     }
 
