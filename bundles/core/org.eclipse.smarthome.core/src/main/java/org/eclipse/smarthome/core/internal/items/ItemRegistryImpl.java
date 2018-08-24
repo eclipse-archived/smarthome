@@ -497,11 +497,11 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Reference(target = "(component.name=org.eclipse.smarthome.core.library.CoreItemFactory)")
     protected void setCoreItemFactory(ItemFactory coreItemFactory) {
-        // do nothing - just depend on it
+        itemFactories.add(coreItemFactory);
     }
 
     protected void unsetCoreItemFactory(ItemFactory coreItemFactory) {
-        // do nothing
+        itemFactories.remove(coreItemFactory);
     }
 
 }
