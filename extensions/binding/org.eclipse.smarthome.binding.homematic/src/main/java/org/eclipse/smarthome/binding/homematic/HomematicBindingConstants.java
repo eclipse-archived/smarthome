@@ -66,4 +66,6 @@ public class HomematicBindingConstants {
     public static final String PROPERTY_DYNAMIC_FUNCTION_FORMAT = "dynamicFunction-%d";
     
     public static final int INSTALL_MODE_NORMAL = 1;
+
+    public static final int CONFIGURATION_CHANNEL_NUMBER = -1;
 }

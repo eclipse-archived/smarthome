@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.homematic.internal.communicator.client;
 
 import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.INSTALL_MODE_NORMAL;
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.CONFIGURATION_CHANNEL_NUMBER;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -171,6 +172,11 @@ public abstract class RpcClient<T> {
      * Loads all datapoint metadata into the given channel.
      */
     public void addChannelDatapoints(HmChannel channel, HmParamsetType paramsetType) throws IOException {
+        if (isConfigurationChannel(channel) && paramsetType != HmParamsetType.MASTER) {
+            // The configuration channel only has a MASTER Paramset, so there is nothing to load
+            return;
+        }
+
         RpcRequest<T> request = createRpcRequest("getParamsetDescription");
         request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
         request.addArg(paramsetType.toString());
@@ -181,6 +187,11 @@ public abstract class RpcClient<T> {
      * Sets all datapoint values for the given channel.
      */
     public void setChannelDatapointValues(HmChannel channel, HmParamsetType paramsetType) throws IOException {
+        if (isConfigurationChannel(channel) && paramsetType != HmParamsetType.MASTER) {
+            // The configuration channel only has a MASTER Paramset, so there is nothing to load
+            return;
+        }
+
         RpcRequest<T> request = createRpcRequest("getParamset");
         request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
         request.addArg(paramsetType.toString());
@@ -391,11 +402,18 @@ public abstract class RpcClient<T> {
 
     /**
      * Returns the address suffix that specifies the channel for a given HmChannel. This is either a colon ":" followed
-     * by the channel number, or the empty string. The empty string is returned for the channel -1, since this channel
-     * encapsulates the ParamSets of a device that do not belong to one of its channels.
+     * by the channel number, or the empty string for a configuration channel.
      */
     private String getChannelSuffix(HmChannel channel) {
-        return channel.getNumber() != -1 ? ":" + channel.getNumber() : "";
+        return isConfigurationChannel(channel) ? "" : ":" + channel.getNumber();
+    }
+
+    /**
+     * Checks whether a channel is a configuration channel. The configuration channel of a device encapsulates the
+     * MASTER Paramset that does not belong to one of its actual channels.
+     */
+    private boolean isConfigurationChannel(HmChannel channel) {
+        return channel.getNumber() == CONFIGURATION_CHANNEL_NUMBER;
     }
 
 }
