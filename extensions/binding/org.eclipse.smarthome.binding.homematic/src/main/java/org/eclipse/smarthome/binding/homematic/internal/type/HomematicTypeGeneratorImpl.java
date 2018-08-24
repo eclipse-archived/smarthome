@@ -73,6 +73,7 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
 
     private HomematicThingTypeProvider thingTypeProvider;
     private HomematicChannelTypeProvider channelTypeProvider;
+    private HomematicChannelGroupTypeProvider channelGroupTypeProvider;
     private HomematicConfigDescriptionProvider configDescriptionProvider;
     private final Map<String, Set<String>> firmwaresByType = new HashMap<String, Set<String>>();
 
@@ -107,6 +108,15 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
 
     protected void unsetChannelTypeProvider(HomematicChannelTypeProvider channelTypeProvider) {
         this.channelTypeProvider = null;
+    }
+
+    @Reference
+    protected void setChannelGroupTypeProvider(HomematicChannelGroupTypeProvider channelGroupTypeProvider) {
+        this.channelGroupTypeProvider = channelGroupTypeProvider;
+    }
+
+    protected void unsetChannelGroupTypeProvider(HomematicChannelGroupTypeProvider channelGroupTypeProvider) {
+        this.channelGroupTypeProvider = null;
     }
 
     @Reference
@@ -159,13 +169,13 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
 
                     // generate group
                     ChannelGroupTypeUID groupTypeUID = UidUtils.generateChannelGroupTypeUID(channel);
-                    ChannelGroupType groupType = channelTypeProvider.getInternalChannelGroupType(groupTypeUID);
+                    ChannelGroupType groupType = channelGroupTypeProvider.getInternalChannelGroupType(groupTypeUID);
                     if (groupType == null || device.isGatewayExtras()) {
                         String groupLabel = String.format("%s",
                                 WordUtils.capitalizeFully(StringUtils.replace(channel.getType(), "_", " ")));
                         groupType = ChannelGroupTypeBuilder.instance(groupTypeUID, groupLabel)
                                 .withChannelDefinitions(channelDefinitions).build();
-                        channelTypeProvider.addChannelGroupType(groupType);
+                        channelGroupTypeProvider.addChannelGroupType(groupType);
                         groupTypes.add(groupType);
                     }
 
@@ -349,7 +359,8 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
 
     private URI getConfigDescriptionURI(HmDevice device) {
         try {
-            return new URI(String.format("%s:%s", CONFIG_DESCRIPTION_URI_THING_PREFIX, UidUtils.generateThingTypeUID(device)));
+            return new URI(
+                    String.format("%s:%s", CONFIG_DESCRIPTION_URI_THING_PREFIX, UidUtils.generateThingTypeUID(device)));
         } catch (URISyntaxException ex) {
             logger.warn("Can't create configDescriptionURI for device type {}", device.getType());
             return null;
