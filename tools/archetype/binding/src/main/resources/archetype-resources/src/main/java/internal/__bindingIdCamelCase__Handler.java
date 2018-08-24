@@ -75,11 +75,9 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
         // Long running initialization should be done asynchronously in background.
 
         // logger.debug("Start initializing!");
-        // updateStatus(ThingStatus.UNKNOWN);
+        updateStatus(ThingStatus.ONLINE);
         // logger.debug("Finished initializing!");
         
-        updateStatus(ThingStatus.ONLINE);
-
         // Note: When initialization can NOT be done set the status with more details for further
         // analysis. See also class ThingStatusDetail for all available status details.
         // Add a description to give user information to understand why thing does not work
