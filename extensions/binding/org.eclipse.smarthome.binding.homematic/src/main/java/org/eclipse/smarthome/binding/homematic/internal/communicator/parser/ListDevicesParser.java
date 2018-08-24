@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.homematic.internal.communicator.parser;
 
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.CONFIGURATION_CHANNEL_NUMBER;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,7 +58,7 @@ public class ListDevicesParser extends CommonRpcParser<Object[], Collection<HmDe
 
                 HmDevice device = new HmDevice(address, hmInterface, type, config.getGatewayInfo().getId(), id,
                         firmware);
-                device.addChannel(new HmChannel(type, -1));
+                device.addChannel(new HmChannel(type, CONFIGURATION_CHANNEL_NUMBER));
                 devices.put(address, device);
             } else {
                 // channel
