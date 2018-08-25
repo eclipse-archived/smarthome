@@ -41,6 +41,7 @@ public class UUIDTest {
         // we first need to remove the cached value
         InstanceUUID.uuid = null;
         Path path = Paths.get(ConfigConstants.getUserDataFolder(), InstanceUUID.UUID_FILE_NAME);
+        Files.createDirectories(path.getParent());
         Files.write(path, "123".getBytes());
         String uuid = InstanceUUID.get();
         assertThat(uuid, is(equalTo("123")));
@@ -51,6 +52,7 @@ public class UUIDTest {
         // we first need to remove the cached value
         InstanceUUID.uuid = null;
         Path path = Paths.get(ConfigConstants.getUserDataFolder(), InstanceUUID.UUID_FILE_NAME);
+        Files.createDirectories(path.getParent());
         Files.write(path, "".getBytes());
         String uuid = InstanceUUID.get();
         assertThat(uuid, not(equalTo("")));
