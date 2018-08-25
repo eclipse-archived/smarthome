@@ -10,7 +10,6 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
- org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.osgi.framework
 Automatic-Module-Name: org.eclipse.smarthome.core.id.test

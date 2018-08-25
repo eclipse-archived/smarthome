@@ -12,8 +12,7 @@
  */
 package org.eclipse.smarthome.core.id;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +32,7 @@ public class UUIDTest {
     public void sameUUID() {
         String uuid1 = InstanceUUID.get();
         String uuid2 = InstanceUUID.get();
-        assertThat(uuid1, is(equalTo(uuid2)));
+        assertEquals(uuid1, uuid2);
     }
 
     @Test
@@ -44,7 +43,7 @@ public class UUIDTest {
         Files.createDirectories(path.getParent());
         Files.write(path, "123".getBytes());
         String uuid = InstanceUUID.get();
-        assertThat(uuid, is(equalTo("123")));
+        assertEquals("123", uuid);
     }
 
     @Test
@@ -55,6 +54,6 @@ public class UUIDTest {
         Files.createDirectories(path.getParent());
         Files.write(path, "".getBytes());
         String uuid = InstanceUUID.get();
-        assertThat(uuid, not(equalTo("")));
+        assertNotEquals("", uuid);
     }
 }
