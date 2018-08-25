@@ -15,13 +15,11 @@ package org.eclipse.smarthome.core.id;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.junit.Test;
 
@@ -39,27 +37,21 @@ public class UUIDTest {
     }
 
     @Test
-    public void readFromPersistedFile() throws FileNotFoundException, IOException {
+    public void readFromPersistedFile() throws IOException {
         // we first need to remove the cached value
         InstanceUUID.uuid = null;
-        File file = new File(ConfigConstants.getUserDataFolder() + File.separator + InstanceUUID.UUID_FILE_NAME);
-        file.getParentFile().mkdirs();
-        try (OutputStream os = new FileOutputStream(file)) {
-            IOUtils.write("123", os);
-        }
+        Path path = Paths.get(ConfigConstants.getUserDataFolder(), InstanceUUID.UUID_FILE_NAME);
+        Files.write(path, "123".getBytes());
         String uuid = InstanceUUID.get();
         assertThat(uuid, is(equalTo("123")));
     }
 
     @Test
-    public void ignoreEmptyFile() throws FileNotFoundException, IOException {
+    public void ignoreEmptyFile() throws IOException {
         // we first need to remove the cached value
         InstanceUUID.uuid = null;
-        File file = new File(ConfigConstants.getUserDataFolder() + File.separator + InstanceUUID.UUID_FILE_NAME);
-        file.getParentFile().mkdirs();
-        try (OutputStream os = new FileOutputStream(file)) {
-            IOUtils.write("", os);
-        }
+        Path path = Paths.get(ConfigConstants.getUserDataFolder(), InstanceUUID.UUID_FILE_NAME);
+        Files.write(path, "".getBytes());
         String uuid = InstanceUUID.get();
         assertThat(uuid, not(equalTo("")));
     }
