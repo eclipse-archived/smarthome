@@ -36,9 +36,9 @@ public class InstanceUUID {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceUUID.class);
 
-    private static final String UUID_FILE_NAME = "uuid";
+    static final String UUID_FILE_NAME = "uuid";
 
-    private static String uuid = null;
+    static String uuid = null;
 
     /**
      * Retrieves a unified unique id, based on {@link java.util.UUID.randomUUID()}
