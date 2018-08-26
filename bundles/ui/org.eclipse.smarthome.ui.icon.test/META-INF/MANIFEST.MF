@@ -7,16 +7,16 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.ui.icon
 Import-Package: 
- groovy.lang,
- javax.servlet,
- javax.servlet.http,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
+ javax.servlet;version="[3.1,4)",
+ javax.servlet.http;version="[3.1,4)",
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.test,
- org.hamcrest;core=split,
- org.junit;version="4.0.0"
+ org.eclipse.smarthome.test.java,
+ org.junit,
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.junit,
+ org.mockito.stubbing,
+ org.mockito.verification
 Automatic-Module-Name: org.eclipse.smarthome.ui.icon.test
