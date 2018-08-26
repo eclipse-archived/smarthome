@@ -15,6 +15,8 @@ package org.eclipse.smarthome.binding.onewire.internal.device;
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 import static org.eclipse.smarthome.core.library.unit.MetricPrefix.MILLI;
 
+import java.util.regex.Pattern;
+
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.ElectricCurrent;
 import javax.measure.quantity.ElectricPotential;
@@ -46,6 +48,9 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class DS2438 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS2438.class);
+
+    private static final Pattern ASSOC_SENSOR_ID_PATTERN = Pattern
+            .compile("^(26|28|3A)([0-9A-Fa-f]{12})[0-9A-Fa-f]{2}$");
 
     public enum LightSensorType {
         ElabNetV1,
@@ -188,5 +193,4 @@ public class DS2438 extends AbstractOwDevice {
     public void setLightSensorType(LightSensorType lightSensorType) {
         this.lightSensorType = lightSensorType;
     }
-
 }
