@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.audio.utils.AudioStreamUtils;
  * @author Karel Goderis - Initial contribution and API
  * @author Kai Kreuzer - Refactored to take a file as input
  * @author Christoph Weitkamp - Refactored use of filename extension
- * 
+ *
  */
 public class FileAudioStream extends FixedLengthAudioStream {
 
@@ -76,6 +76,10 @@ public class FileAudioStream extends FixedLengthAudioStream {
         } catch (FileNotFoundException e) {
             throw new AudioException("File '" + file.getName() + "' not found!");
         }
+    }
+
+    public File getFile() {
+        return file;
     }
 
     @Override

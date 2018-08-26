@@ -43,10 +43,10 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = ConsoleCommandExtension.class)
 public class AudioConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
-    private static final String SUBCMD_PLAY = "play";
-    private static final String SUBCMD_STREAM = "stream";
-    private static final String SUBCMD_SOURCES = "sources";
-    private static final String SUBCMD_SINKS = "sinks";
+    static final String SUBCMD_PLAY = "play";
+    static final String SUBCMD_STREAM = "stream";
+    static final String SUBCMD_SOURCES = "sources";
+    static final String SUBCMD_SINKS = "sinks";
 
     private AudioManager audioManager;
     private LocaleProvider localeProvider;

@@ -57,6 +57,7 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     private final Map<String, AudioStream> oneTimeStreams = new ConcurrentHashMap<>();
     private final Map<String, FixedLengthAudioStream> multiTimeStreams = new ConcurrentHashMap<>();
+
     private final Map<String, Long> streamTimeouts = new ConcurrentHashMap<>();
 
     protected HttpService httpService;
@@ -186,6 +187,10 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         multiTimeStreams.put(streamId, stream);
         streamTimeouts.put(streamId, System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds));
         return getRelativeURL(streamId);
+    }
+
+    Map<String, FixedLengthAudioStream> getMultiTimeStreams() {
+        return multiTimeStreams;
     }
 
     private String getRelativeURL(String streamId) {

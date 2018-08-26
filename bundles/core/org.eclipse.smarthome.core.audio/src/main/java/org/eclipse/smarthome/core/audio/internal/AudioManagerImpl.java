@@ -69,9 +69,9 @@ import org.slf4j.LoggerFactory;
 public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
 
     // constants for the configuration properties
-    protected static final String CONFIG_URI = "system:audio";
-    private static final String CONFIG_DEFAULT_SINK = "defaultSink";
-    private static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
+    static final String CONFIG_URI = "system:audio";
+    static final String CONFIG_DEFAULT_SINK = "defaultSink";
+    static final String CONFIG_DEFAULT_SOURCE = "defaultSource";
 
     private final Logger logger = LoggerFactory.getLogger(AudioManagerImpl.class);
 
@@ -211,6 +211,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         }
     }
 
+    void setDefaultSource(String defaultSource) {
+        this.defaultSource = defaultSource;
+    }
+
     @Override
     public AudioSource getSource() {
         AudioSource source = null;
@@ -230,6 +234,10 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     @Override
     public Set<AudioSource> getAllSources() {
         return new HashSet<>(audioSources.values());
+    }
+
+    void setDefaultSink(String defaultSink) {
+        this.defaultSink = defaultSink;
     }
 
     @Override
