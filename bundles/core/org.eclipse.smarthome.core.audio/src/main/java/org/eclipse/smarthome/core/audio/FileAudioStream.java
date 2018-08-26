@@ -78,10 +78,6 @@ public class FileAudioStream extends FixedLengthAudioStream {
         }
     }
 
-    public File getFile() {
-        return file;
-    }
-
     @Override
     public AudioFormat getFormat() {
         return audioFormat;

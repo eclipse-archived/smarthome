@@ -95,7 +95,7 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     }
 
     @Modified
-    protected void modified(Map<String, Object> config) {
+    void modified(Map<String, Object> config) {
         if (config != null) {
             this.defaultSource = config.containsKey(CONFIG_DEFAULT_SOURCE)
                     ? config.get(CONFIG_DEFAULT_SOURCE).toString()
@@ -211,10 +211,6 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
         }
     }
 
-    void setDefaultSource(String defaultSource) {
-        this.defaultSource = defaultSource;
-    }
-
     @Override
     public AudioSource getSource() {
         AudioSource source = null;
@@ -234,10 +230,6 @@ public class AudioManagerImpl implements AudioManager, ConfigOptionProvider {
     @Override
     public Set<AudioSource> getAllSources() {
         return new HashSet<>(audioSources.values());
-    }
-
-    void setDefaultSink(String defaultSink) {
-        this.defaultSink = defaultSink;
     }
 
     @Override

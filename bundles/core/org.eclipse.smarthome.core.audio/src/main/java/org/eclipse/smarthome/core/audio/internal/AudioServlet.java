@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.audio.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -190,7 +191,7 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
     }
 
     Map<String, FixedLengthAudioStream> getMultiTimeStreams() {
-        return multiTimeStreams;
+        return Collections.unmodifiableMap(multiTimeStreams);
     }
 
     private String getRelativeURL(String streamId) {

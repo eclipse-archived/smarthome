@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.core.audio.internal;
 
+import static org.eclipse.smarthome.core.audio.internal.AudioManagerImpl.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
@@ -26,7 +28,6 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioStream;
-import org.eclipse.smarthome.core.audio.FileAudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
 import org.eclipse.smarthome.core.audio.URLAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
@@ -47,7 +48,7 @@ public class AudioManagerTest extends AudioOSGiTest {
     @Test
     public void audioManagerPlaysByteArrayAudioStream() throws AudioException {
         audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_MP3);
-        assertProcessedStream(audioStream, PlayType.STREAM);
+        assertProcessedStreamTypeStream(audioStream);
     }
 
     @Test
@@ -64,25 +65,25 @@ public class AudioManagerTest extends AudioOSGiTest {
     @Test
     public void audioManagerPlaysStreamFromWavAudioFiles() throws AudioException {
         audioStream = getFileAudioStream(WAV_FILE_PATH);
-        assertProcessedStream(audioStream, PlayType.STREAM);
+        assertProcessedStreamTypeStream(audioStream);
     }
 
     @Test
     public void audioManagerPlaysStreamFromMp3AudioFiles() throws AudioException {
         audioStream = getFileAudioStream(MP3_FILE_PATH);
-        assertProcessedStream(audioStream, PlayType.STREAM);
+        assertProcessedStreamTypeStream(audioStream);
     }
 
     @Test
     public void audioManagerPlaysWavAudioFiles() throws AudioException {
         audioStream = getFileAudioStream(WAV_FILE_PATH);
-        assertProcessedStream(audioStream, PlayType.FILE);
+        assertProcessedStreamTypeFile(WAV_FILE_NAME);
     }
 
     @Test
     public void audioManagerPlaysMp3AudioFiles() throws AudioException {
         audioStream = getFileAudioStream(MP3_FILE_PATH);
-        assertProcessedStream(audioStream, PlayType.FILE);
+        assertProcessedStreamTypeFile(MP3_FILE_NAME);
     }
 
     @Test
@@ -218,10 +219,10 @@ public class AudioManagerTest extends AudioOSGiTest {
         registerSource();
 
         if (isSourceDefault) {
-            audioManager.setDefaultSource(audioSourceMock.getId());
+            audioManager.modified(Collections.singletonMap(CONFIG_DEFAULT_SOURCE, audioSourceMock.getId()));
         } else {
             // just to make sure there is no default source
-            audioManager.setDefaultSource(null);
+            audioManager.modified(Collections.emptyMap());
         }
 
         assertThat(String.format("The source %s was not registered", audioSourceMock.getId()), audioManager.getSource(),
@@ -236,10 +237,10 @@ public class AudioManagerTest extends AudioOSGiTest {
         registerSink();
 
         if (isSinkDefault) {
-            audioManager.setDefaultSink(audioSinkFake.getId());
+            audioManager.modified(Collections.singletonMap(CONFIG_DEFAULT_SINK, audioSinkFake.getId()));
         } else {
             // just to make sure there is no default sink
-            audioManager.setDefaultSink(null);
+            audioManager.modified(Collections.emptyMap());
         }
 
         assertThat(String.format("The sink %s was not registered", audioSinkFake.getId()), audioManager.getSink(),
@@ -250,7 +251,19 @@ public class AudioManagerTest extends AudioOSGiTest {
                 audioManager.getSinkIds(audioSinkFake.getId()).contains(audioSinkFake.getId()), is(true));
     }
 
-    private void assertProcessedStream(AudioStream audioStream, PlayType playType) throws AudioException {
+    private void assertProcessedStreamTypeStream(AudioStream audioStream) throws AudioException {
+        registerSink();
+
+        waitForAssert(() -> assertThat("The format of the audio sink mock was not as expected",
+                audioSinkFake.audioFormat, is(nullValue())));
+
+        assertThat("The currently playing stream was stopped", audioSinkFake.isStreamStopped, is(false));
+        audioManager.play(audioStream, audioSinkFake.getId());
+
+        assertCompatibleFormat();
+    }
+
+    private void assertProcessedStreamTypeFile(String audioFileName) throws AudioException {
         registerSink();
 
         waitForAssert(() -> assertThat("The format of the audio sink mock was not as expected",
@@ -258,18 +271,7 @@ public class AudioManagerTest extends AudioOSGiTest {
 
         assertThat("The currently playing stream was stopped", audioSinkFake.isStreamStopped, is(false));
 
-        switch (playType) {
-            case STREAM:
-                audioManager.play(audioStream, audioSinkFake.getId());
-                break;
-            case FILE:
-                File audioFile = ((FileAudioStream) audioStream).getFile();
-                String audioFileName = audioFile.getName();
-                audioManager.playFile(audioFileName, audioSinkFake.getId());
-                break;
-            default:
-                break;
-        }
+        audioManager.playFile(audioFileName, audioSinkFake.getId());
 
         assertCompatibleFormat();
     }
