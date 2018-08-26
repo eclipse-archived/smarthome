@@ -141,11 +141,13 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      */
     public static final ChannelType SYSTEM_LOCATION = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "location"), "Location", "Location")
-            .withDescription("Location in lat./lon./height coordinates").withStateDescription(
-                    StateDescriptionFragmentBuilder.create().withReadOnly(true).build().toStateDescription())
+            .withDescription("Location in lat./lon./height coordinates")
+            .withStateDescription(StateDescriptionFragmentBuilder.create().withReadOnly(true)
+                    .withPattern("%2$s°N %3$s°E %1$sm").build().toStateDescription())
             .build();
+
     /**
-     * Motion default system wide {@link ChannelType} which indications whether motion was detected (state. ON)
+     * Motion: default system wide {@link ChannelType} which indications whether motion was detected (state ON)
      */
     public static final ChannelType SYSTEM_MOTION = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "motion"), "Motion", "Switch")
