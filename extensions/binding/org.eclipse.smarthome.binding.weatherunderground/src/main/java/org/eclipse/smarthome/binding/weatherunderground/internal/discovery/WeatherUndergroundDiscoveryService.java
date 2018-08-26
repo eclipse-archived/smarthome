@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -67,6 +69,16 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     }
 
     @Override
+    public void activate(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+    }
+
+    @Override
     protected void startScan() {
         logger.debug("Starting Weather Underground discovery scan");
         PointType location = locationProvider.getLocation();
@@ -79,6 +91,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
 
     @Override
     protected void startBackgroundDiscovery() {
+        logger.debug("Starting Weather Underground device background discovery");
         if (discoveryJob == null || discoveryJob.isCancelled()) {
             discoveryJob = scheduler.scheduleWithFixedDelay(() -> {
                 PointType currentLocation = locationProvider.getLocation();
