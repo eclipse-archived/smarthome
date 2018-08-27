@@ -15,21 +15,22 @@ package org.eclipse.smarthome.core.thing;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * {@link ChannelUID} represents a unique identifier for channels.
  *
- * @author Oliver Libutzki - Initital contribution
+ * @author Oliver Libutzki - Initial contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
  * @author Dennis Nobel - Added channel group id
  * @author Kai Kreuzer - Changed creation of channels to not require a thing type
+ * @author Christoph Weitkamp - Changed pattern for validating last segment to contain either a single `#` or none
  */
 @NonNullByDefault
 public class ChannelUID extends UID {
 
+    private static final String CHANNEL_SEGMENT_PATTERN = "[\\w-]*|[\\w-]*#[\\w-]*";
     private static final String CHANNEL_GROUP_SEPERATOR = "#";
 
     /**
@@ -160,9 +161,10 @@ public class ChannelUID extends UID {
         if (index < length - 1) {
             super.validateSegment(segment, index, length);
         } else {
-            if (!segment.matches("[A-Za-z0-9_#-]*")) {
-                throw new IllegalArgumentException("UID segment '" + segment
-                        + "' contains invalid characters. The last segment of the channel UID must match the pattern [A-Za-z0-9_-#]*.");
+            if (!segment.matches(CHANNEL_SEGMENT_PATTERN)) {
+                throw new IllegalArgumentException(String.format(
+                        "UID segment '%s' contains invalid characters. The last segment of the channel UID must match the pattern '%s'.",
+                        segment, CHANNEL_SEGMENT_PATTERN));
             }
         }
     }
@@ -173,7 +175,7 @@ public class ChannelUID extends UID {
      * @return the thing UID
      */
     public ThingUID getThingUID() {
-        List<@NonNull String> allSegments = getAllSegments();
+        List<String> allSegments = getAllSegments();
         return new ThingUID(allSegments.subList(0, allSegments.size() - 1).toArray(new String[allSegments.size() - 1]));
     }
 
