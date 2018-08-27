@@ -104,8 +104,7 @@ public class InboxResource implements RESTResource {
             thing = inbox.approve(thingUIDObject, notEmptyLabel);
         } catch (IllegalArgumentException e) {
             logger.error("Thing {} unable to be approved: {}", thingUID, e.getLocalizedMessage());
-            return JSONResponse.createErrorResponse(Status.NOT_FOUND,
-                    "Thing unable to be approved: " + e.getLocalizedMessage());
+            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Thing unable to be approved.");
         }
 
         // inbox.approve returns null if no handler is found that supports this thing
