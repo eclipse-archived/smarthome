@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 @Component(configurationPid = "org.eclipse.smarthome.io.rest.proxyfilter", immediate = true, service = ProxyFilter.class)
 public class ProxyFilter implements ContainerRequestFilter {
 
-    private static final String PROTO_PROXY_HEADER = "x-forwarded-proto";
+    static final String PROTO_PROXY_HEADER = "x-forwarded-proto";
 
-    private static final String HOST_PROXY_HEADER = "x-forwarded-host";
+    static final String HOST_PROXY_HEADER = "x-forwarded-host";
 
     private final transient Logger logger = LoggerFactory.getLogger(ProxyFilter.class);
 
