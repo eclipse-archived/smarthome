@@ -7,11 +7,6 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.core.audio
 Import-Package: 
- groovy.lang,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.jetty.client,
  org.eclipse.jetty.client.api,
@@ -19,6 +14,7 @@ Import-Package:
  org.eclipse.jetty.io,
  org.eclipse.jetty.util.component,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
  org.hamcrest;core=split,
