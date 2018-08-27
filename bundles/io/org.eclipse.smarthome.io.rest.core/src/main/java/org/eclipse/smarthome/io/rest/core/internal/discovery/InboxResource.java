@@ -44,6 +44,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,7 +60,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector and removed ThingSetupManager
  * @author Yordan Zhelev - Added Swagger annotations
- * @author Chris Jackson - Updated to use JSONResponse. Fixed null response from approve.
+ * @author Chris Jackson - Updated to use JSONResponse. Fixed null response from approve. Improved error reporting.
  * @author Franck Dechavanne - Added DTOs to ApiResponses
  */
 @Path(InboxResource.PATH_INBOX)
@@ -66,6 +68,7 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = InboxResource.PATH_INBOX)
 @Component(service = { RESTResource.class, InboxResource.class })
 public class InboxResource implements RESTResource {
+    private final Logger logger = LoggerFactory.getLogger(InboxResource.class);
 
     /** The URI path to this resource */
     public static final String PATH_INBOX = "inbox";
@@ -89,7 +92,7 @@ public class InboxResource implements RESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Approves the discovery result by adding the thing to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing not found in the inbox."),
+            @ApiResponse(code = 404, message = "Thing unable to be approved."),
             @ApiResponse(code = 409, message = "No binding found that supports this thing.") })
     public Response approve(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
@@ -100,7 +103,9 @@ public class InboxResource implements RESTResource {
         try {
             thing = inbox.approve(thingUIDObject, notEmptyLabel);
         } catch (IllegalArgumentException e) {
-            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Thing not found in inbox");
+            logger.error("Thing {} unable to be approved: {}", thingUID, e.getLocalizedMessage());
+            return JSONResponse.createErrorResponse(Status.NOT_FOUND,
+                    "Thing unable to be approved: " + e.getLocalizedMessage());
         }
 
         // inbox.approve returns null if no handler is found that supports this thing
