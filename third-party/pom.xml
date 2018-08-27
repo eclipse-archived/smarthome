@@ -171,6 +171,13 @@
                   <source>false</source>
                 </artifact>
 
+                <!-- Metrics API -->
+                <artifact>
+                  <id>org.eclipse.microprofile.metrics:microprofile-metrics-api:1.1.1-sp1</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+
               </artifacts>
             </configuration>
           </execution>
