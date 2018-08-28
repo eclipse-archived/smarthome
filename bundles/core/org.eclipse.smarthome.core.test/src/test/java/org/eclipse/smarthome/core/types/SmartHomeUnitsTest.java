@@ -43,6 +43,7 @@ import tec.uom.se.unit.Units;
  * @author Henning Treu - initial contribution and API
  *
  */
+@SuppressWarnings("null")
 public class SmartHomeUnitsTest {
 
     private static final double DEFAULT_ERROR = 0.0000000000000001d;
@@ -261,6 +262,16 @@ public class SmartHomeUnitsTest {
     public void testBar2Pascal() {
         Quantity<Pressure> bar = Quantities.getQuantity(BigDecimal.valueOf(1), SmartHomeUnits.BAR);
         assertThat(bar.to(SIUnits.PASCAL), is(Quantities.getQuantity(100000, SIUnits.PASCAL)));
+    }
+
+    @Test
+    public void testOne() {
+        QuantityType<Dimensionless> one = new QuantityType<>("100");
+
+        assertThat(new QuantityType<>("1000").toFullString(),
+                is(one.toUnit(MetricPrefix.DECI(SmartHomeUnits.ONE)).toFullString()));
+        assertThat(new QuantityType<>("10").toFullString(),
+                is(one.toUnit(MetricPrefix.DEKA(SmartHomeUnits.ONE)).toFullString()));
     }
 
 }
