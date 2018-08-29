@@ -112,6 +112,7 @@ public class JavaOSGiTest extends JavaTest {
         final ServiceReference<T> serviceReferences[] = getServices(clazz);
 
         if (serviceReferences == null) {
+            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
             return null;
         }
         final List<T> filteredServiceReferences = new ArrayList<>(serviceReferences.length);
@@ -125,9 +126,15 @@ public class JavaOSGiTest extends JavaTest {
             Assert.fail("More than 1 service matching the filter is registered.");
         }
         if (filteredServiceReferences.isEmpty()) {
+            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
             return null;
         } else {
-            return filteredServiceReferences.get(0);
+            T t = filteredServiceReferences.get(0);
+            if (t == null) {
+                new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
+                return null;
+            }
+            return t;
         }
     }
 

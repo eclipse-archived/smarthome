@@ -56,7 +56,7 @@ public class MissingServiceAnalyzer {
                 printUnsatisfiedServices(scr, clazz.getName(), "");
             }
         } else {
-            ps.println("SCR is not started!");
+            ps.println("SCR is not started! Add the SCR bundle to your launch config.");
         }
     }
 
@@ -65,6 +65,8 @@ public class MissingServiceAnalyzer {
         List<ComponentDescriptionDTO> descriptions = getComponentDescriptions(scr, interfaceName, allBundlesArrays);
         if (descriptions.isEmpty()) {
             ps.println(prefix + "No component implementing " + interfaceName + " is currently registered.");
+            ps.println(
+                    "Make sure to add the appropriate bundle and set 'Default Auto-Start=true' in the launch config.");
         } else {
             for (ComponentDescriptionDTO description : descriptions) {
                 Collection<ComponentConfigurationDTO> configurations = scr.getComponentConfigurationDTOs(description);
