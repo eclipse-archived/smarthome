@@ -23,6 +23,8 @@
         function activate() {
             ctrl.item = angular.copy(ctrl.item);
 
+            ctrl.item.imageLoaded = true;
+
             controlItemService.onStateChange(ctrl.item.name, function(stateObject) {
                 ctrl.item.state = stateObject.value;
                 controlItemService.updateStateText(ctrl.item);

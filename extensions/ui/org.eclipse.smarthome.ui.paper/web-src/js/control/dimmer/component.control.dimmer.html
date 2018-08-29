@@ -5,7 +5,7 @@
 		</p>
 	</div>
 	<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-		<h2>{{$ctrl.item.stateText}}</h2>
+		<span class="state">{{$ctrl.item.stateText}}</span>
 	</div>
 </div>
 <md-slider ng-if="::(!$ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)" 

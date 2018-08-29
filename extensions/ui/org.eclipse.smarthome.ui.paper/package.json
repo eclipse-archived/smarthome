@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "install": "node node_modules/openlayers/tasks/build.js openlayers-esh.json node_modules/openlayers/ol-esh.js",
-    "start": "gulp serve --development",
+    "start": "gulp serve",
     "build": "gulp default",
     "test": "gulp test",
     "dev": "gulp serve --development --noMinify"

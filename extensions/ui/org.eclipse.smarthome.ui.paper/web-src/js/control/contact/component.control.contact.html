@@ -5,7 +5,7 @@
 		</p>
 	</div>
 	<div ng-if="::$ctrl.item.readOnly" flex="60" layout="row" layout-align="end center">
-		<h2 class="state">{{$ctrl.item.stateText}}</h2>
+		<span class="state">{{$ctrl.item.stateText}}</span>
 	</div>
 </div>
 <div layout="row" layout-align="start center" ng-if="::($ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)">

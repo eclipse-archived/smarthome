@@ -42,7 +42,7 @@
 	</div>
 </div>
 <div ng-if="::item.readOnly" flex="100" layout="row" layout-align="end center">
-	<h2>{{$ctrl.item.stateText}}</h2>
+	<span class="state">{{$ctrl.item.stateText}}</span>
 </div>
 <div layout="row" layout-align="start center" ng-if="::($ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)">
     <item-state-dropdown item="$ctrl.item" on-change="$ctrl.setBrightness()"></item-state-dropdown>
