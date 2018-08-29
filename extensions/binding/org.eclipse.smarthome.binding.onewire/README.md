@@ -110,7 +110,7 @@ The correct formula for the ambient light is automatically determined from the s
 ## Channels
 
 | Type-ID         | Thing                       | Item    | readonly   | Description                                        |
-|-----------------|-----------------------------|----------------------|----------------------------------------------------|
+|-----------------|-----------------------------|---------|------------|----------------------------------------------------|
 | current         | multisensors                | Number  | yes        | current (if light option not installed)            |
 | digital         | digitalX, AMS               | Switch  | no         | digital, can be configured as input or output      |
 | humidity        | multisensors (except ms-tv) | Number  | yes        | relative humidity                                  |
