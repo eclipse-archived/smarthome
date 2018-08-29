@@ -62,6 +62,7 @@ public class ${bindingIdCamelCase}HandlerTest {
     public void initializeShouldCallTheCallback() {
         // mock getConfiguration to prevent NPEs
         when(thing.getConfiguration()).thenReturn(new ${bindingIdCamelCase}Configuration());
+        
         // we expect the handler#initialize method to call the callback during execution and
         // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
         handler.initialize();
@@ -72,8 +73,14 @@ public class ${bindingIdCamelCase}HandlerTest {
 
         // verify the interaction with the callback and capture the ThingStatusInfo argument:
         verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
+        
         // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
         ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
         assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
+        
+        // See the documentation at 
+        // https://www.eclipse.org/smarthome/documentation/development/testing.html#assertions 
+        // to see when to use Hamcrest assertions (assertThat) or JUnit assertions. 
     }
+    
 }

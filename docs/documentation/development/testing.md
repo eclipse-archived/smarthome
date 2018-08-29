@@ -36,7 +36,6 @@ In general tests are implemented in a separate fragment bundle, which host is th
      org.junit.runners,
      org.mockito,
      org.osgi.service.cm
-    Require-Bundle: org.junit,org.mockito,org.hamcrest
 
 Tests are typically placed inside the folder `src/test/java`. 
 
@@ -45,19 +44,65 @@ Unit tests
 
 Each class with a name which ends with `Test`, inside the *test* folder will have all public methods with a `@Test` annotation  automatically executed as a test. Inside the class one can refer to all classes from the host bundle and all imported classes. The following code snippet shows a simple JUnit test which tests the `toString` conversation of a PercentType.
 
-    public class PercentTypeTest {
-        @Test
-        public void DoubleValue() {
-            PercentType pt = new PercentType("0.0001");
-            assertEquals("0.0001", pt.toString());
-        }
+```(java)
+public class PercentTypeTest {
+    @Test
+    public void DoubleValue() {
+        PercentType pt = new PercentType("0.0001");
+        assertEquals("0.0001", pt.toString());
     }
+}
+```
 
 Using the the [https://code.google.com/p/hamcrest/ hamcrest] matcher library is a good way to write expressive assertions. In contrast to the original assertion statements from JUnit the hamcrest matcher library allows to define the assertion in a more natural order:
 
-    PercentType pt = new PercentType("0.0001");
-    assertThat(pt.toString(), is(equalTo("0.0001")));
+```(java)
+PercentType pt = new PercentType("0.0001");
+assertThat(pt.toString(), is(equalTo("0.0001")));
+```
 
+Assertions
+---
+
+Here is small example on when to use Hamcrest or JUnit assertions.
+In general Hamcrest should be favoured over JUnit as for the more advanced and detailed error output:
+
+```(java)
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.core.StringContains.containsString;
+...
+@Test
+public void assertionsToBeUsed() {
+    // use JUnit assertions for very basic checks:
+    assertNotNull(new Object());
+    assertNull(null);
+
+    boolean booleanValue = true;
+    assertTrue(booleanValue); // test boolean values only, no conditions or constraints
+
+    // use Hamcrest assertions for everything else:
+    assertThat("myString", is("myString"));
+    assertThat("myString", is(instanceOf(String.class)));
+    assertThat("myString", containsString("yS"));
+    assertThat(Arrays.asList("one", "two"), hasItem("two"));
+    assertThat(Arrays.asList("one", "two"), hasSize(2));
+
+    // also valuable for null/boolean checks as the error output is advanced:
+    assertThat(null, is(nullValue()));
+    assertThat(new Object(), is(not(nullValue())));
+    assertThat(true, is(not(false)));
+} 
+```
+
+OSGi Tests
+---
+
+In addition to plain unit tests more advanced OSGi tests are provided.
+Those should be used sparingly as the setup is more complex and introduces execution overhead.
+Most situations can be tested using mocks (see [Mockito](#mockito)).
 
 In the OSGi context of Eclipse SmartHome test execution must always be run inside an OSGi runtime. Eclipse PDE Plugin allows to run the JUnit test classes as `Plug-in test` but the required bundles have to be selected first:
 The most easy way to execute tests in a test fragment is to use the provided launch configuration from the binding test archetype. This may be modified in the `Run Configurations...` menu to match the required bundles/plug-ins.
@@ -76,41 +121,43 @@ Mockito
 ---
 In order to keep unit tests as focused as possible we use the mocking framework [https://github.com/mockito/mockito Mockito]. Mockito lets us verify interactions between supporting classes and the unit under test and additionally supports stubbing of method calls for these classes. Please read the very short but expressive introduction on the [http://site.mockito.org/ Mockito homepage] in addition to this small example:
 
-    public class MyBindingHandlerTest {
-    
-        private ThingHandler handler;
-    
-        @Mock
-        private ThingHandlerCallback callback;
-    
-        @Mock
-        private Thing thing;
-    
-        @Before
-        public void setUp() {
-            initMocks(this);
-            handler = new MyBindingHandler(thing);
-            handler.setCallback(callback);
-        }
-    
-        @Test
-        public void initializeShouldCallTheCallback() {
-            // we expect the handler#initialize method to call the callback during execution and
-            // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
-            handler.initialize();
-    
-            // the argument captor will capture the argument of type ThingStatusInfo given to the
-            // callback#statusUpdated method.
-            ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-    
-            // verify the interaction with the callback and capture the ThingStatusInfo argument:
-            verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
-            // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
-            ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
-            Assert.assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
-        }
-    
+```(java)
+public class MyBindingHandlerTest {
+
+    private ThingHandler handler;
+
+    @Mock
+    private ThingHandlerCallback callback;
+
+    @Mock
+    private Thing thing;
+
+    @Before
+    public void setUp() {
+        initMocks(this);
+        handler = new MyBindingHandler(thing);
+        handler.setCallback(callback);
     }
+
+    @Test
+    public void initializeShouldCallTheCallback() {
+        // we expect the handler#initialize method to call the callback during execution and
+        // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
+        handler.initialize();
+
+        // the argument captor will capture the argument of type ThingStatusInfo given to the
+        // callback#statusUpdated method.
+        ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
+
+        // verify the interaction with the callback and capture the ThingStatusInfo argument:
+        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
+        // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
+        ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
+        Assert.assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
+    }
+
+}
+```
 
 The code shown above will be created for you once you run the extensions/binding/create_binding_skeleton.[sh|cmd] script. See the OSGi-Tests section for another example.
 
@@ -124,57 +171,58 @@ Some components of Eclipse SmartHome are heavily bound to the OSGi runtime, beca
 
 Eclipse SmartHome comes with an abstract base class `JavaOSGiTest` for OSGi tests. The base class sets up a bundle context and has convenience methods for registering mocks as OSGi services and the retrieval of registered OSGi services. Public methods with a @Test annotation will automatically be executed as OSGi tests, as long as the class-name ends with `Test`. The following JUnit/Mockito test class shows how to test the `ItemRegistry` by providing a mocked `ItemProvider`.
 
-    import static org.hamcrest.CoreMatchers.*;
-    import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-    import static org.junit.Assert.assertThat;
-    import static org.mockito.Mockito.when;
-    import static org.mockito.MockitoAnnotations.initMocks;
-    
-    import java.util.ArrayList;
-    import java.util.List;
-    
-    import org.eclipse.smarthome.core.items.Item;
-    import org.eclipse.smarthome.core.items.ItemProvider;
-    import org.eclipse.smarthome.core.items.ItemRegistry;
-    import org.eclipse.smarthome.core.library.items.SwitchItem;
-    import org.eclipse.smarthome.test.java.JavaOSGiTest;
-    import org.junit.Before;
-    import org.junit.Test;
-    import org.mockito.Mock;
-    
-    import com.google.common.collect.Lists;
-    
-    public class JavaItemRegistryOSGiTest extends JavaOSGiTest {
-    
-        private static String ITEM_NAME = "switchItem";
-        private ItemRegistry itemRegistry;
-    
-        @Mock
-        private ItemProvider itemProvider;
-    
-        @Before
-        public void setUp() {
-            initMocks(this);
-            itemRegistry = getService(ItemRegistry.class);
-            when(itemProvider.getAll()).thenReturn(Lists.newArrayList(new SwitchItem(ITEM_NAME)));
-        }
-    
-        @Test
-        public void getItemsShouldReturnItemsFromRegisteredItemProvider() {
-            assertThat(itemRegistry.getItems(), hasSize(0));
-    
-            registerService(itemProvider);
-    
-            List<Item> items = new ArrayList<>(itemRegistry.getItems());
-            assertThat(items, hasSize(1));
-            assertThat(items.get(0).getName(), is(equalTo(ITEM_NAME)));
-    
-            unregisterService(itemProvider);
-    
-            assertThat(itemRegistry.getItems(), hasSize(0));
-        }
+```(java)
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemProvider;
+import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.SwitchItem;
+import org.eclipse.smarthome.test.java.JavaOSGiTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import com.google.common.collect.Lists;
+
+public class JavaItemRegistryOSGiTest extends JavaOSGiTest {
+
+    private static String ITEM_NAME = "switchItem";
+    private ItemRegistry itemRegistry;
+
+    @Mock
+    private ItemProvider itemProvider;
+
+    @Before
+    public void setUp() {
+        initMocks(this);
+        itemRegistry = getService(ItemRegistry.class);
+        when(itemProvider.getAll()).thenReturn(Lists.newArrayList(new SwitchItem(ITEM_NAME)));
     }
 
+    @Test
+    public void getItemsShouldReturnItemsFromRegisteredItemProvider() {
+        assertThat(itemRegistry.getItems(), hasSize(0));
+
+        registerService(itemProvider);
+
+        List<Item> items = new ArrayList<>(itemRegistry.getItems());
+        assertThat(items, hasSize(1));
+        assertThat(items.get(0).getName(), is(equalTo(ITEM_NAME)));
+
+        unregisterService(itemProvider);
+
+        assertThat(itemRegistry.getItems(), hasSize(0));
+    }
+}
+```
 
 In the `setUp` method all mocks (annotated with @Mock) are created. This is `itemProvider` for this test. Then the `ItemRegistry` OSGi service is retrieved through the method `getService` from the base class `OSGiTest` and assigned to a private variable. Then the `ItemProvider` mock is configured to return a list with one SwitchItem when `itemProvider#getAll` gets called. The test method first checks that the registry delivers no items by default. Afterwards it registers the mocked `ItemProvider` as OSGi service with the method `registerService` and checks if the `ItemRegistry` returns one item now. At the end the mock is unregistered again.
 

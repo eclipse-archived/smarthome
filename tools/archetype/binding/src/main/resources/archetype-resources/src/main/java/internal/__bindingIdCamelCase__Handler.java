@@ -61,7 +61,7 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
             // TODO: handle command
 
             // Note: if communication with thing fails for some reason,
-            // indicate that by setting the status with detail information
+            // indicate that by setting the status with detail information:
             // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
             // "Could not control device at IP address x.x.x.x");
         }
@@ -69,12 +69,15 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
 
     @Override
     public void initialize() {
+        // logger.debug("Start initializing!");
         config = getConfigAs(${bindingIdCamelCase}Configuration.class);
 
         // TODO: Initialize the thing. If done set status to ONLINE to indicate proper working.
-        // Long running initialization should be done asynchronously in background.
+        // Long running initialization (e.g. WAN access) should be done asynchronously in the background. Set a status 
+        // of UNKNOWN or OFFLINE in these situations and return quickly. Set the status to ONLINE once a proper 
+        // communication with the thing could be established.
+        // See also {@link org.eclipse.smarthome.core.thing.binding.ThingHandler#initialize} for details. 
 
-        // logger.debug("Start initializing!");
         updateStatus(ThingStatus.ONLINE);
         // logger.debug("Finished initializing!");
         
