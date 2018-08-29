@@ -72,15 +72,30 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
         // logger.debug("Start initializing!");
         config = getConfigAs(${bindingIdCamelCase}Configuration.class);
 
-        // TODO: Initialize the thing. If done set status to ONLINE to indicate proper working.
-        // Long running initialization (e.g. WAN access) should be done asynchronously in the background. Set a status 
-        // of UNKNOWN or OFFLINE in these situations and return quickly. Set the status to ONLINE once a proper 
-        // communication with the thing could be established.
-        // See also {@link org.eclipse.smarthome.core.thing.binding.ThingHandler#initialize} for details. 
+        // TODO: Initialize the thing.
+        // The framework requires you to leave this method quickly. Also, before leaving this method a thing status
+        // from one of ONLINE, OFFLINE or UNKNOWN must be set. This might already be the real thing status in case you
+        // can decide it directly.
+        // In case you can not decide the thing status directly (e.g. for long running initialization using WAN access
+        // or similar) you should set status OFFLINE here and then decide the real status asynchronously in the
+        // background.
 
-        updateStatus(ThingStatus.ONLINE);
+        // Example for background initialization:
+        scheduler.execute(() -> {
+            boolean initialized = true; // <background task with long running initialization here>
+            // when done do:
+            if (initialized) {
+                // updateStatus(ThingStatus.ONLINE); // commented for stable test execution
+            } else {
+                // updateStatus(ThingStatus.OFFLINE);
+            }
+        });
+
+        // set the thing status to OFFLINE temporarily and let the background task decide for the real status.
+        // the framework is then able to reuse the resources from the thing handler initialization.
+        updateStatus(ThingStatus.OFFLINE);
         // logger.debug("Finished initializing!");
-        
+
         // Note: When initialization can NOT be done set the status with more details for further
         // analysis. See also class ThingStatusDetail for all available status details.
         // Add a description to give user information to understand why thing does not work

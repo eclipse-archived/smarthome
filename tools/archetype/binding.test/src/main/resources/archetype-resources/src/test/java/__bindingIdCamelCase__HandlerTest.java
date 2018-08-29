@@ -26,6 +26,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import ${package}.internal.${bindingIdCamelCase}Handler;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
@@ -61,7 +62,7 @@ public class ${bindingIdCamelCase}HandlerTest {
     @Test
     public void initializeShouldCallTheCallback() {
         // mock getConfiguration to prevent NPEs
-        when(thing.getConfiguration()).thenReturn(new ${bindingIdCamelCase}Configuration());
+        when(thing.getConfiguration()).thenReturn(new Configuration());
         
         // we expect the handler#initialize method to call the callback during execution and
         // pass it the thing and a ThingStatusInfo object containing the ThingStatus of the thing.
@@ -76,7 +77,7 @@ public class ${bindingIdCamelCase}HandlerTest {
         
         // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
         ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
-        assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.ONLINE)));
+        assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.OFFLINE)));
         
         // See the documentation at 
         // https://www.eclipse.org/smarthome/documentation/development/testing.html#assertions 
