@@ -380,11 +380,11 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         }
     }
 
-    private void initializeThingHandler(@Nullable ThingHandler thingHandler, @Nullable ThingStatus bridgeStatus) {
+    private void initializeThingHandler(@Nullable ThingHandler bridgeHandler, @Nullable ThingStatus bridgeStatus) {
         logger.debug("initializeThingHandler {}", getThing().getUID());
-        if (thingHandler != null && bridgeStatus != null) {
+        if (bridgeHandler != null && bridgeStatus != null) {
             if (bridgeStatus == ThingStatus.ONLINE) {
-                bridgeHandler = (WeatherUndergroundBridgeHandler) thingHandler;
+                this.bridgeHandler = (WeatherUndergroundBridgeHandler) bridgeHandler;
 
                 WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
 

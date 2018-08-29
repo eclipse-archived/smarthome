@@ -73,7 +73,7 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "@text/offline.conf-error-missing-apikey");
         } else {
-            setApikey((String) config.get(WeatherUndergroundBindingConstants.APIKEY));
+            apikey = (String) config.get(WeatherUndergroundBindingConstants.APIKEY);
             updateStatus(ThingStatus.UNKNOWN);
             startControlApiKeyJob();
         }
@@ -170,9 +170,5 @@ public class WeatherUndergroundBridgeHandler extends BaseBridgeHandler {
 
     public @Nullable String getApikey() {
         return apikey;
-    }
-
-    public void setApikey(String apikey) {
-        this.apikey = apikey;
     }
 }

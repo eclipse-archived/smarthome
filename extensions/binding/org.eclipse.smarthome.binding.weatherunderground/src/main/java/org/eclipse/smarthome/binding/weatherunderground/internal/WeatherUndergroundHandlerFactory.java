@@ -127,13 +127,12 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
     }
 
     private synchronized void unregisterDiscoveryService(ThingUID bridgeUID) {
-        ServiceRegistration<?> serviceReg = discoveryServiceRegs.get(bridgeUID);
+        ServiceRegistration<?> serviceReg = discoveryServiceRegs.remove(bridgeUID);
         if (serviceReg != null) {
             WeatherUndergroundDiscoveryService service = (WeatherUndergroundDiscoveryService) bundleContext
                     .getService(serviceReg.getReference());
-            service.deactivate();
             serviceReg.unregister();
-            discoveryServiceRegs.remove(bridgeUID);
+            service.deactivate();
         }
     }
 

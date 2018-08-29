@@ -68,11 +68,13 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
         this.locationProvider = locationProvider;
     }
 
+    /* We override this method to allow a call from the thing handler factory */
     @Override
     public void activate(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
         super.activate(configProperties);
     }
 
+    /* We override this method to allow a call from the thing handler factory */
     @Override
     public void deactivate() {
         super.deactivate();
