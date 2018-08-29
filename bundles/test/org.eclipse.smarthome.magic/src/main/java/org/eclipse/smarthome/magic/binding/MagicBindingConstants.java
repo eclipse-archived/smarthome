@@ -38,6 +38,9 @@ public class MagicBindingConstants {
     public static final ThingTypeUID THING_TYPE_THERMOSTAT = new ThingTypeUID(BINDING_ID, "thermostat");
     public static final ThingTypeUID THING_TYPE_FIRMWARE_UPDATE = new ThingTypeUID(BINDING_ID, "firmware-update");
     public static final ThingTypeUID THING_TYPE_CHATTY_THING = new ThingTypeUID(BINDING_ID, "chatty-thing");
+    public static final ThingTypeUID THING_TYPE_ROLLERSHUTTER = new ThingTypeUID(BINDING_ID, "rollershutter");
+    public static final ThingTypeUID THING_TYPE_PLAYER = new ThingTypeUID(BINDING_ID, "player");
+    public static final ThingTypeUID THING_TYPE_IMAGE = new ThingTypeUID(BINDING_ID, "image");
 
     // bridged things
     public static final ThingTypeUID THING_TYPE_BRIDGE_1 = new ThingTypeUID(BINDING_ID, "magic-bridge1");
@@ -60,4 +63,6 @@ public class MagicBindingConstants {
     public static final String MODEL_COLLOPORTUS = "Colloportus";
     public static final String MODEL_LUMOS = "Lumos";
     public static final String MODEL_NOX = "Nox";
+
+    public static final String CHANNEL_IMAGE = "image";
 }
