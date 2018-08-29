@@ -35,6 +35,7 @@ Import-Package:
  org.eclipse.smarthome.config.core.dto,
  org.eclipse.smarthome.config.core.status,
  org.eclipse.smarthome.config.core.validation,
+ org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.common.osgi,
  org.eclipse.smarthome.core.common.registry,

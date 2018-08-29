@@ -372,7 +372,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @param configProperties configuration properties
      */
-    protected void activate(@Nullable Map<String, @Nullable Object> configProperties) {
+    public void activate(@Nullable Map<String, @Nullable Object> configProperties) {
         if (configProperties != null) {
             Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY);
             if (property != null) {
@@ -420,7 +420,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * implementation calls {@link AbstractDiscoveryService#stopBackgroundDiscovery()} if background
      * discovery is enabled at the time of component deactivation.
      */
-    protected void deactivate() {
+    public void deactivate() {
         if (this.backgroundDiscoveryEnabled) {
             stopBackgroundDiscovery();
         }
