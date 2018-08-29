@@ -60,20 +60,15 @@ public class BinRpcResponseHandler implements Runnable {
             } while (!isMaxAliveReached);
 
         } catch (EOFException eof) {
-            closeSocket();
-        } catch (Exception e) {
-            logger.error("{}", e.getMessage(), e);
-            closeSocket();
-        } finally {
-            closeSocket();
-        }
-    }
-
-    private void closeSocket() {
-        try {
-            socket.close();
-        } catch (IOException ioe) {
             // ignore
+        } catch (Exception e) {
+            logger.warn("{}", e.getMessage(), e);
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException ioe) {
+                // ignore
+            }
         }
     }
 }
