@@ -461,9 +461,8 @@ public class ThingManagerImpl
         } else {
             logger.debug("Handler of tracked thing '{}' already registered.", thing.getUID());
         }
-
     }
-
+  
     @Override
     public void thingRemoving(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         setThingStatus(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
@@ -488,6 +487,7 @@ public class ThingManagerImpl
             }
         }
 
+        storage.remove(thing.getUID().getAsString());
         this.things.remove(thing);
     }
 
@@ -634,6 +634,12 @@ public class ThingManagerImpl
     }
 
     private void initializeHandler(Thing thing) {
+        if (storage != null && storage.containsKey(thing.getUID().getAsString())
+                && !storage.get(thing.getUID().getAsString())) {
+            logger.debug("Thing '{}' will not be initialized. It is marked as disabled.", thing.getUID());
+            
+            return;
+        }
         if (!isHandlerRegistered(thing)) {
             return;
         }
@@ -662,16 +668,14 @@ public class ThingManagerImpl
             ThingType thingType = getThingType(thing);
             applyDefaultConfiguration(thing, thingType);
 
-            if (isEnabled(thing.getUID())) {
-                if (isInitializable(thing, thingType)) {
-                    setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
-                    doInitializeHandler(thing.getHandler());
-                } else {
-                    logger.debug("Thing '{}' not initializable, check required configuration parameters.",
-                            thing.getUID());
-                    setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
-                            ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
-                }
+            if (isInitializable(thing, thingType)) {
+                setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
+                doInitializeHandler(thing.getHandler());
+            } else {
+                logger.debug("Thing '{}' not initializable, check required configuration parameters.",
+                        thing.getUID());
+                setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
+                        ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
             }
         } finally {
             lock.unlock();
@@ -1061,11 +1065,6 @@ public class ThingManagerImpl
     }
 
     private void registerAndInitializeHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
-        if (storage != null && storage.containsKey(thing.getUID().getAsString())
-                && !storage.get(thing.getUID().getAsString())) {
-            logger.debug("Thing '{}' will not be initialized. It is marked as disabled.", thing.getUID());
-            return;
-        }
         if (thingHandlerFactory != null) {
             String bsn = getBundleName(thingHandlerFactory);
             if (loadedXmlThingTypes.contains(bsn)) {
@@ -1203,25 +1202,53 @@ public class ThingManagerImpl
     @Override
     public void setEnabled(ThingUID thingUID, boolean enabled) {
         Thing thing = getThing(thingUID);
-
         if (enabled) {
             // Enable a thing
-            logger.debug("Thing {} will be enabled.", thing.getUID().getAsString());
+            // Clear the disabled thing storage. Otherwise the handler will NOT be initialized later.
             if (storage != null) {
                 storage.remove(thingUID.getAsString());
             }
-            if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
-                setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE));
+
+            if (thing.getStatus().equals(ThingStatus.ONLINE)) {
+                
+                logger.debug("Thing {} is already in the required state.", thingUID);
+                return;
+            }
+
+            logger.debug("Thing {} will be enabled.", thingUID);
+
+            if (isHandlerRegistered(thing)) {
+                
+                // A handler is already registered for that thing. Try to initialize it.
+                initializeHandler(thing);
+            } else {
+                
+                // No handler registered. Try to register handler and initialize the thing.
                 registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
             }
         } else {
-            logger.debug("Thing {} will be disabled.", thing.getUID().getAsString());
+            // Mark the thing as disabled in the storage.
             if (storage != null) {
                 storage.put(thingUID.getAsString(), enabled);
             }
-            ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
+
+            if (!thing.isEnabled()) {
+                
+                logger.debug("Thing {} is already in the required state.", thingUID);
+                return;
+            }
+
+            logger.debug("Thing {} will be disabled.", thingUID);
+
             if (isHandlerRegistered(thing)) {
+                
+                // Dispose handler if registered.
+                ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
                 unregisterAndDisposeHandler(thingHandlerFactory, thing, thing.getHandler());
+            } else {
+                
+                // Only set the correct status to the thing. There is no handler to be disposed
+                setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED));
             }
         }
     }

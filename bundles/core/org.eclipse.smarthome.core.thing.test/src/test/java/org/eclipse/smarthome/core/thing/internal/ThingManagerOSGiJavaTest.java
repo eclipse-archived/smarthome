@@ -12,16 +12,11 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,6 +41,8 @@ import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyService;
+import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelGroupUID;
@@ -53,6 +50,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingManager;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
@@ -103,6 +101,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
     private ManagedThingProvider managedThingProvider;
     private ItemRegistry itemRegistry;
+    private ThingRegistry thingRegistry;
     private ReadyService readyService;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingManager thingManager;
@@ -125,12 +124,14 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private static final ThingUID BRIDGE_UID = new ThingUID(BRIDGE_TYPE_UID, "bridge");
 
     private static final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, CHANNEL_ID);
-
+    
     private static final ChannelGroupUID CHANNEL_GROUP_UID = new ChannelGroupUID(THING_UID, CHANNEL_GROUP_ID);
 
     private Thing THING;
     private URI CONFIG_DESCRIPTION_THING;
     private URI CONFIG_DESCRIPTION_CHANNEL;
+
+    private Storage<Boolean> storage;
 
     @Before
     public void setUp() throws Exception {
@@ -148,7 +149,15 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
         itemRegistry = getService(ItemRegistry.class);
         assertNotNull(itemRegistry);
-        
+
+        thingRegistry = getService(ThingRegistry.class);
+        assertNotNull(thingRegistry);
+
+        StorageService storageService;
+        storageService = getService(StorageService.class);
+        assertNotNull(storageService);
+        storage = storageService.getStorage("thing_status_storage");
+
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry.class);
         assertNotNull(itemChannelLinkRegistry);
 
@@ -183,6 +192,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         managedThingProvider.getAll().forEach(it -> {
             managedThingProvider.remove(it.getUID());
         });
+        storage.remove(THING_UID.getAsString());
         configureAutoLinking(true);
     }
 
@@ -230,7 +240,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
 
         assertFalse(thc.get().isChannelLinked(CHANNEL_UID));
-            }
+    }
 
     @Test
     public void testThatIsLinkedReturnsTrue() throws Exception {
@@ -243,7 +253,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         managedItemChannelLinkProvider.add(new ItemChannelLink("item", CHANNEL_UID));
 
         assertTrue(thc.get().isChannelLinked(CHANNEL_UID));
-            }
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateChannelBuilderThrowsIllegalArgumentException() throws Exception {
@@ -569,194 +579,409 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testSetsDisabledThingStatus() {
-        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
-        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
-        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+    public void testSetEnabledWithHandler() throws Exception {
+        registerThingTypeProvider();
+
+        AtomicReference<ThingHandlerCallback> thingHandlerCallback = new AtomicReference<>();
+        AtomicReference<Boolean> initializeInvoked = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeInvoked = new AtomicReference<>(false);
 
         registerThingHandlerFactory(THING_TYPE_UID, thing -> {
             ThingHandler mockHandler = mock(ThingHandler.class);
+
             doAnswer(a -> {
-                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                thingHandlerCallback.set((ThingHandlerCallback) a.getArguments()[0]);
                 return null;
             }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+
             doAnswer(a -> {
-                initializeRunning.set(true);
+                initializeInvoked.set(true);
+
                 // call thingUpdated() from within initialize()
-                thc.get().thingUpdated(THING);
+                thingHandlerCallback.get().thingUpdated(THING);
+
                 // hang on a little to provoke a potential dead-lock
                 Thread.sleep(1000);
-                initializeRunning.set(false);
+
+                ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                        .create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build();
+                thing.setStatusInfo(thingStatusInfo);
+
                 return null;
             }).when(mockHandler).initialize();
+
             doAnswer(a -> {
-                disposeRunning.set(true);
-                // hang on a little to provoke a potential dead-lock
-                Thread.sleep(1000);
-                disposeRunning.set(false);
+                disposeInvoked.set(true);
                 return null;
             }).when(mockHandler).dispose();
+
             when(mockHandler.getThing()).thenReturn(THING);
             return mockHandler;
         });
 
-
-        ThingStatusInfo enabledStatusInfo = ThingStatusInfoBuilder
+        ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
                 .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
-        THING.setStatusInfo(enabledStatusInfo);
-
-        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
-        waitForAssert(() -> {
-            assertThat(initializeRunning.get(), is(true));
-        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+        THING.setStatusInfo(thingStatusInfo);
         
-        // disable the thing
-        new Thread((Runnable) () -> thingManager.setEnabled(THING.getUID(), false)).start();
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
 
         waitForAssert(() -> {
+            assertThat(initializeInvoked.get(), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
+        });
+
+        // Reset the flag
+        initializeInvoked.set(false);
+
+        // Disable the thing
+        thingManager.setEnabled(THING_UID, false);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
+            assertThat(disposeInvoked.get(), is(true));
             assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
             assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        // Reset the flag
+        disposeInvoked.set(false);
+        
+        // Enable the thing
+        thingManager.setEnabled(THING_UID, true);
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(false));
+            assertThat(THING.getStatus(), is(ThingStatus.ONLINE));
         });
     }
 
     @Test
-    public void testSetsEnabledThingStatus() {
-        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
-        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
-        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+    public void testSetEnabledWithoutHandlerFactory() throws Exception {
+        registerThingTypeProvider();
+
+        ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
+        THING.setStatusInfo(thingStatusInfo);
+
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        waitForAssert(() -> {
+            assertThat(thingRegistry.get(THING_UID), is(notNullValue()));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+        });
+
+        Thread.sleep(1000);
+        thingManager.setEnabled(THING_UID, false);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        thingManager.setEnabled(THING_UID, true);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(false));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+    }
+
+    @Test
+    public void testInitializeNotInvokedOnAlreadyEnabledThing() {
+        AtomicReference<ThingHandlerCallback> thingHandlerCallback = new AtomicReference<>();
+        AtomicReference<Boolean> initializeInvoked = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeInvoked = new AtomicReference<>(false);
 
         registerThingHandlerFactory(THING_TYPE_UID, thing -> {
             ThingHandler mockHandler = mock(ThingHandler.class);
+
             doAnswer(a -> {
-                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                thingHandlerCallback.set((ThingHandlerCallback) a.getArguments()[0]);
                 return null;
             }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+
             doAnswer(a -> {
-                initializeRunning.set(true);
+                initializeInvoked.set(true);
+
                 // call thingUpdated() from within initialize()
-                thc.get().thingUpdated(THING);
+                thingHandlerCallback.get().thingUpdated(THING);
+
                 // hang on a little to provoke a potential dead-lock
                 Thread.sleep(1000);
-                initializeRunning.set(false);
+
+                ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                        .create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build();
+                thing.setStatusInfo(thingStatusInfo);
+
                 return null;
             }).when(mockHandler).initialize();
+
             doAnswer(a -> {
-                disposeRunning.set(true);
-                // hang on a little to provoke a potential dead-lock
-                Thread.sleep(1000);
-                disposeRunning.set(false);
+                disposeInvoked.set(true);
                 return null;
             }).when(mockHandler).dispose();
+
             when(mockHandler.getThing()).thenReturn(THING);
             return mockHandler;
         });
 
-        ThingStatusInfo disabledStatusInfo = ThingStatusInfoBuilder
-                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED).build();
-        THING.setStatusInfo(disabledStatusInfo);
+        ThingStatusInfo enabledStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
+        THING.setStatusInfo(enabledStatusInfo);
         new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+
         waitForAssert(() -> {
-            assertThat(initializeRunning.get(), is(false));
+            assertThat(initializeInvoked.get(), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
-        
+
+        initializeInvoked.set(false);
+
         // enable the thing
         new Thread((Runnable) () -> thingManager.setEnabled(THING.getUID(), true)).start();
-        
+
+        waitForAssert(() -> {
+            assertThat(THING.getStatus(), is(ThingStatus.ONLINE));
+            assertThat(initializeInvoked.get(), is(false));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+    }
+
+    @Test
+    public void testDisposeNotInvokedOnAlreadyDisabledThing() throws Exception {
+        registerThingTypeProvider();
+
+        AtomicReference<ThingHandlerCallback> thingHandlerCallback = new AtomicReference<>();
+        AtomicReference<Boolean> initializeInvoked = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeInvoked = new AtomicReference<>(false);
+
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
+            ThingHandler mockHandler = mock(ThingHandler.class);
+
+            doAnswer(a -> {
+                thingHandlerCallback.set((ThingHandlerCallback) a.getArguments()[0]);
+                return null;
+            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+
+            doAnswer(a -> {
+                initializeInvoked.set(true);
+
+                // call thingUpdated() from within initialize()
+                thingHandlerCallback.get().thingUpdated(THING);
+
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+
+                ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                        .create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build();
+                thing.setStatusInfo(thingStatusInfo);
+
+                return null;
+            }).when(mockHandler).initialize();
+
+            doAnswer(a -> {
+                disposeInvoked.set(true);
+                return null;
+            }).when(mockHandler).dispose();
+
+            when(mockHandler.getThing()).thenReturn(THING);
+            return mockHandler;
+        });
+
+        ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
+        THING.setStatusInfo(thingStatusInfo);
+
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
+        waitForAssert(() -> {
+            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
+        });
+
+        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+        waitForAssert(() -> {
+            assertThat(initializeInvoked.get(), is(true));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        thingManager.setEnabled(THING_UID, false);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
+            assertThat(disposeInvoked.get(), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        disposeInvoked.set(false);
+
+        thingManager.setEnabled(THING_UID, false);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
+            assertThat(disposeInvoked.get(), is(false));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+    }
+
+    @Test
+    public void testUpdateThing() throws Exception {
+        registerThingTypeProvider();
+
+        AtomicReference<ThingHandlerCallback> thingHandlerCallback = new AtomicReference<>();
+        AtomicReference<Boolean> initializeInvoked = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeInvoked = new AtomicReference<>(false);
+
+        AtomicReference<Boolean> updatedInvoked = new AtomicReference<>(false);
+
+        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
+            ThingHandler mockHandler = mock(ThingHandler.class);
+
+            doAnswer(a -> {
+                thingHandlerCallback.set((ThingHandlerCallback) a.getArguments()[0]);
+                return null;
+            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+
+            doAnswer(a -> {
+                initializeInvoked.set(true);
+
+                // call thingUpdated() from within initialize()
+                thingHandlerCallback.get().thingUpdated(THING);
+
+                // hang on a little to provoke a potential dead-lock
+                Thread.sleep(1000);
+
+                ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                        .create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build();
+                thing.setStatusInfo(thingStatusInfo);
+
+                return null;
+            }).when(mockHandler).initialize();
+
+            doAnswer(a -> {
+                disposeInvoked.set(true);
+                return null;
+            }).when(mockHandler).dispose();
+
+            doAnswer(a -> {
+                updatedInvoked.set(true);
+                return null;
+            }).when(mockHandler).thingUpdated(any());
+
+            when(mockHandler.getThing()).thenReturn(THING);
+            return mockHandler;
+        });
+
+        ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
+        THING.setStatusInfo(thingStatusInfo);
+
+        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
+
         waitForAssert(() -> {
             assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
         });
 
         waitForAssert(() -> {
-            assertThat(initializeRunning.get(), is(false));
+            assertThat(initializeInvoked.get(), is(true));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
-    }
-    
-    @Test
-    public void testDisabledThingAdded() {
-        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
-        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
-        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
 
-        registerThingHandlerFactory(THING_TYPE_UID, thing -> {
-            ThingHandler mockHandler = mock(ThingHandler.class);
-            doAnswer(a -> {
-                thc.set((ThingHandlerCallback) a.getArguments()[0]);
-                return null;
-            }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
-            doAnswer(a -> {
-                initializeRunning.set(true);
-                // call thingUpdated() from within initialize()
-                thc.get().thingUpdated(THING);
-                // hang on a little to provoke a potential dead-lock
-                Thread.sleep(1000);
-                initializeRunning.set(false);
-                return null;
-            }).when(mockHandler).initialize();
-            doAnswer(a -> {
-                disposeRunning.set(true);
-                // hang on a little to provoke a potential dead-lock
-                Thread.sleep(1000);
-                disposeRunning.set(false);
-                return null;
-            }).when(mockHandler).dispose();
-            when(mockHandler.getThing()).thenReturn(THING);
-            return mockHandler;
-        });
+        new Thread((Runnable) () -> managedThingProvider.update(THING)).start();
 
-        ThingStatusInfo disabledStatusInfo = ThingStatusInfoBuilder
-                .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED).build();
-        THING.setStatusInfo(disabledStatusInfo);
-
-        new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-
-        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
         waitForAssert(() -> {
-            assertThat(initializeRunning.get(), is(false));
+            assertThat(updatedInvoked.get(), is(true));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        updatedInvoked.set(false);
+
+        thingManager.setEnabled(THING_UID, false);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
+            assertThat(disposeInvoked.get(), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        disposeInvoked.set(false);
+
+        new Thread((Runnable) () -> managedThingProvider.update(THING)).start();
+
+        waitForAssert(() -> {
+            assertThat(updatedInvoked.get(), is(false));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
     }
 
     @Test
-    public void testEnabledThingAdded() {
-        AtomicReference<ThingHandlerCallback> thc = new AtomicReference<>();
-        AtomicReference<Boolean> initializeRunning = new AtomicReference<>(false);
-        AtomicReference<Boolean> disposeRunning = new AtomicReference<>(false);
+    public void testStorageEntryRemovedOnThingRemoval() throws Exception {
+        registerThingTypeProvider();
+
+        AtomicReference<ThingHandlerCallback> thingHandlerCallback = new AtomicReference<>();
+        AtomicReference<Boolean> initializeInvoked = new AtomicReference<>(false);
+        AtomicReference<Boolean> disposeInvoked = new AtomicReference<>(false);
 
         registerThingHandlerFactory(THING_TYPE_UID, thing -> {
             ThingHandler mockHandler = mock(ThingHandler.class);
+
             doAnswer(a -> {
-                thc.set((ThingHandlerCallback) a.getArguments()[0]);
+                thingHandlerCallback.set((ThingHandlerCallback) a.getArguments()[0]);
                 return null;
             }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
+
             doAnswer(a -> {
-                initializeRunning.set(true);
+                
+                initializeInvoked.set(true);
+
                 // call thingUpdated() from within initialize()
-                thc.get().thingUpdated(THING);
+                thingHandlerCallback.get().thingUpdated(THING);
+
                 // hang on a little to provoke a potential dead-lock
                 Thread.sleep(1000);
-                initializeRunning.set(false);
+
+                ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
+                        .create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build();
+                thing.setStatusInfo(thingStatusInfo);
+
                 return null;
             }).when(mockHandler).initialize();
+
             doAnswer(a -> {
-                disposeRunning.set(true);
-                // hang on a little to provoke a potential dead-lock
-                Thread.sleep(1000);
-                disposeRunning.set(false);
+                disposeInvoked.set(true);
                 return null;
             }).when(mockHandler).dispose();
+
             when(mockHandler.getThing()).thenReturn(THING);
             return mockHandler;
         });
 
-        ThingStatusInfo enabledStatusInfo = ThingStatusInfoBuilder
+        ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
                 .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
-        THING.setStatusInfo(enabledStatusInfo);
+        THING.setStatusInfo(thingStatusInfo);
 
         new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
-        // ensure it didn't run into a dead-lock which gets resolved by the SafeCaller.
+
         waitForAssert(() -> {
-            assertThat(initializeRunning.get(), is(true));
+            assertThat(initializeInvoked.get(), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.INITIALIZING));
+        });
+
+        initializeInvoked.set(false);
+
+        thingManager.setEnabled(THING_UID, false);
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
+            assertThat(disposeInvoked.get(), is(true));
+            assertThat(THING.getStatus(), is(ThingStatus.UNINITIALIZED));
+            assertThat(THING.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.DISABLED));
+        }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        disposeInvoked.set(false);
+
+        new Thread((Runnable) () -> managedThingProvider.remove(THING.getUID())).start();
+
+        waitForAssert(() -> {
+            assertThat(storage.containsKey(THING_UID.getAsString()), is(false));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
     }
 
@@ -870,7 +1095,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             @Override
             public boolean supportsThingType(@NonNull ThingTypeUID thingTypeUID) {
                 return true;
-}
+            }
 
             @Override
             protected @Nullable ThingHandler createHandler(@NonNull Thing thing) {
