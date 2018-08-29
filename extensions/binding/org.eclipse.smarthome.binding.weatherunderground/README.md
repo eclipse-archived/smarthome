@@ -113,57 +113,57 @@ The weather information that is retrieved is available as these channels:
 demo.things:
 
 ```
-Bridge weatherunderground:bridge:myAPI "myAPI" [ apikey="XXXXXXXXXXXX" ] {
-        Thing weatherunderground:weather:paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ]
+Bridge weatherunderground:bridge:api "API" [ apikey="XXXXXXXXXXXX" ] {
+        Thing weather paris "Météo Paris" [ location="France/Paris", language="FR", refresh=15 ]
 }
 ```
 
 demo.items:
 
 ```
-String Conditions "Conditions [%s]" {channel="weatherunderground:weather:CDG:current#conditions"}
-Image Icon "Icon" {channel="weatherunderground:weather:CDG:current#icon"}
-String IconKey "Icon key [%s]" {channel="weatherunderground:weather:CDG:current#iconKey"}
-DateTime ObservationTime "Observation time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:CDG:current#observationTime"}
-String ObservationLocation "Location [%s]" {channel="weatherunderground:weather:CDG:current#location"}
-String Station "Station [%s]" {channel="weatherunderground:weather:CDG:current#stationId"}
+String Conditions "Conditions [%s]" {channel="weatherunderground:weather:api:paris:current#conditions"}
+Image Icon "Icon" {channel="weatherunderground:weather:api:paris:current#icon"}
+String IconKey "Icon key [%s]" {channel="weatherunderground:weather:api:paris:current#iconKey"}
+DateTime ObservationTime "Observation time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:api:paris:current#observationTime"}
+String ObservationLocation "Location [%s]" {channel="weatherunderground:weather:api:paris:current#location"}
+String Station "Station [%s]" {channel="weatherunderground:weather:api:paris:current#stationId"}
 
-Number:Temperature Temperature "Current temperature [%.1f %unit%]" <temperature> {channel="weatherunderground:weather:CDG:current#temperature"}
-Number:Temperature FeelTemp "Feeling temperature [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#feelingTemperature"}
+Number:Temperature Temperature "Current temperature [%.1f %unit%]" <temperature> {channel="weatherunderground:weather:api:paris:current#temperature"}
+Number:Temperature FeelTemp "Feeling temperature [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:api:paris:current#feelingTemperature"}
 
-Number:Dimensionless Humidity "Humidity [%d %%]" <humidity> {channel="weatherunderground:weather:CDG:current#relativeHumidity"}
-Number:Pressure Pressure "Pressure [%.0f %unit%]" {channel="weatherunderground:weather:CDG:current#pressure"}
-String PressureTrend "Pressure trend [%s]" {channel="weatherunderground:weather:CDG:current#pressureTrend"}
+Number:Dimensionless Humidity "Humidity [%d %%]" <humidity> {channel="weatherunderground:weather:api:paris:current#relativeHumidity"}
+Number:Pressure Pressure "Pressure [%.0f %unit%]" {channel="weatherunderground:weather:api:paris:current#pressure"}
+String PressureTrend "Pressure trend [%s]" {channel="weatherunderground:weather:api:paris:current#pressureTrend"}
 
-Number:Length RainD "Rain [%.1f &unit%]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationDay"}
-Number:Length RainH "Rain [%.1f %unit%/h]" <rain> {channel="weatherunderground:weather:CDG:current#precipitationHour"}
+Number:Length RainD "Rain [%.1f &unit%]" <rain> {channel="weatherunderground:weather:api:paris:current#precipitationDay"}
+Number:Length RainH "Rain [%.1f %unit%/h]" <rain> {channel="weatherunderground:weather:api:paris:current#precipitationHour"}
 
-String WindDirection "Wind direction [%s]" <wind> {channel="weatherunderground:weather:CDG:current#windDirection"}
-Number:Angle WindDirection2 "Wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:current#windDirectionDegrees"}
-Number:Speed WindSpeed "Wind speed [%.1f %unit%]" <wind> {channel="weatherunderground:weather:CDG:current#windSpeed"}
-Number:Speed WindGust "Wind gust [%.1f %unit%]" <wind> {channel="weatherunderground:weather:CDG:current#windGust"}
+String WindDirection "Wind direction [%s]" <wind> {channel="weatherunderground:weather:api:paris:current#windDirection"}
+Number:Angle WindDirection2 "Wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:api:paris:current#windDirectionDegrees"}
+Number:Speed WindSpeed "Wind speed [%.1f %unit%]" <wind> {channel="weatherunderground:weather:api:paris:current#windSpeed"}
+Number:Speed WindGust "Wind gust [%.1f %unit%]" <wind> {channel="weatherunderground:weather:api:paris:current#windGust"}
 
-Number:Temperature DewPoint "Dew Point [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#dewPoint"}
-Number:Temperature HeatIndex "Heat Index [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#heatIndex"}
-Number:Temperature WindChill "Wind Chill [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:current#windChill"}
-Number:Length Visibility "Visibility [%.1f %unit%]" {channel="weatherunderground:weather:CDG:current#visibility"}
-Number:Intensity SolarRadiation "Solar Radiation [%.2f %unit%]"  {channel="weatherunderground:weather:CDG:current#solarRadiation"}
-Number UV "UV Index [%.1f]" {channel="weatherunderground:weather:CDG:current#UVIndex"}
+Number:Temperature DewPoint "Dew Point [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:api:paris:current#dewPoint"}
+Number:Temperature HeatIndex "Heat Index [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:api:paris:current#heatIndex"}
+Number:Temperature WindChill "Wind Chill [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:api:paris:current#windChill"}
+Number:Length Visibility "Visibility [%.1f %unit%]" {channel="weatherunderground:weather:api:paris:current#visibility"}
+Number:Intensity SolarRadiation "Solar Radiation [%.2f %unit%]"  {channel="weatherunderground:weather:api:paris:current#solarRadiation"}
+Number UV "UV Index [%.1f]" {channel="weatherunderground:weather:api:paris:current#UVIndex"}
 
-DateTime ForecastTime "Forecast time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:CDG:forecastToday#forecastTime"}
-String ForecastCondition "Forecast conditions [%s]"  {channel="weatherunderground:weather:CDG:forecastToday#conditions"}
-Image ForecastIcon "Forecast icon"  {channel="weatherunderground:weather:CDG:forecastToday#icon"}
-String ForecastIconKey "Forecast icon key [%s]"  {channel="weatherunderground:weather:CDG:forecastToday#iconKey"}
-Number:Temperature ForecastTempMin "Forecast min temp [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#minTemperature"}
-Number:Temperature ForecastTempMax "Forecast max temp [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:CDG:forecastToday#maxTemperature"}
-Number:Dimensionless ForecastHumidity "Forecast Humidity [%d %unit%]" <humidity>  {channel="weatherunderground:weather:CDG:forecastToday#relativeHumidity"}
-Number:Dimensionless ForecastProbaPrecip "Proba precip [%d %unit%]" <rain>  {channel="weatherunderground:weather:CDG:forecastToday#probaPrecipitation"}
-Number:Length ForecastRain "Rain [%.1f %unit%]" <rain> {channel="weatherunderground:weather:CDG:forecastToday#precipitationDay"}
-Number:Length ForecastSnow "Snow [%.2f %unit%]" <rain> {channel="weatherunderground:weather:CDG:forecastToday#snow"}
-String ForecastMaxWindDirection "Max wind direction [%s]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindDirection"}
-Number:Angle ForecastMaxWindDirection2 "Max wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindDirectionDegrees"}
-Number:Speed ForecastMaxWindSpeed "Max wind speed [%.1f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#maxWindSpeed"}
-String ForecastAvgWindDirection "Avg wind direction [%s]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindDirection"}
-Number:Angle ForecastAvgWindDirection2 "Avg wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindDirectionDegrees"}
-Number:Speed ForecastAvgWindSpeed "Avg wind speed [%.1f %unit%]" <wind>  {channel="weatherunderground:weather:CDG:forecastToday#averageWindSpeed"}
+DateTime ForecastTime "Forecast time [%1$tH:%1$tM]" <clock>  {channel="weatherunderground:weather:api:paris:forecastToday#forecastTime"}
+String ForecastCondition "Forecast conditions [%s]"  {channel="weatherunderground:weather:api:paris:forecastToday#conditions"}
+Image ForecastIcon "Forecast icon"  {channel="weatherunderground:weather:api:paris:forecastToday#icon"}
+String ForecastIconKey "Forecast icon key [%s]"  {channel="weatherunderground:weather:api:paris:forecastToday#iconKey"}
+Number:Temperature ForecastTempMin "Forecast min temp [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:api:paris:forecastToday#minTemperature"}
+Number:Temperature ForecastTempMax "Forecast max temp [%.1f %unit%]" <temperature>  {channel="weatherunderground:weather:api:paris:forecastToday#maxTemperature"}
+Number:Dimensionless ForecastHumidity "Forecast Humidity [%d %unit%]" <humidity>  {channel="weatherunderground:weather:api:paris:forecastToday#relativeHumidity"}
+Number:Dimensionless ForecastProbaPrecip "Proba precip [%d %unit%]" <rain>  {channel="weatherunderground:weather:api:paris:forecastToday#probaPrecipitation"}
+Number:Length ForecastRain "Rain [%.1f %unit%]" <rain> {channel="weatherunderground:weather:api:paris:forecastToday#precipitationDay"}
+Number:Length ForecastSnow "Snow [%.2f %unit%]" <rain> {channel="weatherunderground:weather:api:paris:forecastToday#snow"}
+String ForecastMaxWindDirection "Max wind direction [%s]" <wind>  {channel="weatherunderground:weather:api:paris:forecastToday#maxWindDirection"}
+Number:Angle ForecastMaxWindDirection2 "Max wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:api:paris:forecastToday#maxWindDirectionDegrees"}
+Number:Speed ForecastMaxWindSpeed "Max wind speed [%.1f %unit%]" <wind>  {channel="weatherunderground:weather:api:paris:forecastToday#maxWindSpeed"}
+String ForecastAvgWindDirection "Avg wind direction [%s]" <wind>  {channel="weatherunderground:weather:api:paris:forecastToday#averageWindDirection"}
+Number:Angle ForecastAvgWindDirection2 "Avg wind direction [%.0f %unit%]" <wind>  {channel="weatherunderground:weather:api:paris:forecastToday#averageWindDirectionDegrees"}
+Number:Speed ForecastAvgWindSpeed "Avg wind speed [%.1f %unit%]" <wind>  {channel="weatherunderground:weather:api:paris:forecastToday#averageWindSpeed"}
 ```
