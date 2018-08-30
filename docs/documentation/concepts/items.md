@@ -151,7 +151,7 @@ There can be metadata attached to an Item for as many namespaces as desired, lik
 
 The metadata can alternatively maintained via a dedicated REST endpoint and is included in the `EnrichedItemDTO` responses.
 
-Extensions which can infer some metadata automatically need to implement an register a `MetadataProvider` service in order to make them available to the system. 
+Extensions which can infer some metadata automatically need to implement and register a `MetadataProvider` service in order to make them available to the system. 
 They may provision them from any source they like and also dynamically remove or add data. 
 They are also not restricted to a single namespace.
 
