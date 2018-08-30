@@ -13,7 +13,7 @@ This view focuses on the devices in your system, the connections between these d
 
 The functional view might be a new concept for you.
 The functional view focuses on how information about the devices, connections, and so on, is represented in user interfaces.
-The functional view includes focusing on how rules effect representations of physical devices in software.
+The functional view includes focusing on how rules affect representations of physical devices in software.
  Perhaps most important to you, the functional view focuses on how an action in a user interface affects the software associated with the physical device it represents.
 
 It is a bit of an over-simplification, but you can think of the physical view as being a view of the 'real world', and the functional view being a view of the 'software world'.
