@@ -4,7 +4,7 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="extensible-thing" extensible="brightness,color,alert">
+	<thing-type id="extensible-thing" extensible="brightness,color,alert,choosy,image">
 		<label>Magic Light - Extensible</label>
 		<description>A generic light thing with extension channels</description>
 		<config-description>
@@ -148,5 +148,36 @@
 			</parameter>
 		</config-description>
 
+	</thing-type>
+
+	<thing-type id="rollershutter">
+		<label>Magic Rollershutter Thing</label>
+		<description>A rollershutter</description>
+		<channels>
+			<channel typeId="rollershutter" id="rollershutter"></channel>
+		</channels>
+	</thing-type>
+
+	<thing-type id="player">
+		<label>Magic Player Thing</label>
+		<description>A media player</description>
+		<channels>
+			<channel typeId="player" id="player"></channel>
+		</channels>
+	</thing-type>
+
+	<thing-type id="image">
+		<label>Magic Image</label>
+		<description>A thing providing an image</description>
+		<channels>
+			<channel typeId="image" id="image"></channel>
+		</channels>
+		<config-description>
+			<parameter name="source" type="text" required="true">
+				<label>Image URL</label>
+				<description>The URL the image will be loaded from</description>
+				<context>url</context>
+			</parameter>
+		</config-description>
 	</thing-type>
 </thing:thing-descriptions>

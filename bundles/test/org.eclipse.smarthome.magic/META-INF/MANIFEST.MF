@@ -30,6 +30,7 @@ Import-Package:
  org.eclipse.smarthome.core.thing.firmware,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.magic.binding,
  org.eclipse.smarthome.magic.binding.handler,
  org.eclipse.smarthome.magic.service,
