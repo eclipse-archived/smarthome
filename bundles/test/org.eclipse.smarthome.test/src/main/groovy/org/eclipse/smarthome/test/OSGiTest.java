@@ -57,7 +57,7 @@ public abstract class OSGiTest {
     private final Map<String, List<ServiceRegistration<?>>> registeredServices = new HashMap<>();
     protected BundleContext bundleContext;
 
-    protected static final int TIMEOUT = 1000;
+    protected static final int TIMEOUT = 10000;
     protected static final int SLEEPTIME = 50;
 
     @Before
@@ -397,6 +397,7 @@ public abstract class OSGiTest {
         if (beforeLastCall != null) {
             beforeLastCall.call();
         }
+        assertion.call();
     }
 
     protected void waitForAssert(Closure<?> assertion, Closure<?> beforeLastCall) throws Exception {
