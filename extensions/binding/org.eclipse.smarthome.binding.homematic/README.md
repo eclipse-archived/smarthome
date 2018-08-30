@@ -123,7 +123,7 @@ The timeout in seconds for connections to a Homematic gateway (default = 15)
 The time to live in seconds for discovery results of a Homematic gateway (default = -1, which means infinite)
 
 -   **socketMaxAlive**
-The maximum lifetime of a pooled socket connection to the Homematic gateway in seconds (default = 900)
+The maximum lifetime of a socket connection to and from a Homematic gateway in seconds (default = 900)
 
 -   **rfPort**
 The port number of the RF daemon (default = 2001)
