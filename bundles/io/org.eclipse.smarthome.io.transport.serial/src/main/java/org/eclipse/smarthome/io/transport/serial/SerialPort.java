@@ -218,7 +218,7 @@ public interface SerialPort extends Closeable {
     /**
      * Sets or clears the RTS (Request To Send) bit in the UART, if supported by the underlying implementation.
      *
-     * @param rts true rts is set, false if rst cleared
+     * @param rts true rts is set, false if rts cleared
      */
     void setRTS(boolean rts);
 }
