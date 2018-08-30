@@ -15,6 +15,7 @@ package org.eclipse.smarthome.io.transport.serial.rxtx.rfc2217.internal;
 import java.net.URI;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
@@ -61,4 +62,15 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
         }
     }
 
+    @Override
+    public boolean isCurrentlyOwned() {
+        // Check if the socket is not available for use, if true interpret as being owned.
+        return !id.getTelnetClient().isAvailable();
+    }
+
+    @Override
+    public @Nullable String getCurrentOwner() {
+        // Unknown who owns a socket connection. Therefore return null.
+        return null;
+    }
 }

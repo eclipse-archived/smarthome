@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.io.transport.serial.internal;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
@@ -67,7 +68,7 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
     }
 
     @Override
-    public String getCurrentOwner() {
+    public @Nullable String getCurrentOwner() {
         return id.getCurrentOwner();
     }
 }

@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.io.transport.serial;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Interface of a serial port identifier.
@@ -54,5 +55,5 @@ public interface SerialPortIdentifier {
      *
      * @return the port owner or null if the port is not currently owned
      */
-    String getCurrentOwner();
+    @Nullable String getCurrentOwner();
 }
