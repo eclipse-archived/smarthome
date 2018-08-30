@@ -75,9 +75,9 @@ public class ${bindingIdCamelCase}HandlerTest {
         // verify the interaction with the callback and capture the ThingStatusInfo argument:
         verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
         
-        // assert that the ThingStatusInfo given to the callback was build with the ONLINE status:
+        // assert that the ThingStatusInfo given to the callback was build with the (temporary) UNKNOWN status:
         ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
-        assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.OFFLINE)));
+        assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.UNKNOWN)));
         
         // See the documentation at 
         // https://www.eclipse.org/smarthome/documentation/development/testing.html#assertions 
