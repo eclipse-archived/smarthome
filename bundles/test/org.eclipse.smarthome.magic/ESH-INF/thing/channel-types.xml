@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="magic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="magic"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -90,7 +91,34 @@
 	<channel-type id="set-temperature">
 		<item-type>Number:Temperature</item-type>
 		<label>Set Point</label>
-		<state readOnly="false" pattern="%.1f %unit%" min="12" max="38" />
+		<state readOnly="false" pattern="%.1f %unit%" min="12" max="38" step="0.5" />
+	</channel-type>
+
+	<channel-type id="choosy">
+		<item-type>Number</item-type>
+		<label>Choosy</label>
+		<state>
+			<options>
+				<option value="0">Zero</option>
+				<option value="1">One</option>
+				<option value="2">Two</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="rollershutter">
+		<item-type>Rollershutter</item-type>
+		<label>Rollershutter</label>
+	</channel-type>
+
+	<channel-type id="player">
+		<item-type>Player</item-type>
+		<label>Player</label>
+	</channel-type>
+
+	<channel-type id="image">
+		<item-type>Image</item-type>
+		<label>Image</label>
 	</channel-type>
 
 </thing:thing-descriptions>
