@@ -5,7 +5,7 @@
 </div>
 <div layout="row" layout-align="start center" class="map-container">
 	<div layout="row" layout-align="start center" flex>
-		<map-component model="$ctrl.item.state" readOnly="$ctrl.item.readOnly" on-update="$ctrl.onMapUpdate($event)"/>
+		<map-component model="$ctrl.item.state" read-only="$ctrl.item.readOnly" on-update="$ctrl.onMapUpdate($event)"/>
 	</div>
 </div>
 <div layout="row" layout-align="start center">
@@ -18,4 +18,6 @@
 		<i class="md-button control-button material-icons" ng-show="$ctrl.editMode" ng-click="$ctrl.updateState()">check</i>
 	</div>
 </div>
-<div layout="row" item-state-dropdown layout-align="end center" ng-if="isOptionList($ctrl.item) && !$ctrl.item.readOnly"></div>
+<div layout="row" layout-align="start center" ng-if="::($ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)">
+    <item-state-dropdown item="$ctrl.item" on-change="$ctrl.updateState()"></item-state-dropdown>
+</div>

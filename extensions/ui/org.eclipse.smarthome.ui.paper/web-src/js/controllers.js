@@ -83,61 +83,6 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ])//
             prevAudioUrl = audioUrl;
         }
     });
-    eventService.onEvent('smarthome/items/*/statechanged', function(topic, stateObject) {
-        var itemName = topic.split('/')[2];
-        var state = stateObject.value;
-
-        console.log('Item ' + itemName + ' updated: ' + state);
-
-        itemRepository.filter(function condition(item) {
-            return item.name === itemName;
-        }, function callback(items) {
-            items.forEach(function(item) {
-                changeState(item);
-            });
-        });
-
-        function changeState(item) {
-            var updateState = true;
-            if (item.name === itemName) {
-                // ignore ON and OFF update for Dimmer
-                if (item.type === 'Dimmer') {
-                    if (state === 'ON' || state == 'OFF') {
-                        updateState = false;
-                    }
-                }
-                if (item.type.indexOf("Number") === 0 || (item.groupType && item.groupType.indexOf("Number") === 0)) {
-                    var strState = '' + state;
-                    if (strState.indexOf(' ') > 0) {
-                        item.unit = strState.substring(strState.indexOf(' ') + 1);
-                        state = strState.substring(0, strState.indexOf(' '));
-                    }
-                    var parsedValue = Number(state);
-                    if (!isNaN(parsedValue)) {
-                        state = parsedValue;
-                    }
-                }
-                if (stateObject.type == "Percent" || stateObject.type == "Decimal") {
-                    if (item.type === "Rollershutter") {
-                        state = parseInt(state);
-                    } else {
-                        state = parseFloat(state);
-                    }
-                }
-
-                updateState = updateState && item.state !== state;
-                if (updateState) {
-                    $scope.$apply(function() {
-                        item.state = state;
-                        item.stateText = util.getItemStateText(item);
-                    });
-                    console.log('Updating ' + itemName + ' to ' + item.stateText)
-                } else {
-                    console.log('Ignoring state ' + state + ' for ' + itemName)
-                }
-            }
-        }
-    });
 
     $scope.getNumberOfNewDiscoveryResults = function() {
         var numberOfNewDiscoveryResults = 0;
