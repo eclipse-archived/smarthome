@@ -11,9 +11,8 @@ The regular expression in the format `s/<regex>/result/` (without `g`), replaces
 If the regular expression contains a [capture group](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#cg) defined by `()`, it returns the captured string. 
 Multiple capture groups can be used to retrieve multiple strings and can be combined as a result string defined in the `substitution`.
 
-The transformation can be set to be restricted to only match if the input string beginns with an character by prepending `^` to the beginning of a pattern or to only match if the input string ends with a specified character by appending `$` at the end.
+The transformation can be set to be restricted to only match if the input string begins with a character by prepending `^` to the beginning of a pattern or to only match if the input string ends with a specified character by appending `$` at the end.
 So the regex `^I.*b$` only matches when the input string starts with `I` and ends with `b`, like in `I'm Bob`. Both can be used alone or in combination.
-
 
 The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be used as literal characters.
 
@@ -25,8 +24,8 @@ The special characters `\.[]{}()*+-?^$|` have to be escaped when they should be 
 |---------------------------|------------------------|----------------------------|--------------------------|
 | `My network does not work.` | `s/work/cast/g` | `"My netcast does not cast."` | Replaces all matches of the string "work" with the string "cast". |
 | `My network does not work.` | `.*(\snot).*` | `" not"` | Returns only the first match and strips of the rest, "\s" defines a  whitespace. |
-| `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string and retuns the content of the captcha group `(.?)`. |
-| `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, retuns first capture group adds a dot and the second capture group. This devides by 1000. |
+| `temp=44.0'C` | `temp=(.*?)'C)`          | `44.0` | Matches whole string and returns the content of the captcha group `(.?)`. |
+| `48312` | `s/(.{2})(.{3})/$1.$2/g` | `48.312` | Captures 2 and 3 character, returns first capture group adds a dot and the second capture group. This divides by 1000. |
 
 ### Example In Setup
 
@@ -47,10 +46,10 @@ Number  Temperature "Temperature [%.1f °C]"
 
 The regex pattern is is defined as follows
 * `.*` match any character, zero and unlimited times
-* `=` match the equal sign litterally, used to find the position
+* `=` match the equal sign literally, used to find the position
 *  `()` capture group match 
     * `\d*` match a digit (equal to [0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
-    * `.` match the dot litterally
+    * `.` match the dot literally
     * `\d*` match a digit (equal to [0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
 * `.*` match any character, zero and unlimited times
 
@@ -77,7 +76,7 @@ Now the resulting Number can also be used in the label to [change the color](htt
 
 ## Differences to plain Regex
 
-The regex is embedded in a string so when double quotes `"` are used in an regex they need to be escaped `\"` to keep the string intact.
+The regex is embedded in a string so when double quotes `"` are used in a regex they need to be escaped `\"` to keep the string intact.
 As the escape character of strings is the backslash this has to be escaped additionally.
 To use a dot as literal in the regex it has to be escape `\.`, but in a string it has to be escaped twice `"\\."`.
 The first backslash escapes the second backslash in the string so it can be used in the regex.
@@ -101,6 +100,6 @@ Please note: This profile is a one-way transformation, i.e. only values from a d
 ## Further Reading
 
 * A full [introduction](https://www.w3schools.com/jsref/jsref_obj_regexp.asp) for regular expression is available at W3School.
-* Online validator help to check the syntax of an regex and give information how to design it.
+* Online validator help to check the syntax of a regex and give information how to design it.
     * [Regex 101](https://regex101.com/)
     * [Regex R](https://regexr.com/)
