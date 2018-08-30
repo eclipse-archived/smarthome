@@ -54,7 +54,7 @@ public class PercentTypeTest {
 }
 ```
 
-Using the the [https://code.google.com/p/hamcrest/ hamcrest] matcher library is a good way to write expressive assertions. In contrast to the original assertion statements from JUnit the hamcrest matcher library allows to define the assertion in a more natural order:
+Using the [hamcrest matcher library](http://hamcrest.org/JavaHamcrest/) is a good way to write expressive assertions. In contrast to the original assertion statements from JUnit the hamcrest matcher library allows to define the assertion in a more natural order:
 
 ```(java)
 PercentType pt = new PercentType("0.0001");
