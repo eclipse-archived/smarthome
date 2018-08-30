@@ -58,7 +58,7 @@
 			</parameter>
 			<parameter name="socketMaxAlive" type="integer">
 				<label>Socket maxAlive</label>
-				<description>The maximum lifetime of a pooled socket connection to the Homematic gateway in seconds (default = 900)</description>
+				<description>The maximum lifetime of a socket connection to and from a Homematic gateway in seconds (default = 900)</description>
 				<advanced>true</advanced>
 				<default>900</default>
 			</parameter>

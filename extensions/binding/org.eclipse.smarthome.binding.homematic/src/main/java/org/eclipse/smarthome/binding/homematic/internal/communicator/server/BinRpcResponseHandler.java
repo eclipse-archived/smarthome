@@ -32,11 +32,13 @@ public class BinRpcResponseHandler implements Runnable {
     private Socket socket;
     private RpcResponseHandler<byte[]> rpcResponseHandler;
     private HomematicConfig config;
+    private long created;
 
     public BinRpcResponseHandler(Socket socket, RpcResponseHandler<byte[]> rpcResponseHandler, HomematicConfig config) {
         this.socket = socket;
         this.rpcResponseHandler = rpcResponseHandler;
         this.config = config;
+        this.created = System.currentTimeMillis();
     }
 
     /**
@@ -45,21 +47,26 @@ public class BinRpcResponseHandler implements Runnable {
     @Override
     public void run() {
         try {
-            BinRpcMessage message = new BinRpcMessage(socket.getInputStream(), true, config.getEncoding());
-            logger.trace("Event BinRpcMessage: {}", message);
-            byte[] returnValue = rpcResponseHandler.handleMethodCall(message.getMethodName(),
-                    message.getResponseData());
-            if (returnValue != null) {
-                socket.getOutputStream().write(returnValue);
-            }
+            boolean isMaxAliveReached;
+            do {
+                BinRpcMessage message = new BinRpcMessage(socket.getInputStream(), true, config.getEncoding());
+                logger.trace("Event BinRpcMessage: {}", message);
+                byte[] returnValue = rpcResponseHandler.handleMethodCall(message.getMethodName(),
+                        message.getResponseData());
+                if (returnValue != null) {
+                    socket.getOutputStream().write(returnValue);
+                }
+                isMaxAliveReached = System.currentTimeMillis() - created > (config.getSocketMaxAlive() * 1000);
+            } while (!isMaxAliveReached);
+
         } catch (EOFException eof) {
             // ignore
         } catch (Exception e) {
-            logger.error("{}", e.getMessage(), e);
+            logger.warn("{}", e.getMessage(), e);
         } finally {
             try {
                 socket.close();
-            } catch (IOException ex) {
+            } catch (IOException ioe) {
                 // ignore
             }
         }
