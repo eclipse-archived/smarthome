@@ -1,0 +1,18 @@
+<div layout-align="start center" layout="row">
+	<div flex="60">
+		<p class="ng-binding">
+			<i class="material-icons">camera_alt</i>{{::$ctrl.getLabel($ctrl.item, 'Camera image')}}
+		</p>
+	</div>
+	<div layout="row" layout-align="end center" flex="40">
+		<i class="md-button control-button material-icons" ng-click="$ctrl.refreshCameraImage()">autorenew</i>
+	</div>
+</div>
+<div class="image-widget" layout-align="center center" layout="row">
+	<div layout-align="end center" layout="row" ng-if="$ctrl.item.imageLoaded">
+		<img class="image-scaled" ng-if="$ctrl.item.state !== 'NULL' && $ctrl.item.state !== 'UNDEF'" ng-src="{{$ctrl.item.state}}">
+		<span class="error-message" ng-show="$ctrl.item.state === 'NULL' || $ctrl.item.state === 'UNDEF'">
+			<center>No image is currently present</center>
+		</span>
+	</div>
+</div>

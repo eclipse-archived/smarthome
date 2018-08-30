@@ -1,4 +1,4 @@
-<section id="main" class="control header-tabs" name="controlForm">
+<section id="main" class="control header-tabs">
 	<div class="header-toolbar">
 		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 	</div>
@@ -26,209 +26,36 @@
 					</div>
 					<div ng-repeat="channel in ::group.channels track by channel.id">
 						<div ng-repeat="item in ::channel.items track by item.name">
-							<div class="icontrol" ng-controller="ItemController">
-								<div ng-if="::(item.type === 'Switch')" ng-controller="SwitchItemController">
-									<div layout="row" layout-align="start center" class="dimmer-widget">
-										<div flex="40">
-											<p>
-												<i class="material-icons">{{::getIcon(item.category)}}</i>{{::getLabel(item, 'Switch')}}
-											</p>
-										</div>
-										<div flex="60" layout="row" layout-align="end center" class="switch-widget" ng-if="::!isOptionList(item)">
-											<md-switch class="md-default-theme" ng-disabled="::item.readOnly" ng-model="item.state" ng-change="setOn(item.state)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{::item.label}}></md-switch>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::isOptionList(item) && !item.readOnly"></div>
+							<div class="icontrol">
+								<div ng-if="::(item.type === 'Switch')">
+								    <switch-control item="item"></switch-control>
 								</div>
-								<div ng-if="::(item.type === 'Dimmer')" ng-controller="DimmerItemController">
-									<div layout="row" layout-align="start center" class="dimmer-widget">
-										<div flex="40">
-											<p>
-												<i class="material-icons">{{::getIcon(item.category, 'brightness_medium')}}</i>{{::getLabel(item, 'Dimmer')}}
-											</p>
-										</div>
-										<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-											<h2>{{item.stateText}}</h2>
-										</div>
-									</div>
-									<md-slider ng-if="::(!isOptionList(item) && !item.readOnly)" ng-class="::{'left-padded' : showSwitch(item.category)}" class="md-default-theme" style="height: 40px;" flex ng-min="0" ng-max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{::item.label}}></md-slider>
-									<div layout="row" layout-align="start center" class="dimmer-widget" ng-if="::(showSwitch(item.category) && !isOptionList(item) && !item.readOnly)">
-										<div flex="40">
-											<p class="no-icon-margin-left">Off/On</p>
-										</div>
-										<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-											<md-switch class="md-default-theme" ng-model="state.switchState" ng-change="setSwitch(state.switchState)" aria-label={{::item.label}}></md-switch>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
+								<div ng-if="::(item.type === 'Dimmer')">
+									<dimmer-control item="item"></dimmer-control>
 								</div>
-								<div ng-if="::(item.type === 'Color')" ng-controller="ColorItemController">
-									<div layout="row" layout-align="start center" class="dimmer-widget">
-										<div flex="45">
-											<p>
-												<i class="material-icons">wb_incandescent</i>{{::getLabel(item, 'Color')}}
-											</p>
-										</div>
-										<div ng-if="::(!isOptionList(item) && !item.readOnly)" flex="55" layout="row" layout-align="end center" class="dimmer-widget">
-
-											<md-slider class="hue md-default-theme" flex min="0" max="360" ng-model="hue" ng-change="setHue(hue)" aria-label="{{::item.label}} hue"></md-slider>
-										</div>
-									</div>
-									<div ng-if="::(!isOptionList(item) && !item.readOnly)" layout="row" layout-align="start center" class="dimmer-widget">
-										<div flex="45">
-											<p class="no-icon-margin-left">Brightness</p>
-										</div>
-										<div flex="55" layout="row" layout-align="end center" class="dimmer-widget">
-											<md-slider class="md-default-theme" flex min="0" max="100" ng-model="brightness" ng-change="setBrightness(brightness)" aria-label="{{::item.label}} brightness"></md-slider>
-										</div>
-									</div>
-									<div ng-if="::(!isOptionList(item) && !item.readOnly)" layout="row" layout-align="start center" class="dimmer-widget">
-										<div flex="45">
-											<p class="no-icon-margin-left">Saturation</p>
-										</div>
-										<div flex="55" layout="row" layout-align="end center" class="dimmer-widget">
-											<md-slider class="md-default-theme" flex min="0" max="100" ng-model="saturation" ng-change="setSaturation(saturation)" aria-label="{{::item.label}} saturation"></md-slider>
-										</div>
-									</div>
-									<div ng-if="::item.readOnly" flex="100" layout="row" layout-align="end center">
-										<h2>{{item.stateText}}</h2>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
+								<div ng-if="::(item.type === 'Color')">
+									<color-control item="item"></color-control>
 								</div>
-								<div ng-if="::(item.type.indexOf('Number') === 0)" ng-controller="NumberItemController" class="numberWidget">
-									<div layout="row" layout-align="start center">
-										<div flex="40" layout="row" layout-align="start center">
-											<p>
-												<i class="material-icons">{{::getIcon(item.category, 'trending_up')}}</i>{{::getLabel(item, 'Value')}}
-											</p>
-										</div>
-										<div flex="60" layout="row" layout-align="end center">
-											<div ng-if="::item.readOnly">
-												<h2 class="state">{{item.stateText}}</h2>
-											</div>
-											<div layout="row" layout-align="end center" ng-if="::(!item.readOnly && !isOptionList(item))">
-												<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.stateText}}</h2>
-												<md-input-container ng-show="editMode"> <input name="{{::item.name}}" ng-model="item.state" aria-label={{::item.label}} type="number" ng-min="item.stateDescription.minimum" ng-max="item.stateDescription.maximum"></input> </md-input-container>
-												<i class="md-button control-button material-icons" ng-disabled="controlForm[item.name].$invalid" ng-show="editMode" ng-click="controlForm[item.name].$invalid || updateState()">check</i>
-											</div>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="start center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
+								<div ng-if="::(item.type.indexOf('Number') === 0)" class="numberWidget">
+									<number-control item="item"></number-control>
 								</div>
-								<div ng-if="::(item.type === 'Rollershutter')" ng-controller="RollershutterItemController">
-									<div layout="row" layout-align="start center" flex="100">
-										<div flex="40" layout="row" layout-align="start center">
-											<p>
-												<i class="material-icons">{{::getIcon(item.category, 'format_align_justify')}}</i>{{::getLabel(item, 'Position')}}
-											</p>
-										</div>
-										<div flex="60" layout="row" layout-align="end center">
-											<div ng-if="::item.readOnly">
-												<h2 class="state">{{::item.stateText}}</h2>
-											</div>
-											<div layout="row" layout-align="end center" ng-if="::(!item.readOnly && !isOptionList(item))">
-												<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{item.stateText}}</h2>
-												<md-input-container ng-show="editMode"> <input name="{{::item.name}}" ng-model="item.state" aria-label={{::item.label}} type="number" min="0" max="100"></input> </md-input-container>
-												<i class="md-button control-button material-icons" ng-disabled="controlForm[item.name].$invalid" ng-show="editMode" ng-click="controlForm[item.name].$invalid || updateState()">check</i>
-											</div>
-										</div>
-									</div>
-									<div ng-if="::(!isOptionList(item) && !item.readOnly)" layout="row" layout-align="start center" flex="100">
-										<div flex="40" layout="row" layout-align="start center">
-											<p>Control</p>
-										</div>
-										<div flex="60" layout="row" layout-align="end center">
-											<i class="md-button control-button material-icons" ng-click="sendCommand('DOWN')">vertical_align_bottom</i> <i class="md-button control-button material-icons" ng-click="sendCommand('STOP')">stop</i> <i class="md-button control-button material-icons" ng-click="sendCommand('UP')">vertical_align_top</i>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
+								<div ng-if="::(item.type === 'Rollershutter')">
+									<rollershutter-control item="item"></rollershutter-control>
 								</div>
-								<div ng-if="::(item.type === 'Player')" ng-controller="PlayerItemController">
-									<div layout="row" layout-align="end center">
-										<div flex="40" layout="row" layout-align="start center">
-											<p>
-												<i class="material-icons">{{::getIcon(item.category, 'play_arrow')}}</i>{{::getLabel(item, 'Control')}}
-											</p>
-										</div>
-										<div ng-if="::!item.readOnly" flex="60" layout="row" layout-align="end center">
-											<i class="md-button control-button material-icons" ng-mousedown="onPrevDown()" ng-mouseup="onPrevUp()">skip_previous</i>
-											<!---->
-											<i class="md-button control-button material-icons" ng-show="item.state !== 'PLAY'" ng-click="sendCommand('PLAY', true)">play_arrow</i>
-											<!---->
-											<i class="md-button control-button material-icons" ng-show="item.state === 'PLAY'" ng-click="sendCommand('PAUSE', true)">pause</i>
-											<!---->
-											<i class="md-button control-button material-icons" ng-mousedown="onNextDown()" ng-mouseup="onNextUp()">skip_next</i>
-											<!---->
-										</div>
-										<div ng-if="::item.readOnly" flex="60" layout="row" layout-align="end center">
-											<h2>{{item.stateText}}</h2>
-										</div>
-									</div>
+								<div ng-if="::(item.type === 'Player')">
+									<player-control item="item"></player-control>
 								</div>
-								<div ng-if="::(item.type === 'Contact')" ng-controller="DefaultItemController">
-									<div layout="row" layout-align="start center">
-										<div flex="40" layout="row" layout-align="start center">
-											<p>
-												<i class="material-icons">{{::getIcon(item.category)}}</i>{{::getLabel(item, 'Contact')}}
-											</p>
-										</div>
-										<div ng-if="::item.readOnly" flex="60" layout="row" layout-align="end center">
-											<h2 class="state">{{item.stateText}}</h2>
-										</div>
-									</div>
-									<div layout="row" item-state-dropdown layout-align="end center" ng-if="::(isOptionList(item) && !item.readOnly)"></div>
+								<div ng-if="::(item.type === 'Contact')">
+									<contact-control item="item"></contact-control>
 								</div>
-								<div ng-if="::(item.type === 'Location')" >
-                                     <location-control item="item" on-update="updateItemState($event)"></location-control>
-                                 </div>
-								<div ng-if="::(item.type === 'Image')" ng-controller="ImageItemController">
-									<div layout-align="start center" layout="row">
-										<div flex="60">
-											<p class="ng-binding">
-												<i class="material-icons">camera_alt</i>{{::getLabel(item, 'Camera image')}}
-											</p>
-										</div>
-										<div layout="row" layout-align="end center" flex="40">
-											<i class="md-button control-button material-icons" ng-click="refreshCameraImage()">autorenew</i>
-										</div>
-									</div>
-									<div class="image-widget" layout-align="center center" layout="row">
-										<div layout-align="end center" layout="row" ng-if="item.imageLoaded">
-											<img class="image-scaled" ng-if="item.state !== 'NULL' && item.state !== 'UNDEF'" ng-src="{{item.state}}">
-											<span class="error-message" ng-show="item.state === 'NULL' || item.state === 'UNDEF'">
-												<center>No image is currently present</center>
-											</span>
-										</div>
-									</div>
+								<div ng-if="::(item.type === 'Location')">
+									<location-control item="item"></location-control>
 								</div>
-								<div class="textControl" ng-if="::(item.type === 'DateTime' || item.type === 'String')" ng-controller="DefaultItemController">
-									<div layout="row" layout-align="start center" style="height: 100%">
-										<p flex="40">
-											<i class="material-icons">{{::getIcon(item.category)}}</i>{{::getLabel(item, 'Value')}}
-										</p>
-										<div ng-if="(item.stateText.length<8 || shortEditMode) && !longEditMode" flex="60" layout="row" layout-align="end center" ng-show="::(item.readOnly || (!item.readOnly && !isOptionList(item)))">
-											<div ng-if="::item.readOnly">
-												<span class="state">{{item.stateText}}</span>
-											</div>
-											<div ng-if="::!item.readOnly" layout="row" layout-align="end center">
-												<span class="state editable text-right" ng-class="{'minDimension':!item.state}" ng-if="!shortEditMode" ng-click="editState(true)" flex>{{item.stateText}}</span>
-												<md-input-container ng-show="shortEditMode" flex> <input ng-if="::item.groupType=='Number'" type="number" ng-model="item.state" aria-label={{::item.label}}></input> <input ng-if="::item.groupType!='Number'" ng-model="item.state" aria-label={{::item.label}}></input> </md-input-container>
-												<i class="md-button control-button material-icons" ng-show="shortEditMode" ng-click="updateState(true)">check</i>
-											</div>
-										</div>
-									</div>
-									<div ng-if="(item.stateText.length>7 || longEditMode) && !shortEditMode" flex="100" layout="row" layout-align="end center" style="height: 100%" ng-show="::(item.readOnly || (!item.readOnly && !isOptionList(item)))">
-										<div ng-if="::item.readOnly">
-											<span class="state">{{item.stateText}}</span>
-										</div>
-										<div ng-if="::!item.readOnly" layout="row" layout-align="end center" flex="100">
-											<span class="state editable text-right" ng-if="!longEditMode" ng-click="editState(false)" flex>{{item.stateText}}</span>
-											<md-input-container ng-show="longEditMode" flex="80"> <input ng-if="::(item.groupType=='Number')" type="number" ng-model="item.state" aria-label={{::item.label}}></input> <input ng-if="::(item.groupType!='Number')" ng-model="item.state" aria-label={{::item.label}}></input> </md-input-container>
-											<i class="md-button control-button material-icons" ng-show="longEditMode" ng-click="updateState(false)">check</i>
-										</div>
-									</div>
-									<!-- for option list selection -->
-									<div layout="row" layout-align="start center" ng-if="::(isOptionList(item) && !item.readOnly)" item-state-dropdown></div>
+								<div ng-if="::(item.type === 'Image')">
+									<image-control item="item"></image-control>
+								</div>
+								<div ng-if="::(item.type === 'DateTime' || item.type === 'String')" class="textControl">
+									<string-control item="item"></string-control>
 								</div>
 							</div>
 						</div>

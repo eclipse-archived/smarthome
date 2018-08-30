@@ -1,0 +1,13 @@
+<div layout="row" layout-align="start center">
+	<div flex="40" layout="row" layout-align="start center">
+		<p>
+			<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category)}}</i>{{::$ctrl.getLabel($ctrl.item, 'Contact')}}
+		</p>
+	</div>
+	<div ng-if="::$ctrl.item.readOnly" flex="60" layout="row" layout-align="end center">
+		<h2 class="state">{{$ctrl.item.stateText}}</h2>
+	</div>
+</div>
+<div layout="row" layout-align="start center" ng-if="::($ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)">
+    <item-state-dropdown item="$ctrl.item" on-change="$ctrl.updateState()"></item-state-dropdown>
+</div>

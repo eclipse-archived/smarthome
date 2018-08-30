@@ -39,7 +39,7 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         eventSrc.addEventListener('message', function(event) {
             var data = JSON.parse(event.data);
             $log.debug('Event received: ' + data.topic + ' - ' + data.payload);
-            $.each(callbacks, function(index, element) {
+            angular.forEach(callbacks, function(element) {
                 var match = data.topic.match(element.topic);
                 if (match != null && match == data.topic) {
                     element.callback(data.topic, JSON.parse(data.payload));
