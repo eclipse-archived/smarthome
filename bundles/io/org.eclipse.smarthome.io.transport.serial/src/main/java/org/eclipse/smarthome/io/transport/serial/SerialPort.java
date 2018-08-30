@@ -154,6 +154,34 @@ public interface SerialPort extends Closeable {
     void notifyOnDataAvailable(boolean enable);
 
     /**
+     * Enable / disable the notification on break interrupt.
+     *
+     * @param enable true if the notification should be enabled
+     */
+    void notifyOnBreakInterrupt(boolean enable);
+
+    /**
+     * Enable / disable the notification on framing error.
+     *
+     * @param enable true if the notification should be enabled
+     */
+    void notifyOnFramingError(boolean enable);
+
+    /**
+     * Enable / disable the notification on overrun error.
+     *
+     * @param enable true if the notification should be enabled
+     */
+    void notifyOnOverrunError(boolean enable);
+
+    /**
+     * Enable / disable the notification on parity error.
+     *
+     * @param enable true if the notification should be enabled
+     */
+    void notifyOnParityError(boolean enable);
+
+    /**
      * Enables the receive timeout.
      *
      * <p>
@@ -186,4 +214,11 @@ public interface SerialPort extends Closeable {
      * @throws UnsupportedCommOperationException Unsupported Comm Operation Exception.
      */
     void enableReceiveThreshold(int i) throws UnsupportedCommOperationException;
+
+    /**
+     * Sets or clears the RTS (Request To Send) bit in the UART, if supported by the underlying implementation.
+     *
+     * @param rts true rts is set, false if rst cleared
+     */
+    void setRTS(boolean rts);
 }

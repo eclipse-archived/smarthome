@@ -94,6 +94,31 @@ public class RxTxSerialPort implements SerialPort {
     }
 
     @Override
+    public void notifyOnBreakInterrupt(boolean enable) {
+        sp.notifyOnBreakInterrupt(enable);
+    }
+
+    @Override
+    public void notifyOnFramingError(boolean enable) {
+        sp.notifyOnFramingError(enable);
+    }
+
+    @Override
+    public void notifyOnOverrunError(boolean enable) {
+        sp.notifyOnOverrunError(enable);
+    }
+
+    @Override
+    public void notifyOnParityError(boolean enable) {
+        sp.notifyOnParityError(enable);
+    }
+
+    @Override
+    public void setRTS(boolean enable) {
+        sp.setRTS(enable);
+    }
+
+    @Override
     public void enableReceiveTimeout(int timeout) throws UnsupportedCommOperationException {
         if (timeout < 0) {
             throw new IllegalArgumentException(String.format("timeout must be non negative (is: %d)", timeout));

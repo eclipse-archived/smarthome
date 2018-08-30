@@ -61,4 +61,13 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
         }
     }
 
+    @Override
+    public boolean isCurrentlyOwned() {
+        return id.isCurrentlyOwned();
+    }
+
+    @Override
+    public String getCurrentOwner() {
+        return id.getCurrentOwner();
+    }
 }
