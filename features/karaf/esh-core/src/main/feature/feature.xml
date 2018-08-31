@@ -81,6 +81,11 @@
       osgi.service;objectClass=org.eclipse.smarthome.core.persistence.PersistenceServiceRegistry
     </capability>
 
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.semantics/${project.version}</bundle>
+    <capability>
+      osgi.service;objectClass=org.eclipse.smarthome.core.semantics.TagService
+    </capability>
+
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.scheduler/${project.version}</bundle>
 
     <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing/${project.version}</bundle>
