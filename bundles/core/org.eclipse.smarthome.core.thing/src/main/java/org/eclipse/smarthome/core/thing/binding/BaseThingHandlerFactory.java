@@ -20,6 +20,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
+import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
+import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -53,6 +55,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private final Map<String, @Nullable ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
     private final Map<String, @Nullable ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
+    private final Map<String, @Nullable ServiceRegistration<DiscoveryService>> discoveryServices = new ConcurrentHashMap<>();
 
     @NonNullByDefault({})
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
@@ -128,6 +131,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         setHandlerContext(thingHandler);
         registerConfigStatusProvider(thing, thingHandler);
         registerFirmwareUpdateHandler(thing, thingHandler);
+        registerDiscoveryService(thing, thingHandler);
         return thingHandler;
     }
 
@@ -138,6 +142,10 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * @return thing the created handler
      */
     protected abstract @Nullable ThingHandler createHandler(Thing thing);
+
+    protected @Nullable AbstractDiscoveryService createDiscoveryService(ThingHandler thingHandler) {
+        return null;
+    }
 
     private void setHandlerContext(ThingHandler thingHandler) {
         if (thingHandler instanceof BaseThingHandler) {
@@ -172,6 +180,23 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         return serviceRegistration;
     }
 
+    private void registerDiscoveryService(Thing thing, ThingHandler thingHandler) {
+        AbstractDiscoveryService discoveryService = createDiscoveryService(thingHandler);
+        if (discoveryService != null) {
+            discoveryService.activate(null);
+            ServiceRegistration<DiscoveryService> serviceRegistration = registerAsService(discoveryService,
+                    DiscoveryService.class);
+            discoveryServices.put(thing.getUID().getAsString(), serviceRegistration);
+        }
+    }
+
+    private <T> ServiceRegistration<T> registerAsService(AbstractDiscoveryService discoveryService, Class<T> type) {
+        @SuppressWarnings("unchecked")
+        ServiceRegistration<T> serviceRegistration = (ServiceRegistration<T>) bundleContext
+                .registerService(type.getName(), discoveryService, null);
+        return serviceRegistration;
+    }
+
     @Override
     public void unregisterHandler(Thing thing) {
         ThingHandler thingHandler = thing.getHandler();
@@ -181,6 +206,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         }
         unregisterConfigStatusProvider(thing);
         unregisterFirmwareUpdateHandler(thing);
+        unregisterDiscoveryService(thing);
     }
 
     /**
@@ -212,6 +238,19 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         ServiceRegistration<FirmwareUpdateHandler> serviceRegistration = firmwareUpdateHandlers
                 .remove(thing.getUID().getAsString());
         if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
+    }
+
+    private void unregisterDiscoveryService(Thing thing) {
+        ServiceRegistration<DiscoveryService> serviceRegistration = discoveryServices
+                .remove(thing.getUID().getAsString());
+        if (serviceRegistration != null) {
+            AbstractDiscoveryService service = (AbstractDiscoveryService) bundleContext
+                    .getService(serviceRegistration.getReference());
+            if (service != null) {
+                service.deactivate();
+            }
             serviceRegistration.unregister();
         }
     }

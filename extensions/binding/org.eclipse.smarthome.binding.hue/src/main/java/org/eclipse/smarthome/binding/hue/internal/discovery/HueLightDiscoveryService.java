@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
@@ -74,12 +75,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         this.hueBridgeHandler = hueBridgeHandler;
     }
 
-    public void activate() {
+    @Override
+    public void activate(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
+        logger.debug("HueLightDiscoveryService activate");
         hueBridgeHandler.registerLightStatusListener(this);
     }
 
     @Override
     public void deactivate() {
+        logger.debug("HueLightDiscoveryService deactivate");
         removeOlderResults(new Date().getTime(), hueBridgeHandler.getThing().getUID());
         hueBridgeHandler.unregisterLightStatusListener(this);
     }
