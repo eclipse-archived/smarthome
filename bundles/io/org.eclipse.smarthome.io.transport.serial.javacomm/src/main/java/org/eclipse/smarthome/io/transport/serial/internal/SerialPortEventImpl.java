@@ -39,4 +39,9 @@ public class SerialPortEventImpl implements SerialPortEvent {
         return event.getEventType();
     }
 
+    @Override
+    public boolean getNewValue() {
+        return event.getNewValue();
+    }
+
 }

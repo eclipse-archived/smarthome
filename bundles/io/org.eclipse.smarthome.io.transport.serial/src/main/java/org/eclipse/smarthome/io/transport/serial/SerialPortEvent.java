@@ -38,4 +38,10 @@ public interface SerialPortEvent {
      * @return the event type
      */
     int getEventType();
+
+    /**
+     * Gets the new value of the state change that caused the SerialPortEvent to be propagated. For example, when the CD
+     * bit changes, newValue reflects the new value of the CD bit.
+     */
+    boolean getNewValue();
 }

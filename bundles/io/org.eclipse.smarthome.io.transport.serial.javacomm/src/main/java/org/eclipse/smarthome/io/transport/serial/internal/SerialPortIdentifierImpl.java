@@ -16,6 +16,7 @@ import javax.comm.CommPort;
 import javax.comm.CommPortIdentifier;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
@@ -60,4 +61,13 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
         }
     }
 
+    @Override
+    public boolean isCurrentlyOwned() {
+        return id.isCurrentlyOwned();
+    }
+
+    @Override
+    public @Nullable String getCurrentOwner() {
+        return id.getCurrentOwner();
+    }
 }
