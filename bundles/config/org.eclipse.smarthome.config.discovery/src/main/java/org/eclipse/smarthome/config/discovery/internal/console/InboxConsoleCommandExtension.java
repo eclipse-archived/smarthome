@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -71,7 +70,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                                 return;
                             }
                             inbox.approve(thingUID, label);
-                        } catch (Exception e) {
+                        } catch (IllegalArgumentException e) {
                             console.println(e.getMessage());
                         }
                     } else {
@@ -104,23 +103,32 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                     break;
                 case SUBCMD_REMOVE:
                     if (args.length > 1) {
-                        List<DiscoveryResult> results = Stream.of(new DiscoveryResult[] {})
-                                .collect(Collectors.toList());
+                        boolean validParam = true;
                         try {
                             ThingUID thingUID = new ThingUID(args[1]);
-                            results.addAll(inbox.stream().filter(forThingUID(thingUID)).collect(Collectors.toList()));
-                        } catch (Exception e) {
+                            List<DiscoveryResult> results = inbox.stream().filter(forThingUID(thingUID))
+                                    .collect(Collectors.toList());
+                            if (results.isEmpty()) {
+                                console.println("No matching inbox entry could be found.");
+                            } else {
+                                clearInboxEntries(console, results);
+                            }
+                        } catch (IllegalArgumentException e) {
+                            validParam = false;
                         }
-                        try {
-                            ThingTypeUID thingTypeUID = new ThingTypeUID(args[1]);
-                            results.addAll(
-                                    inbox.stream().filter(forThingTypeUID(thingTypeUID)).collect(Collectors.toList()));
-                        } catch (Exception e) {
-                        }
-                        if (results.isEmpty()) {
-                            console.println("No matching inbox entry could be found.");
-                        } else {
-                            clearInboxEntries(console, results);
+                        if (!validParam) {
+                            try {
+                                ThingTypeUID thingTypeUID = new ThingTypeUID(args[1]);
+                                List<DiscoveryResult> results = inbox.stream().filter(forThingTypeUID(thingTypeUID))
+                                        .collect(Collectors.toList());
+                                if (results.isEmpty()) {
+                                    console.println("No matching inbox entry could be found.");
+                                } else {
+                                    clearInboxEntries(console, results);
+                                }
+                            } catch (IllegalArgumentException e) {
+                                console.println("'" + args[1] + "' is no valid thing UID or thing type.");
+                            }
                         }
                     } else {
                         console.println(
