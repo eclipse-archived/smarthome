@@ -45,6 +45,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_LIST = "list";
     private static final String SUBCMD_LIST_IGNORED = "listignored";
     private static final String SUBCMD_CLEAR = "clear";
+    private static final String SUBCMD_REMOVE = "remove";
 
     private Inbox inbox;
 
@@ -69,7 +70,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                                 return;
                             }
                             inbox.approve(thingUID, label);
-                        } catch (Exception e) {
+                        } catch (IllegalArgumentException e) {
                             console.println(e.getMessage());
                         }
                     } else {
@@ -100,13 +101,46 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 case SUBCMD_CLEAR:
                     clearInboxEntries(console, inbox.getAll());
                     break;
+                case SUBCMD_REMOVE:
+                    if (args.length > 1) {
+                        boolean validParam = true;
+                        try {
+                            ThingUID thingUID = new ThingUID(args[1]);
+                            List<DiscoveryResult> results = inbox.stream().filter(forThingUID(thingUID))
+                                    .collect(Collectors.toList());
+                            if (results.isEmpty()) {
+                                console.println("No matching inbox entry could be found.");
+                            } else {
+                                clearInboxEntries(console, results);
+                            }
+                        } catch (IllegalArgumentException e) {
+                            validParam = false;
+                        }
+                        if (!validParam) {
+                            try {
+                                ThingTypeUID thingTypeUID = new ThingTypeUID(args[1]);
+                                List<DiscoveryResult> results = inbox.stream().filter(forThingTypeUID(thingTypeUID))
+                                        .collect(Collectors.toList());
+                                if (results.isEmpty()) {
+                                    console.println("No matching inbox entry could be found.");
+                                } else {
+                                    clearInboxEntries(console, results);
+                                }
+                            } catch (IllegalArgumentException e) {
+                                console.println("'" + args[1] + "' is no valid thing UID or thing type.");
+                            }
+                        }
+                    } else {
+                        console.println(
+                                "Specify thing id or thing type to remove: inbox remove [<thingUID>|<thingTypeUID>]");
+                    }
+                    break;
                 default:
                     printUsage(console);
                     break;
             }
         } else {
-            printInboxEntries(console,
-                    inbox.stream().filter(withFlag((DiscoveryResultFlag.NEW))).collect(Collectors.toList()));
+            printUsage(console);
         }
     }
 
@@ -154,11 +188,12 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage("lists all current inbox entries"),
-                buildCommandUsage(SUBCMD_LIST, "lists all current inbox entries"),
+        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all current inbox entries"),
                 buildCommandUsage(SUBCMD_LIST_IGNORED, "lists all ignored inbox entries"),
                 buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <label>", "creates a thing for an inbox entry"),
                 buildCommandUsage(SUBCMD_CLEAR, "clears all current inbox entries"),
+                buildCommandUsage(SUBCMD_REMOVE + " [<thingUID>|<thingTypeUID>]",
+                        "remove the inbox entries of a given thing id or thing type"),
                 buildCommandUsage(SUBCMD_IGNORE + " <thingUID>", "ignores an inbox entry permanently") });
     }
 
