@@ -29,8 +29,11 @@
             ctrl.item = angular.copy(ctrl.item);
             if (ctrl.item.state === 'UNDEF' || ctrl.item.state === 'NULL') {
                 ctrl.item.state = '-';
+            } else {
+                ctrl.item.state = parseInt(ctrl.item.state);
             }
 
+            controlItemService.updateStateText(ctrl.item);
             controlItemService.onStateChange(ctrl.item.name, function(stateObject) {
                 ctrl.item.state = parseInt(stateObject.value);
                 controlItemService.updateStateText(ctrl.item);

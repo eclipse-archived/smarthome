@@ -30,19 +30,10 @@
                 ctrl.item.state = '-';
             }
 
+            updateItemState(ctrl.item.state);
             controlItemService.onStateChange(ctrl.item.name, function(stateObject) {
                 var state = stateObject.value;
-                var strState = '' + state;
-                if (strState.indexOf(' ') > 0) {
-                    ctrl.item.unit = strState.substring(strState.indexOf(' ') + 1);
-                    state = strState.substring(0, strState.indexOf(' '));
-                }
-                var parsedValue = Number(state);
-                if (!isNaN(parsedValue)) {
-                    state = parsedValue;
-                }
-                ctrl.item.state = state;
-                controlItemService.updateStateText(ctrl.item);
+                updateItemState(state);
             });
         }
 
@@ -54,6 +45,20 @@
             var state = ctrl.item.unit ? ctrl.item.state + ' ' + ctrl.item.unit : ctrl.item.state;
             controlItemService.sendCommand(ctrl.item, state);
             ctrl.editMode = false;
+        }
+
+        function updateItemState(state) {
+            var strState = '' + state;
+            if (strState.indexOf(' ') > 0) {
+                ctrl.item.unit = strState.substring(strState.indexOf(' ') + 1);
+                state = strState.substring(0, strState.indexOf(' '));
+            }
+            var parsedValue = Number(state);
+            if (!isNaN(parsedValue)) {
+                state = parsedValue;
+            }
+            ctrl.item.state = state;
+            controlItemService.updateStateText(ctrl.item);
         }
 
     }

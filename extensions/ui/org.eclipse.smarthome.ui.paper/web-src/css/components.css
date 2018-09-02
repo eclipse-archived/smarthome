@@ -242,19 +242,19 @@ md-slider.md-default-theme.hue .md-thumb:after {
 }
 
 .card .clabel {
-	padding: 8px;
-	text-align: center;
+    padding: 8px 8px 8px 15px;
 }
 
 .card.text-left .clabel {
 	text-align: left;
 }
 
-.card .clabel h3 {
+.card span.clabel {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
 	line-height: 120%;
+	font-size: 20px
 }
 
 .card .cbody {
