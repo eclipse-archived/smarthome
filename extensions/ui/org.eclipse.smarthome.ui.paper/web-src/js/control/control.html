@@ -4,66 +4,6 @@
 	</div>
 
 	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedTabIndex">
-	<md-tab ng-repeat="tab in tabs track by tab.name" ng-disabled="::tab.disabled" label="{{::tab.name}}" md-on-select="onSelectedTab(tab)" layout-fill> 
-	<md-tab-content layout-fill="">
-	<p class="text-center" ng-if="!tab.hasThings">
-		No Things available.
-		<button class="md-button" ng-click="$location.path('inbox/setup')">Add Thing</button>
-	</p>
-	<div ng-controller="ControlController" class="items row" ng-init="tab = tab" ng-attr-id="{{::'items-' + tabs.indexOf(tab)}}">
-		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things track by thing.UID">
-			<div class="card item">
-				<div class="row">
-					<h3 class="clabel col-xs-9">{{::thing.label}}</h3>
-					<i ng-click="navigateTo('configuration/things/view/'+thing.UID)" class="material-icons cursor-pointer col-xs-3 pull-right" style="color: black; background-color: transparent;">launch</i>
-				</div>
-				<div class="ibadge">
-					<span class="icon-x">
-				</div>
-				<div ng-repeat="group in ::thing.thingChannels track by $index">
-					<div ng-if="::(!angular.isUndefined(group.name) && group.name.length > 0 && group.channels.length>0)">
-						<h2>{{::group.name}}</h2>
-					</div>
-					<div ng-repeat="channel in ::group.channels track by channel.id">
-						<div ng-repeat="item in ::channel.items track by item.name">
-							<div class="icontrol">
-								<div ng-if="::(item.type === 'Switch')">
-								    <switch-control item="item"></switch-control>
-								</div>
-								<div ng-if="::(item.type === 'Dimmer')">
-									<dimmer-control item="item"></dimmer-control>
-								</div>
-								<div ng-if="::(item.type === 'Color')">
-									<color-control item="item"></color-control>
-								</div>
-								<div ng-if="::(item.type.indexOf('Number') === 0)" class="numberWidget">
-									<number-control item="item"></number-control>
-								</div>
-								<div ng-if="::(item.type === 'Rollershutter')">
-									<rollershutter-control item="item"></rollershutter-control>
-								</div>
-								<div ng-if="::(item.type === 'Player')">
-									<player-control item="item"></player-control>
-								</div>
-								<div ng-if="::(item.type === 'Contact')">
-									<contact-control item="item"></contact-control>
-								</div>
-								<div ng-if="::(item.type === 'Location')">
-									<location-control item="item"></location-control>
-								</div>
-								<div ng-if="::(item.type === 'Image')">
-									<image-control item="item"></image-control>
-								</div>
-								<div ng-if="::(item.type === 'DateTime' || item.type === 'String')" class="textControl">
-									<string-control item="item"></string-control>
-								</div>
-							</div>
-						</div>
-						<hr ng-if="!$last" />
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	</md-tab-content> </md-tab> </md-tabs>
+	    <tab-control tab="tab" on-selection-update="onSelectedTab($event)" ng-repeat="tab in tabs track by tab.name"></tab-control>
+	</md-tabs>
 </section>

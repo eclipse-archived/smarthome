@@ -17,8 +17,8 @@ section#main.header-tabs {
 	padding: 20px;
 }
 
-.items .item h3 {
-	margin: 5px 0px;
+.items .item span {
+	margin: 0 0 5px 0;
 }
 
 .items .item md-radio-button {
@@ -29,13 +29,10 @@ section#main.header-tabs {
 	width: 100%;
 }
 
-.items .item h2.state {
+.items .item span.state {
 	margin: 5px 0px;
 	overflow: hidden;
-}
-
-.items .item h1.state:last-child {
-	
+	font-size: 20px;
 }
 
 .items .item p {
@@ -46,6 +43,10 @@ section#main.header-tabs {
 	overflow: hidden;
 	text-overflow: ellipsis;*/
 	line-height: 38px;
+}
+
+.items .item .number-input {
+	margin: 0 0 10px 0;
 }
 
 .dimmer-widget md-slider {
