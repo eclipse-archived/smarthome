@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.binding.weatherunderground.internal.discovery;
 
 import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants.*;
-import static org.eclipse.smarthome.binding.weatherunderground.internal.config.WeatherUndergroundConfiguration.LOCATION;
+import static org.eclipse.smarthome.binding.weatherunderground.internal.config.WeatherUndergroundConfiguration.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,8 +23,12 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.weatherunderground.handler.WeatherUndergroundHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.i18n.LocationProvider;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * The {@link WeatherUndergroundDiscoveryService} creates things based on the configured location.
  *
  * @author Laurent Garnier - Initial Contribution
+ * @author Laurent Garnier - Consider locale (language) when discovering a new thing
  */
 public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService {
 
@@ -44,9 +49,11 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     private static final int DISCOVER_TIMEOUT_SECONDS = 10;
     private static final int LOCATION_CHANGED_CHECK_INTERVAL = 60;
 
+    private final LocaleProvider localeProvider;
     private final LocationProvider locationProvider;
     private ScheduledFuture<?> discoveryJob;
     private PointType previousLocation;
+    private String previousLanguage;
 
     private final ThingUID bridgeUID;
 
@@ -54,10 +61,24 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
      * Creates a WeatherUndergroundDiscoveryService with enabled autostart.
      */
 
-    public WeatherUndergroundDiscoveryService(ThingUID bridgeUID, LocationProvider locationProvider) {
+    public WeatherUndergroundDiscoveryService(ThingUID bridgeUID, LocaleProvider localeProvider,
+            LocationProvider locationProvider) {
         super(SUPPORTED_THING_TYPES, DISCOVER_TIMEOUT_SECONDS, true);
         this.bridgeUID = bridgeUID;
+        this.localeProvider = localeProvider;
         this.locationProvider = locationProvider;
+    }
+
+    /* We override this method to allow a call from the thing handler factory */
+    @Override
+    public void activate(@Nullable Map<@NonNull String, @Nullable Object> configProperties) {
+        super.activate(configProperties);
+    }
+
+    /* We override this method to allow a call from the thing handler factory */
+    @Override
+    public void deactivate() {
+        super.deactivate();
     }
 
     @Override
@@ -68,19 +89,32 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
             logger.debug("LocationProvider.getLocation() is not set -> Will not provide any discovery results");
             return;
         }
-        createResults(location);
+        createResults(location, localeProvider.getLocale().getLanguage());
     }
 
     @Override
     protected void startBackgroundDiscovery() {
-        if (discoveryJob == null) {
+        logger.debug("Starting Weather Underground device background discovery");
+        if (discoveryJob == null || discoveryJob.isCancelled()) {
             discoveryJob = scheduler.scheduleWithFixedDelay(() -> {
                 PointType currentLocation = locationProvider.getLocation();
-                if (!Objects.equals(currentLocation, previousLocation)) {
-                    logger.debug("Location has been changed from {} to {}: Creating new discovery results",
-                            previousLocation, currentLocation);
-                    createResults(currentLocation);
-                    previousLocation = currentLocation;
+                String currentLanguage = localeProvider.getLocale().getLanguage();
+                if (currentLocation != null) {
+                    boolean update = false;
+                    if (!Objects.equals(currentLocation, previousLocation)) {
+                        logger.debug("Location has been changed from {} to {}: Creating new discovery result",
+                                previousLocation, currentLocation);
+                        update = true;
+                    } else if (!Objects.equals(currentLanguage, previousLanguage)) {
+                        logger.debug("Language has been changed from {} to {}: Creating new discovery result",
+                                previousLanguage, currentLanguage);
+                        update = true;
+                    }
+                    if (update) {
+                        createResults(currentLocation, currentLanguage);
+                        previousLocation = currentLocation;
+                        previousLanguage = currentLanguage;
+                    }
                 }
             }, 0, LOCATION_CHANGED_CHECK_INTERVAL, TimeUnit.SECONDS);
             logger.debug("Scheduled Weather Underground location-changed job every {} seconds",
@@ -92,17 +126,20 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     protected void stopBackgroundDiscovery() {
         logger.debug("Stopping Weather Underground device background discovery");
         if (discoveryJob != null && !discoveryJob.isCancelled()) {
-            if (discoveryJob.cancel(true)) {
-                discoveryJob = null;
-                logger.debug("Stopped Weather Underground device background discovery");
-            }
+            discoveryJob.cancel(true);
+            discoveryJob = null;
+            logger.debug("Stopped Weather Underground device background discovery");
         }
     }
 
-    public void createResults(PointType location) {
+    private void createResults(PointType location, String language) {
         ThingUID localWeatherThing = new ThingUID(THING_TYPE_WEATHER, LOCAL);
         Map<String, Object> properties = new HashMap<>(3);
         properties.put(LOCATION, String.format("%s,%s", location.getLatitude(), location.getLongitude()));
+        String lang = WeatherUndergroundHandler.getCodeFromLanguage(language);
+        if (!lang.isEmpty()) {
+            properties.put(LANGUAGE, lang);
+        }
         thingDiscovered(DiscoveryResultBuilder.create(localWeatherThing).withLabel("Local Weather")
                 .withProperties(properties).withBridge(bridgeUID).build());
     }

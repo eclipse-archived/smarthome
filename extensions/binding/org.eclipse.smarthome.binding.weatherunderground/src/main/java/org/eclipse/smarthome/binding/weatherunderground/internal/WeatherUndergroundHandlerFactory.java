@@ -14,7 +14,9 @@ package org.eclipse.smarthome.binding.weatherunderground.internal;
 
 import static org.eclipse.smarthome.binding.weatherunderground.WeatherUndergroundBindingConstants.*;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,9 +32,11 @@ import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -42,9 +46,12 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Laurent Garnier - Initial contribution
  * @author Theo Giovanna - Added a bridge for the API key
+ * @author Laurent Garnier - Registration of the discovery service updated
  */
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.weatherunderground")
 public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
+
+    private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
     private LocaleProvider localeProvider;
     private LocationProvider locationProvider;
@@ -57,10 +64,6 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
     protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
         this.localeProvider = null;
-    }
-
-    public LocationProvider getLocationProvider() {
-        return locationProvider;
     }
 
     @Reference
@@ -100,19 +103,37 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
 
         if (thingTypeUID.equals(THING_TYPE_BRIDGE)) {
             WeatherUndergroundBridgeHandler handler = new WeatherUndergroundBridgeHandler((Bridge) thing);
-            registerWeatherDiscoveryService(handler);
+            registerDiscoveryService(handler.getThing().getUID());
             return handler;
         }
 
         return null;
     }
 
-    // adds the bridge to the discovery service
-    private synchronized void registerWeatherDiscoveryService(WeatherUndergroundBridgeHandler bridgeHandler) {
-        WeatherUndergroundDiscoveryService discoveryService = new WeatherUndergroundDiscoveryService(
-                bridgeHandler.getThing().getUID(), locationProvider);
-        bridgeHandler.setDiscoveryService(bundleContext.registerService(DiscoveryService.class.getName(),
+    @Override
+    protected void removeHandler(ThingHandler thingHandler) {
+        if (thingHandler instanceof WeatherUndergroundBridgeHandler) {
+            unregisterDiscoveryService(thingHandler.getThing().getUID());
+        }
+        super.removeHandler(thingHandler);
+    }
+
+    private synchronized void registerDiscoveryService(ThingUID bridgeUID) {
+        WeatherUndergroundDiscoveryService discoveryService = new WeatherUndergroundDiscoveryService(bridgeUID,
+                localeProvider, locationProvider);
+        discoveryService.activate(null);
+        discoveryServiceRegs.put(bridgeUID, bundleContext.registerService(DiscoveryService.class.getName(),
                 discoveryService, new Hashtable<String, Object>()));
+    }
+
+    private synchronized void unregisterDiscoveryService(ThingUID bridgeUID) {
+        ServiceRegistration<?> serviceReg = discoveryServiceRegs.remove(bridgeUID);
+        if (serviceReg != null) {
+            WeatherUndergroundDiscoveryService service = (WeatherUndergroundDiscoveryService) bundleContext
+                    .getService(serviceReg.getReference());
+            serviceReg.unregister();
+            service.deactivate();
+        }
     }
 
 }

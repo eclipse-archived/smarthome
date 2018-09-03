@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.weatherunderground.handler;
 
 import static org.eclipse.smarthome.core.library.unit.MetricPrefix.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,8 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.weatherunderground.internal.config.WeatherUndergroundConfiguration;
 import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonCurrent;
 import org.eclipse.smarthome.binding.weatherunderground.internal.json.WeatherUndergroundJsonData;
@@ -48,7 +50,9 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -58,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * The {@link WeatherUndergroundHandler} is responsible for handling the
@@ -65,26 +70,120 @@ import com.google.gson.Gson;
  *
  * @author Laurent Garnier - Initial contribution
  * @author Theo Giovanna - Added a bridge for the API key
+ * @author Laurent Garnier - refactor bridge/thing handling
  */
+@NonNullByDefault
 public class WeatherUndergroundHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundHandler.class);
 
     private static final int DEFAULT_REFRESH_PERIOD = 30;
+    private static final String URL_QUERY = "http://api.wunderground.com/api/%APIKEY%/%FEATURES%/%SETTINGS%/q/%QUERY%.json";
     private static final String FEATURE_CONDITIONS = "conditions";
     private static final String FEATURE_FORECAST10DAY = "forecast10day";
+    private static final String FEATURE_GEOLOOKUP = "geolookup";
     private static final Set<String> USUAL_FEATURES = Stream.of(FEATURE_CONDITIONS, FEATURE_FORECAST10DAY)
             .collect(Collectors.toSet());
 
+    private static final Map<String, String> LANG_ISO_TO_WU_CODES = new HashMap<String, String>();
+    // Codes from https://www.wunderground.com/weather/api/d/docs?d=language-support
+    static {
+        LANG_ISO_TO_WU_CODES.put("AF", "AF");
+        LANG_ISO_TO_WU_CODES.put("SQ", "AL");
+        LANG_ISO_TO_WU_CODES.put("AR", "AR");
+        LANG_ISO_TO_WU_CODES.put("HY", "HY");
+        LANG_ISO_TO_WU_CODES.put("AZ", "AZ");
+        LANG_ISO_TO_WU_CODES.put("EU", "EU");
+        LANG_ISO_TO_WU_CODES.put("BE", "BY");
+        LANG_ISO_TO_WU_CODES.put("BG", "BU");
+        // British English => LI
+        LANG_ISO_TO_WU_CODES.put("MY", "MY");
+        LANG_ISO_TO_WU_CODES.put("CA", "CA");
+        // Chinese - Simplified => CN
+        LANG_ISO_TO_WU_CODES.put("ZH", "TW");
+        LANG_ISO_TO_WU_CODES.put("HR", "CR");
+        LANG_ISO_TO_WU_CODES.put("CS", "CZ");
+        LANG_ISO_TO_WU_CODES.put("DA", "DK");
+        LANG_ISO_TO_WU_CODES.put("DV", "DV");
+        LANG_ISO_TO_WU_CODES.put("NL", "NL");
+        LANG_ISO_TO_WU_CODES.put("EN", "EN");
+        LANG_ISO_TO_WU_CODES.put("EO", "EO");
+        LANG_ISO_TO_WU_CODES.put("ET", "ET");
+        LANG_ISO_TO_WU_CODES.put("FA", "FA");
+        LANG_ISO_TO_WU_CODES.put("FI", "FI");
+        LANG_ISO_TO_WU_CODES.put("FR", "FR");
+        // French Canadian => FC
+        LANG_ISO_TO_WU_CODES.put("GL", "GZ");
+        LANG_ISO_TO_WU_CODES.put("DE", "DL");
+        LANG_ISO_TO_WU_CODES.put("KA", "KA");
+        LANG_ISO_TO_WU_CODES.put("EL", "GR");
+        LANG_ISO_TO_WU_CODES.put("GU", "GU");
+        LANG_ISO_TO_WU_CODES.put("HT", "HT");
+        LANG_ISO_TO_WU_CODES.put("HE", "IL");
+        LANG_ISO_TO_WU_CODES.put("HI", "HI");
+        LANG_ISO_TO_WU_CODES.put("HU", "HU");
+        LANG_ISO_TO_WU_CODES.put("IS", "IS");
+        LANG_ISO_TO_WU_CODES.put("IO", "IO");
+        LANG_ISO_TO_WU_CODES.put("ID", "ID");
+        LANG_ISO_TO_WU_CODES.put("GA", "IR");
+        LANG_ISO_TO_WU_CODES.put("IT", "IT");
+        LANG_ISO_TO_WU_CODES.put("JA", "JP");
+        LANG_ISO_TO_WU_CODES.put("JV", "JW");
+        LANG_ISO_TO_WU_CODES.put("KM", "KM");
+        LANG_ISO_TO_WU_CODES.put("KO", "KR");
+        LANG_ISO_TO_WU_CODES.put("KU", "KU");
+        LANG_ISO_TO_WU_CODES.put("LA", "LA");
+        LANG_ISO_TO_WU_CODES.put("LV", "LV");
+        LANG_ISO_TO_WU_CODES.put("LT", "LT");
+        // Low German => ND
+        LANG_ISO_TO_WU_CODES.put("MK", "MK");
+        LANG_ISO_TO_WU_CODES.put("MT", "MT");
+        // Mandinka => GM
+        LANG_ISO_TO_WU_CODES.put("MI", "MI");
+        LANG_ISO_TO_WU_CODES.put("MR", "MR");
+        LANG_ISO_TO_WU_CODES.put("MN", "MN");
+        LANG_ISO_TO_WU_CODES.put("NO", "NO");
+        LANG_ISO_TO_WU_CODES.put("OC", "OC");
+        LANG_ISO_TO_WU_CODES.put("PS", "PS");
+        // Plautdietsch => GN
+        LANG_ISO_TO_WU_CODES.put("PL", "PL");
+        LANG_ISO_TO_WU_CODES.put("PT", "BR");
+        LANG_ISO_TO_WU_CODES.put("PA", "PA");
+        LANG_ISO_TO_WU_CODES.put("RO", "RO");
+        LANG_ISO_TO_WU_CODES.put("RU", "RU");
+        LANG_ISO_TO_WU_CODES.put("SR", "SR");
+        LANG_ISO_TO_WU_CODES.put("SK", "SK");
+        LANG_ISO_TO_WU_CODES.put("SL", "SL");
+        LANG_ISO_TO_WU_CODES.put("ES", "SP");
+        LANG_ISO_TO_WU_CODES.put("SW", "SI");
+        LANG_ISO_TO_WU_CODES.put("SV", "SW");
+        // Swiss => CH
+        LANG_ISO_TO_WU_CODES.put("TL", "TL");
+        LANG_ISO_TO_WU_CODES.put("TT", "TT");
+        LANG_ISO_TO_WU_CODES.put("TH", "TH");
+        LANG_ISO_TO_WU_CODES.put("TR", "TR");
+        LANG_ISO_TO_WU_CODES.put("TK", "TK");
+        LANG_ISO_TO_WU_CODES.put("UK", "UA");
+        LANG_ISO_TO_WU_CODES.put("UZ", "UZ");
+        LANG_ISO_TO_WU_CODES.put("VI", "VU");
+        LANG_ISO_TO_WU_CODES.put("CY", "CY");
+        LANG_ISO_TO_WU_CODES.put("WO", "SN");
+        // Yiddish - transliterated => JI
+        LANG_ISO_TO_WU_CODES.put("YI", "YI");
+    }
+
     private final LocaleProvider localeProvider;
     private final UnitProvider unitProvider;
-    private WeatherUndergroundJsonData weatherData;
-
-    private ScheduledFuture<?> refreshJob;
     private final Gson gson;
     private final Map<String, Integer> forecastMap;
+    @Nullable
+    private ScheduledFuture<?> refreshJob;
+    @Nullable
+    private WeatherUndergroundJsonData weatherData;
+    @Nullable
+    private WeatherUndergroundBridgeHandler bridgeHandler;
 
-    public WeatherUndergroundHandler(@NonNull Thing thing, LocaleProvider localeProvider, UnitProvider unitProvider) {
+    public WeatherUndergroundHandler(Thing thing, LocaleProvider localeProvider, UnitProvider unitProvider) {
         super(thing);
         this.localeProvider = localeProvider;
         this.unitProvider = unitProvider;
@@ -94,48 +193,74 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        logger.debug("Initializing WeatherUnderground handler.");
-
-        WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
-
-        logger.debug("config location = {}", config.location);
-        logger.debug("config language = {}", config.language);
-        logger.debug("config refresh = {}", config.refresh);
-
-        boolean validConfig = true;
-        String errors = "";
-        String statusDescr = null;
-
-        if (this.getBridge() == null) {
-            logger.error("Error: you must configure a bridge");
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Bridge uninitialized");
-        }
-
-        if (StringUtils.trimToNull(config.location) == null) {
-            errors += " Parameter 'location' must be configured.";
-            statusDescr = "@text/offline.conf-error-missing-location";
-            validConfig = false;
-        }
-        if (config.language != null) {
-            String lang = StringUtils.trimToEmpty(config.language);
-            if (lang.length() != 2) {
-                errors += " Parameter 'language' must be 2 letters.";
-                statusDescr = "@text/offline.conf-error-syntax-language";
-                validConfig = false;
-            }
-        }
-        if (config.refresh != null && config.refresh < 5) {
-            errors += " Parameter 'refresh' must be at least 5 minutes.";
-            statusDescr = "@text/offline.conf-error-min-refresh";
-            validConfig = false;
-        }
-        errors = errors.trim();
-
-        if (validConfig) {
-            startAutomaticRefresh();
+        logger.debug("Initializing WeatherUnderground handler for thing {}", getThing().getUID());
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            initializeThingHandler(null, null);
         } else {
-            logger.debug("Disabling thing '{}': {}", getThing().getUID(), errors);
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, statusDescr);
+            initializeThingHandler(bridge.getHandler(), bridge.getStatus());
+        }
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        logger.debug("bridgeStatusChanged {}", bridgeStatusInfo);
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            initializeThingHandler(null, bridgeStatusInfo.getStatus());
+        } else {
+            initializeThingHandler(bridge.getHandler(), bridgeStatusInfo.getStatus());
+        }
+    }
+
+    private void initializeThingHandler(@Nullable ThingHandler bridgeHandler, @Nullable ThingStatus bridgeStatus) {
+        logger.debug("initializeThingHandler {}", getThing().getUID());
+        if (bridgeHandler != null && bridgeStatus != null) {
+            if (bridgeStatus == ThingStatus.ONLINE) {
+                this.bridgeHandler = (WeatherUndergroundBridgeHandler) bridgeHandler;
+
+                WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
+
+                logger.debug("config location = {}", config.location);
+                logger.debug("config language = {}", config.language);
+                logger.debug("config refresh = {}", config.refresh);
+
+                boolean validConfig = true;
+                String errors = "";
+                String statusDescr = null;
+
+                if (StringUtils.trimToNull(config.location) == null) {
+                    errors += " Parameter 'location' must be configured.";
+                    statusDescr = "@text/offline.conf-error-missing-location";
+                    validConfig = false;
+                }
+                if (config.language != null) {
+                    String lang = StringUtils.trimToEmpty(config.language);
+                    if (lang.length() != 2) {
+                        errors += " Parameter 'language' must be 2 letters.";
+                        statusDescr = "@text/offline.conf-error-syntax-language";
+                        validConfig = false;
+                    }
+                }
+                if (config.refresh != null && config.refresh < 5) {
+                    errors += " Parameter 'refresh' must be at least 5 minutes.";
+                    statusDescr = "@text/offline.conf-error-min-refresh";
+                    validConfig = false;
+                }
+                errors = errors.trim();
+
+                if (validConfig) {
+                    updateStatus(ThingStatus.ONLINE);
+                    startAutomaticRefresh();
+                } else {
+                    logger.debug("Setting thing '{}' to OFFLINE: {}", getThing().getUID(), errors);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, statusDescr);
+                }
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+            }
+        } else {
+            updateStatus(ThingStatus.OFFLINE);
         }
     }
 
@@ -149,7 +274,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
                 public void run() {
                     try {
                         // Request new weather data to the Weather Underground service
-                        updateWeatherData();
+                        updateWeatherData(USUAL_FEATURES);
 
                         // Update all channels from the updated weather data
                         for (Channel channel : getThing().getChannels()) {
@@ -214,7 +339,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         }
     }
 
-    private State updateCurrentObservationChannel(String channelId, WeatherUndergroundJsonCurrent current) {
+    private @Nullable State updateCurrentObservationChannel(String channelId, WeatherUndergroundJsonCurrent current) {
         WUQuantity quantity;
         String channelTypeId = getChannelTypeId(channelId);
         switch (channelTypeId) {
@@ -288,7 +413,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         }
     }
 
-    private State updateForecastChannel(String channelId, WeatherUndergroundJsonForecast forecast) {
+    private @Nullable State updateForecastChannel(String channelId, WeatherUndergroundJsonForecast forecast) {
         WUQuantity quantity;
         int day = getDay(channelId);
         WeatherUndergroundJsonForecastDay dayForecast = forecast.getSimpleForecast(day);
@@ -350,15 +475,15 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         }
     }
 
-    private State undefOrState(Object value, State state) {
+    private @Nullable State undefOrState(@Nullable Object value, State state) {
         return value == null ? null : state;
     }
 
-    private <T extends Quantity<T>> State undefOrQuantity(WUQuantity quantity) {
+    private @Nullable <T extends Quantity<T>> State undefOrQuantity(WUQuantity quantity) {
         return quantity.value == null ? null : new QuantityType<>(quantity.value, quantity.unit);
     }
 
-    private State undefOrDecimal(Number value) {
+    private @Nullable State undefOrDecimal(@Nullable Number value) {
         return value == null ? null : new DecimalType(value.doubleValue());
     }
 
@@ -391,27 +516,114 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
      * Request new current conditions and forecast 10 days to the Weather Underground service
      * and store the data in weatherData
      *
+     * @param features the list of features to be requested
      * @return true if success or false in case of error
      */
-    private boolean updateWeatherData() {
-        // Request new weather data to the Weather Underground service
-        WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
-        WeatherUndergroundBridgeHandler handler = null;
-        Bridge bridge = this.getBridge();
-        if (bridge != null) {
-            handler = (WeatherUndergroundBridgeHandler) bridge.getHandler();
-        }
-        if (handler != null) {
-            weatherData = handler.getWeatherData(USUAL_FEATURES, StringUtils.trimToEmpty(config.location),
-                    config.language, this.localeProvider, this.gson);
+    private boolean updateWeatherData(Set<String> features) {
+        WeatherUndergroundJsonData result = null;
+        boolean resultOk = false;
+        String error = null;
+        String errorDetail = null;
+        String statusDescr = null;
 
-            if (weatherData != null) {
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
+        // Request new weather data to the Weather Underground service
+
+        try {
+            WeatherUndergroundConfiguration config = getConfigAs(WeatherUndergroundConfiguration.class);
+
+            String urlStr = URL_QUERY.replace("%APIKEY%", StringUtils.trimToEmpty(bridgeHandler.getApikey()));
+
+            urlStr = urlStr.replace("%FEATURES%", String.join("/", features));
+
+            String lang = StringUtils.trimToEmpty(config.language);
+            if (lang.isEmpty()) {
+                // If language is not set in the configuration, you try deducing it from the system language
+                lang = getCodeFromLanguage(localeProvider.getLocale().getLanguage());
+                logger.debug("Use language deduced from system locale {}: {}", localeProvider.getLocale().getLanguage(),
+                        lang);
             }
+            if (lang.isEmpty()) {
+                urlStr = urlStr.replace("%SETTINGS%", "");
+            } else {
+                urlStr = urlStr.replace("%SETTINGS%", "lang:" + lang.toUpperCase());
+            }
+
+            urlStr = urlStr.replace("%QUERY%", StringUtils.trimToEmpty(config.location));
+            logger.debug("URL = {}", urlStr);
+
+            // Run the HTTP request and get the JSON response from Weather Underground
+            String response = null;
+            try {
+                response = HttpUtil.executeUrl("GET", urlStr, WeatherUndergroundBridgeHandler.FETCH_TIMEOUT_MS);
+                logger.debug("weatherData = {}", response);
+            } catch (IllegalArgumentException e) {
+                // catch Illegal character in path at index XX: http://api.wunderground.com/...
+                error = "Error creating URI with location parameter: '" + StringUtils.trimToEmpty(config.location)
+                        + "'";
+                errorDetail = e.getMessage();
+                statusDescr = "@text/offline.uri-error";
+            }
+
+            // Map the JSON response to an object
+            result = gson.fromJson(response, WeatherUndergroundJsonData.class);
+            if (result.getResponse() == null) {
+                errorDetail = "missing response sub-object";
+            } else if (result.getResponse().getErrorDescription() != null) {
+                if ("keynotfound".equals(result.getResponse().getErrorType())) {
+                    error = "API key has to be fixed";
+                    statusDescr = "@text/offline.comm-error-invalid-api-key";
+                }
+                errorDetail = result.getResponse().getErrorDescription();
+            } else {
+                resultOk = true;
+                for (String feature : features) {
+                    if (feature.equals(FEATURE_CONDITIONS) && result.getCurrent() == null) {
+                        resultOk = false;
+                        errorDetail = "missing current_observation sub-object";
+                    } else if (feature.equals(FEATURE_FORECAST10DAY) && result.getForecast() == null) {
+                        resultOk = false;
+                        errorDetail = "missing forecast sub-object";
+                    } else if (feature.equals(FEATURE_GEOLOOKUP) && result.getLocation() == null) {
+                        resultOk = false;
+                        errorDetail = "missing location sub-object";
+                    }
+                }
+            }
+            if (!resultOk && error == null) {
+                error = "Error in Weather Underground response";
+                statusDescr = "@text/offline.comm-error-response";
+            }
+        } catch (IOException e) {
+            error = "Error running Weather Underground request";
+            errorDetail = e.getMessage();
+            statusDescr = "@text/offline.comm-error-running-request";
+        } catch (JsonSyntaxException e) {
+            error = "Error parsing Weather Underground response";
+            errorDetail = e.getMessage();
+            statusDescr = "@text/offline.comm-error-parsing-response";
         }
-        return weatherData != null;
+
+        // Update the thing status
+        if (resultOk) {
+            updateStatus(ThingStatus.ONLINE);
+            weatherData = result;
+        } else {
+            logger.debug("Setting thing '{}' to OFFLINE: Error '{}': {}", getThing().getUID(), error, errorDetail);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, statusDescr);
+            weatherData = null;
+        }
+
+        return resultOk;
+    }
+
+    /**
+     * Get the WU code associated to a language
+     *
+     * @param language the language as an ISO code
+     * @return the associated WU code or an empty string if not found
+     */
+    public static String getCodeFromLanguage(String language) {
+        return StringUtils.trimToEmpty(LANG_ISO_TO_WU_CODES.get(language.toUpperCase()));
     }
 
     private WUQuantity getTemperature(BigDecimal siValue, BigDecimal imperialValue) {
