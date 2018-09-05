@@ -80,7 +80,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     }
 
     @Activate
-    protected void activate(ComponentContext context) {
+    public void activate(ComponentContext context) {
         modified(context);
         itemRegistry.addRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.addRegistryChangeListener(itemChannelLinkRegistryChangeListener);
@@ -97,7 +97,7 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
     }
 
     @Deactivate
-    protected void deactivate() {
+    public void deactivate() {
         itemRegistry.removeRegistryChangeListener(itemRegistryChangeListener);
         itemChannelLinkRegistry.removeRegistryChangeListener(itemChannelLinkRegistryChangeListener);
         managedThingProvider.removeProviderChangeListener(managedThingProviderListener);

@@ -98,7 +98,7 @@ public final class ThingStatusInfoI18nLocalizationService {
     }
 
     @Reference
-    protected void setBundleResolver(BundleResolver bundleResolver) {
+    public void setBundleResolver(BundleResolver bundleResolver) {
         this.bundleResolver = bundleResolver;
     }
 
