@@ -64,7 +64,7 @@ public class WrappedScheduledExecutorService extends ScheduledThreadPoolExecutor
             }
         }
         if (actualThrowable != null) {
-            logger.warn("Scheduled runnable ended with an exception", actualThrowable);
+            logger.warn("Scheduled runnable ended with an exception: ", actualThrowable);
         }
     }
 }
