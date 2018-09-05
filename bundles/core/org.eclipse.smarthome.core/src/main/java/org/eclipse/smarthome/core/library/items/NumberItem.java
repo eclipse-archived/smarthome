@@ -94,7 +94,7 @@ public class NumberItem extends GenericItem {
     @Override
     public @Nullable StateDescription getStateDescription(@Nullable Locale locale) {
         StateDescription stateDescription = super.getStateDescription(locale);
-        if (getDimension() == null && stateDescription != null
+        if (getDimension() == null && stateDescription != null && stateDescription.getPattern() != null
                 && stateDescription.getPattern().contains(UnitUtils.UNIT_PLACEHOLDER)) {
             return StateDescriptionFragmentBuilder.create(stateDescription)
                     .withPattern(stateDescription.getPattern().replaceAll(UnitUtils.UNIT_PLACEHOLDER, "").trim())
