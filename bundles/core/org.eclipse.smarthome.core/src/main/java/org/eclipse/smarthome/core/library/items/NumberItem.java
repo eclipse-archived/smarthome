@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.measure.Dimension;
 import javax.measure.Quantity;
@@ -31,6 +32,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.types.util.UnitUtils;
 
@@ -87,6 +89,19 @@ public class NumberItem extends GenericItem {
 
     public void send(DecimalType command) {
         internalSend(command);
+    }
+
+    @Override
+    public @Nullable StateDescription getStateDescription(@Nullable Locale locale) {
+        StateDescription stateDescription = super.getStateDescription(locale);
+        if (getDimension() == null && stateDescription != null && stateDescription.getPattern() != null
+                && stateDescription.getPattern().contains(UnitUtils.UNIT_PLACEHOLDER)) {
+            return StateDescriptionFragmentBuilder.create(stateDescription)
+                    .withPattern(stateDescription.getPattern().replaceAll(UnitUtils.UNIT_PLACEHOLDER, "").trim())
+                    .build().toStateDescription();
+        }
+
+        return stateDescription;
     }
 
     /**
@@ -162,7 +177,7 @@ public class NumberItem extends GenericItem {
      * the system default unit of the given dimension.
      *
      * @param originalType the source {@link DecimalType}.
-     * @param dimension    the dimension to which the new {@link QuantityType} should adhere.
+     * @param dimension the dimension to which the new {@link QuantityType} should adhere.
      * @return the new {@link QuantityType} from the given originalType, {@code null} if a unit could not be calculated.
      */
     public @Nullable QuantityType<?> toQuantityType(DecimalType originalType,
