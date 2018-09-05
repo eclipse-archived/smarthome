@@ -50,6 +50,8 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/{itemName}/state";
 
+    private static final String ITEM_STATE_PREDICTED_EVENT_TOPIC = "smarthome/items/{itemName}/statepredicted";
+
     private static final String ITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/statechanged";
 
     private static final String GROUPITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/{memberName}/statechanged";
@@ -64,8 +66,9 @@ public class ItemEventFactory extends AbstractEventFactory {
      * Constructs a new ItemEventFactory.
      */
     public ItemEventFactory() {
-        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStateChangedEvent.TYPE,
-                ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE, GroupItemStateChangedEvent.TYPE));
+        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStatePredictedEvent.TYPE,
+                ItemStateChangedEvent.TYPE, ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE,
+                GroupItemStateChangedEvent.TYPE));
     }
 
     @Override
@@ -75,6 +78,8 @@ public class ItemEventFactory extends AbstractEventFactory {
             event = createCommandEvent(topic, payload, source);
         } else if (eventType.equals(ItemStateEvent.TYPE)) {
             event = createStateEvent(topic, payload, source);
+        } else if (eventType.equals(ItemStatePredictedEvent.TYPE)) {
+            event = createStatePredictedEvent(topic, payload, source);
         } else if (eventType.equals(ItemStateChangedEvent.TYPE)) {
             event = createStateChangedEvent(topic, payload);
         } else if (eventType.equals(ItemAddedEvent.TYPE)) {
@@ -110,6 +115,13 @@ public class ItemEventFactory extends AbstractEventFactory {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = getState(bean.getType(), bean.getValue());
         return new ItemStateEvent(topic, payload, itemName, state, source);
+    }
+
+    private Event createStatePredictedEvent(String topic, String payload, String source) {
+        String itemName = getItemName(topic);
+        ItemStatePredictedEventPayloadBean bean = deserializePayload(payload, ItemStatePredictedEventPayloadBean.class);
+        State state = getState(bean.getPredictedType(), bean.getPredictedValue());
+        return new ItemStatePredictedEvent(topic, payload, itemName, state, bean.isConfirmation());
     }
 
     private Event createStateChangedEvent(String topic, String payload) {
@@ -257,6 +269,25 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     /**
+     * Creates an item state predicted event.
+     *
+     * @param itemName the name of the item to send the state update for
+     * @param state the predicted state to send
+     * @param isConfirmation whether this is a confirmation of a previous state
+     * @return the created item state predicted event
+     * @throws IllegalArgumentException if itemName or state is null
+     */
+    public static ItemStatePredictedEvent createStatePredictedEvent(String itemName, State state,
+            boolean isConfirmation) {
+        assertValidArguments(itemName, state, "state");
+        String topic = buildTopic(ITEM_STATE_PREDICTED_EVENT_TOPIC, itemName);
+        ItemStatePredictedEventPayloadBean bean = new ItemStatePredictedEventPayloadBean(getStateType(state),
+                state.toFullString(), isConfirmation);
+        String payload = serializePayload(bean);
+        return new ItemStatePredictedEvent(topic, payload, itemName, state, isConfirmation);
+    }
+
+    /**
      * Creates an item state changed event.
      *
      * @param itemName the name of the item to send the state changed event for
@@ -395,6 +426,40 @@ public class ItemEventFactory extends AbstractEventFactory {
 
         public String getValue() {
             return value;
+        }
+    }
+
+    /**
+     * This is a java bean that is used to serialize/deserialize item state changed event payload.
+     */
+    private static class ItemStatePredictedEventPayloadBean {
+        private String predictedType;
+        private String predictedValue;
+        private boolean isConfirmation;
+
+        /**
+         * Default constructor for deserialization e.g. by Gson.
+         */
+        @SuppressWarnings("unused")
+        protected ItemStatePredictedEventPayloadBean() {
+        }
+
+        public ItemStatePredictedEventPayloadBean(String predictedType, String predictedValue, boolean isConfirmation) {
+            this.predictedType = predictedType;
+            this.predictedValue = predictedValue;
+            this.isConfirmation = isConfirmation;
+        }
+
+        public String getPredictedType() {
+            return predictedType;
+        }
+
+        public String getPredictedValue() {
+            return predictedValue;
+        }
+
+        public boolean isConfirmation() {
+            return isConfirmation;
         }
     }
 

@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.thing.internal.type;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -31,8 +32,9 @@ import org.eclipse.smarthome.core.types.StateDescription;
 public class StateChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<StateChannelTypeBuilder>
         implements StateChannelTypeBuilder {
 
-    private @Nullable StateDescription stateDescription;
     private final String itemType;
+    private @Nullable StateDescription stateDescription;
+    private @Nullable AutoUpdatePolicy autoUpdatePolicy;
 
     public StateChannelTypeBuilderImpl(ChannelTypeUID channelTypeUID, String label, String itemType) {
         super(channelTypeUID, label);
@@ -51,9 +53,15 @@ public class StateChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<Stat
     }
 
     @Override
+    public StateChannelTypeBuilder withAutoUpdatePolicy(@Nullable AutoUpdatePolicy autoUpdatePolicy) {
+        this.autoUpdatePolicy = autoUpdatePolicy;
+        return this;
+    }
+
+    @Override
     public ChannelType build() {
         return new ChannelType(channelTypeUID, advanced, itemType, ChannelKind.STATE, label, description, category,
-                tags.isEmpty() ? null : tags, stateDescription, null, configDescriptionURI);
+                tags.isEmpty() ? null : tags, stateDescription, null, configDescriptionURI, autoUpdatePolicy);
     }
 
 }

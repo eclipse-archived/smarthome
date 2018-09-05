@@ -17,9 +17,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -44,6 +47,9 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
  */
 public class PageChangeListener implements StateChangeListener {
 
+    private static final int REVERT_INTERVAL = 300;
+    private final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(ThreadPoolManager.THREAD_POOL_NAME_COMMON);
     private final String sitemapName;
     private final String pageId;
     private final ItemUIRegistry itemUIRegistry;
@@ -164,18 +170,22 @@ public class PageChangeListener implements StateChangeListener {
         }
     }
 
+    private void constructAndSendEvents(Item item, State newState) {
+        Set<SitemapEvent> events = constructSitemapEvents(item, newState, widgets);
+        for (SitemapEvent event : events) {
+            for (SitemapSubscriptionCallback callback : distinctCallbacks) {
+                callback.onEvent(event);
+            }
+        }
+    }
+
     @Override
     public void stateChanged(Item item, State oldState, State newState) {
         // For all items except group, send an event only when the event state is changed.
         if (item instanceof GroupItem) {
             return;
         }
-        Set<SitemapEvent> events = constructSitemapEvents(item, widgets);
-        for (SitemapEvent event : events) {
-            for (SitemapSubscriptionCallback callback : distinctCallbacks) {
-                callback.onEvent(event);
-            }
-        }
+        constructAndSendEvents(item, newState);
     }
 
     @Override
@@ -186,19 +196,24 @@ public class PageChangeListener implements StateChangeListener {
         if (!(item instanceof GroupItem)) {
             return;
         }
-        Set<SitemapEvent> events = constructSitemapEvents(item, widgets);
-        for (SitemapEvent event : events) {
-            for (SitemapSubscriptionCallback callback : distinctCallbacks) {
-                callback.onEvent(event);
-            }
-        }
+        constructAndSendEvents(item, state);
     }
 
-    private Set<SitemapEvent> constructSitemapEvents(Item item, List<Widget> widgets) {
+    public void keepCurrentState(Item item) {
+        scheduler.schedule(() -> {
+            constructAndSendEvents(item, item.getState());
+        }, REVERT_INTERVAL, TimeUnit.MILLISECONDS);
+    }
+
+    public void changeStateTo(Item item, State state) {
+        constructAndSendEvents(item, state);
+    }
+
+    private Set<SitemapEvent> constructSitemapEvents(Item item, State state, List<Widget> widgets) {
         Set<SitemapEvent> events = new HashSet<>();
         for (Widget w : widgets) {
             if (w instanceof Frame) {
-                events.addAll(constructSitemapEvents(item, itemUIRegistry.getChildren((Frame) w)));
+                events.addAll(constructSitemapEvents(item, state, itemUIRegistry.getChildren((Frame) w)));
             }
 
             boolean skipWidget = (w.getItem() == null) || !w.getItem().equals(item.getName());
@@ -224,7 +239,7 @@ public class PageChangeListener implements StateChangeListener {
                 event.item = EnrichedItemDTOMapper.map(item, drillDown, itemFilter, null, null);
 
                 // event.state is an adjustment of the item state to the widget type.
-                event.state = itemUIRegistry.getState(w).toFullString();
+                event.state = itemUIRegistry.convertState(w, item, state).toFullString();
                 // In case this state is identical to the item state, its value is set to null.
                 if (event.state != null && event.state.equals(event.item.state)) {
                     event.state = null;

@@ -15,6 +15,7 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
@@ -74,6 +76,14 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
     private String readCategory(NodeIterator nodeIterator) throws ConversionException {
         return (String) nodeIterator.nextValue("category", false);
+    }
+
+    private AutoUpdatePolicy readAutoUpdatePolicy(NodeIterator nodeIterator) {
+        String string = (String) nodeIterator.nextValue("autoUpdatePolicy", false);
+        if (string != null) {
+            return AutoUpdatePolicy.valueOf(string.toUpperCase(Locale.ENGLISH));
+        }
+        return null;
     }
 
     private Set<String> readTags(NodeIterator nodeIterator) throws ConversionException {
@@ -145,6 +155,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
+        AutoUpdatePolicy autoUpdatePolicy = readAutoUpdatePolicy(nodeIterator);
 
         StateDescription stateDescription = readStateDescription(nodeIterator);
         EventDescription eventDescription = readEventDescription(nodeIterator);
@@ -162,7 +173,8 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         if (cKind == ChannelKind.STATE) {
             channelType = ChannelTypeBuilder.state(channelTypeUID, label, itemType).isAdvanced(advanced)
                     .withDescription(description).withCategory(category).withTags(tags)
-                    .withConfigDescriptionURI(configDescriptionURI).withStateDescription(stateDescription).build();
+                    .withConfigDescriptionURI(configDescriptionURI).withStateDescription(stateDescription)
+                    .withAutoUpdatePolicy(autoUpdatePolicy).build();
         } else if (cKind == ChannelKind.TRIGGER) {
             channelType = ChannelTypeBuilder.trigger(channelTypeUID, label).isAdvanced(advanced)
                     .withDescription(description).withCategory(category).withTags(tags)

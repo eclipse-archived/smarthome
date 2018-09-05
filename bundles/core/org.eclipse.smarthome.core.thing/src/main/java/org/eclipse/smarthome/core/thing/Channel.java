@@ -24,6 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
@@ -61,6 +62,8 @@ public class Channel {
 
     private Set<String> defaultTags = new LinkedHashSet<>();
 
+    private final AutoUpdatePolicy autoUpdatePolicy;
+
     /**
      * Package protected default constructor to allow reflective instantiation.
      */
@@ -68,6 +71,7 @@ public class Channel {
         this.kind = ChannelKind.STATE;
         this.configuration = new Configuration();
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
+        this.autoUpdatePolicy = AutoUpdatePolicy.DEFAULT;
     }
 
     /**
@@ -80,6 +84,7 @@ public class Channel {
         this.kind = ChannelKind.STATE;
         this.configuration = new Configuration();
         this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
+        this.autoUpdatePolicy = AutoUpdatePolicy.DEFAULT;
     }
 
     /**
@@ -87,7 +92,8 @@ public class Channel {
      */
     @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
-        this(uid, null, acceptedItemType, ChannelKind.STATE, configuration, new HashSet<String>(0), null, null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, configuration, new HashSet<String>(0), null, null, null,
+                AutoUpdatePolicy.DEFAULT);
     }
 
     /**
@@ -95,7 +101,8 @@ public class Channel {
      */
     @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
-        this(uid, null, acceptedItemType, ChannelKind.STATE, null, defaultTags, null, null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, null, defaultTags, null, null, null,
+                AutoUpdatePolicy.DEFAULT);
     }
 
     /**
@@ -104,7 +111,8 @@ public class Channel {
     @Deprecated
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
             Map<String, String> properties) {
-        this(uid, null, acceptedItemType, ChannelKind.STATE, null, defaultTags, properties, null, null);
+        this(uid, null, acceptedItemType, ChannelKind.STATE, null, defaultTags, properties, null, null,
+                AutoUpdatePolicy.DEFAULT);
     }
 
     /**
@@ -113,13 +121,15 @@ public class Channel {
     @Deprecated
     public Channel(ChannelUID uid, @Nullable ChannelTypeUID channelTypeUID, @Nullable String acceptedItemType,
             ChannelKind kind, @Nullable Configuration configuration, Set<String> defaultTags,
-            @Nullable Map<String, String> properties, @Nullable String label, @Nullable String description) {
+            @Nullable Map<String, String> properties, @Nullable String label, @Nullable String description,
+            AutoUpdatePolicy autoUpdatePolicy) {
         this.uid = uid;
         this.channelTypeUID = channelTypeUID;
         this.acceptedItemType = acceptedItemType;
         this.kind = kind;
         this.label = label;
         this.description = description;
+        this.autoUpdatePolicy = autoUpdatePolicy;
         this.defaultTags = Collections.<String> unmodifiableSet(new HashSet<String>(defaultTags));
         if (configuration == null) {
             this.configuration = new Configuration();
@@ -217,6 +227,10 @@ public class Channel {
      */
     public Set<String> getDefaultTags() {
         return defaultTags;
+    }
+
+    public AutoUpdatePolicy getAutoUpdatePolicy() {
+        return autoUpdatePolicy;
     }
 
 }

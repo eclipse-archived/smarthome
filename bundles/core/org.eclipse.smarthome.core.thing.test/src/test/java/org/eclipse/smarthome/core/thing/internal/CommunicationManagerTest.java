@@ -26,7 +26,9 @@ import javax.measure.quantity.Temperature;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.items.NumberItem;
@@ -131,6 +133,9 @@ public class CommunicationManagerTest extends JavaOSGiTest {
     @Mock
     private ThingHandler mockHandler;
 
+    @Mock
+    private AutoUpdateManager mockAutoUpdateManager;
+
     private SafeCaller safeCaller;
 
     @Before
@@ -189,8 +194,8 @@ public class CommunicationManagerTest extends JavaOSGiTest {
 
         when(thingRegistry.get(eq(THING_UID))).thenReturn(THING);
         manager.setThingRegistry(thingRegistry);
-
         manager.addItemFactory(new CoreItemFactory());
+        manager.setAutoUpdateManager(mockAutoUpdateManager);
 
         UnitProvider unitProvider = mock(UnitProvider.class);
         when(unitProvider.getUnit(Temperature.class)).thenReturn(SIUnits.CELSIUS);
@@ -245,6 +250,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         });
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
+        verify(mockAutoUpdateManager).receiveCommand(isA(ItemCommandEvent.class), isA(Item.class));
     }
 
     @Test
@@ -284,6 +290,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         });
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
+        verify(mockAutoUpdateManager).receiveCommand(isA(ItemCommandEvent.class), isA(Item.class));
     }
 
     @Test
@@ -295,6 +302,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         });
         verifyNoMoreInteractions(stateProfile);
         verifyNoMoreInteractions(triggerProfile);
+        verify(mockAutoUpdateManager).receiveCommand(isA(ItemCommandEvent.class), isA(Item.class));
     }
 
     @Test

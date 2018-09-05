@@ -33,6 +33,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -568,7 +569,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             try {
                 Item item = getItem(itemName);
-                return convertState(w, item);
+                return convertState(w, item, item.getState());
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
                         new Object[] { itemName, w.eClass().getInstanceTypeName() });
@@ -582,9 +583,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      *
      * @param w Widget in sitemap that shows the state
      * @param i item
+     * @param state
      * @return the converted state or the original if conversion was not possible
      */
-    private State convertState(Widget w, Item i) {
+    @Override
+    public State convertState(Widget w, Item i, State state) {
         State returnState = null;
 
         State itemState = i.getState();
@@ -1290,7 +1293,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public String getUnitForWidget(Widget w) {
+    public @Nullable String getUnitForWidget(Widget w) {
         try {
             Item item = getItem(w.getItem());
 
@@ -1311,7 +1314,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public State convertStateToLabelUnit(QuantityType<?> state, String label) {
+    public @Nullable State convertStateToLabelUnit(QuantityType<?> state, String label) {
         String labelUnit = label.lastIndexOf(" ") > 0 ? label.substring(label.lastIndexOf(" ")) : null;
         if (labelUnit != null && !state.getUnit().toString().equals(labelUnit)) {
             return state.toUnit(labelUnit);

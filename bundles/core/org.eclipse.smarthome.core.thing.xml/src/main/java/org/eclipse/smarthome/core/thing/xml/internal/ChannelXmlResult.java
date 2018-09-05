@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
@@ -30,11 +31,12 @@ import com.thoughtworks.xstream.converters.ConversionException;
  */
 public class ChannelXmlResult {
 
-    private String id;
-    private String typeId;
+    private final String id;
+    private final String typeId;
     String label;
     String description;
     List<NodeValue> properties;
+    private final AutoUpdatePolicy autoUpdatePolicy;
 
     /**
      * Constructs a new {@link ChannelXmlResult}
@@ -45,12 +47,14 @@ public class ChannelXmlResult {
      * @param description the channel description
      * @param properties a {@link List} of channel properties
      */
-    public ChannelXmlResult(String id, String typeId, String label, String description, List<NodeValue> properties) {
+    public ChannelXmlResult(String id, String typeId, String label, String description, List<NodeValue> properties,
+            AutoUpdatePolicy autoUpdatePolicy) {
         this.id = id;
         this.typeId = typeId;
         this.label = label;
         this.description = description;
         this.properties = properties;
+        this.autoUpdatePolicy = autoUpdatePolicy;
     }
 
     /**
@@ -101,6 +105,15 @@ public class ChannelXmlResult {
         return description;
     }
 
+    /**
+     * Get the auto update policy for this channel.
+     *
+     * @return the auto update policy
+     */
+    public AutoUpdatePolicy getAutoUpdatePolicy() {
+        return autoUpdatePolicy;
+    }
+
     @Override
     public String toString() {
         return "ChannelTypeXmlResult [id=" + id + ", typeId=" + typeId + ", properties=" + properties + "]";
@@ -119,7 +132,7 @@ public class ChannelXmlResult {
         }
 
         ChannelDefinition channelDefinition = new ChannelDefinition(id, new ChannelTypeUID(typeUID), propertiesMap,
-                getLabel(), getDescription());
+                getLabel(), getDescription(), getAutoUpdatePolicy());
 
         return channelDefinition;
     }
