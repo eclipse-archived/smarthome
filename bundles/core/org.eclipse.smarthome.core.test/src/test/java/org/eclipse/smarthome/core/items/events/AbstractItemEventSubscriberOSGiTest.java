@@ -24,6 +24,9 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.ItemProvider;
+import org.eclipse.smarthome.core.items.Metadata;
+import org.eclipse.smarthome.core.items.MetadataKey;
+import org.eclipse.smarthome.core.items.MetadataProvider;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -44,6 +47,7 @@ public class AbstractItemEventSubscriberOSGiTest extends JavaOSGiTest {
     private @Mock ItemProvider itemProvider;
     private ItemCommandEvent commandEvent;
     private ItemStateEvent updateEvent;
+    private @Mock MetadataProvider mockMetadataProvider;
 
     @Before
     public void setup() {
@@ -68,7 +72,9 @@ public class AbstractItemEventSubscriberOSGiTest extends JavaOSGiTest {
         };
         registerService(itemEventSubscriber, EventSubscriber.class.getName());
 
-        disableItemAutoUpdate();
+        when(mockMetadataProvider.getAll()).thenReturn(Collections
+                .singletonList(new Metadata(new MetadataKey("autoupdate", ITEM_NAME), Boolean.toString(false), null)));
+        registerService(mockMetadataProvider);
     }
 
     @Test

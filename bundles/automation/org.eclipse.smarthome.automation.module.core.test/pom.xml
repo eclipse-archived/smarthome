@@ -64,11 +64,6 @@
               <artifactId>org.eclipse.osgi</artifactId>
               <version>0.0.0</version>
             </dependency>
-            <dependency>
-              <type>eclipse-plugin</type>
-              <artifactId>org.eclipse.smarthome.core.autoupdate</artifactId>
-              <version>0.0.0</version>
-            </dependency>
             <!-- LOGGING -->
             <dependency>
               <type>eclipse-plugin</type>
@@ -145,11 +140,6 @@
             <bundle>
               <id>org.eclipse.equinox.event</id>
               <level>4</level>
-              <autoStart>true</autoStart>
-            </bundle>
-            <bundle>
-              <id>org.eclipse.smarthome.core.autoupdate</id>
-              <level>2</level>
               <autoStart>true</autoStart>
             </bundle>
           </bundleStartLevel>

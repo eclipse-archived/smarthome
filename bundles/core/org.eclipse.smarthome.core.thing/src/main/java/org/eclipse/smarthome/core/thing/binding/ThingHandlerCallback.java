@@ -134,4 +134,5 @@ public interface ThingHandlerCallback {
      * @return true if at least one item is linked, false otherwise
      */
     boolean isChannelLinked(ChannelUID channelUID);
+
 }

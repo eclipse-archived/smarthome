@@ -13,16 +13,25 @@
 package org.eclipse.smarthome.io.rest.sitemap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
+import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.events.ItemStatePredictedEvent;
 import org.eclipse.smarthome.io.rest.sitemap.internal.PageChangeListener;
 import org.eclipse.smarthome.io.rest.sitemap.internal.SitemapEvent;
 import org.eclipse.smarthome.model.core.EventType;
@@ -52,8 +61,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-@Component(service = SitemapSubscriptionService.class, configurationPid = "org.eclipse.smarthome.sitemapsubscription")
-public class SitemapSubscriptionService implements ModelRepositoryChangeListener {
+@Component(service = { SitemapSubscriptionService.class,
+        EventSubscriber.class }, configurationPid = "org.eclipse.smarthome.sitemapsubscription")
+public class SitemapSubscriptionService implements ModelRepositoryChangeListener, EventSubscriber {
 
     private static final String SITEMAP_PAGE_SEPARATOR = "#";
     private static final String SITEMAP_SUFFIX = ".sitemap";
@@ -337,6 +347,36 @@ public class SitemapSubscriptionService implements ModelRepositoryChangeListener
         // Send an ALIVE event to all subscribers to trigger an exception for dead subscribers
         for (Entry<String, PageChangeListener> listenerEntry : pageChangeListeners.entrySet()) {
             listenerEntry.getValue().sendAliveEvent();
+        }
+    }
+
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return Collections.singleton(ItemStatePredictedEvent.TYPE);
+    }
+
+    @Override
+    public @Nullable EventFilter getEventFilter() {
+        return null;
+    }
+
+    @Override
+    public void receive(Event event) {
+        if (event instanceof ItemStatePredictedEvent) {
+            ItemStatePredictedEvent prediction = (ItemStatePredictedEvent) event;
+            Item item = itemUIRegistry.get(prediction.getItemName());
+            if (item instanceof GroupItem) {
+                // don't send out auto-update events for group items as those will calculate their state based on their
+                // members and predictions aren't really possible in that case (or at least would be highly complex).
+                return;
+            }
+            for (PageChangeListener pageChangeListener : pageChangeListeners.values()) {
+                if (prediction.isConfirmation()) {
+                    pageChangeListener.keepCurrentState(item);
+                } else {
+                    pageChangeListener.changeStateTo(item, prediction.getPredictedState());
+                }
+            }
         }
     }
 }

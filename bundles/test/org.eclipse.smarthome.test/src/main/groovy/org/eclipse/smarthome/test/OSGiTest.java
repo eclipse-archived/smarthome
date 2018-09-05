@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.test.internal.java.MissingServiceAnalyzer;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
@@ -308,19 +307,6 @@ public abstract class OSGiTest {
     public void unregisterMocks() {
         registeredServices.forEach((interfaceName, services) -> services.forEach(service -> service.unregister()));
         registeredServices.clear();
-    }
-
-    /**
-     * Inject a service to disable the auto-update feature.
-     */
-    protected void disableItemAutoUpdate() {
-        registerService(new AutoUpdateBindingConfigProvider() {
-
-            @Override
-            public Boolean autoUpdate(String itemName) {
-                return false;
-            }
-        });
     }
 
     /**

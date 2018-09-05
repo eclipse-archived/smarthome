@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.items.events.ItemAddedEvent;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
+import org.eclipse.smarthome.core.items.events.ItemStatePredictedEvent;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -49,11 +50,13 @@ public class ItemEventFactoryTest {
 
     private static final String ITEM_COMMAND_EVENT_TYPE = ItemCommandEvent.TYPE;
     private static final String ITEM_STATE_EVENT_TYPE = ItemStateEvent.TYPE;
+    private static final String ITEM_STATE_PREDICTED_EVENT_TYPE = ItemStatePredictedEvent.TYPE;
     private static final String ITEM_ADDED_EVENT_TYPE = ItemAddedEvent.TYPE;
     private static final String GROUPITEM_CHANGED_EVENT_TYPE = GroupItemStateChangedEvent.TYPE;
 
     private static final String ITEM_COMMAND_EVENT_TOPIC = "smarthome/items/" + ITEM_NAME + "/command";
     private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/" + ITEM_NAME + "/state";
+    private static final String ITEM_STATE_PREDICTED_EVENT_TOPIC = "smarthome/items/" + ITEM_NAME + "/statepredicted";
     private static final String ITEM_ADDED_EVENT_TOPIC = "smarthome/items/" + ITEM_NAME + "/added";
     private static final String GROUPITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/" + GROUP_NAME + "/" + ITEM_NAME
             + "/statechanged";
@@ -65,6 +68,7 @@ public class ItemEventFactoryTest {
     private static final State ITEM_STATE = OnOffType.OFF;
     private static final State NEW_ITEM_STATE = OnOffType.ON;
     private static final String ITEM_STATE_EVENT_PAYLOAD = "{\"type\":\"OnOff\",\"value\":\"OFF\"}";
+    private static final String ITEM_STATE_PREDICTED_EVENT_PAYLOAD = "{\"predictedType\":\"OnOff\",\"predictedValue\":\"OFF\",\"isConfirmation\":\"false\"}";
     private static final String ITEM_ADDED_EVENT_PAYLOAD = new Gson().toJson(ItemDTOMapper.map(ITEM));
     private static final String ITEM_STATE_CHANGED_EVENT_PAYLOAD = "{\"type\":\"OnOff\", \"value\": \"ON\", \"oldType\":\"OnOff\", \"oldValue\": \"OFF\"}";
 
@@ -164,6 +168,21 @@ public class ItemEventFactoryTest {
         assertEquals(SOURCE, itemStateEvent.getSource());
         assertEquals(OnOffType.class, itemStateEvent.getItemState().getClass());
         assertEquals(ITEM_STATE, itemStateEvent.getItemState());
+    }
+
+    @Test
+    public void testCreateEvent_ItemStatePredictedEvent_OnOffType() throws Exception {
+        Event event = factory.createEvent(ITEM_STATE_PREDICTED_EVENT_TYPE, ITEM_STATE_PREDICTED_EVENT_TOPIC,
+                ITEM_STATE_PREDICTED_EVENT_PAYLOAD, SOURCE);
+
+        assertEquals(ItemStatePredictedEvent.class, event.getClass());
+        ItemStatePredictedEvent itemStatePredictedEvent = (ItemStatePredictedEvent) event;
+        assertEquals(ITEM_STATE_PREDICTED_EVENT_TYPE, itemStatePredictedEvent.getType());
+        assertEquals(ITEM_STATE_PREDICTED_EVENT_TOPIC, itemStatePredictedEvent.getTopic());
+        assertEquals(ITEM_STATE_PREDICTED_EVENT_PAYLOAD, itemStatePredictedEvent.getPayload());
+        assertEquals(ITEM_NAME, itemStatePredictedEvent.getItemName());
+        assertEquals(OnOffType.class, itemStatePredictedEvent.getPredictedState().getClass());
+        assertEquals(ITEM_STATE, itemStatePredictedEvent.getPredictedState());
     }
 
     @Test

@@ -299,6 +299,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         public boolean isChannelLinked(ChannelUID channelUID) {
             return !itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
         }
+
     };
 
     private ThingRegistryImpl thingRegistry;
