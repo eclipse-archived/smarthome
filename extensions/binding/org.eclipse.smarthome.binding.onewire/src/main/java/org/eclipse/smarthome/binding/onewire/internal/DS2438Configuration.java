@@ -119,7 +119,7 @@ public class DS2438Configuration {
     /**
      * get hardware revision (available on some multisensors)
      *
-     * @return
+     * @return hardware revision
      */
     public String getHardwareRevision() {
         return hwRevision;
@@ -128,7 +128,7 @@ public class DS2438Configuration {
     /**
      * get production date (available on some multisensors)
      *
-     * @return
+     * @return production date in ww/yy
      */
     public String getProductionDate() {
         return prodDate;
@@ -136,8 +136,8 @@ public class DS2438Configuration {
 
     /**
      * get sensor type (without associated sensors)
-     * 
-     * @return
+     *
+     * @return basic sensor type
      */
     public OwSensorType getSensorSubType() {
         return sensorSubType;
@@ -146,7 +146,7 @@ public class DS2438Configuration {
     /**
      * get vendor name (if available)
      *
-     * @return
+     * @return the vendor name
      */
     public String getVendor() {
         return vendor;
@@ -192,5 +192,4 @@ public class DS2438Configuration {
 
         return multisensorType;
     }
-
 }
