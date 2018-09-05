@@ -335,7 +335,6 @@ public class ThingManagerImpl
         public boolean isChannelLinked(ChannelUID channelUID) {
             return !itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
         }
-
     };
 
     private ThingRegistryImpl thingRegistry;
@@ -462,7 +461,7 @@ public class ThingManagerImpl
             logger.debug("Handler of tracked thing '{}' already registered.", thing.getUID());
         }
     }
-  
+
     @Override
     public void thingRemoving(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         setThingStatus(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
@@ -672,10 +671,9 @@ public class ThingManagerImpl
                 setThingStatus(thing, buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE));
                 doInitializeHandler(thing.getHandler());
             } else {
-                logger.debug("Thing '{}' not initializable, check required configuration parameters.",
-                        thing.getUID());
-                setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED,
-                        ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
+                logger.debug("Thing '{}' not initializable, check required configuration parameters.", thing.getUID());
+                setThingStatus(thing, 
+                        buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
             }
         } finally {
             lock.unlock();
@@ -1210,7 +1208,6 @@ public class ThingManagerImpl
             }
 
             if (thing.getStatus().equals(ThingStatus.ONLINE)) {
-                
                 logger.debug("Thing {} is already in the required state.", thingUID);
                 return;
             }
@@ -1218,11 +1215,9 @@ public class ThingManagerImpl
             logger.debug("Thing {} will be enabled.", thingUID);
 
             if (isHandlerRegistered(thing)) {
-                
                 // A handler is already registered for that thing. Try to initialize it.
                 initializeHandler(thing);
             } else {
-                
                 // No handler registered. Try to register handler and initialize the thing.
                 registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
             }
@@ -1233,7 +1228,6 @@ public class ThingManagerImpl
             }
 
             if (!thing.isEnabled()) {
-                
                 logger.debug("Thing {} is already in the required state.", thingUID);
                 return;
             }
@@ -1241,12 +1235,10 @@ public class ThingManagerImpl
             logger.debug("Thing {} will be disabled.", thingUID);
 
             if (isHandlerRegistered(thing)) {
-                
                 // Dispose handler if registered.
                 ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing.getThingTypeUID());
                 unregisterAndDisposeHandler(thingHandlerFactory, thing, thing.getHandler());
             } else {
-                
                 // Only set the correct status to the thing. There is no handler to be disposed
                 setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED));
             }

@@ -480,7 +480,6 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}/enable")
     @ApiOperation(value = "Sets the thing enabled status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
-            @ApiResponse(code = 400, message = "Thing could not be disabled as it does not have a handler."),
             @ApiResponse(code = 404, message = "Thing not found.") })
     public Response setEnabled(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
