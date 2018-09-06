@@ -19,8 +19,8 @@
  */
 package ${package};
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
+import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,7 +43,7 @@ import org.mockito.Mock;
  *
  * @author ${author} - Initial contribution
  */
-public class ${bindingIdCamelCase}HandlerTest {
+public class ${bindingIdCamelCase}HandlerTest extends JavaTest {
 
     private ThingHandler handler;
 
@@ -73,11 +74,17 @@ public class ${bindingIdCamelCase}HandlerTest {
         ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
 
         // verify the interaction with the callback and capture the ThingStatusInfo argument:
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
+        waitForAssert(() -> {
+            verify(callback, times(2)).statusUpdated(eq(thing), statusInfoCaptor.capture());
+        });
         
-        // assert that the ThingStatusInfo given to the callback was build with the (temporary) UNKNOWN status:
-        ThingStatusInfo thingStatusInfo = statusInfoCaptor.getValue();
-        assertThat(thingStatusInfo.getStatus(), is(equalTo(ThingStatus.UNKNOWN)));
+        // assert that the (temporary) UNKNOWN status was given first:
+        assertThat(statusInfoCaptor.getAllValues().get(0).getStatus(), is(ThingStatus.UNKNOWN));
+        
+        
+        // assert that ONLINE status was given later:
+        assertThat(statusInfoCaptor.getAllValues().get(1).getStatus(), is(ThingStatus.ONLINE));
+
         
         // See the documentation at 
         // https://www.eclipse.org/smarthome/documentation/development/testing.html#assertions 
