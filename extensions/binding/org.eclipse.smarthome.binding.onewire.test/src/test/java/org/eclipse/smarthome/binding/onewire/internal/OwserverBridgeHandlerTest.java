@@ -13,9 +13,11 @@
 package org.eclipse.smarthome.binding.onewire.internal;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.timeout;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,15 +29,16 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Tests cases for {@link OwserverBridgeHandler}.
@@ -63,12 +66,12 @@ public class OwserverBridgeHandlerTest extends JavaTest {
         bridgeProperties.put(CONFIG_ADDRESS, TEST_HOST);
         bridgeProperties.put(CONFIG_PORT, TEST_PORT);
 
-        MockitoAnnotations.initMocks(this);
+        initMocks(this);
 
         bridge = BridgeBuilder.create(THING_TYPE_OWSERVER, "owserver").withLabel("owserver")
                 .withConfiguration(new Configuration(bridgeProperties)).build();
 
-        Mockito.doAnswer(answer -> {
+        doAnswer(answer -> {
             ((Thing) answer.getArgument(0)).setStatusInfo(answer.getArgument(1));
             return null;
         }).when(thingHandlerCallback).statusUpdated(any(), any());
@@ -102,8 +105,14 @@ public class OwserverBridgeHandlerTest extends JavaTest {
 
         bridgeHandler.initialize();
 
+        ArgumentCaptor<ThingStatusInfo> statusCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
+        waitForAssert(() -> {
+            verify(thingHandlerCallback, times(2)).statusUpdated(eq(bridge), statusCaptor.capture());
+        });
+        assertThat(statusCaptor.getAllValues().get(0).getStatus(), is(ThingStatus.UNKNOWN));
+        assertThat(statusCaptor.getAllValues().get(1).getStatus(), is(ThingStatus.ONLINE));
+
         waitForAssert(() -> assertTrue(bridgeHandler.isRefreshable()));
-        waitForAssert(() -> assertEquals(ThingStatus.ONLINE, bridge.getStatusInfo().getStatus()));
     }
 
     @Test
@@ -115,8 +124,14 @@ public class OwserverBridgeHandlerTest extends JavaTest {
 
         bridgeHandler.initialize();
 
+        ArgumentCaptor<ThingStatusInfo> statusCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
+        waitForAssert(() -> {
+            verify(thingHandlerCallback, times(2)).statusUpdated(eq(bridge), statusCaptor.capture());
+        });
+        assertThat(statusCaptor.getAllValues().get(0).getStatus(), is(ThingStatus.UNKNOWN));
+        assertThat(statusCaptor.getAllValues().get(1).getStatus(), is(ThingStatus.OFFLINE));
+
         waitForAssert(() -> assertFalse(bridgeHandler.isRefreshable()));
-        waitForAssert(() -> assertEquals(ThingStatus.OFFLINE, bridge.getStatusInfo().getStatus()));
     }
 
 }
