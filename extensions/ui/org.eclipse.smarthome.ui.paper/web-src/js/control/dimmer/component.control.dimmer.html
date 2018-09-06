@@ -1,9 +1,8 @@
 <div layout="row" layout-align="start center" class="dimmer-widget">
-	<div flex="40">
-		<p>
-			<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'brightness_medium')}}</i>{{::$ctrl.getLabel($ctrl.item, 'Dimmer')}}
-		</p>
-	</div>
+	<div class="item-label-container" flex="40">
+        <i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'brightness_medium')}}</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Dimmer')}}</div>
+    </div>
 	<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
 		<span class="state">{{$ctrl.item.stateText}}</span>
 	</div>

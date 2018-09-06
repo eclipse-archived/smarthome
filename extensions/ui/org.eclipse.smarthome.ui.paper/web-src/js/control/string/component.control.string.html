@@ -1,7 +1,8 @@
 <div layout="row" layout-align="start center" style="height: 100%">
-	<p flex="40">
-		<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category)}}</i>{{::getLabel($ctrl.item, 'Value')}}
-	</p>
+	<div class="item-label-container" flex="40">
+		<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category)}}</i>
+		<div>{{::$ctrl.getLabel($ctrl.item, 'Value')}}</div>
+	</div>
 	<div ng-if="!$ctrl.longEditMode" flex="60" layout="row" layout-align="end center" ng-show="::($ctrl.item.readOnly || (!$ctrl.item.readOnly && !$ctrl.isOptionList($ctrl.item)))">
 		<div ng-if="::$ctrl.item.readOnly">
 			<span class="state">{{$ctrl.item.stateText}}</span>

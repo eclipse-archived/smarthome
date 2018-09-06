@@ -1,9 +1,8 @@
 <div layout="row" layout-align="start center" flex="100">
-	<div flex="40" layout="row" layout-align="start center">
-		<p>
-			<i class="material-icons">{{::$ctrl.getIcon(item.category, 'format_align_justify')}}</i>{{::$ctrl.getLabel($ctrl.item, 'Position')}}
-		</p>
-	</div>
+	<div class="item-label-container" flex="40">
+        <i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'format_align_justify')}}</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Position')}}</div>
+    </div>
 	<div flex="60" layout="row" layout-align="end center">
 		<div ng-if="::$ctrl.item.readOnly">
 			<span class="state">{{::$ctrl.item.stateText}}</span>

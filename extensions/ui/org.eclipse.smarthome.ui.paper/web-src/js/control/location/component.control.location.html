@@ -1,7 +1,6 @@
-<div layout="row" layout-align="start center">
-	<p>
-		<i class="material-icons">place</i>{{$ctrl.getLabel($ctrl.item, 'Location')}}
-	</p>
+<div class="item-label-container" flex="60">
+        <i class="material-icons">place</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Location')}}</div>
 </div>
 <div layout="row" layout-align="start center" class="map-container">
 	<div layout="row" layout-align="start center" flex>

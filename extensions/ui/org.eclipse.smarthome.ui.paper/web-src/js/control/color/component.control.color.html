@@ -1,9 +1,8 @@
 <div layout="row" layout-align="start center" class="dimmer-widget">
-	<div flex="45">
-		<p>
-			<i class="material-icons">wb_incandescent</i>{{::$ctrl.getLabel($ctrl.item, 'Color')}}
-		</p>
-	</div>
+	<div class="item-label-container" flex="45">
+        <i class="material-icons">wb_incandescent</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Color')}}</div>
+    </div>
 	<div ng-if="::(!$ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)" flex="55" layout="row" layout-align="end center" class="dimmer-widget">
 
 		<md-slider class="hue md-default-theme"
