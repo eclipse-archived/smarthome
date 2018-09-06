@@ -37,23 +37,13 @@ public class ChannelGroupUIDTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNotEnoughNumberOfSegments() {
-        new ChannelUID("binding:thing-type:group#");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMissingChannelGroupSeparator() {
-        new ChannelGroupUID("binding:thing-type:thing:group");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMultipleChannelGroupSeparators() {
-        new ChannelGroupUID("binding:thing-type:thing:group#id#what_ever");
+        new ChannelUID("binding:thing-type:group");
     }
 
     @Test
     public void testChannelGroupUID() {
         ChannelGroupUID channelGroupUID = new ChannelGroupUID(THING_UID, GROUP_ID);
-        assertEquals("binding:thing-type:thing:group#", channelGroupUID.toString());
+        assertEquals("binding:thing-type:thing:group", channelGroupUID.toString());
         assertEquals(GROUP_ID, channelGroupUID.getId());
         assertEquals(THING_UID, channelGroupUID.getThingUID());
     }

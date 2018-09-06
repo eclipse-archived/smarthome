@@ -31,7 +31,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ChannelUID extends UID {
 
     private static final String CHANNEL_SEGMENT_PATTERN = "[\\w-]*|[\\w-]*#[\\w-]*";
-    private static final String CHANNEL_GROUP_SEPERATOR = "#";
+    private static final String CHANNEL_GROUP_SEPARATOR = "#";
 
     /**
      * Default constructor in package scope only. Will allow to instantiate this
@@ -120,7 +120,7 @@ public class ChannelUID extends UID {
     }
 
     private static String getChannelId(@Nullable String groupId, String id) {
-        return groupId != null ? groupId + CHANNEL_GROUP_SEPERATOR + id : id;
+        return groupId != null ? groupId + CHANNEL_GROUP_SEPARATOR + id : id;
     }
 
     /**
@@ -142,12 +142,12 @@ public class ChannelUID extends UID {
         if (!isInGroup()) {
             return getId();
         } else {
-            return getId().split(CHANNEL_GROUP_SEPERATOR)[1];
+            return getId().split(CHANNEL_GROUP_SEPARATOR)[1];
         }
     }
 
     public boolean isInGroup() {
-        return getId().contains(CHANNEL_GROUP_SEPERATOR);
+        return getId().contains(CHANNEL_GROUP_SEPARATOR);
     }
 
     /**
@@ -156,7 +156,7 @@ public class ChannelUID extends UID {
      * @return group id or null if channel is not in a group
      */
     public @Nullable String getGroupId() {
-        return isInGroup() ? getId().split(CHANNEL_GROUP_SEPERATOR)[0] : null;
+        return isInGroup() ? getId().split(CHANNEL_GROUP_SEPARATOR)[0] : null;
     }
 
     @Override
