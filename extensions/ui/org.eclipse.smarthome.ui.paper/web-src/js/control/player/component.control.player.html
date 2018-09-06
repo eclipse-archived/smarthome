@@ -1,9 +1,8 @@
 <div layout="row" layout-align="end center">
-	<div flex="40" layout="row" layout-align="start center">
-		<p>
-			<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'play_arrow')}}</i>{{::$ctrl.getLabel($ctrl.item, 'Control')}}
-		</p>
-	</div>
+	<div class="item-label-container" flex="40">
+        <i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'play_arrow')}}</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Control')}}</div>
+    </div>
 	<div ng-if="::!item.readOnly" flex="60" layout="row" layout-align="end center">
 		<i class="md-button control-button material-icons" 
 		   ng-mousedown="$ctrl.onPrevDown()" 

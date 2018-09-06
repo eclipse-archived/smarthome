@@ -15,14 +15,13 @@
 						<span class="icon-x">
 					</div>
 					<div ng-repeat="group in ::thing.thingChannels track by $index">
-						<div ng-if="::(!angular.isUndefined(group.name) && group.name.length > 0 && group.channels.length>0)">
-							<h2>{{::group.name}}</h2>
+						<div  class="channel-group-name" ng-if="::(!angular.isUndefined(group.name) && group.name.length > 0 && group.channels.length>0)">
+							<span>{{::group.name}}</span>
 						</div>
 						<div ng-repeat="channel in ::group.channels track by channel.id">
 							<div ng-repeat="itemName in ::channel.linkedItems">
 								<item-control item-name="itemName"></item-control>
 							</div>
-							<hr ng-if="!$last" />
 						</div>
 					</div>
 				</div>
