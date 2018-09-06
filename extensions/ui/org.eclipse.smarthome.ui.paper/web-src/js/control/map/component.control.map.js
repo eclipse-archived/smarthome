@@ -181,6 +181,10 @@
             var latitude = location[0];
             var longitude = location[1];
 
+            if (isNaN(latitude) || isNaN(longitude)) {
+                return;
+            }
+
             var center = ol.proj.fromLonLat([ longitude, latitude ]);
             map.getView().setCenter(center);
             point.setCoordinates(center);

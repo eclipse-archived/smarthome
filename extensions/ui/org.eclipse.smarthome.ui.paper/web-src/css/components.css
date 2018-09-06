@@ -1505,6 +1505,14 @@ md-input-container .md-input.location-input {
 	float: none;
 }
 
+.items .item form[name=locationForm] md-input-container {
+    margin: -25px 0 0 0;
+}
+
+.location-edit {
+	margin-top: 10px;
+}
+
 .map-container {
 	margin-top: 10px;
 }
