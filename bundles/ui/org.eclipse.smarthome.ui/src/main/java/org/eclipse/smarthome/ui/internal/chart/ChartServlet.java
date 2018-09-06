@@ -220,7 +220,9 @@ public class ChartServlet extends HttpServlet {
         // To avoid ambiguity you are not allowed to specify period, begin and end time at the same time.
         if (req.getParameter("period") != null && req.getParameter("begin") != null
                 && req.getParameter("end") != null) {
-            throw new ServletException("Do not specify the three parameters period, begin and end at the same time.");
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "Do not specify the three parameters period, begin and end at the same time.");
+            return;
         }
 
         // Read out the parameter period, begin and end and save them.
@@ -237,7 +239,9 @@ public class ChartServlet extends HttpServlet {
             try {
                 timeBegin = new SimpleDateFormat(DATE_FORMAT).parse(req.getParameter("begin"));
             } catch (ParseException e) {
-                throw new ServletException("Begin and end must have this format: " + DATE_FORMAT + ".");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Begin and end must have this format: " + DATE_FORMAT + ".");
+                return;
             }
         }
 
@@ -245,7 +249,9 @@ public class ChartServlet extends HttpServlet {
             try {
                 timeEnd = new SimpleDateFormat(DATE_FORMAT).parse(req.getParameter("end"));
             } catch (ParseException e) {
-                throw new ServletException("Begin and end must have this format: " + DATE_FORMAT + ".");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Begin and end must have this format: " + DATE_FORMAT + ".");
+                return;
             }
         }
 
@@ -269,7 +275,8 @@ public class ChartServlet extends HttpServlet {
 
         ChartProvider provider = getChartProviders().get(providerName);
         if (provider == null) {
-            throw new ServletException("Could not get chart provider.");
+            res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not get chart provider.");
+            return;
         }
 
         // Read out the parameter 'dpi'
@@ -278,10 +285,12 @@ public class ChartServlet extends HttpServlet {
             try {
                 dpi = Integer.valueOf(req.getParameter("dpi"));
             } catch (NumberFormatException e) {
-                throw new ServletException("dpi parameter is invalid");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "dpi parameter is invalid");
+                return;
             }
             if (dpi <= 0) {
-                throw new ServletException("dpi parameter is <= 0");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "dpi parameter is <= 0");
+                return;
             }
         }
 
