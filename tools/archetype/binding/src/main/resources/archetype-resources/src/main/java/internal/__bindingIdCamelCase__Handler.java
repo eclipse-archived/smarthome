@@ -80,20 +80,22 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
         // access or similar) you should set status UNKNOWN here and then decide the real status asynchronously in the
         // background.
 
+        // set the thing status to UNKNOWN temporarily and let the background task decide for the real status.
+        // the framework is then able to reuse the resources from the thing handler initialization.
+        // we set this upfront to reliably check status updates in unit tests.
+        updateStatus(ThingStatus.UNKNOWN);
+        
         // Example for background initialization:
         scheduler.execute(() -> {
             boolean thingReachable = true; // <background task with long running initialization here>
             // when done do:
             if (thingReachable) {
-                // updateStatus(ThingStatus.ONLINE); // commented for stable test execution
+                updateStatus(ThingStatus.ONLINE);
             } else {
-                // updateStatus(ThingStatus.OFFLINE);
+                updateStatus(ThingStatus.OFFLINE);
             }
         });
 
-        // set the thing status to UNKNOWN temporarily and let the background task decide for the real status.
-        // the framework is then able to reuse the resources from the thing handler initialization.
-        updateStatus(ThingStatus.UNKNOWN);
         // logger.debug("Finished initializing!");
 
         // Note: When initialization can NOT be done set the status with more details for further

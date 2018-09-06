@@ -77,11 +77,13 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
             owserverConnection.setPort(((BigDecimal) configuration.get(CONFIG_PORT)).intValue());
         }
 
+        // makes it possible for unit tests to differentiate direct update and
+        // postponed update through the owserverConnection:
+        updateStatus(ThingStatus.UNKNOWN);
+
         scheduler.execute(() -> {
             owserverConnection.start();
         });
-
-        updateStatus(ThingStatus.UNKNOWN);
     }
 
     @Override
