@@ -115,9 +115,9 @@ import com.google.common.collect.SetMultimap;
 @Component(immediate = true, service = { ThingTypeMigrationService.class })
 public class ThingManager implements ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
 
-    private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
-    private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
-    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
+    static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
+    static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
+    static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
     private final Logger logger = LoggerFactory.getLogger(ThingManager.class);
 

@@ -215,7 +215,7 @@ final class ProgressCallbackImpl implements ProgressCallback {
         eventPublisher.post(event);
     }
 
-    private ProgressStep getCurrentStep() {
+    ProgressStep getCurrentStep() {
         if (current != null) {
             return current;
         }
