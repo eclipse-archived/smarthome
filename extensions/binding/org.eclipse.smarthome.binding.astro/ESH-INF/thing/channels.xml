@@ -91,7 +91,7 @@
 
 	<channel-type id="start">
 		<item-type>DateTime</item-type>
-		<label>Start time</label>
+		<label>Start Time</label>
 		<description>The start time of the event</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 		<config-description-ref uri="channel-type:astro:config" />
@@ -99,7 +99,7 @@
 
 	<channel-type id="end">
 		<item-type>DateTime</item-type>
-		<label>End time</label>
+		<label>End Time</label>
 		<description>The end time of the event</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 		<config-description-ref uri="channel-type:astro:config" />
@@ -114,7 +114,7 @@
 
 	<channel-type id="rangeEvent">
 		<kind>trigger</kind>
-		<label>Range event</label>
+		<label>Range Event</label>
 		<description>Range event</description>
 		<event>
 			<options>
@@ -173,7 +173,7 @@
 
 	<channel-type id="seasonName">
 		<item-type>String</item-type>
-		<label>Season name</label>
+		<label>Season Name</label>
 		<description>The name of the current season</description>
 		<state readOnly="true">
 			<options>
@@ -227,28 +227,28 @@
 
 	<channel-type id="total">
 		<item-type>DateTime</item-type>
-		<label>Total eclipse</label>
+		<label>Total Eclipse</label>
 		<description>The DateTime of the next total eclipse</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="partial">
 		<item-type>DateTime</item-type>
-		<label>Partial eclipse</label>
+		<label>Partial Eclipse</label>
 		<description>The DateTime of the next partial eclipse</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="ring">
 		<item-type>DateTime</item-type>
-		<label>Ring eclipse</label>
+		<label>Ring Eclipse</label>
 		<description>The DateTime of the next ring eclipse</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="sunEclipseEvent">
 		<kind>trigger</kind>
-		<label>Sun eclipse event</label>
+		<label>Sun Eclipse Event</label>
 		<description>Sun eclipse event</description>
 		<event>
 			<options>
@@ -262,7 +262,7 @@
 
 	<!-- sunphase -->
 	<channel-group-type id="sunPhase">
-		<label>Sun Phases</label>
+		<label>Sun Phase</label>
 		<description>The details of the current sun phase</description>
 		<channels>
 			<channel id="name" typeId="sunPhaseName" />
@@ -271,7 +271,7 @@
 
 	<channel-type id="sunPhaseName">
 		<item-type>String</item-type>
-		<label>The current sun phase</label>
+		<label>Sun Phase Name</label>
 		<description>The name of the current sun phase</description>
 		<state readOnly="true">
 			<options>
@@ -292,7 +292,7 @@
 
 	<!-- moonphase -->
 	<channel-group-type id="moonPhase">
-		<label>Moon Phases</label>
+		<label>Moon Phase</label>
 		<description>The details of the current and next moon phases</description>
 		<channels>
 			<channel id="firstQuarter" typeId="firstQuarter" />
@@ -310,63 +310,63 @@
 
 	<channel-type id="firstQuarter">
 		<item-type>DateTime</item-type>
-		<label>First quarter</label>
+		<label>First Quarter</label>
 		<description>The DateTime the moon is in the first quarter</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="thirdQuarter">
 		<item-type>DateTime</item-type>
-		<label>Third quarter</label>
+		<label>Third Quarter</label>
 		<description>The DateTime the moon is in the third quarter</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="fullMoon">
 		<item-type>DateTime</item-type>
-		<label>Full moon</label>
+		<label>Full Moon</label>
 		<description>The DateTime for full moon</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="newMoon">
 		<item-type>DateTime</item-type>
-		<label>New moon</label>
+		<label>New Moon</label>
 		<description>The DateTime for new moon</description>
 		<state readOnly="true" pattern="%1$tF %1$tR" />
 	</channel-type>
 
 	<channel-type id="age">
 		<item-type>Number:Time</item-type>
-		<label>Moon age</label>
+		<label>Moon Age</label>
 		<description>The age of the moon in days</description>
 		<state readOnly="true" pattern="%d %unit%" />
 	</channel-type>
 
 	<channel-type id="ageDegree">
 		<item-type>Number:Angle</item-type>
-		<label>Moon age</label>
+		<label>Moon Age</label>
 		<description>The age of the moon</description>
 		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="agePercent">
 		<item-type>Number:Dimensionless</item-type>
-		<label>Moon age</label>
+		<label>Moon Age</label>
 		<description>The age of the moon</description>
 		<state readOnly="true" pattern="%.2f %unit%" />
 	</channel-type>
 
 	<channel-type id="illumination">
 		<item-type>Number:Dimensionless</item-type>
-		<label>Moon illumination</label>
+		<label>Moon Illumination</label>
 		<description>The illumination of the moon</description>
 		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
 
 	<channel-type id="phaseName">
 		<item-type>String</item-type>
-		<label>Moonphase name</label>
+		<label>Moon Phase Name</label>
 		<description>The name of the current moon phase</description>
 		<state readOnly="true">
 			<options>
@@ -384,7 +384,7 @@
 
 	<channel-type id="phaseEvent">
 		<kind>trigger</kind>
-		<label>Moon phase event</label>
+		<label>Moon Phase Event</label>
 		<description>Moon phase event</description>
 		<event>
 			<options>
@@ -411,7 +411,7 @@
 
 	<channel-type id="moonEclipseEvent">
 		<kind>trigger</kind>
-		<label>Moon eclipse event</label>
+		<label>Moon Eclipse Event</label>
 		<description>Moon eclipse event</description>
 		<event>
 			<options>
@@ -443,13 +443,13 @@
 	<channel-type id="distance">
 		<item-type>Number:Length</item-type>
 		<label>Distance</label>
-		<description>The distance of the object.</description>
+		<description>The distance of the object</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="distanceEvent">
 		<kind>trigger</kind>
-		<label>Moon distance event</label>
+		<label>Moon Distance Event</label>
 		<description>Moon distance event</description>
 		<event>
 			<options>
