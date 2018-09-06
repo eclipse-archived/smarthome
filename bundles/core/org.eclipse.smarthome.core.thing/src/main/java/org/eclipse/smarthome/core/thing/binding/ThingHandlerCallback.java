@@ -139,7 +139,7 @@ public interface ThingHandlerCallback {
      * @return a list of preconfigured ChannelBuilders
      * @throw {@link IllegalArgumentException} if the referenced channel group type is not known
      */
-    List<ChannelBuilder> createChannelGroupBuilder(ChannelGroupUID channelGroupUID,
+    List<ChannelBuilder> createChannelBuilders(ChannelGroupUID channelGroupUID,
             ChannelGroupTypeUID channelGroupTypeUID);
 
     /**

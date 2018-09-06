@@ -303,7 +303,7 @@ public class ThingManager implements ThingTracker, ThingTypeMigrationService, Re
         }
 
         @Override
-        public List<ChannelBuilder> createChannelGroupBuilder(ChannelGroupUID channelGroupUID,
+        public List<ChannelBuilder> createChannelBuilders(ChannelGroupUID channelGroupUID,
                 ChannelGroupTypeUID channelGroupTypeUID) {
             ChannelGroupType channelGroupType = channelGroupTypeRegistry.getChannelGroupType(channelGroupTypeUID);
             if (channelGroupType == null) {

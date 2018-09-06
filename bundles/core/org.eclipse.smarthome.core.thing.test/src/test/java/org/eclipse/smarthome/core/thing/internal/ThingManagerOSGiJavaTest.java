@@ -269,7 +269,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     public void testCreateChannelGroupBuilderThrowsIllegalArgumentException() throws Exception {
         AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
 
-        thc.get().createChannelGroupBuilder(CHANNEL_GROUP_UID,
+        thc.get().createChannelBuilders(CHANNEL_GROUP_UID,
                 new ChannelGroupTypeUID(BINDING_ID, "invalid-channel-group"));
     }
 
@@ -277,7 +277,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     public void testCreateChannelGroupBuilder() throws Exception {
         AtomicReference<ThingHandlerCallback> thc = initializeThingHandlerCallback();
 
-        List<ChannelBuilder> channelBuilders = thc.get().createChannelGroupBuilder(CHANNEL_GROUP_UID,
+        List<ChannelBuilder> channelBuilders = thc.get().createChannelBuilders(CHANNEL_GROUP_UID,
                 CHANNEL_GROUP_TYPE_UID);
         assertNotNull(channelBuilders);
         assertEquals(1, channelBuilders.size());
