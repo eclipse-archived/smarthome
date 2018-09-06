@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
-import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.BooleanUtils;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
-import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -68,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-@Component(immediate = true, service = Servlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
+@Component(immediate = true, service = ChartServlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
         "service.pid=org.eclipse.smarthome.chart", "service.config.description.uri=system:chart",
         "service.config.label=Charts", "service.config.category=system" })
 public class ChartServlet extends HttpServlet {
@@ -108,25 +107,15 @@ public class ChartServlet extends HttpServlet {
     }
 
     protected HttpService httpService;
-    protected ItemUIRegistry itemUIRegistry;
-    protected static Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
+    protected static Map<String, ChartProvider> chartProviders = new ConcurrentHashMap<String, ChartProvider>();
 
-    @Reference(policy = ReferencePolicy.DYNAMIC)
+    @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
 
     public void unsetHttpService(HttpService httpService) {
         this.httpService = null;
-    }
-
-    @Reference(policy = ReferencePolicy.DYNAMIC)
-    public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-        this.itemUIRegistry = itemUIRegistry;
-    }
-
-    public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-        this.itemUIRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -208,6 +197,7 @@ public class ChartServlet extends HttpServlet {
         }
     }
 
+    @SuppressWarnings({ "null" })
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         logger.debug("Received incoming chart request: {}", req);
