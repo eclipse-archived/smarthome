@@ -12,16 +12,19 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
+import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -34,6 +37,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added new thing status info, added new configuration update info
  * @author Christoph Weitkamp - Moved OSGI ServiceTracker from BaseThingHandler to ThingHandlerCallback
+ * @author Christoph Weitkamp - Added preconfigured ChannelGroupBuilder
  */
 @NonNullByDefault
 public interface ThingHandlerCallback {
@@ -126,6 +130,17 @@ public interface ThingHandlerCallback {
      * @throw {@link IllegalArgumentException} if no channel with the given UID exists for the given thing
      */
     ChannelBuilder editChannel(Thing thing, ChannelUID channelUID);
+
+    /**
+     * Creates a list of {@link ChannelBuilder}s which are preconfigured with values from the given channel group type.
+     *
+     * @param channelGroupUID the UID of the channel group to be created
+     * @param channelGroupTypeUID the channel group type UID for which the channel should be created
+     * @return a list of preconfigured ChannelBuilders
+     * @throw {@link IllegalArgumentException} if the referenced channel group type is not known
+     */
+    List<ChannelBuilder> createChannelBuilders(ChannelGroupUID channelGroupUID,
+            ChannelGroupTypeUID channelGroupTypeUID);
 
     /**
      * Returns whether at least one item is linked for the given UID of the channel.
