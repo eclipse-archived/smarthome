@@ -52,7 +52,6 @@ import org.knowm.xchart.SeriesMarker;
 import org.knowm.xchart.StyleManager.LegendPosition;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,10 +117,6 @@ public class DefaultChartProvider implements ChartProvider {
                 .map(t -> t.getThemeName()) //
                 .collect(Collectors.joining(", "));
         logger.debug("Available themes for default chart provider: {}", themeNames);
-    }
-
-    @Deactivate
-    protected void deactivate() {
     }
 
     @Override
