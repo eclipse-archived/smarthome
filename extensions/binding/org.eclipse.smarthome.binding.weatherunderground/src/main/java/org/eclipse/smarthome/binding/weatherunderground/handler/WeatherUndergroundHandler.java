@@ -17,6 +17,7 @@ import static org.eclipse.smarthome.core.library.unit.MetricPrefix.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -96,7 +97,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         LANG_ISO_TO_WU_CODES.put("EU", "EU");
         LANG_ISO_TO_WU_CODES.put("BE", "BY");
         LANG_ISO_TO_WU_CODES.put("BG", "BU");
-        // British English => LI
         LANG_ISO_TO_WU_CODES.put("MY", "MY");
         LANG_ISO_TO_WU_CODES.put("CA", "CA");
         // Chinese - Simplified => CN
@@ -112,7 +112,6 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         LANG_ISO_TO_WU_CODES.put("FA", "FA");
         LANG_ISO_TO_WU_CODES.put("FI", "FI");
         LANG_ISO_TO_WU_CODES.put("FR", "FR");
-        // French Canadian => FC
         LANG_ISO_TO_WU_CODES.put("GL", "GZ");
         LANG_ISO_TO_WU_CODES.put("DE", "DL");
         LANG_ISO_TO_WU_CODES.put("KA", "KA");
@@ -170,6 +169,11 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
         LANG_ISO_TO_WU_CODES.put("WO", "SN");
         // Yiddish - transliterated => JI
         LANG_ISO_TO_WU_CODES.put("YI", "YI");
+    }
+    private static final Map<String, String> LANG_COUNTRY_TO_WU_CODES = new HashMap<String, String>();
+    static {
+        LANG_COUNTRY_TO_WU_CODES.put("en-GB", "LI"); // British English
+        LANG_COUNTRY_TO_WU_CODES.put("fr-CA", "FC"); // French Canadian
     }
 
     private final LocaleProvider localeProvider;
@@ -538,7 +542,7 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
             String lang = StringUtils.trimToEmpty(config.language);
             if (lang.isEmpty()) {
                 // If language is not set in the configuration, you try deducing it from the system language
-                lang = getCodeFromLanguage(localeProvider.getLocale().getLanguage());
+                lang = getCodeFromLanguage(localeProvider.getLocale());
                 logger.debug("Use language deduced from system locale {}: {}", localeProvider.getLocale().getLanguage(),
                         lang);
             }
@@ -619,11 +623,16 @@ public class WeatherUndergroundHandler extends BaseThingHandler {
     /**
      * Get the WU code associated to a language
      *
-     * @param language the language as an ISO code
+     * @param locale the locale settings with language and country
      * @return the associated WU code or an empty string if not found
      */
-    public static String getCodeFromLanguage(String language) {
-        return StringUtils.trimToEmpty(LANG_ISO_TO_WU_CODES.get(language.toUpperCase()));
+    public static String getCodeFromLanguage(Locale locale) {
+        String key = locale.getLanguage() + "-" + locale.getCountry();
+        String language = StringUtils.trimToEmpty(LANG_COUNTRY_TO_WU_CODES.get(key));
+        if (language.isEmpty()) {
+            language = StringUtils.trimToEmpty(LANG_ISO_TO_WU_CODES.get(locale.getLanguage().toUpperCase()));
+        }
+        return language;
     }
 
     private WUQuantity getTemperature(BigDecimal siValue, BigDecimal imperialValue) {
