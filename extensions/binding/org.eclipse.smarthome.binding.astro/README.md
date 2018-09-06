@@ -109,19 +109,20 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
 
 ### Channel config
 
-**Offsets:** For each event group you can optionally configure an `offset` in minutes. The `offset` must be configured in the channel properties for the corresponding thing.
+**Offsets:** For each event group you can optionally configure an `offset` in minutes.
+The `offset` must be configured in the channel properties for the corresponding thing.
 
 The minimum allowed offset is -1440 and the maximum allowed offset is 1440.
 
-**Earliest/Latest:** For each trigger channel and `start`, `end` datetime value, you can optionally configure the `earliest` and `latest` time of the day.  
+**Earliest/Latest:** For each trigger channel and `start`, `end` datetime value, you can optionally configure the `earliest` and `latest` time of the day.
 
-e.g `sun#rise earliest=18:00, latest=20:00`
+e.g `sun#set earliest=18:00, latest=20:00`
 
-sunrise is 17:40, but `earliest` is set to 18:00 so the event/datetime value is moved to 18:00.
+sunset is 17:40, but `earliest` is set to 18:00 so the event/datetime value is moved to 18:00.
 
 OR
 
-sunrise is 22:10 but `latest` is set to 20:00 so the event/datetime value is moved 20:00.
+sunset is 22:10 but `latest` is set to 20:00 so the event/datetime value is moved 20:00.
 
 ## Full Example
 
@@ -188,7 +189,7 @@ Events:
 ```
 rule "example trigger rule"
 when
-    Channel 'astro:sun:home:rise#event' triggered START 
+    Channel 'astro:sun:home:rise#event' triggered START
 then
     ...
 end
@@ -196,4 +197,7 @@ end
 
 ## Tips
 
-Do not worry if for example the "astro dawn" is undefined at your location. The reason might be that you live in a northern country and it is summer, such that the sun is not 18 degrees below the horizon in the morning. For details see [this Wikipedia article](https://en.wikipedia.org/wiki/Dawn). The "civil dawn" event might often be the better choice.
+Do not worry if for example the "astro dawn" is undefined at your location.
+The reason might be that you live in a northern country and it is summer, such that the sun is not 18 degrees below the horizon in the morning.
+For details see [this Wikipedia article](https://en.wikipedia.org/wiki/Dawn).
+The "civil dawn" event might often be the better choice.
