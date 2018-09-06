@@ -96,7 +96,7 @@
 								</div>
 							</div>
 							<div ng-switch-when="location" ng-if="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)" class="parameter col-xs-12">
-								<location-parameter form="form" model="$ctrl.configuration[parameter.name]" parameter="parameter" />
+								<location-parameter form="$ctrl.form.configForm" model="$ctrl.configuration[parameter.name]" parameter="parameter" />
 							</div>
 							<div class="parameter col-xs-12 scriptfield" ng-switch-when="textarea" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 								<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>

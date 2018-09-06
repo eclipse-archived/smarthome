@@ -13,7 +13,7 @@
 	           ng-blur="focus=false" 
 	           aria-label="$ctrl.parameter.label"
 	           location-validation>
-	<div ng-messages="$ctrl.form.configForm[$ctrl.parameter.name].$error" ng-show="focus">
+	<div ng-messages="$ctrl.form[$ctrl.parameter.name].$error" ng-show="focus">
 		<div ng-message="pattern">Input should satisfy expression {{$ctrl.parameter.pattern}}</div>
 		<div ng-message="required">Field is required</div>
 		<div ng-message="locationValidation">Valid latitude range is [-90,90], valid longitude range is [-180,180]</div>
