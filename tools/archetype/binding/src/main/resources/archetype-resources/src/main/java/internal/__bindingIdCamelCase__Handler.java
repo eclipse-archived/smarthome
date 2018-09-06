@@ -82,7 +82,7 @@ public class ${bindingIdCamelCase}Handler extends BaseThingHandler {
 
         // set the thing status to UNKNOWN temporarily and let the background task decide for the real status.
         // the framework is then able to reuse the resources from the thing handler initialization.
-        // we set this upfront to reliably check status updste sin unit tests.
+        // we set this upfront to reliably check status updates in unit tests.
         updateStatus(ThingStatus.UNKNOWN);
         
         // Example for background initialization:
