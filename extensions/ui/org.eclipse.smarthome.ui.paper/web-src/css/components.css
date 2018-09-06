@@ -337,6 +337,11 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	float: right;
 }
 
+.item-label-container {
+	display: flex;
+	align-items: center;
+}
+
 .extensions .card .item-content {
 	padding-top: 5px;
 }
@@ -676,6 +681,12 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .includeConfig .advButton {
     margin-left: 15px;
+}
+
+.channel-group-name {
+	margin-bottom: 5px;
+    margin-top: 10px;
+    font-weight: bolder;
 }
 
 .channels>div>div>.channel {
@@ -1104,6 +1115,10 @@ md-dialog-content .dayParameter {
 
 .includeConfig .parameter .hint h6 {
     font-size:10px;
+}
+
+.icontrol {
+	margin-bottom: 15px;
 }
 
 .icontrol .control-button {

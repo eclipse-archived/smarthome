@@ -1,9 +1,8 @@
 <div layout-align="start center" layout="row">
-	<div flex="60">
-		<p class="ng-binding">
-			<i class="material-icons">camera_alt</i>{{::$ctrl.getLabel($ctrl.item, 'Camera image')}}
-		</p>
-	</div>
+	<div class="item-label-container" flex="60">
+        <i class="material-icons">camera_alt</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Camera image')}}</div>
+    </div>
 	<div layout="row" layout-align="end center" flex="40">
 		<i class="md-button control-button material-icons" ng-click="$ctrl.refreshCameraImage()">autorenew</i>
 	</div>

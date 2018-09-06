@@ -1,10 +1,9 @@
 <div layout="row" layout-align="start center">
-	<div flex="40" layout="row" layout-align="start center">
-		<p>
-			<i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'trending_up')}}</i>{{::$ctrl.getLabel($ctrl.item, 'Value')}}
-		</p>
-	</div>
-	<div flex="60" layout="row" layout-align="end center">
+	<div class="item-label-container" flex="60">
+        <i class="material-icons">{{::$ctrl.getIcon($ctrl.item.category, 'trending_up')}}</i>
+        <div>{{::$ctrl.getLabel($ctrl.item, 'Value')}}</div>
+    </div>
+	<div flex="40" layout="row" layout-align="end center">
 		<div ng-if="::$ctrl.item.readOnly">
 			<span class="state">{{$ctrl.item.stateText}}</span>
 		</div>
