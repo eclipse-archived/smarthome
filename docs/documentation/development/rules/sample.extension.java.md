@@ -26,7 +26,7 @@ The Welcome Home Application illustrates how to create your own Module Types and
 #### Trigger Type
 
 Trigger Type gives a base for creation of Trigger objects. Welcome Home Application illustrates how to implement some specific Trigger Types and how to provide them to the Automation Engine. In this demo are exposed two Trigger Types:
- 
+
 	AirConditionerTriggerType
 	LightsTriggerType
 
@@ -78,7 +78,7 @@ The Welcome Home Application illustrates how to create your own Rule Templates a
 
 In this demo is exposed one rule template `AirConditionerRuleTemplate`.
 
-It is created using described above Module Types for creation of its Automation Modules and illustrates how to define its configuration and how to refer its configuration parameters into the configuration of the Automation Modules. 
+It is created using described above Module Types for creation of its Automation Modules and illustrates how to define its configuration and how to refer its configuration parameters into the configuration of the Automation Modules.
 
 The template configuration parameters are:
 
@@ -93,11 +93,11 @@ Also the template illustrates how to connect the outputs of the Trigger to the i
 The outputs of the Trigger are:
 
 	StateConditionType.INPUT_CURRENT_STATE = "currentState"
-	TemperatureConditionType.INPUT_CURRENT_TEMPERATURE = "currentTemperatute"
+	TemperatureConditionType.INPUT_CURRENT_TEMPERATURE = "currentTemperature"
 
-If the default configuration parameter values are set ("heating", 18) and "currentState" output is "off", "currentTemperatute" output is 12, the air conditioner will be switched on. If the "currentState" output is "on" or the "currentTemperatute" output is 20, then the rule will end before the action to be executed.
+If the default configuration parameter values are set ("heating", 18) and "currentState" output is "off", "currentTemperature" output is 12, the air conditioner will be switched on. If the "currentState" output is "on" or the "currentTemperature" output is 20, then the rule will end before the action to be executed.
 
-If we change the configuration parameter values to the offered one ("cooling", 20) and "currentState" output is "off", "currentTemperatute" output is 22, the air conditioner will be switched on. If the "currentState" output is "on" or the "currentTemperatute" output is 20, then the rule will end before the action to be executed.
+If we change the configuration parameter values to the offered one ("cooling", 20) and "currentState" output is "off", "currentTemperature" output is 22, the air conditioner will be switched on. If the "currentState" output is "on" or the "currentTemperature" output is 20, then the rule will end before the action to be executed.
 
 #### Rule Template Provider
 
@@ -161,7 +161,7 @@ Module Handler Factory serves as provider of the Module Handlers. It registers i
 
 ### Commands
 
-The demo provides two commands that enable the user to have control over the settings and to enforce execution of the rules. 
+The demo provides two commands that enable the user to have control over the settings and to enforce execution of the rules.
 
 #### Welcomehome Commands Description
 
