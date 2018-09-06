@@ -174,26 +174,42 @@ public class ChartServlet extends HttpServlet {
 
         final String defaultHeightString = Objects.toString(config.get("defaultHeight"), null);
         if (defaultHeightString != null) {
-            defaultHeight = Integer.parseInt(defaultHeightString);
+            try {
+                defaultHeight = Integer.parseInt(defaultHeightString);
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid integer value for the defaultHeight parameter.", defaultHeightString);
+            }
         }
 
         final String defaultWidthString = Objects.toString(config.get("defaultWidth"), null);
         if (defaultWidthString != null) {
-            defaultWidth = Integer.parseInt(defaultWidthString);
+            try {
+                defaultWidth = Integer.parseInt(defaultWidthString);
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid integer value for the defaultWidth parameter.", defaultWidthString);
+            }
         }
 
         final String scaleString = Objects.toString(config.get("scale"), null);
         if (scaleString != null) {
-            scale = Double.parseDouble(scaleString);
-            // Set scale to normal if the custom value is unrealistically low
-            if (scale < 0.1) {
-                scale = 1.0;
+            try {
+                scale = Double.parseDouble(scaleString);
+                // Set scale to normal if the custom value is unrealistically low
+                if (scale < 0.1) {
+                    scale = 1.0;
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid number value for the scale parameter.", scaleString);
             }
         }
 
         final String maxWidthString = Objects.toString(config.get("maxWidth"), null);
         if (maxWidthString != null) {
-            maxWidth = Integer.parseInt(maxWidthString);
+            try {
+                maxWidth = Integer.parseInt(maxWidthString);
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid integer value for the maxWidth parameter.", maxWidthString);
+            }
         }
     }
 
@@ -203,18 +219,23 @@ public class ChartServlet extends HttpServlet {
         logger.debug("Received incoming chart request: {}", req);
 
         int width = defaultWidth;
-        try {
-            width = Integer.parseInt(req.getParameter("w"));
-        } catch (Exception e) {
+        String w = req.getParameter("w");
+        if (w != null) {
+            try {
+                width = Integer.parseInt(w);
+            } catch (NumberFormatException e) {
+                logger.debug("Ignoring invalid value '{}' for HTTP request parameter 'w'", w);
+            }
         }
         int height = defaultHeight;
-        try {
-            String h = req.getParameter("h");
-            if (h != null) {
+        String h = req.getParameter("h");
+        if (h != null) {
+            try {
                 Double d = Double.parseDouble(h) * scale;
                 height = d.intValue();
+            } catch (NumberFormatException e) {
+                logger.debug("Ignoring invalid value '{}' for HTTP request parameter 'h'", h);
             }
-        } catch (Exception e) {
         }
 
         // To avoid ambiguity you are not allowed to specify period, begin and end time at the same time.
