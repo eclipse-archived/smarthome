@@ -54,7 +54,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +84,7 @@ public class DefaultChartProvider implements ChartProvider {
 
     public static final int DPI_DEFAULT = 96;
 
-    @Reference(policy = ReferencePolicy.DYNAMIC)
+    @Reference
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
     }
@@ -123,9 +122,6 @@ public class DefaultChartProvider implements ChartProvider {
 
     @Deactivate
     protected void deactivate() {
-    }
-
-    public void destroy() {
     }
 
     @Override
