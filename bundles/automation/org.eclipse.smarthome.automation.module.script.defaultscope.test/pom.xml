@@ -68,11 +68,6 @@
               </requirement>
               <requirement>
                 <type>eclipse-plugin</type>
-                <id>org.eclipse.smarthome.core.autoupdate</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
                 <id>org.eclipse.smarthome.automation.api</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
