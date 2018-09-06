@@ -30,27 +30,27 @@
 				<description>The morning night event range</description>
 			</channel-group>
 			<channel-group id="astroDawn" typeId="sunRange">
-				<label>Astro dawn</label>
+				<label>Astro Dawn</label>
 				<description>The astro dawn event range</description>
 			</channel-group>
 			<channel-group id="nauticDawn" typeId="sunRange">
-				<label>Nautic dawn</label>
+				<label>Nautic Dawn</label>
 				<description>The nautic dawn event range</description>
 			</channel-group>
 			<channel-group id="civilDawn" typeId="sunRange">
-				<label>Civil dawn</label>
+				<label>Civil Dawn</label>
 				<description>The civil dawn event range</description>
 			</channel-group>
 			<channel-group id="astroDusk" typeId="sunRange">
-				<label>Astro dusk</label>
+				<label>Astro Dusk</label>
 				<description>The astro dusk event range</description>
 			</channel-group>
 			<channel-group id="nauticDusk" typeId="sunRange">
-				<label>Nautic dusk</label>
+				<label>Nautic Dusk</label>
 				<description>The nautic dusk event range</description>
 			</channel-group>
 			<channel-group id="civilDusk" typeId="sunRange">
-				<label>Civil dusk</label>
+				<label>Civil Dusk</label>
 				<description>The civil dusk event range</description>
 			</channel-group>
 			<channel-group id="eveningNight" typeId="sunRange">
