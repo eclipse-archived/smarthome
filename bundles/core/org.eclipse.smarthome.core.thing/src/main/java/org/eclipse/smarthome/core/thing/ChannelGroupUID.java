@@ -25,9 +25,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class ChannelGroupUID extends UID {
 
-    private static final String CHANNEL_GROUP_SEGMENT_PATTERN = "[\\w-]*#";
-    private static final String CHANNEL_GROUP_SEPERATOR = "#";
-
     /**
      * Default constructor in package scope only. Will allow to instantiate this
      * class by reflection. Not intended to be used for normal instantiation.
@@ -50,7 +47,7 @@ public class ChannelGroupUID extends UID {
 
     private static List<String> toSegments(ThingUID thingUID, String id) {
         List<String> ret = new ArrayList<>(thingUID.getAllSegments());
-        ret.add(id + CHANNEL_GROUP_SEPERATOR);
+        ret.add(id);
         return ret;
     }
 
@@ -61,25 +58,12 @@ public class ChannelGroupUID extends UID {
      */
     public String getId() {
         List<String> segments = getAllSegments();
-        return segments.get(segments.size() - 1).replaceAll(CHANNEL_GROUP_SEPERATOR, "");
+        return segments.get(segments.size() - 1);
     }
 
     @Override
     protected int getMinimalNumberOfSegments() {
         return 4;
-    }
-
-    @Override
-    protected void validateSegment(String segment, int index, int length) {
-        if (index < length - 1) {
-            super.validateSegment(segment, index, length);
-        } else {
-            if (!segment.matches(CHANNEL_GROUP_SEGMENT_PATTERN)) {
-                throw new IllegalArgumentException(String.format(
-                        "UID segment '%s' contains invalid characters. The last segment of the channel UID must match the pattern '%s'.",
-                        segment, CHANNEL_GROUP_SEGMENT_PATTERN));
-            }
-        }
     }
 
     /**
