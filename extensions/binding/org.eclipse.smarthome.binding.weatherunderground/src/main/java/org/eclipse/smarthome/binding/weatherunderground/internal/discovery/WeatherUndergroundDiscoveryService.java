@@ -17,6 +17,7 @@ import static org.eclipse.smarthome.binding.weatherunderground.internal.config.W
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -54,6 +55,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
     private ScheduledFuture<?> discoveryJob;
     private PointType previousLocation;
     private String previousLanguage;
+    private String previousCountry;
 
     private final ThingUID bridgeUID;
 
@@ -89,7 +91,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
             logger.debug("LocationProvider.getLocation() is not set -> Will not provide any discovery results");
             return;
         }
-        createResults(location, localeProvider.getLocale().getLanguage());
+        createResults(location, localeProvider.getLocale());
     }
 
     @Override
@@ -99,6 +101,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
             discoveryJob = scheduler.scheduleWithFixedDelay(() -> {
                 PointType currentLocation = locationProvider.getLocation();
                 String currentLanguage = localeProvider.getLocale().getLanguage();
+                String currentCountry = localeProvider.getLocale().getCountry();
                 if (currentLocation != null) {
                     boolean update = false;
                     if (!Objects.equals(currentLocation, previousLocation)) {
@@ -109,11 +112,16 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
                         logger.debug("Language has been changed from {} to {}: Creating new discovery result",
                                 previousLanguage, currentLanguage);
                         update = true;
+                    } else if (!Objects.equals(currentCountry, previousCountry)) {
+                        logger.debug("Country has been changed from {} to {}: Creating new discovery result",
+                                previousCountry, currentCountry);
+                        update = true;
                     }
                     if (update) {
-                        createResults(currentLocation, currentLanguage);
+                        createResults(currentLocation, localeProvider.getLocale());
                         previousLocation = currentLocation;
                         previousLanguage = currentLanguage;
+                        previousCountry = currentCountry;
                     }
                 }
             }, 0, LOCATION_CHANGED_CHECK_INTERVAL, TimeUnit.SECONDS);
@@ -132,11 +140,11 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
         }
     }
 
-    private void createResults(PointType location, String language) {
+    private void createResults(PointType location, Locale locale) {
         ThingUID localWeatherThing = new ThingUID(THING_TYPE_WEATHER, LOCAL);
         Map<String, Object> properties = new HashMap<>(3);
         properties.put(LOCATION, String.format("%s,%s", location.getLatitude(), location.getLongitude()));
-        String lang = WeatherUndergroundHandler.getCodeFromLanguage(language);
+        String lang = WeatherUndergroundHandler.getCodeFromLanguage(locale);
         if (!lang.isEmpty()) {
             properties.put(LANGUAGE, lang);
         }
