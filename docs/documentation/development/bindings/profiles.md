@@ -98,7 +98,7 @@ Two methods have to be implemented to achieve this:
 If one device should "follow" the actions of another device, the FollowProfile can be used. The term "follow" in this case means that any state that is sent to an `Item` will be forwarded from this `Item` to any linked channel with the FollowProfile. The FollowProfile takes state updates on an `Item` and sends them as a command onto the channel. In the direction from the ThingHandler towards the `Item`, the FollowProfile ignores state updates.
 
 ```java
-<itemType> <itemName> { channel="<channelUID>", channel="<followChannelUID>"[profile="follow"]"}
+<itemType> <itemName> { channel="<channelUID>", channel="<followChannelUID>"[profile="follow"]}
 ```
 
 ### OffsetProfile
