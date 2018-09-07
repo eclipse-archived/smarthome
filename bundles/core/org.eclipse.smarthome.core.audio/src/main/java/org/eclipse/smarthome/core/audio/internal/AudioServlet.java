@@ -33,7 +33,9 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -63,10 +65,8 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
 
     protected HttpService httpService;
 
-    @Reference
-    protected void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
-
+    @Activate
+    protected void activate() {
         try {
             logger.debug("Starting up the audio servlet at " + SERVLET_NAME);
             Hashtable<String, String> props = new Hashtable<String, String>();
@@ -78,8 +78,17 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         }
     }
 
-    protected void unsetHttpService(HttpService httpService) {
+    @Deactivate
+    protected void deactivate() {
         httpService.unregister(SERVLET_NAME);
+    }
+
+    @Reference
+    protected void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
+
+    protected void unsetHttpService(HttpService httpService) {
         this.httpService = null;
     }
 
@@ -129,9 +138,7 @@ public class AudioServlet extends HttpServlet implements AudioHTTPServer {
         // try to set the content-length, if possible
         if (stream instanceof FixedLengthAudioStream) {
             final Long size = ((FixedLengthAudioStream) stream).length();
-            if (size != null) {
-                resp.setContentLength(size.intValue());
-            }
+            resp.setContentLength(size.intValue());
         }
 
         if (multiAccess) {
