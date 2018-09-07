@@ -6,7 +6,7 @@
         bindings : {
             model : '=',
             parameter : '=',
-            form : '='
+            form : '<'
         },
         templateUrl : 'partials/configuration/directive.locationParameter.html',
         controller : LocationParameterController
