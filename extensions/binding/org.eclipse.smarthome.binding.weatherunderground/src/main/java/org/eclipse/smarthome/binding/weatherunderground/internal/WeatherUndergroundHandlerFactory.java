@@ -115,7 +115,6 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
         if (thingHandler instanceof WeatherUndergroundBridgeHandler) {
             unregisterDiscoveryService(thingHandler.getThing().getUID());
         }
-        super.removeHandler(thingHandler);
     }
 
     private synchronized void registerDiscoveryService(ThingUID bridgeUID) {
@@ -132,7 +131,9 @@ public class WeatherUndergroundHandlerFactory extends BaseThingHandlerFactory {
             WeatherUndergroundDiscoveryService service = (WeatherUndergroundDiscoveryService) bundleContext
                     .getService(serviceReg.getReference());
             serviceReg.unregister();
-            service.deactivate();
+            if (service != null) {
+                service.deactivate();
+            }
         }
     }
 

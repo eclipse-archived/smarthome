@@ -90,11 +90,14 @@ public class OwHandlerFactory extends BaseThingHandlerFactory {
     protected synchronized void removeHandler(ThingHandler thingHandler) {
         if (thingHandler instanceof OwserverBridgeHandler) {
             // remove discovery service, if bridge handler is removed
-            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler.getThing().getUID());
-            OwDiscoveryService service = (OwDiscoveryService) bundleContext.getService(serviceReg.getReference());
-            service.deactivate();
-            serviceReg.unregister();
-            discoveryServiceRegs.remove(thingHandler.getThing().getUID());
+            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.remove(thingHandler.getThing().getUID());
+            if (serviceReg != null) {
+                OwDiscoveryService service = (OwDiscoveryService) bundleContext.getService(serviceReg.getReference());
+                serviceReg.unregister();
+                if (service != null) {
+                    service.deactivate();
+                }
+            }
         }
     }
 

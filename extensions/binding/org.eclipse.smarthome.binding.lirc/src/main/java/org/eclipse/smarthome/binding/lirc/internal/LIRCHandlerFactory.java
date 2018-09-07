@@ -63,17 +63,16 @@ public class LIRCHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected void removeHandler(ThingHandler thingHandler) {
+    protected synchronized void removeHandler(ThingHandler thingHandler) {
         if (this.discoveryServiceRegs != null) {
-            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler.getThing().getUID());
+            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             if (serviceReg != null) {
                 serviceReg.unregister();
-                discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             }
         }
     }
 
-    private void registerDeviceDiscoveryService(LIRCBridgeHandler handler) {
+    private synchronized void registerDeviceDiscoveryService(LIRCBridgeHandler handler) {
         LIRCRemoteDiscoveryService discoveryService = new LIRCRemoteDiscoveryService(handler);
         this.discoveryServiceRegs.put(handler.getThing().getUID(), bundleContext
                 .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
