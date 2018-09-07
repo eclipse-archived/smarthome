@@ -43,11 +43,13 @@
 
         function updateFormattedState() {
             if (ctrl.item.state !== 'UNDEF' && ctrl.item.state !== 'NULL') {
-                var latitude = parseFloat(ctrl.item.state.split(',')[0]);
-                var longitude = parseFloat(ctrl.item.state.split(',')[1]);
-                return latitude + '°N ' + longitude + '°E';
+                var location = ctrl.item.state.split(',');
+                var latitude = parseFloat(location[0]);
+                var longitude = parseFloat(location[1]);
+                var height = parseFloat(location[2]);
+                return latitude + '°N, ' + longitude + '°E' + (isNaN(height) ? "" : ', ' + height + 'm');
             } else {
-                return '- °N - °E';
+                return '- °N, - °E, - m';
             }
         }
 
