@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
-import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.BooleanUtils;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
-import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -68,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Holger Reichert - Support for themes, DPI, legend hiding
  *
  */
-@Component(immediate = true, service = Servlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
+@Component(immediate = true, service = ChartServlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
         "service.pid=org.eclipse.smarthome.chart", "service.config.description.uri=system:chart",
         "service.config.label=Charts", "service.config.category=system" })
 public class ChartServlet extends HttpServlet {
@@ -108,25 +107,15 @@ public class ChartServlet extends HttpServlet {
     }
 
     protected HttpService httpService;
-    protected ItemUIRegistry itemUIRegistry;
-    protected static Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
+    protected static Map<String, ChartProvider> chartProviders = new ConcurrentHashMap<String, ChartProvider>();
 
-    @Reference(policy = ReferencePolicy.DYNAMIC)
+    @Reference
     public void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
 
     public void unsetHttpService(HttpService httpService) {
         this.httpService = null;
-    }
-
-    @Reference(policy = ReferencePolicy.DYNAMIC)
-    public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-        this.itemUIRegistry = itemUIRegistry;
-    }
-
-    public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-        this.itemUIRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -185,52 +174,76 @@ public class ChartServlet extends HttpServlet {
 
         final String defaultHeightString = Objects.toString(config.get("defaultHeight"), null);
         if (defaultHeightString != null) {
-            defaultHeight = Integer.parseInt(defaultHeightString);
+            try {
+                defaultHeight = Integer.parseInt(defaultHeightString);
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid integer value for the defaultHeight parameter.", defaultHeightString);
+            }
         }
 
         final String defaultWidthString = Objects.toString(config.get("defaultWidth"), null);
         if (defaultWidthString != null) {
-            defaultWidth = Integer.parseInt(defaultWidthString);
+            try {
+                defaultWidth = Integer.parseInt(defaultWidthString);
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid integer value for the defaultWidth parameter.", defaultWidthString);
+            }
         }
 
         final String scaleString = Objects.toString(config.get("scale"), null);
         if (scaleString != null) {
-            scale = Double.parseDouble(scaleString);
-            // Set scale to normal if the custom value is unrealistically low
-            if (scale < 0.1) {
-                scale = 1.0;
+            try {
+                scale = Double.parseDouble(scaleString);
+                // Set scale to normal if the custom value is unrealistically low
+                if (scale < 0.1) {
+                    scale = 1.0;
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid number value for the scale parameter.", scaleString);
             }
         }
 
         final String maxWidthString = Objects.toString(config.get("maxWidth"), null);
         if (maxWidthString != null) {
-            maxWidth = Integer.parseInt(maxWidthString);
+            try {
+                maxWidth = Integer.parseInt(maxWidthString);
+            } catch (NumberFormatException e) {
+                logger.warn("'{}' is not a valid integer value for the maxWidth parameter.", maxWidthString);
+            }
         }
     }
 
+    @SuppressWarnings({ "null" })
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         logger.debug("Received incoming chart request: {}", req);
 
         int width = defaultWidth;
-        try {
-            width = Integer.parseInt(req.getParameter("w"));
-        } catch (Exception e) {
+        String w = req.getParameter("w");
+        if (w != null) {
+            try {
+                width = Integer.parseInt(w);
+            } catch (NumberFormatException e) {
+                logger.debug("Ignoring invalid value '{}' for HTTP request parameter 'w'", w);
+            }
         }
         int height = defaultHeight;
-        try {
-            String h = req.getParameter("h");
-            if (h != null) {
+        String h = req.getParameter("h");
+        if (h != null) {
+            try {
                 Double d = Double.parseDouble(h) * scale;
                 height = d.intValue();
+            } catch (NumberFormatException e) {
+                logger.debug("Ignoring invalid value '{}' for HTTP request parameter 'h'", h);
             }
-        } catch (Exception e) {
         }
 
         // To avoid ambiguity you are not allowed to specify period, begin and end time at the same time.
         if (req.getParameter("period") != null && req.getParameter("begin") != null
                 && req.getParameter("end") != null) {
-            throw new ServletException("Do not specify the three parameters period, begin and end at the same time.");
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                    "Do not specify the three parameters period, begin and end at the same time.");
+            return;
         }
 
         // Read out the parameter period, begin and end and save them.
@@ -247,7 +260,9 @@ public class ChartServlet extends HttpServlet {
             try {
                 timeBegin = new SimpleDateFormat(DATE_FORMAT).parse(req.getParameter("begin"));
             } catch (ParseException e) {
-                throw new ServletException("Begin and end must have this format: " + DATE_FORMAT + ".");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Begin and end must have this format: " + DATE_FORMAT + ".");
+                return;
             }
         }
 
@@ -255,7 +270,9 @@ public class ChartServlet extends HttpServlet {
             try {
                 timeEnd = new SimpleDateFormat(DATE_FORMAT).parse(req.getParameter("end"));
             } catch (ParseException e) {
-                throw new ServletException("Begin and end must have this format: " + DATE_FORMAT + ".");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Begin and end must have this format: " + DATE_FORMAT + ".");
+                return;
             }
         }
 
@@ -279,7 +296,8 @@ public class ChartServlet extends HttpServlet {
 
         ChartProvider provider = getChartProviders().get(providerName);
         if (provider == null) {
-            throw new ServletException("Could not get chart provider.");
+            res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not get chart provider.");
+            return;
         }
 
         // Read out the parameter 'dpi'
@@ -288,10 +306,12 @@ public class ChartServlet extends HttpServlet {
             try {
                 dpi = Integer.valueOf(req.getParameter("dpi"));
             } catch (NumberFormatException e) {
-                throw new ServletException("dpi parameter is invalid");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "dpi parameter is invalid");
+                return;
             }
             if (dpi <= 0) {
-                throw new ServletException("dpi parameter is <= 0");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "dpi parameter is <= 0");
+                return;
             }
         }
 
