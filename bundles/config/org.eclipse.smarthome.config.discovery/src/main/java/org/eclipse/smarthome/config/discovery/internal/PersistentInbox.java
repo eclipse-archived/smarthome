@@ -304,7 +304,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (discoveryResultStorage == null) {
             final ScheduledFuture<?> timeToLiveChecker = this.timeToLiveChecker;
             logger.error("The OSGi lifecycle has been violated (storage: {}, ttl checker cancelled: {}).",
-                    this.discoveryResultStorage == null ? "null" : this.discoveryResultStorage, timeToLiveChecker == null ? "null" : timeToLiveChecker.isCancelled());
+                    this.discoveryResultStorage == null ? "null" : this.discoveryResultStorage,
+                    timeToLiveChecker == null ? "null" : timeToLiveChecker.isCancelled());
             return Stream.empty();
         }
         final Collection<@Nullable DiscoveryResult> values = discoveryResultStorage.getValues();
@@ -673,29 +674,29 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Reference
-    protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+    public void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
 
-    protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+    public void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
     }
 
     @Reference
-    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+    public void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = configDescriptionRegistry;
     }
 
-    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+    public void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+    public void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.add(thingHandlerFactory);
     }
 
-    protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+    public void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.remove(thingHandlerFactory);
     }
 
