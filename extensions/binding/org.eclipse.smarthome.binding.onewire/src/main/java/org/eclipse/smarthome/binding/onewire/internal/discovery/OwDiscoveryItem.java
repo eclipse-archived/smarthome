@@ -79,7 +79,7 @@ public class OwDiscoveryItem {
     /**
      * get family ID of this sensor (first two characters in sensor id)
      *
-     * @return
+     * @return the sensors family id
      */
     public String getFamilyId() {
         return familyId;
@@ -88,7 +88,7 @@ public class OwDiscoveryItem {
     /**
      * get sensor type
      *
-     * @return
+     * @return full sensor type
      */
     public OwSensorType getSensorType() {
         return sensorType;
@@ -97,7 +97,7 @@ public class OwDiscoveryItem {
     /**
      * get sensor id (familyId.xxxxxxxxxx)
      *
-     * @return
+     * @return sensor id
      */
     public String getSensorId() {
         return sensorId;
@@ -106,7 +106,7 @@ public class OwDiscoveryItem {
     /**
      * normalized sensor id (for naming the discovery result)
      *
-     * @return
+     * @return sensor id in format familyId_xxxxxxxxxx
      */
     public String getNormalizedSensorId() {
         return sensorId.replace(".", "_");
@@ -115,7 +115,7 @@ public class OwDiscoveryItem {
     /**
      * get vendor name (if available)
      *
-     * @return
+     * @return vendor name
      */
     public String getVendor() {
         return vendor;
@@ -124,7 +124,7 @@ public class OwDiscoveryItem {
     /**
      * get production date (available on some multisensors)
      *
-     * @return
+     * @return production date in format ww/yy
      */
     public String getProductionDate() {
         return prodDate;
@@ -133,7 +133,7 @@ public class OwDiscoveryItem {
     /**
      * get hardware revision (available on some multisensors)
      *
-     * @return
+     * @return hardware revision (where available)
      */
     public String getHardwareRevision() {
         return hwRevision;
@@ -142,16 +142,16 @@ public class OwDiscoveryItem {
     /**
      * get this sensors ThingTypeUID
      *
-     * @return
+     * @return ThingTypeUID if mapping successfull
      */
     public ThingTypeUID getThingTypeUID() {
         return thingTypeUID;
     }
 
     /**
-     * true if this sensors pages include other sensor ids
+     * check if associated sensors have been found
      *
-     * @return
+     * @return true if this sensors pages include other sensor ids
      */
     public boolean hasAssociatedSensorIds() {
         return !associatedSensorIds.isEmpty();
@@ -160,7 +160,7 @@ public class OwDiscoveryItem {
     /**
      * get a list of all sensors associated to this sensor
      *
-     * @return
+     * @return list of strings
      */
     public List<String> getAssociatedSensorIds() {
         return associatedSensorIds;
@@ -169,7 +169,7 @@ public class OwDiscoveryItem {
     /**
      * check if secondary sensors have been added
      *
-     * @return
+     * @return true if sensors have been added
      */
     public boolean hasAssociatedSensors() {
         return !associatedSensors.isEmpty();
@@ -199,7 +199,7 @@ public class OwDiscoveryItem {
     /**
      * get all secondary sensors
      *
-     * @return
+     * @return a list of OwDiscoveryItems
      */
     public List<OwDiscoveryItem> getAssociatedSensors() {
         return associatedSensors;
@@ -209,7 +209,7 @@ public class OwDiscoveryItem {
      * get all secondary sensors of a given type
      *
      * @param sensorType filter for sensors
-     * @return
+     * @return a list of OwDiscoveryItems
      */
     public List<OwDiscoveryItem> getAssociatedSensors(OwSensorType sensorType) {
         List<OwDiscoveryItem> returnList = new ArrayList<>();
@@ -224,7 +224,7 @@ public class OwDiscoveryItem {
     /**
      * get the number of secondary sensors
      *
-     * @return
+     * @return number of sensors
      */
     public int getAssociatedSensorCount() {
         return associatedSensors.size() + 1;
