@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome HTTP Interface Bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.io.http
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Export-Package: org.eclipse.smarthome.io.http,
+ org.eclipse.smarthome.io.http.servlet
+Import-Package: 
+ javax.servlet,
+ javax.servlet.http,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.auth,
+ org.osgi.framework,
+ org.osgi.service.http,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml

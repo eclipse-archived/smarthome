@@ -31,6 +31,10 @@ import org.eclipse.smarthome.core.auth.AuthenticationException;
 import org.eclipse.smarthome.core.auth.AuthenticationProvider;
 import org.eclipse.smarthome.core.auth.Credentials;
 import org.eclipse.smarthome.core.auth.UsernamePasswordCredentials;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 
 /**
  * Implementation of authentication provider which is backed by JAAS realm.
@@ -41,18 +45,24 @@ import org.eclipse.smarthome.core.auth.UsernamePasswordCredentials;
  * @author Łukasz Dywicki - Initial contribution and API
  * @author Kai Kreuzer - Removed ManagedService and used DS configuration instead
  */
+@Component(configurationPid = "org.eclipse.smarthome.jaas")
 public class JaasAuthenticationProvider implements AuthenticationProvider {
 
     private String realmName;
 
     @Override
-    public Authentication authenticate(final Credentials credentials) {
+    public Authentication authenticate(final Credentials credentials) throws AuthenticationException {
         if (realmName == null) { // configuration is not yet ready or set
             return null;
         }
 
-        final String name = getName(credentials);
-        final char[] password = getPassword(credentials);
+        if (!(credentials instanceof UsernamePasswordCredentials)) {
+            throw new AuthenticationException("Unsupported credentials passed to provider.");
+        }
+
+        UsernamePasswordCredentials userCredentials = (UsernamePasswordCredentials) credentials;
+        final String name = userCredentials.getUsername();
+        final char[] password = userCredentials.getPassword().toCharArray();
 
         try {
             LoginContext loginContext = new LoginContext(realmName, new CallbackHandler() {
@@ -90,27 +100,16 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
         return roles;
     }
 
-    private String getName(Credentials credentials) {
-        if (credentials instanceof UsernamePasswordCredentials) {
-            return ((UsernamePasswordCredentials) credentials).getUsername();
-        }
-        return null;
-    }
-
-    private char[] getPassword(Credentials credentials) {
-        if (credentials instanceof UsernamePasswordCredentials) {
-            return ((UsernamePasswordCredentials) credentials).getPassword().toCharArray();
-        }
-        return null;
-    }
-
+    @Activate
     protected void activate(Map<String, Object> properties) {
         modified(properties);
     }
 
+    @Deactivate
     protected void deactivate(Map<String, Object> properties) {
     }
 
+    @Modified
     protected void modified(Map<String, Object> properties) {
         if (properties == null) {
             realmName = null;
@@ -128,5 +127,10 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
             // value could be unset, we should reset it value
             realmName = null;
         }
+    }
+
+    @Override
+    public boolean supports(Class<? extends Credentials> type) {
+        return UsernamePasswordCredentials.class.isAssignableFrom(type);
     }
 }

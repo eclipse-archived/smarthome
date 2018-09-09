@@ -42,8 +42,6 @@
 <setEntry value="com.eclipsesource.jaxrs.connector.feature:default"/>
 <setEntry value="com.eclipsesource.jaxrs.jersey.runtime.feature.source:default"/>
 <setEntry value="com.eclipsesource.jaxrs.jersey.runtime.feature:default"/>
-<setEntry value="com.eclipsesource.jaxrs.provider.security.feature.source:default"/>
-<setEntry value="com.eclipsesource.jaxrs.provider.security.feature:default"/>
 <setEntry value="com.eclipsesource.jaxrs.provider.sse.feature.source:default"/>
 <setEntry value="com.eclipsesource.jaxrs.provider.sse.feature:default"/>
 <setEntry value="com.eclipsesource.jaxrs.provider.swagger.feature.source:default"/>

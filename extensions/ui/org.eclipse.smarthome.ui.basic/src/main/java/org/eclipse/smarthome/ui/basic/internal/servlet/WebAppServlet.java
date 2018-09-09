@@ -14,20 +14,20 @@ package org.eclipse.smarthome.ui.basic.internal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
+import org.eclipse.smarthome.io.http.HttpContextFactoryService;
 import org.eclipse.smarthome.io.rest.sitemap.SitemapSubscriptionService;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
@@ -45,6 +45,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
@@ -67,6 +68,8 @@ import org.slf4j.LoggerFactory;
 public class WebAppServlet extends BaseServlet {
 
     private final Logger logger = LoggerFactory.getLogger(WebAppServlet.class);
+
+    private static final long serialVersionUID = 3443749654545136365L;
 
     /** the name of the servlet to be used in the URL */
     public static final String SERVLET_NAME = "app";
@@ -109,18 +112,16 @@ public class WebAppServlet extends BaseServlet {
 
     @Activate
     protected void activate(Map<String, Object> configProps, BundleContext bundleContext) {
-        config.applyConfig(configProps);
+        HttpContext httpContext = createHttpContext(bundleContext.getBundle());
+        super.activate(WEBAPP_ALIAS + "/" + SERVLET_NAME, httpContext);
+
         try {
-            Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props,
-                    createHttpContext(bundleContext.getBundle()));
-            httpService.registerResources(WEBAPP_ALIAS, "web", createHttpContext(bundleContext.getBundle()));
-            logger.info("Started Basic UI at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
+            httpService.registerResources(WEBAPP_ALIAS, "web", httpContext);
         } catch (NamespaceException e) {
-            logger.error("Error during servlet startup", e);
-        } catch (ServletException e) {
-            logger.error("Error during servlet startup", e);
+            logger.error("Could not register static resources under {}", WEBAPP_ALIAS, e);
         }
+
+        config.applyConfig(configProps);
     }
 
     @Modified
@@ -130,7 +131,7 @@ public class WebAppServlet extends BaseServlet {
 
     @Deactivate
     protected void deactivate() {
-        httpService.unregister(WEBAPP_ALIAS + "/" + SERVLET_NAME);
+        super.deactivate(WEBAPP_ALIAS + "/" + SERVLET_NAME);
         httpService.unregister(WEBAPP_ALIAS);
         logger.info("Stopped Basic UI");
     }
@@ -144,7 +145,7 @@ public class WebAppServlet extends BaseServlet {
     }
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         logger.debug("Servlet request received!");
 
         // read request parameters

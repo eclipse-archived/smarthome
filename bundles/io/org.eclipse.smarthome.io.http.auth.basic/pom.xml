@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>io</artifactId>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <version>0.10.0-SNAPSHOT</version>
+  </parent>
+  <groupId>org.eclipse.smarthome.io</groupId>
+  <artifactId>org.eclipse.smarthome.io.http.auth.basic</artifactId>
+
+  <packaging>eclipse-plugin</packaging>
+
+  <name>Eclipse SmartHome HTTP Interface Basic Authentication</name>
+
+</project>

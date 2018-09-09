@@ -103,12 +103,6 @@
     <bundle dependency="true">mvn:org.jvnet.mimepull/mimepull/1.9.6</bundle>
   </feature>
 
-  <feature name="esh.tp-jax-rs-provider-security" description="Security provider for jaxrs" version="${project.version}">
-    <capability>esh.tp;feature=jax-rs-provider-security;version=2.2</capability>
-    <feature dependency="true">esh.tp-jax-rs-min</feature>
-    <bundle>mvn:com.eclipsesource.jaxrs/provider-security/2.2</bundle>
-  </feature>
-
   <feature name="esh.tp-jupnp" description="UPnP/DLNA library for Java" version="${project.version}">
     <capability>esh.tp;feature=jupnp;version=2.4.0</capability>
     <feature dependency="true">http</feature>

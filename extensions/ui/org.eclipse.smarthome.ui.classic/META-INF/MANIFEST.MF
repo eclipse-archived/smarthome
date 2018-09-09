@@ -14,6 +14,7 @@ Ignore-Package: org.eclipse.smarthome.ui.webapp.internal
 Import-Package: 
  javax.measure,
  javax.servlet,
+ javax.servlet.http,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.emf.common.util,
@@ -29,7 +30,8 @@ Import-Package:
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.core.types.util,
- org.eclipse.smarthome.io.net.http,
+ org.eclipse.smarthome.io.http,
+ org.eclipse.smarthome.io.http.servlet,
  org.eclipse.smarthome.model.sitemap,
  org.eclipse.smarthome.ui.classic.render,
  org.eclipse.smarthome.ui.items,
