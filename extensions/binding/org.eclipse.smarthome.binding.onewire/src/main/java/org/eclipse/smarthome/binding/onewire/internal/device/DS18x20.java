@@ -27,6 +27,8 @@ import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link DS18x20} class defines an DS18x20 device
@@ -35,7 +37,7 @@ import org.eclipse.smarthome.core.thing.Thing;
  */
 @NonNullByDefault
 public class DS18x20 extends AbstractOwDevice {
-
+    private final Logger logger = LoggerFactory.getLogger(DS18x20.class);
     private static final OwDeviceParameter TEMPERATURE_PARAMETER = new OwDeviceParameter() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));

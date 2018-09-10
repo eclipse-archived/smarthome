@@ -122,11 +122,11 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
                 Boolean forcedRefresh = digitalLastRefresh == 0;
                 digitalLastRefresh = now;
 
-                if (!sensors.get(2).checkPresence(bridgeHandler)) {
+                if (!sensors.get(3).checkPresence(bridgeHandler)) {
                     return;
                 }
 
-                sensors.get(2).refresh(bridgeHandler, forcedRefresh);
+                sensors.get(3).refresh(bridgeHandler, forcedRefresh);
             }
 
             if (now >= (lastRefresh + refreshInterval)) {
@@ -215,6 +215,11 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
                         ChannelBuilder.create(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT), "Number:Current")
                                 .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
             }
+        }
+
+        // second AI channel
+        if (THING_TYPE_AMS.equals(thingType)) {
+            sensors.get(2).enableChannel(CHANNEL_VOLTAGE);
         }
 
         // digital channels
