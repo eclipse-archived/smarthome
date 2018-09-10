@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import static java.util.stream.Collectors.toSet;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -26,10 +25,12 @@ import org.eclipse.smarthome.core.items.MetadataKey;
 import org.eclipse.smarthome.core.items.MetadataRegistry;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.types.Command;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * Component which takes care of calculating and sending potential auto-update event.
  *
  * @author Simon Kaufmann - initial contribution and API
+ * @author Kai Kreuzer - fixed issues if a linked thing is OFFLINE
  *
  */
 @NonNullByDefault
@@ -174,11 +176,15 @@ public class AutoUpdateManager {
     private Recommendation shouldAutoUpdate(String itemName) {
         Recommendation ret = Recommendation.REQUIRED;
 
-        Set<ChannelUID> linkedChannelUIDs = itemChannelLinkRegistry.stream().filter(link -> {
-            return link.getItemName().equals(itemName);
-        }).map(link -> {
-            return link.getLinkedUID();
-        }).collect(toSet());
+        List<ChannelUID> linkedChannelUIDs = new ArrayList<>();
+        for (ItemChannelLink link : itemChannelLinkRegistry.getAll()) {
+            if (link.getItemName().equals(itemName)) {
+                linkedChannelUIDs.add(link.getLinkedUID());
+            }
+        }
+
+        // check if there is any channel ONLINE
+        List<ChannelUID> onlineChannelUIDs = new ArrayList<>();
         for (ChannelUID channelUID : linkedChannelUIDs) {
             Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing == null //
@@ -186,15 +192,25 @@ public class AutoUpdateManager {
                     || thing.getHandler() == null //
                     || !ThingStatus.ONLINE.equals(thing.getStatus()) //
             ) {
-                if (ret == Recommendation.REQUIRED) {
-                    ret = Recommendation.REVERT;
-                }
                 continue;
             }
+            onlineChannelUIDs.add(channelUID);
+        }
+        if (!linkedChannelUIDs.isEmpty() && onlineChannelUIDs.isEmpty()) {
+            // none of the linked channels is able to process the command
+            return Recommendation.REVERT;
+        }
 
-            AutoUpdatePolicy policy = thing.getChannel(channelUID.getId()).getAutoUpdatePolicy();
-            if (policy == null) {
-                policy = AutoUpdatePolicy.DEFAULT;
+        for (ChannelUID channelUID : onlineChannelUIDs) {
+            Thing thing = thingRegistry.get(channelUID.getThingUID());
+            if (thing == null) {
+                // this should not happen, but we make avoid null warnings from the compiler
+                continue;
+            }
+            AutoUpdatePolicy policy = AutoUpdatePolicy.DEFAULT;
+            Channel channel = thing.getChannel(channelUID.getId());
+            if (channel != null) {
+                policy = channel.getAutoUpdatePolicy();
             }
 
             switch (policy) {
