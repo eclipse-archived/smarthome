@@ -8,12 +8,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.model.item
 Import-Package: 
- groovy.lang,
  org.apache.log4j,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items.events,
