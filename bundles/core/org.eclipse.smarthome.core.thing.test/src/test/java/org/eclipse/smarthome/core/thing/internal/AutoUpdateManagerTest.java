@@ -51,14 +51,17 @@ import org.mockito.Mock;
 /**
  *
  * @author Simon Kaufmann - initial contribution and API
+ * @author Kai Kreuzer - added tests with multiple links
  *
  */
 public class AutoUpdateManagerTest {
 
-    private static final ThingUID THING_UID_ONLINE = new ThingUID("test::mock");
+    private static final ThingUID THING_UID_ONLINE = new ThingUID("test::mock-online");
+    private static final ThingUID THING_UID_OFFLINE = new ThingUID("test::mock-offline");
     private static final ThingUID THING_UID_HANDLER_MISSING = new ThingUID("test::handlerMissing");
     private static final ChannelUID CHANNEL_UID_ONLINE_1 = new ChannelUID(THING_UID_ONLINE, "channel1");
     private static final ChannelUID CHANNEL_UID_ONLINE_2 = new ChannelUID(THING_UID_ONLINE, "channel2");
+    private static final ChannelUID CHANNEL_UID_OFFLINE_1 = new ChannelUID(THING_UID_OFFLINE, "channel1");
     private static final ChannelUID CHANNEL_UID_ONLINE_GONE = new ChannelUID(THING_UID_ONLINE, "gone");
     private static final ChannelUID CHANNEL_UID_HANDLER_MISSING = new ChannelUID(THING_UID_HANDLER_MISSING, "channel1");
     private ItemCommandEvent event;
@@ -67,6 +70,7 @@ public class AutoUpdateManagerTest {
     private @Mock ItemChannelLinkRegistry mockLinkRegistry;
     private @Mock ThingRegistry mockThingRegistry;
     private @Mock Thing mockThingOnline;
+    private @Mock Thing mockThingOffline;
     private @Mock Thing mockThingHandlerMissing;
     private @Mock ThingHandler mockHandler;
     private @Mock MetadataRegistry mockMetadataRegistry;
@@ -83,15 +87,23 @@ public class AutoUpdateManagerTest {
         item.setState(new StringType("BEFORE"));
 
         when(mockLinkRegistry.stream()).then(answer -> links.stream());
+        when(mockLinkRegistry.getAll()).then(answer -> links);
         when(mockThingRegistry.get(eq(THING_UID_ONLINE))).thenReturn(mockThingOnline);
+        when(mockThingRegistry.get(eq(THING_UID_OFFLINE))).thenReturn(mockThingOffline);
         when(mockThingRegistry.get(eq(THING_UID_HANDLER_MISSING))).thenReturn(mockThingHandlerMissing);
         when(mockThingOnline.getHandler()).thenReturn(mockHandler);
+        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(mockThingOnline.getChannel(eq(CHANNEL_UID_ONLINE_1.getId())))
                 .thenAnswer(answer -> ChannelBuilder.create(CHANNEL_UID_ONLINE_1, "String")
                         .withAutoUpdatePolicy(policies.get(CHANNEL_UID_ONLINE_1)).build());
         when(mockThingOnline.getChannel(eq(CHANNEL_UID_ONLINE_2.getId())))
                 .thenAnswer(answer -> ChannelBuilder.create(CHANNEL_UID_ONLINE_2, "String")
                         .withAutoUpdatePolicy(policies.get(CHANNEL_UID_ONLINE_2)).build());
+        when(mockThingOffline.getHandler()).thenReturn(mockHandler);
+        when(mockThingOffline.getStatus()).thenReturn(ThingStatus.OFFLINE);
+        when(mockThingOffline.getChannel(eq(CHANNEL_UID_OFFLINE_1.getId())))
+                .thenAnswer(answer -> ChannelBuilder.create(CHANNEL_UID_OFFLINE_1, "String")
+                        .withAutoUpdatePolicy(policies.get(CHANNEL_UID_OFFLINE_1)).build());
 
         aum = new AutoUpdateManager();
         aum.setItemChannelLinkRegistry(mockLinkRegistry);
@@ -147,7 +159,6 @@ public class AutoUpdateManagerTest {
     @Test
     public void testAutoUpdate_noPolicy() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
 
         aum.receiveCommand(event, item);
 
@@ -156,12 +167,31 @@ public class AutoUpdateManagerTest {
 
     @Test
     public void testAutoUpdate_noPolicy_thingOFFLINE() {
-        links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.OFFLINE);
+        links.add(new ItemChannelLink("test", CHANNEL_UID_OFFLINE_1));
 
         aum.receiveCommand(event, item);
 
         assertKeepCurrentState();
+    }
+
+    @Test
+    public void testAutoUpdate_noPolicy_thingOFFLINE_and_thingONLINE() {
+        links.add(new ItemChannelLink("test", CHANNEL_UID_OFFLINE_1));
+        links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
+
+        aum.receiveCommand(event, item);
+
+        assertChangeStateTo();
+    }
+
+    @Test
+    public void testAutoUpdate_noPolicy_thingONLINE_and_thingOFFLINE() {
+        links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
+        links.add(new ItemChannelLink("test", CHANNEL_UID_OFFLINE_1));
+
+        aum.receiveCommand(event, item);
+
+        assertChangeStateTo();
     }
 
     @Test
@@ -194,7 +224,6 @@ public class AutoUpdateManagerTest {
     @Test
     public void testAutoUpdate_policyVETO_thingONLINE() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.VETO);
 
         aum.receiveCommand(event, item);
@@ -205,7 +234,6 @@ public class AutoUpdateManagerTest {
     @Test
     public void testAutoUpdate_policyRECOMMEND() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.RECOMMEND);
 
         aum.receiveCommand(event, item);
@@ -217,7 +245,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_policyVETObeatsDEFAULT() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_2));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.VETO);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_2, AutoUpdatePolicy.DEFAULT);
 
@@ -230,7 +257,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_policyVETObeatsRECOMMEND() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_2));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.VETO);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_2, AutoUpdatePolicy.RECOMMEND);
 
@@ -243,7 +269,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_policyDEFAULTbeatsRECOMMEND() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_2));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.DEFAULT);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_2, AutoUpdatePolicy.RECOMMEND);
 
@@ -256,7 +281,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_errorInvalidatesVETO() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_GONE));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.RECOMMEND);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_GONE, AutoUpdatePolicy.VETO);
 
@@ -269,7 +293,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_errorInvalidatesVETO2() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_GONE));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.DEFAULT);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_GONE, AutoUpdatePolicy.VETO);
 
@@ -282,7 +305,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_errorInvalidatesDEFAULT() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_GONE));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_1, AutoUpdatePolicy.RECOMMEND);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_GONE, AutoUpdatePolicy.DEFAULT);
 
@@ -295,7 +317,6 @@ public class AutoUpdateManagerTest {
     public void testAutoUpdate_multipleErrors() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_GONE));
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_GONE));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         setAutoUpdatePolicy(CHANNEL_UID_ONLINE_GONE, AutoUpdatePolicy.DEFAULT);
 
         aum.receiveCommand(event, item);
@@ -315,7 +336,6 @@ public class AutoUpdateManagerTest {
     @Test
     public void testAutoUpdate_sendOptimisticUpdates() {
         links.add(new ItemChannelLink("test", CHANNEL_UID_ONLINE_1));
-        when(mockThingOnline.getStatus()).thenReturn(ThingStatus.ONLINE);
         aum.modified(Collections.singletonMap(AutoUpdateManager.PROPERTY_SEND_OPTIMISTIC_UPDATES, "true"));
 
         aum.receiveCommand(event, item);
