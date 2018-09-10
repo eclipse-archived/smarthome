@@ -60,8 +60,8 @@ public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
         String typeId = attributes.get("typeId");
         String label = (String) nodeIterator.nextValue("label", false);
         String description = (String) nodeIterator.nextValue("description", false);
-        AutoUpdatePolicy autoUpdatePolicy = readAutoUpdatePolicy(nodeIterator);
         List<NodeValue> properties = getProperties(nodeIterator);
+        AutoUpdatePolicy autoUpdatePolicy = readAutoUpdatePolicy(nodeIterator);
 
         ChannelXmlResult channelXmlResult = new ChannelXmlResult(id, typeId, label, description, properties,
                 autoUpdatePolicy);

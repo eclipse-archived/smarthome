@@ -8,6 +8,7 @@
 		<item-type>Switch</item-type>
 		<label>Switch</label>
 		<description>The on/off channel allows to toggle between on and off.</description>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 		<config-description>
 			<parameter name="invert" type="boolean">
 				<label>Invert operation</label>
@@ -20,6 +21,7 @@
 		<label>Dimmer</label>
 		<description>The dimmer channel allows to control the brightness.</description>
 		<category>DimmableLight</category>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="color">
@@ -32,6 +34,7 @@
 		<tags>
 			<tag>Lighting</tag>
 		</tags>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 		<config-description>
 			<parameter name="boostRed" type="decimal" min="0" max="100">
 				<label>Red boost</label>
@@ -59,27 +62,32 @@
 				<option value="LSELECT">Long Alert</option>
 			</options>
 		</state>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="contact">
 		<item-type>Contact</item-type>
 		<label>Contact</label>
 		<state readOnly="true"></state>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="location">
 		<item-type>Location</item-type>
 		<label>Location</label>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="number">
 		<item-type>Number</item-type>
 		<label>Thing Online(&gt;0)/Offline(&lt;0) Delay</label>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="text">
 		<item-type>String</item-type>
 		<label>Text channel</label>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="temperature">
@@ -92,6 +100,7 @@
 		<item-type>Number:Temperature</item-type>
 		<label>Set Point</label>
 		<state readOnly="false" pattern="%.1f %unit%" min="12" max="38" step="0.5" />
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="choosy">
@@ -104,16 +113,19 @@
 				<option value="2">Two</option>
 			</options>
 		</state>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="rollershutter">
 		<item-type>Rollershutter</item-type>
 		<label>Rollershutter</label>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="player">
 		<item-type>Player</item-type>
 		<label>Player</label>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
 
 	<channel-type id="image">

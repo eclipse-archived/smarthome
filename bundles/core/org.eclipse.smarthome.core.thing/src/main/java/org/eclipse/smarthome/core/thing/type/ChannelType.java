@@ -62,7 +62,7 @@ public class ChannelType extends AbstractDescriptionType {
             String description, String category, Set<String> tags, StateDescription state, EventDescription event,
             URI configDescriptionURI) throws IllegalArgumentException {
         this(uid, advanced, itemType, kind, label, description, category, tags, state, event, configDescriptionURI,
-                AutoUpdatePolicy.DEFAULT);
+                null);
     }
 
     /**

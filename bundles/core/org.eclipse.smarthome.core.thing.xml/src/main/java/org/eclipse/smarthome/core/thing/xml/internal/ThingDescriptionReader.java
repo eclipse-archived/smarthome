@@ -110,6 +110,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("properties", NodeList.class);
         xstream.alias("property", NodeValue.class);
         xstream.alias("representation-property", NodeValue.class);
+        xstream.alias("autoUpdatePolicy", NodeValue.class);
     }
 
 }
