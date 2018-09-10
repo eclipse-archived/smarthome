@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.onewire.internal.discovery;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,20 @@ public class OwDiscoveryItem {
                 hwRevision = config.getHardwareRevision();
                 prodDate = config.getProductionDate();
                 sensorType = config.getSensorSubType();
+                break;
+            case EDS:
+                vendor = "Embedded Data Systems";
+                pages = bridgeHandler.readPages(sensorId);
+
+                try { // determine subsensorType
+                    sensorType = OwSensorType.valueOf(new String(pages.getPage(0), 0, 7, StandardCharsets.US_ASCII));
+                } catch (IllegalArgumentException e) {
+                    sensorType = OwSensorType.UNKNOWN;
+                }
+
+                int fwRevisionLow = pages.getByte(3, 3);
+                int fwRevisionHigh = pages.getByte(3, 4);
+                hwRevision = String.format("%d.%d", fwRevisionHigh, fwRevisionLow);
                 break;
             default:
         }
@@ -142,7 +157,7 @@ public class OwDiscoveryItem {
     /**
      * get this sensors ThingTypeUID
      *
-     * @return ThingTypeUID if mapping successfull
+     * @return ThingTypeUID if mapping successful
      */
     public ThingTypeUID getThingTypeUID() {
         return thingTypeUID;

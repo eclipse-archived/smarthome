@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link MultisensorThingHandler} is responsible for handling multisensors
+ * The {@link MultisensorThingHandler} is responsible for handling DS2438 based multisensors
  *
  * @author Jan N. Klug - Initial contribution
  */
@@ -79,7 +79,7 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
             return;
         }
 
-        if (configuration.get(CONFIG_DIGITALREFRESH) != null) {
+        if (configuration.containsKey(CONFIG_DIGITALREFRESH)) {
             digitalRefreshInterval = ((BigDecimal) configuration.get(CONFIG_DIGITALREFRESH)).intValue() * 1000;
         } else {
             digitalRefreshInterval = 10 * 1000;
@@ -97,14 +97,14 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         }
 
         // AMS/BMS properties
-        if (thingType == THING_TYPE_BMS || thingType == THING_TYPE_AMS) {
-            if ((properties.get(PROPERTY_PROD_DATE) == null) || (properties.get(PROPERTY_HW_REVISION) == null)) {
+        if (THING_TYPE_BMS.equals(thingType) || THING_TYPE_AMS.equals(thingType)) {
+            if (properties.containsKey(PROPERTY_PROD_DATE) && properties.containsKey(PROPERTY_HW_REVISION)) {
+                hwRevision = Integer.valueOf(properties.get(PROPERTY_HW_REVISION));
+            } else {
                 scheduler.execute(() -> {
                     updateSensorProperties();
                 });
                 return;
-            } else {
-                hwRevision = Integer.valueOf(properties.get(PROPERTY_HW_REVISION));
             }
         }
 
@@ -166,7 +166,7 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         }
 
         // temperature channel
-        if ((configuration.get(CONFIG_TEMPERATURESENSOR) != null)
+        if (configuration.containsKey(CONFIG_TEMPERATURESENSOR)
                 && configuration.get(CONFIG_TEMPERATURESENSOR).equals("DS18B20") && sensorCount > 1) {
             sensors.get(1).enableChannel(CHANNEL_TEMPERATURE);
         } else {
@@ -188,8 +188,8 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         }
 
         // light/current sensor
-        if ((thingType == THING_TYPE_AMS) || (thingType == THING_TYPE_BMS)) {
-            if ((configuration.get(CONFIG_LIGHTSENSOR) != null) && ((Boolean) configuration.get(CONFIG_LIGHTSENSOR))) {
+        if (THING_TYPE_AMS.equals(thingType) || THING_TYPE_BMS.equals(thingType)) {
+            if (configuration.containsKey(CONFIG_LIGHTSENSOR) && ((Boolean) configuration.get(CONFIG_LIGHTSENSOR))) {
                 sensors.get(0).enableChannel(CHANNEL_LIGHT);
                 if (thing.getChannel(CHANNEL_CURRENT) != null) {
                     thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT));
@@ -224,7 +224,7 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
 
         // digital channels
         if (THING_TYPE_AMS.equals(thingType)) {
-            if (configuration.get(CONFIG_DIGITALREFRESH) != null) {
+            if (configuration.containsKey(CONFIG_DIGITALREFRESH)) {
                 digitalRefreshInterval = ((BigDecimal) configuration.get(CONFIG_DIGITALREFRESH)).intValue() * 1000;
             } else {
                 // default 10ms
@@ -249,6 +249,7 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
 
     @Override
     protected void updateSensorProperties() {
+        logger.info("updating {}", thing.getLabel());
         Map<String, String> properties = editProperties();
 
         Bridge bridge = getBridge();
@@ -270,7 +271,7 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
             hwRevision = pages.getByte(5, 3);
             properties.put(PROPERTY_PROD_DATE, prodDate);
             properties.put(PROPERTY_HW_REVISION, String.valueOf(hwRevision));
-            logger.trace("set production date {}, revision {}", prodDate, hwRevision);
+            logger.debug("set production date {}, revision {}", prodDate, hwRevision);
         } catch (OwException e) {
             logger.info("updating thing properties failed: {}", e.getMessage());
             scheduler.schedule(() -> {
@@ -280,5 +281,6 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         }
 
         updateProperties(properties);
+        initialize();
     }
 }

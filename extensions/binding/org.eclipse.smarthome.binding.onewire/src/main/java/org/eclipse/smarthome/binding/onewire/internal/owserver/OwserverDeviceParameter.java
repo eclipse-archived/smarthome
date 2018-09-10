@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.onewire.internal.owserver;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameter;
 
 /**
  * The {@link OwserverDeviceParameter} device parameter definition for owserver bridge handler
@@ -21,7 +22,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 
 @NonNullByDefault
-public class OwserverDeviceParameter {
+public class OwserverDeviceParameter extends OwDeviceParameter {
     private String prefix = "";
     private String path = "";
 

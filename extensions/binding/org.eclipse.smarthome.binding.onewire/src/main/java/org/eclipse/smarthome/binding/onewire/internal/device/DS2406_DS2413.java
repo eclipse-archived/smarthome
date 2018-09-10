@@ -36,8 +36,8 @@ public class DS2406_DS2413 extends AbstractDigitalOwDevice {
     public void configureChannels() throws OwException {
         ioConfig.clear();
 
-        OwDeviceParameter inParam = new OwDeviceParameter();
-        OwDeviceParameter outParam = new OwDeviceParameter();
+        OwDeviceParameterMap inParam = new OwDeviceParameterMap();
+        OwDeviceParameterMap outParam = new OwDeviceParameterMap();
 
         inParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/sensed.A"));
         outParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/PIO.A"));

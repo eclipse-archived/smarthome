@@ -75,7 +75,7 @@ It has two parameters: sensor id `id` and refresh time `refresh`.
 
 ### Temperature sensor (`temperature`)
 
-The temperature thing supports DS18S20 and DS18B20 sensors.
+The temperature thing supports DS18S20, DS18B20 and DS1822 sensors.
 It provides only the `temperature` channel.
 
 It has two parameters: sensor id `id` and refresh time `refresh`. 

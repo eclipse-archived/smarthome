@@ -31,14 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link DS18x20} class defines an DS18x20 device
+ * The {@link DS18x20} class defines an DS18x20 or DS1822 device
  *
  * @author Jan N. Klug - Initial contribution
  */
 @NonNullByDefault
 public class DS18x20 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS18x20.class);
-    private static final OwDeviceParameter TEMPERATURE_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap TEMPERATURE_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
         }
