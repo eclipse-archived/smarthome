@@ -30,11 +30,11 @@ import com.google.common.collect.Sets;
 @Component(immediate = true, service = EventFactory.class)
 public class InboxEventFactory extends AbstractEventFactory {
 
-    private static final String INBOX_ADDED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/added";
+    static final String INBOX_ADDED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/added";
 
-    private static final String INBOX_REMOVED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/removed";
+    static final String INBOX_REMOVED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/removed";
 
-    private static final String INBOX_UPDATED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/updated";
+    static final String INBOX_UPDATED_EVENT_TOPIC = "smarthome/inbox/{thingUID}/updated";
 
     /**
      * Constructs a new InboxEventFactory.
