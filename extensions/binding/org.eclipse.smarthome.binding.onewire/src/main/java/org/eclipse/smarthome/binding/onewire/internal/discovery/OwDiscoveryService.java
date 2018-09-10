@@ -148,8 +148,6 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                 properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
                 properties.put(CONFIG_LIGHTSENSOR,
                         String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.BMS_S));
-                properties.put(PROPERTY_HW_REVISION, owDiscoveryItem.getHardwareRevision());
-                properties.put(PROPERTY_PROD_DATE, owDiscoveryItem.getProductionDate());
             } else if (thingTypeUID.equals(THING_TYPE_AMS)) {
                 properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
                 properties.put(CONFIG_ID + "1",
@@ -161,8 +159,6 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                 properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
                 properties.put(CONFIG_LIGHTSENSOR,
                         String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.AMS_S));
-                properties.put(PROPERTY_HW_REVISION, owDiscoveryItem.getHardwareRevision());
-                properties.put(PROPERTY_PROD_DATE, owDiscoveryItem.getProductionDate());
             } else {
                 properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
             }

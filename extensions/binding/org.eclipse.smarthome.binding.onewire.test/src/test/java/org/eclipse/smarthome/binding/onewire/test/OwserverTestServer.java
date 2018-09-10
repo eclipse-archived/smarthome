@@ -132,6 +132,10 @@ public class OwserverTestServer {
                         returnPacket.setPayload("    17.4");
                         returnPackets.add(returnPacket);
                         break;
+                    case "testsensor/decimalarray":
+                        returnPacket.setPayload("        3834,           0");
+                        returnPackets.add(returnPacket);
+                        break;
                     default:
                 }
                 break;

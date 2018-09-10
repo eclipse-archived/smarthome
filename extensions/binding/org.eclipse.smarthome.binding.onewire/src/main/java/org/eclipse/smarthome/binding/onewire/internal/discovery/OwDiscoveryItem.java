@@ -142,7 +142,7 @@ public class OwDiscoveryItem {
     /**
      * get this sensors ThingTypeUID
      *
-     * @return ThingTypeUID if mapping successfull
+     * @return ThingTypeUID if mapping successful
      */
     public ThingTypeUID getThingTypeUID() {
         return thingTypeUID;

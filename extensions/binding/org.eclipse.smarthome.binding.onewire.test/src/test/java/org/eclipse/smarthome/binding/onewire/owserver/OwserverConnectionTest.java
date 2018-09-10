@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.binding.onewire.owserver;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
@@ -93,11 +93,11 @@ public class OwserverConnectionTest extends JavaTest {
 
     @Test
     public void failedConnectionReportedToBridgeHandler() {
-        owserverConnection.setPort(testPort + 1);
+        owserverConnection.setPort(1);
 
         owserverConnection.start();
 
-        Mockito.verify(bridgeHandler).reportConnectionState(OwserverConnectionState.FAILED);
+        Mockito.verify(bridgeHandler, timeout(100)).reportConnectionState(OwserverConnectionState.FAILED);
     }
 
     @Test
@@ -136,6 +136,19 @@ public class OwserverConnectionTest extends JavaTest {
             DecimalType number = (DecimalType) owserverConnection.readDecimalType("testsensor/decimal");
 
             assertEquals(17.4, number.doubleValue(), 0.01);
+        } catch (OwException e) {
+            Assert.fail("caught unexpected OwException");
+        }
+    }
+
+    @Test
+    public void testReadDecimalTypeArray() {
+        owserverConnection.start();
+        try {
+            List<State> numbers = owserverConnection.readDecimalTypeArray("testsensor/decimalarray");
+
+            assertEquals(3834, ((DecimalType) numbers.get(0)).intValue());
+            assertEquals(0, ((DecimalType) numbers.get(1)).intValue());
         } catch (OwException e) {
             Assert.fail("caught unexpected OwException");
         }

@@ -54,31 +54,31 @@ public class DS2438 extends AbstractOwDevice {
 
     private LightSensorType lightSensorType = LightSensorType.ElabNetV1;
 
-    private static final OwDeviceParameter TEMPERATURE_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap TEMPERATURE_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
         }
     };
 
-    private static final OwDeviceParameter HUMIDITY_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap HUMIDITY_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/humidity"));
         }
     };
 
-    private static final OwDeviceParameter VOLTAGE_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap VOLTAGE_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/VAD"));
         }
     };
 
-    private static final OwDeviceParameter CURRENT_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap CURRENT_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/vis"));
         }
     };
 
-    private static final OwDeviceParameter SUPPLY_VOLTAGE_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap SUPPLY_VOLTAGE_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/VDD"));
         }
@@ -96,7 +96,8 @@ public class DS2438 extends AbstractOwDevice {
         if (humidityChannel != null) {
             Configuration channelConfiguration = humidityChannel.getConfiguration();
             if (channelConfiguration.get(CONFIG_HUMIDITY) != null) {
-                HUMIDITY_PARAMETER.set(THING_TYPE_OWSERVER, channelConfiguration.get(CONFIG_HUMIDITY));
+                HUMIDITY_PARAMETER.set(THING_TYPE_OWSERVER,
+                        new OwserverDeviceParameter((String) channelConfiguration.get(CONFIG_HUMIDITY)));
             } else {
                 HUMIDITY_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/humidity"));
             }
@@ -158,13 +159,14 @@ public class DS2438 extends AbstractOwDevice {
             if (enabledChannels.contains(CHANNEL_LIGHT)) {
                 State light = bridgeHandler.readDecimalType(sensorId, CURRENT_PARAMETER);
                 if (light instanceof DecimalType) {
-                    if (lightSensorType == LightSensorType.ElabNetV1) {
+                    if (lightSensorType == LightSensorType.ElabNetV2) {
                         light = new QuantityType<Illuminance>(
-                                Math.pow(10, ((DecimalType) light).doubleValue() / 47 * 1000), SmartHomeUnits.LUX);
+                                Math.round(Math.pow(10, ((DecimalType) light).doubleValue() / 47 * 1000)),
+                                SmartHomeUnits.LUX);
                     } else {
-                        light = new QuantityType<Illuminance>(Math.exp(
+                        light = new QuantityType<Illuminance>(Math.round(Math.exp(
                                 1.059 * Math.log(1000000 * ((DecimalType) light).doubleValue() / (4096 * 390)) + 4.518)
-                                * 20000, SmartHomeUnits.LUX);
+                                * 20000), SmartHomeUnits.LUX);
                     }
                     callback.postUpdate(CHANNEL_LIGHT, light);
                 }

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
-import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameter;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameterMap;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnection;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnectionState;
@@ -119,10 +119,18 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public State readDecimalType(String sensorId, OwDeviceParameter parameter) throws OwException {
+    public State readDecimalType(String sensorId, OwDeviceParameterMap parameter) throws OwException {
         synchronized (owserverConnection) {
             return owserverConnection
                     .readDecimalType(((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
+        }
+    }
+
+    @Override
+    public List<State> readDecimalTypeArray(String sensorId, OwDeviceParameterMap parameter) throws OwException {
+        synchronized (owserverConnection) {
+            return owserverConnection.readDecimalTypeArray(
+                    ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
         }
     }
 
@@ -134,7 +142,7 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public String readString(String sensorId, OwDeviceParameter parameter) throws OwException {
+    public String readString(String sensorId, OwDeviceParameterMap parameter) throws OwException {
         synchronized (owserverConnection) {
             return owserverConnection
                     .readString(((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
@@ -142,7 +150,7 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public void writeDecimalType(String path, OwDeviceParameter parameter, DecimalType value) throws OwException {
+    public void writeDecimalType(String path, OwDeviceParameterMap parameter, DecimalType value) throws OwException {
         synchronized (owserverConnection) {
             owserverConnection.writeDecimalType(
                     ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(path), value);

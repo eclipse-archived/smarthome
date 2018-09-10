@@ -18,6 +18,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -186,6 +187,27 @@ public class OwserverConnection {
         }
 
         return returnState;
+    }
+
+    /**
+     * read a decimal type array
+     *
+     * @param path full owfs path to sensor
+     * @return a List of DecimalType values if successful
+     * @throws OwException
+     */
+    public List<State> readDecimalTypeArray(String path) throws OwException {
+        List<State> returnList = new ArrayList<>();
+        OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.READ, path);
+        OwserverPacket returnPacket = request(requestPacket);
+        if ((returnPacket.getReturnCode() != -1) && returnPacket.hasPayload()) {
+            Arrays.stream(returnPacket.getPayloadString().split(","))
+                    .forEach(v -> returnList.add(DecimalType.valueOf(v.trim())));
+        } else {
+            throw new OwException("invalid of empty packet");
+        }
+
+        return returnList;
     }
 
     /**

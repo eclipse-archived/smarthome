@@ -12,40 +12,11 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal.device;
 
-import java.util.HashMap;
-
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-
 /**
- * The {@link OwDeviceParameter} stores bridge specific implementation details of a device
+ * The {@link OwDeviceParameter} defines a member of the OwDeviceParameterMap
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class OwDeviceParameter {
+public abstract class OwDeviceParameter {
 
-    private final HashMap<ThingTypeUID, Object> map = new HashMap<>();
-
-    /**
-     * sets (or replaces) implementation details for a given bridge
-     *
-     * @param thingTypeUID the bridges thing type UID
-     * @param obj the information for this bridge
-     */
-    public void set(ThingTypeUID thingTypeUID, Object obj) {
-        if (map.containsKey(thingTypeUID)) {
-            map.replace(thingTypeUID, obj);
-        } else {
-            map.put(thingTypeUID, obj);
-        }
-    }
-
-    /**
-     * gets implementation details for a given bridge
-     *
-     * @param thingTypeUID the bridges thing type UID
-     * @return the information for this bridge
-     */
-    public Object get(ThingTypeUID thingTypeUID) {
-        return map.get(thingTypeUID);
-    }
 }

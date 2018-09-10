@@ -21,6 +21,7 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.discovery.OwDiscoveryService;
+import org.eclipse.smarthome.binding.onewire.internal.handler.CounterSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.DigitalIOThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.IButtonThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.MultisensorThingHandler;
@@ -75,7 +76,10 @@ public class OwHandlerFactory extends BaseThingHandlerFactory {
             return new DigitalIOThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (MultisensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new MultisensorThingHandler(thing, dynamicStateDescriptionProvider);
+        } else if (CounterSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new CounterSensorThingHandler(thing, dynamicStateDescriptionProvider);
         }
+
         return null;
     }
 

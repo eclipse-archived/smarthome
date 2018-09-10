@@ -88,7 +88,7 @@
 		<item-type>Number:Illuminance</item-type>
 		<label>Illuminance</label>
 		<description>Ambient light</description>
-		<state readOnly="true" pattern="%.0f %unit%"/>
+		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
 	<!-- Current Channel -->
 	<channel-type id="current">
@@ -121,5 +121,19 @@
 				<limitToOptions>true</limitToOptions>
 			</parameter>
 		</config-description>
+	</channel-type>
+	<!-- Pressure Channel -->
+	<channel-type id="pressure">
+		<item-type>Number:Pressure</item-type>
+		<label>Pressure</label>
+		<description>The pressure measured by the sensor</description>
+		<state readOnly="true" pattern="%.1f %unit%" />
+	</channel-type>
+	<!-- Counter Channel -->
+	<channel-type id="counter">
+		<item-type>Number</item-type>
+		<label>Counter</label>
+		<description>A single counter (reset on power loss)</description>
+		<state readOnly="true" pattern="%d" />
 	</channel-type>
 </thing:thing-descriptions>
