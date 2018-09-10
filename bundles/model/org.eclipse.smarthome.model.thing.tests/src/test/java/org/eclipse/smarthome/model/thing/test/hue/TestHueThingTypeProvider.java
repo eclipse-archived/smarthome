@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
  *         ThingType Description
  *
  */
+@Component
 public class TestHueThingTypeProvider implements ThingTypeProvider {
 
     private final Logger logger = LoggerFactory.getLogger(TestHueThingTypeProvider.class);
