@@ -220,4 +220,31 @@
 			</parameter>
 		</config-description>
 	</thing-type>
+	<thing-type id="edsenv">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>Multisensor</label>
+		<description>A 1-wire multisensor (EDS00xx-based)</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+		</channels>
+		<properties>
+			<property name="sensorCount">1</property>
+		</properties>
+		<config-description>
+			<parameter name="id" type="text">
+				<label>Sensor ID</label>
+				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
 </thing:thing-descriptions>

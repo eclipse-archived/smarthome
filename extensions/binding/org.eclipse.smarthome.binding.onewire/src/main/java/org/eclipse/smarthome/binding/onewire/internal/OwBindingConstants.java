@@ -46,6 +46,7 @@ public class OwBindingConstants {
     public static final ThingTypeUID THING_TYPE_BMS = new ThingTypeUID(BINDING_ID, "bms");
     public static final ThingTypeUID THING_TYPE_AMS = new ThingTypeUID(BINDING_ID, "ams");
     public static final ThingTypeUID THING_TYPE_COUNTER2 = new ThingTypeUID(BINDING_ID, "counter2");
+    public static final ThingTypeUID THING_TYPE_EDS_ENV = new ThingTypeUID(BINDING_ID, "edsenv");
 
     // DEPRECATED
     public static final ThingTypeUID THING_TYPE_MS_TH = new ThingTypeUID(BINDING_ID, "ms-th");
@@ -54,7 +55,7 @@ public class OwBindingConstants {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_OWSERVER, THING_TYPE_TEMPERATURE, THING_TYPE_IBUTTON, THING_TYPE_DIGITALIO,
                     THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8, THING_TYPE_AMS, THING_TYPE_BMS, THING_TYPE_MS_TH,
-                    THING_TYPE_MS_TX, THING_TYPE_MS_TV, THING_TYPE_COUNTER2));
+                    THING_TYPE_MS_TX, THING_TYPE_MS_TV, THING_TYPE_EDS_ENV, THING_TYPE_COUNTER2));
 
     // List of all config options
     public static final String CONFIG_ADDRESS = "network-address";
@@ -120,6 +121,11 @@ public class OwBindingConstants {
         initThingTypeMap.put(OwSensorType.AMS, THING_TYPE_AMS);
         initThingTypeMap.put(OwSensorType.AMS_S, THING_TYPE_AMS);
         initThingTypeMap.put(OwSensorType.DS2423, THING_TYPE_COUNTER2);
+        initThingTypeMap.put(OwSensorType.EDS0064, THING_TYPE_EDS_ENV);
+        initThingTypeMap.put(OwSensorType.EDS0065, THING_TYPE_EDS_ENV);
+        initThingTypeMap.put(OwSensorType.EDS0066, THING_TYPE_EDS_ENV);
+        initThingTypeMap.put(OwSensorType.EDS0067, THING_TYPE_EDS_ENV);
+        initThingTypeMap.put(OwSensorType.EDS0068, THING_TYPE_EDS_ENV);
         THING_TYPE_MAP = Collections.unmodifiableMap(initThingTypeMap);
 
         Map<ThingTypeUID, String> initThingLabelMap = new HashMap<ThingTypeUID, String>();
@@ -132,6 +138,7 @@ public class OwBindingConstants {
         initThingLabelMap.put(THING_TYPE_BMS, "Elaborated Networks BMS");
         initThingLabelMap.put(THING_TYPE_AMS, "Elaborated Networks AMS");
         initThingLabelMap.put(THING_TYPE_COUNTER2, "Dual Counter");
+        initThingLabelMap.put(THING_TYPE_EDS_ENV, "EDS Environmental Sensor");
         THING_LABEL_MAP = Collections.unmodifiableMap(initThingLabelMap);
     }
 
