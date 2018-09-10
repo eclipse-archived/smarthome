@@ -93,13 +93,11 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, service = Inbox.class)
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
 
-    /**
-     * Internal enumeration to identify the correct type of the event to be fired.
-     */
+    // Internal enumeration to identify the correct type of the event to be fired.
     private enum EventType {
-    added,
-    removed,
-    updated
+        added,
+        removed,
+        updated
     }
 
     private class TimeToLiveCheckingThread implements Runnable {
