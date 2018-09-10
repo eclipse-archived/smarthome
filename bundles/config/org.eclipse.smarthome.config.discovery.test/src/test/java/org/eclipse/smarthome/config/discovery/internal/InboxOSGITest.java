@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.config.setup.test.inbox;
+package org.eclipse.smarthome.config.discovery.internal;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;

@@ -97,9 +97,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
      * Internal enumeration to identify the correct type of the event to be fired.
      */
     private enum EventType {
-        added,
-        removed,
-        updated
+    added,
+    removed,
+    updated
     }
 
     private class TimeToLiveCheckingThread implements Runnable {
@@ -674,29 +674,29 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Reference
-    public void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+    protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
     }
 
-    public void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+    protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
     }
 
     @Reference
-    public void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = configDescriptionRegistry;
     }
 
-    public void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescRegistry = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.add(thingHandlerFactory);
     }
 
-    public void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+    protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.remove(thingHandlerFactory);
     }
 
