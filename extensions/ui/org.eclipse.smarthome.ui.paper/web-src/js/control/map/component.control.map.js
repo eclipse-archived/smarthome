@@ -88,31 +88,13 @@
         };
 
         var ctrl = this;
+        this.mapId;
         this.map;
         this.point;
         this.$onInit = redrawMap;
         this.$onChanges = onChanges;
 
         activate();
-
-        function onChanges(changes) {
-            if (changes.model) {
-                ctrl.model = changes.model.currentValue;
-                updateMap(ctrl.map, ctrl.point, ctrl.model);
-            }
-        }
-
-        function redrawMap() {
-            setTimeout(function() {
-                if (ctrl.model && ctrl.model.length > 0) {
-                    updateMap(ctrl.map, ctrl.point, ctrl.model);
-                    ctrl.map.getView().setZoom(14);
-                } else {
-                    updateMap(ctrl.map, ctrl.point, [ 0, 0 ])
-                }
-                ctrl.map.updateSize();
-            }, 100);
-        }
 
         function activate() {
             if (!mapSourceService) {
@@ -123,31 +105,50 @@
             }
 
             ctrl.hasMapSource = true
-            var element = 'map';
+            ctrl.mapId = randomId();
+        }
 
-            if (ctrl.readOnly) {
-                ctrl.map = createMap(element, null);
-            } else {
-                ctrl.map = createMap(element, function(dragCoordinates) {
-                    var location = getLocation(ctrl.model);
-                    var altitude = location[2];
-
-                    var lonLatCoordinates = ol.proj.toLonLat(dragCoordinates);
-                    var model = lonLatCoordinates[1] + ',' + lonLatCoordinates[0];
-                    if (altitude != null) {
-                        model += (',' + altitude);
-                    }
-
-                    $timeout(function() {
-                        ctrl.onUpdate({
-                            $event : {
-                                location : model
-                            }
-                        });
-                    }, 0);
-
-                });
+        function onChanges(changes) {
+            if (changes.model) {
+                ctrl.model = changes.model.currentValue;
+                updateMap(ctrl.model);
             }
+        }
+
+        function redrawMap() {
+            setTimeout(function() {
+                if (!ctrl.map) { // initialize the map "later" so the DOM interpolation for mapId is ready.
+                    var elementId = 'map-' + ctrl.mapId;
+                    var callback = ctrl.readOnly ? null : coordinateCallback;
+                    ctrl.map = createMap(elementId, callback);
+                }
+                if (ctrl.model && ctrl.model.length > 0) {
+                    updateMap(ctrl.model);
+                    ctrl.map.getView().setZoom(14);
+                } else {
+                    updateMap([ 0, 0 ])
+                }
+                ctrl.map.updateSize();
+            }, 100);
+        }
+
+        function coordinateCallback(dragCoordinates) {
+            var location = getLocation(ctrl.model);
+            var altitude = location[2];
+
+            var lonLatCoordinates = ol.proj.toLonLat(dragCoordinates);
+            var model = lonLatCoordinates[1] + ',' + lonLatCoordinates[0];
+            if (altitude != null) {
+                model += (',' + altitude);
+            }
+
+            $timeout(function() {
+                ctrl.onUpdate({
+                    $event : {
+                        location : model
+                    }
+                });
+            }, 0);
         }
 
         function createMap(element, coordinateCallback) {
@@ -176,7 +177,7 @@
             return map;
         }
 
-        function updateMap(map, point, model) {
+        function updateMap(model) {
             var location = getLocation(model);
             var latitude = location[0];
             var longitude = location[1];
@@ -186,8 +187,8 @@
             }
 
             var center = ol.proj.fromLonLat([ longitude, latitude ]);
-            map.getView().setCenter(center);
-            point.setCoordinates(center);
+            ctrl.map.getView().setCenter(center);
+            ctrl.point.setCoordinates(center);
         }
 
         function createVectorLayer(point) {
@@ -232,6 +233,10 @@
             }
 
             return [ latitude, longitude, altitude ];
+        }
+
+        function randomId() {
+            return Math.random().toString(36).substring(2, 6) + '-' + Math.random().toString(36).substring(2, 6);
         }
     }
 })()
