@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="129">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="130">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -148,6 +148,7 @@
 <unit id="californium-osgi" version="0.0.0"/>
 <unit id="org.eclipse.californium.element-connector" version="0.0.0"/>
 <unit id="org.eclipse.californium.scandium" version="0.0.0"/>
+<unit id="org.eclipse.microprofile.metrics" version="0.0.0"/>
 <unit id="osgi.annotation" version="0.0.0"/>
 <unit id="osgi.annotation.source" version="0.0.0"/>
 <unit id="org.mockito.mockito-core" version="0.0.0"/>
