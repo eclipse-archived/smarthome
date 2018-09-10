@@ -76,11 +76,11 @@ public class InboxResource implements RESTResource {
     private Inbox inbox;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    public void setInbox(Inbox inbox) {
+    protected void setInbox(Inbox inbox) {
         this.inbox = inbox;
     }
 
-    public void unsetInbox(Inbox inbox) {
+    protected void unsetInbox(Inbox inbox) {
         this.inbox = null;
     }
 
