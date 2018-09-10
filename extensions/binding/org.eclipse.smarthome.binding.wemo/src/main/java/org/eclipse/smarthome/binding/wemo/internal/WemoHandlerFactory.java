@@ -113,15 +113,15 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected synchronized void removeHandler(ThingHandler thingHandler) {
         if (thingHandler instanceof WemoBridgeHandler) {
-            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler.getThing().getUID());
+            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             if (serviceReg != null) {
                 serviceReg.unregister();
-                discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             }
         }
     }
 
-    private void registerDeviceDiscoveryService(WemoBridgeHandler wemoBridgeHandler, WemoHttpCall wemoHttpCaller) {
+    private synchronized void registerDeviceDiscoveryService(WemoBridgeHandler wemoBridgeHandler,
+            WemoHttpCall wemoHttpCaller) {
         WemoLinkDiscoveryService discoveryService = new WemoLinkDiscoveryService(wemoBridgeHandler, upnpIOService,
                 wemoHttpCaller);
         this.discoveryServiceRegs.put(wemoBridgeHandler.getThing().getUID(), bundleContext
