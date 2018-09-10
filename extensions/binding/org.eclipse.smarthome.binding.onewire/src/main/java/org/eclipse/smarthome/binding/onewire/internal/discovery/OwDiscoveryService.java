@@ -65,8 +65,8 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
 
         Collections.sort(directory);
 
-        Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<String, OwDiscoveryItem>();
-        Map<String, String> associationMap = new HashMap<String, String>();
+        Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<>();
+        Map<String, String> associationMap = new HashMap<>();
 
         // find all valid sensors
         for (String directoryEntry : directory) {
@@ -93,13 +93,16 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
         Iterator<Entry<String, String>> associationMapIterator = associationMap.entrySet().iterator();
         while (associationMapIterator.hasNext()) {
             Entry<String, String> entry = associationMapIterator.next();
-            if (!entry.getKey().substring(0, 2).equals("26")) {
-                if (owDiscoveryItems.containsKey(entry.getKey()) && owDiscoveryItems.containsKey(entry.getValue())) {
-                    owDiscoveryItems.get(entry.getValue()).addAssociatedSensor(owDiscoveryItems.get(entry.getKey()));
-                    owDiscoveryItems.remove(entry.getKey());
+            String associatedSensor = entry.getKey();
+            String mainSensor = entry.getValue();
+
+            if (!associatedSensor.substring(0, 2).equals("26")) {
+                if (owDiscoveryItems.containsKey(associatedSensor) && owDiscoveryItems.containsKey(mainSensor)) {
+                    owDiscoveryItems.get(mainSensor).addAssociatedSensor(owDiscoveryItems.get(associatedSensor));
+                    owDiscoveryItems.remove(associatedSensor);
                 } else {
-                    logger.info("cannot resolve association {}->{}, please check your sensor hardware", entry.getKey(),
-                            entry.getValue());
+                    logger.info("cannot resolve association {}->{}, please check your sensor hardware",
+                            associatedSensor, mainSensor);
                 }
                 associationMapIterator.remove();
             }
@@ -108,14 +111,17 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
         associationMapIterator = associationMap.entrySet().iterator();
         while (associationMapIterator.hasNext()) {
             Entry<String, String> entry = associationMapIterator.next();
-            if (owDiscoveryItems.containsKey(entry.getKey()) && owDiscoveryItems.containsKey(entry.getValue())) {
-                if (owDiscoveryItems.get(entry.getKey()).hasAssociatedSensors()) {
-                    owDiscoveryItems.get(entry.getValue())
-                            .addAssociatedSensors(owDiscoveryItems.get(entry.getKey()).getAssociatedSensors());
-                    owDiscoveryItems.get(entry.getKey()).clearAssociatedSensors();
+            String associatedSensor = entry.getKey();
+            String mainSensor = entry.getValue();
+
+            if (owDiscoveryItems.containsKey(associatedSensor) && owDiscoveryItems.containsKey(mainSensor)) {
+                if (owDiscoveryItems.get(associatedSensor).hasAssociatedSensors()) {
+                    owDiscoveryItems.get(mainSensor)
+                            .addAssociatedSensors(owDiscoveryItems.get(associatedSensor).getAssociatedSensors());
+                    owDiscoveryItems.get(associatedSensor).clearAssociatedSensors();
                 }
-                owDiscoveryItems.get(entry.getValue()).addAssociatedSensor(owDiscoveryItems.get(entry.getKey()));
-                owDiscoveryItems.remove(entry.getKey());
+                owDiscoveryItems.get(mainSensor).addAssociatedSensor(owDiscoveryItems.get(associatedSensor));
+                owDiscoveryItems.remove(associatedSensor);
             } else {
                 logger.info("cannot resolve association {}->{}, please check your sensor hardware", entry.getKey(),
                         entry.getValue());
@@ -142,8 +148,8 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                 properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
                 properties.put(CONFIG_LIGHTSENSOR,
                         String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.BMS_S));
-                properties.put(PROPERTY_HW_REVISION, owDiscoveryItem.getHwRevision());
-                properties.put(PROPERTY_PROD_DATE, owDiscoveryItem.getProdDate());
+                properties.put(PROPERTY_HW_REVISION, owDiscoveryItem.getHardwareRevision());
+                properties.put(PROPERTY_PROD_DATE, owDiscoveryItem.getProductionDate());
             } else if (thingTypeUID.equals(THING_TYPE_AMS)) {
                 properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
                 properties.put(CONFIG_ID + "1",
@@ -155,8 +161,8 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                 properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
                 properties.put(CONFIG_LIGHTSENSOR,
                         String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.AMS_S));
-                properties.put(PROPERTY_HW_REVISION, owDiscoveryItem.getHwRevision());
-                properties.put(PROPERTY_PROD_DATE, owDiscoveryItem.getProdDate());
+                properties.put(PROPERTY_HW_REVISION, owDiscoveryItem.getHardwareRevision());
+                properties.put(PROPERTY_PROD_DATE, owDiscoveryItem.getProductionDate());
             } else {
                 properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
             }

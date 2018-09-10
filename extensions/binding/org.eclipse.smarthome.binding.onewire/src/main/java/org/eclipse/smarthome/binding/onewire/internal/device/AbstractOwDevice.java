@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public abstract class AbstractOwDevice {
-    protected final Logger logger = LoggerFactory.getLogger(AbstractOwDevice.class);
+    private final Logger logger = LoggerFactory.getLogger(AbstractOwDevice.class);
 
     protected String sensorId;
     protected OwSensorType sensorType = OwSensorType.UNKNOWN;
