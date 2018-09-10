@@ -80,30 +80,28 @@ public class TradfriHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected synchronized void removeHandler(ThingHandler thingHandler) {
+    protected void removeHandler(ThingHandler thingHandler) {
         if (thingHandler instanceof TradfriGatewayHandler) {
             unregisterDiscoveryService((TradfriGatewayHandler) thingHandler);
         }
-        super.removeHandler(thingHandler);
     }
 
-    private void registerDiscoveryService(TradfriGatewayHandler bridgeHandler) {
+    private synchronized void registerDiscoveryService(TradfriGatewayHandler bridgeHandler) {
         TradfriDiscoveryService discoveryService = new TradfriDiscoveryService(bridgeHandler);
         discoveryService.activate();
         this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), getBundleContext()
                 .registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }
 
-    private void unregisterDiscoveryService(TradfriGatewayHandler bridgeHandler) {
-        ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(bridgeHandler.getThing().getUID());
+    private synchronized void unregisterDiscoveryService(TradfriGatewayHandler bridgeHandler) {
+        ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.remove(bridgeHandler.getThing().getUID());
         if (serviceReg != null) {
             TradfriDiscoveryService service = (TradfriDiscoveryService) getBundleContext()
                     .getService(serviceReg.getReference());
+            serviceReg.unregister();
             if (service != null) {
                 service.deactivate();
             }
-            serviceReg.unregister();
-            discoveryServiceRegs.remove(bridgeHandler.getThing().getUID());
         }
     }
 }

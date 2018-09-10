@@ -88,10 +88,9 @@ public class BlueGigaHandlerFactory extends BaseThingHandlerFactory {
     protected synchronized void removeHandler(ThingHandler thingHandler) {
         if (thingHandler instanceof BluetoothAdapter) {
             UID uid = ((BluetoothAdapter) thingHandler).getUID();
-            ServiceRegistration<?> serviceReg = this.serviceRegs.get(uid);
+            ServiceRegistration<?> serviceReg = this.serviceRegs.remove(uid);
             if (serviceReg != null) {
                 serviceReg.unregister();
-                serviceRegs.remove(uid);
             }
         }
     }
