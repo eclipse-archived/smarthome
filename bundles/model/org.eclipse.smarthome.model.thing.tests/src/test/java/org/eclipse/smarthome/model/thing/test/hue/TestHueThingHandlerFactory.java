@@ -27,7 +27,9 @@ import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.types.Command;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.common.collect.Sets;
 
@@ -37,6 +39,7 @@ import com.google.common.collect.Sets;
  *         ThingType Description
  */
 @NonNullByDefault
+@Component(service = ThingHandlerFactory.class)
 public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
 
     public static final String BINDING_ID = "hue";

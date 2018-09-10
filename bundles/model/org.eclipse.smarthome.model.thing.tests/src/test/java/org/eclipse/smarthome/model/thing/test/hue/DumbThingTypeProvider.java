@@ -26,12 +26,14 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Simon Kaufmann - Initial contribution and API
  */
+@Component
 public class DumbThingTypeProvider implements ThingTypeProvider {
 
     private final Logger logger = LoggerFactory.getLogger(DumbThingTypeProvider.class);
@@ -45,8 +47,8 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    ThingTypeBuilder.instance(DumbThingHandlerFactory.THING_TYPE_TEST, "DUMB").withDescription("Funky Thing")
-                            .isListed(false).withChannelDefinitions(channelDefinitions)
+                    ThingTypeBuilder.instance(DumbThingHandlerFactory.THING_TYPE_TEST, "DUMB")
+                            .withDescription("Funky Thing").isListed(false).withChannelDefinitions(channelDefinitions)
                             .withConfigDescriptionURI(new URI("dumb:DUMB")).build());
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
