@@ -18,13 +18,16 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -110,34 +113,35 @@ public interface ThingHandlerCallback {
     void channelTriggered(Thing thing, ChannelUID channelUID, String event);
 
     /**
-     * Creates a {@link ChannelBuilder} which is preconfigured with values from the given channel type.
+     * Creates a {@link ChannelBuilder} which is preconfigured with values from the given {@link ChannelType}.
      *
-     * @param channelUID the UID of the channel to be created
-     * @param channelTypeUID the channel type UID for which the channel should be created
-     * @return a preconfigured ChannelBuilder
-     * @throw {@link IllegalArgumentException} if the referenced channel type is not known
+     * @param channelUID the UID of the {@link Channel} to be created
+     * @param channelTypeUID the {@link ChannelTypeUID} for which the {@link Channel} should be created
+     * @return a preconfigured {@link ChannelBuilder}
+     * @throws IllegalArgumentException if the referenced {@link ChannelType} is not known
      */
     ChannelBuilder createChannelBuilder(ChannelUID channelUID, ChannelTypeUID channelTypeUID);
 
     /**
-     * Creates a {@link ChannelBuilder} which is preconfigured with values from the given channel and allows to modify
-     * it. The methods {@link BaseThingHandler#editThing(Thing)} and {@link BaseThingHandler#updateThing(Thing)} must be
-     * called to persist the changes.
+     * Creates a {@link ChannelBuilder} which is preconfigured with values from the given {@link Channel} and allows to
+     * modify it. The methods {@link BaseThingHandler#editThing(Thing)} and {@link BaseThingHandler#updateThing(Thing)}
+     * must be called to persist the changes.
      *
-     * @param thing thing (must not be null)
-     * @param channelUID the UID of the channel to be edited
-     * @return a preconfigured ChannelBuilder
-     * @throw {@link IllegalArgumentException} if no channel with the given UID exists for the given thing
+     * @param thing {@link Thing} (must not be null)
+     * @param channelUID the UID of the {@link Channel} to be edited
+     * @return a preconfigured {@link ChannelBuilder}
+     * @throws IllegalArgumentException if no {@link Channel} with the given UID exists for the given {@link Thing}
      */
     ChannelBuilder editChannel(Thing thing, ChannelUID channelUID);
 
     /**
-     * Creates a list of {@link ChannelBuilder}s which are preconfigured with values from the given channel group type.
+     * Creates a list of {@link ChannelBuilder}s which are preconfigured with values from the given
+     * {@link ChannelGroupType}.
      *
      * @param channelGroupUID the UID of the channel group to be created
-     * @param channelGroupTypeUID the channel group type UID for which the channel should be created
-     * @return a list of preconfigured ChannelBuilders
-     * @throw {@link IllegalArgumentException} if the referenced channel group type is not known
+     * @param channelGroupTypeUID the {@link ChannelGroupUID} for which the {@link Channel}s should be created
+     * @return a list of preconfigured {@link ChannelBuilder}s
+     * @throws IllegalArgumentException if the referenced {@link ChannelGroupType} is not known
      */
     List<ChannelBuilder> createChannelBuilders(ChannelGroupUID channelGroupUID,
             ChannelGroupTypeUID channelGroupTypeUID);
