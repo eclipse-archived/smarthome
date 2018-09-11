@@ -45,7 +45,7 @@ public class ChannelBuilder {
     private @Nullable String label;
     private @Nullable String description;
     private @Nullable ChannelTypeUID channelTypeUID;
-    private AutoUpdatePolicy autoUpdatePolicy = AutoUpdatePolicy.DEFAULT;
+    private @Nullable AutoUpdatePolicy autoUpdatePolicy;
 
     private ChannelBuilder(ChannelUID channelUID, @Nullable String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
@@ -175,11 +175,7 @@ public class ChannelBuilder {
      * @return channel builder
      */
     public ChannelBuilder withAutoUpdatePolicy(@Nullable AutoUpdatePolicy policy) {
-        if (policy != null) {
-            this.autoUpdatePolicy = policy;
-        } else {
-            this.autoUpdatePolicy = AutoUpdatePolicy.DEFAULT;
-        }
+        this.autoUpdatePolicy = policy;
         return this;
     }
 

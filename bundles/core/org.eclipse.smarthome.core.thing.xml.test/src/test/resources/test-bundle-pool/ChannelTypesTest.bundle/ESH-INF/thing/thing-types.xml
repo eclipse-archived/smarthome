@@ -7,9 +7,15 @@
 	<thing-type id="something">
 
 		<label>Something</label>
-		
+
 		<channels>
 			<channel id="channel1" typeId="color">
+				<label>Channel without reference</label>
+				<description>Channel Description</description>
+				<properties>
+					<property name="property1">value</property>
+				</properties>
+				<autoUpdatePolicy>recommend</autoUpdatePolicy>
 			</channel>
 		</channels>
 	</thing-type>
@@ -22,8 +28,10 @@
 	<channel-type id="channel-without-reference">
 		<item-type>Number</item-type>
 		<label>Channel without reference</label>
+		<description>Channel Description</description>
+		<autoUpdatePolicy>recommend</autoUpdatePolicy>
 	</channel-type>
-	
+
 	<channel-group-type id="channelgroup">
 		<label>Channel group</label>
 		<category>Temperature</category>

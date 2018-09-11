@@ -33,6 +33,8 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.component.annotations.Activate;
@@ -68,6 +70,7 @@ public class AutoUpdateManager {
     private @NonNullByDefault({}) ThingRegistry thingRegistry;
     private @NonNullByDefault({}) EventPublisher eventPublisher;
     private @NonNullByDefault({}) MetadataRegistry metadataRegistry;
+    private @NonNullByDefault({}) ChannelTypeRegistry channelTypeRegistry;
 
     private boolean enabled = true;
     private boolean sendOptimisticUpdates = false;
@@ -210,7 +213,15 @@ public class AutoUpdateManager {
             AutoUpdatePolicy policy = AutoUpdatePolicy.DEFAULT;
             Channel channel = thing.getChannel(channelUID.getId());
             if (channel != null) {
-                policy = channel.getAutoUpdatePolicy();
+                AutoUpdatePolicy channelpolicy = channel.getAutoUpdatePolicy();
+                if (channelpolicy != null) {
+                    policy = channelpolicy;
+                } else {
+                    ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
+                    if (channelType != null && channelType.getAutoUpdatePolicy() != null) {
+                        policy = channelType.getAutoUpdatePolicy();
+                    }
+                }
             }
 
             switch (policy) {
@@ -310,6 +321,15 @@ public class AutoUpdateManager {
 
     protected void unsetMetadataRegistry(MetadataRegistry metadataRegistry) {
         this.metadataRegistry = null;
+    }
+
+    @Reference
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
 }

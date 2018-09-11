@@ -155,10 +155,11 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
-        AutoUpdatePolicy autoUpdatePolicy = readAutoUpdatePolicy(nodeIterator);
 
         StateDescription stateDescription = readStateDescription(nodeIterator);
         EventDescription eventDescription = readEventDescription(nodeIterator);
+
+        AutoUpdatePolicy autoUpdatePolicy = readAutoUpdatePolicy(nodeIterator);
 
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
