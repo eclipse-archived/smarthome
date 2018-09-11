@@ -90,6 +90,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         itemRegistry.removeRegistryChangeListener(this);
         started = false;
         removeTimers();
+        removeItemStateChangeListeners();
         scheduler = null;
     }
 
@@ -287,6 +288,14 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void removeItemStateChangeListeners() {
+        for (Item item : itemRegistry.getAll()) {
+            if (item instanceof GenericItem) {
+                ((GenericItem) item).removeStateChangeListener(this);
             }
         }
     }
