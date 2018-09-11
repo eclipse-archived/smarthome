@@ -365,7 +365,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     public void addConfig(final String dbId, final PersistenceServiceConfiguration config) {
         synchronized (persistenceServiceConfigs) {
             this.persistenceServiceConfigs.put(dbId, config);
-            if (itemRegistry != null && persistenceServices.containsKey(dbId)) {
+            if (persistenceServices.containsKey(dbId)) {
                 startEventHandling(dbId);
             }
         }
@@ -379,20 +379,17 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         }
     }
 
-    @Override
-    public void startEventHandling(final String dbId) {
+    private void startEventHandling(final String dbId) {
         synchronized (persistenceServiceConfigs) {
             final PersistenceServiceConfiguration config = persistenceServiceConfigs.get(dbId);
             if (config == null) {
                 return;
             }
 
-            if (itemRegistry != null) {
-                for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
-                    if (hasStrategy(dbId, itemConfig, SimpleStrategy.Globals.RESTORE)) {
-                        for (Item item : getAllItems(itemConfig)) {
-                            initialize(item);
-                        }
+            for (SimpleItemConfiguration itemConfig : config.getConfigs()) {
+                if (hasStrategy(dbId, itemConfig, SimpleStrategy.Globals.RESTORE)) {
+                    for (Item item : getAllItems(itemConfig)) {
+                        initialize(item);
                     }
                 }
             }
@@ -400,16 +397,11 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         }
     }
 
-    @Override
-    public void stopEventHandling(String dbId) {
+    private void stopEventHandling(String dbId) {
         synchronized (persistenceServiceConfigs) {
             removeTimers(dbId);
         }
     }
-
-    /*
-     * ItemRegistryChangeListener
-     */
 
     @Override
     public void allItemsChanged(Collection<String> oldItemNames) {

@@ -34,17 +34,4 @@ public interface PersistenceManager {
      */
     void removeConfig(String dbId);
 
-    /**
-     * Start the event handling for a persistence service.
-     *
-     * @param dbId the database id used by the persistence service
-     */
-    void startEventHandling(String dbId);
-
-    /**
-     * Stop the event handling for a persistence service.
-     *
-     * @param dbId the database id used by the persistence service
-     */
-    void stopEventHandling(String dbId);
 }
