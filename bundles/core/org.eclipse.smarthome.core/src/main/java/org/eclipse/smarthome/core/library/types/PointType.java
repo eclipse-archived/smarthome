@@ -143,18 +143,15 @@ public class PointType implements ComplexType, Command, State {
         return new DecimalType(WGS84_A * c);
     }
 
-    /**
-     * <p>
-     * Formats the value of this type according to a pattern (@see {@link Formatter}). One single value of this type can
-     * be referenced by the pattern using an index. The item order is defined by the natural (alphabetical) order of
-     * their keys.
-     *
-     * @param pattern the pattern to use containing indexes to reference the
-     *            single elements of this type.
-     */
     @Override
-    public String format(String pattern) {
-        return String.format(pattern, getConstituents().values().toArray());
+    public String format(@Nullable String pattern) {
+        String formatPattern = pattern;
+
+        if (formatPattern == null || "%s".equals(formatPattern)) {
+            formatPattern = "%2$s°N %3$s°E %1$sm";
+        }
+
+        return String.format(formatPattern, getConstituents().values().toArray());
     }
 
     public static PointType valueOf(String value) {
