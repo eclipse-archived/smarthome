@@ -102,7 +102,7 @@ The following XML snippet shows a system channel type definition and thing type 
 </channel-type>
 ```
 
-### Default system-wide channel types
+### System State Channel Types
 
 There exist system-wide channel types that are available by default:
 
@@ -162,9 +162,10 @@ The following XML snippet shows a trigger channel:
 
 This channel can emit the event payloads `PRESSED`, `RELEASED` and `DOUBLE_PRESSED`.
 
-If no `<event>` tag is specified, the channel can be triggered, but has no event payload. If an empty `<event>` tag is specified, the channel can trigger any event payload.
+If no `<event>` tag is specified, the channel can be triggered, but has no event payload.
+If an empty `<event>` tag is specified, the channel can trigger any event payload.
 
-### Default system-wide trigger channel types
+### System Trigger Channel Types
 
 There exist system-wide trigger channel types that are available by default:
 
