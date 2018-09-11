@@ -70,6 +70,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     private ExpressionThreadPoolExecutor scheduler;
 
     private ItemRegistry itemRegistry;
+    private volatile boolean started = false;
 
     final Map<String, PersistenceService> persistenceServices = new HashMap<>();
     final Map<String, PersistenceServiceConfiguration> persistenceServiceConfigs = new HashMap<>();
@@ -80,22 +81,24 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
 
     protected void activate() {
         scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool("persist");
+        allItemsChanged(null);
+        started = true;
+        itemRegistry.addRegistryChangeListener(this);
     }
 
     protected void deactivate() {
-        scheduler.shutdown();
+        itemRegistry.removeRegistryChangeListener(this);
+        started = false;
+        removeTimers();
         scheduler = null;
     }
 
     @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
-        itemRegistry.addRegistryChangeListener(this);
-        allItemsChanged(null);
     }
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
-        itemRegistry.removeRegistryChangeListener(this);
         this.itemRegistry = null;
     }
 
@@ -103,8 +106,10 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     protected void addPersistenceService(PersistenceService persistenceService) {
         logger.debug("Initializing {} persistence service.", persistenceService.getId());
         persistenceServices.put(persistenceService.getId(), persistenceService);
-        stopEventHandling(persistenceService.getId());
-        startEventHandling(persistenceService.getId());
+        if (started) {
+            stopEventHandling(persistenceService.getId());
+            startEventHandling(persistenceService.getId());
+        }
     }
 
     protected void removePersistenceService(PersistenceService persistenceService) {
@@ -340,9 +345,12 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
         persistenceJobs.remove(dbId);
     }
 
-    /*
-     * PersistenceManager
-     */
+    private void removeTimers() {
+        Set<String> dbIds = new HashSet<>(persistenceJobs.keySet());
+        for (String dbId : dbIds) {
+            removeTimers(dbId);
+        }
+    }
 
     @Override
     public void addConfig(final String dbId, final PersistenceServiceConfiguration config) {
