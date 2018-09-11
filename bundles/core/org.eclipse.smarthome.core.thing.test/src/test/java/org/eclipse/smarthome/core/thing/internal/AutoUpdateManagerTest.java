@@ -43,6 +43,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -110,6 +111,7 @@ public class AutoUpdateManagerTest {
         aum.setEventPublisher(mockEventPublisher);
         aum.setThingRegistry(mockThingRegistry);
         aum.setMetadataRegistry(mockMetadataRegistry);
+        aum.setChannelTypeRegistry(mock(ChannelTypeRegistry.class));
     }
 
     private void assertStateEvent(String expectedContent, String extectedSource) {

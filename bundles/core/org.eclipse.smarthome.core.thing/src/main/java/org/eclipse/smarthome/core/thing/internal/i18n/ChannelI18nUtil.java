@@ -81,9 +81,9 @@ public class ChannelI18nUtil {
                     }
                 }
             }
-            localizedChannelDefinitions
-                    .add(new ChannelDefinition(channelDefinition.getId(), channelDefinition.getChannelTypeUID(),
-                            channelDefinition.getProperties(), channelLabel, channelDescription));
+            localizedChannelDefinitions.add(new ChannelDefinition(channelDefinition.getId(),
+                    channelDefinition.getChannelTypeUID(), channelDefinition.getProperties(), channelLabel,
+                    channelDescription, channelDefinition.getAutoUpdatePolicy()));
         }
         return localizedChannelDefinitions;
     }

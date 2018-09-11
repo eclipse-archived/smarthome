@@ -90,7 +90,7 @@ public class ChannelTypeI18nLocalizationService {
                         .state(channelTypeUID, label == null ? defaultLabel : label, channelType.getItemType())
                         .isAdvanced(channelType.isAdvanced()).withCategory(channelType.getCategory())
                         .withConfigDescriptionURI(channelType.getConfigDescriptionURI()).withTags(channelType.getTags())
-                        .withStateDescription(state);
+                        .withStateDescription(state).withAutoUpdatePolicy(channelType.getAutoUpdatePolicy());
                 if (description != null) {
                     stateBuilder.withDescription(description);
                 }
@@ -109,7 +109,8 @@ public class ChannelTypeI18nLocalizationService {
                 return new ChannelType(channelTypeUID, channelType.isAdvanced(), channelType.getItemType(),
                         channelType.getKind(), label == null ? defaultLabel : label, description,
                         channelType.getCategory(), channelType.getTags(), channelType.getState(),
-                        channelType.getEvent(), channelType.getConfigDescriptionURI());
+                        channelType.getEvent(), channelType.getConfigDescriptionURI(),
+                        channelType.getAutoUpdatePolicy());
         }
     }
 
