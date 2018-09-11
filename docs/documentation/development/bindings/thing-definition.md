@@ -70,30 +70,29 @@ The following XML snippet shows a thing type definition with 2 channels and one 
     <label>Sample Thing</label>
     <description>Some sample description</description>
     <channels>
-      <channel id="switch" typeId="powerSwitch" />
-      <channel id="temperature" typeId="setpointTemperature" />
+        <channel id="switch" typeId="powerSwitch" />
+        <channel id="temperature" typeId="setpointTemperature" />
     </channels>
 </thing-type>
 <channel-type id="setpointTemperature" advanced="true">
     <item-type>Number</item-type>
     <label>Setpoint Temperature</label>
     <category>Temperature</category>
-    <state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false">
-    </state>
+    <state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false" />
 </channel-type>
 ```
 
-In order to reuse identical channels in different bindings a channeltype can be systemwide. 
-A channel-type can be declared as systemwide by setting its `system` property to true and can then be referenced using a `system.` prefix in a `channel` `typeId` attribute in any binding - note that this should only be done in the core framework, but not by individual bindings!  
+In order to reuse identical channels in different bindings a channel type can be system-wide.
+A channel type can be declared as system-wide by setting its `system` property to true and can then be referenced using a `system.` prefix in a `channel` `typeId` attribute in any binding - note that this should only be done in the core framework, but not by individual bindings!
 
-The following XML snippet shows a system channel-type definition and thing-type definition that references it:
+The following XML snippet shows a system channel type definition and thing type definition that references it:
 
 ```xml
 <thing-type id="thingTypeID">
     <label>Sample Thing</label>
     <description>Some sample description</description>
     <channels>
-      <channel id="s" typeId="system.system-channel" />
+        <channel id="s" typeId="system.system-channel" />
     </channels>
 </thing-type>
 <channel-type id="system-channel" system="true">
@@ -103,7 +102,9 @@ The following XML snippet shows a system channel-type definition and thing-type 
 </channel-type>
 ```
 
-There exist systemwide channels that are available by default:
+### System State Channel Types
+
+There exist system-wide channel types that are available by default:
 
 | Channel Type ID      | Reference typeId            | Item Type            | Category         | Description                                                                                                                                                                                                             |
 |----------------------|-----------------------------|----------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -143,27 +144,30 @@ The following XML snippet shows a trigger channel:
     <label>Sample Thing</label>
     <description>Some sample description</description>
     <channels>
-      <channel id="s" typeId="trigger-channel" />
+        <channel id="s" typeId="trigger-channel" />
     </channels>
 </thing-type>
 <channel-type id="trigger-channel">
     <kind>trigger</kind>
     <label>Trigger Channel</label>
     <event>
-      <options>
-        <option value="PRESSED">pressed</option>
-        <option value="RELEASED">released</option>
-        <option value="DOUBLE_PRESSED">double pressed</option>
-      </options>
+        <options>
+            <option value="PRESSED">pressed</option>
+            <option value="RELEASED">released</option>
+            <option value="DOUBLE_PRESSED">double pressed</option>
+        </options>
     </event>
 </channel-type>
 ```
 
 This channel can emit the event payloads `PRESSED`, `RELEASED` and `DOUBLE_PRESSED`.
 
-If no `<event>` tag is specified, the channel can be triggered, but has no event payload. If an empty `<event>` tag is specified, the channel can trigger any event payload.
+If no `<event>` tag is specified, the channel can be triggered, but has no event payload.
+If an empty `<event>` tag is specified, the channel can trigger any event payload.
 
-There exist systemwide trigger channels that are available by default:
+### System Trigger Channel Types
+
+There exist system-wide trigger channel types that are available by default:
 
 | Channel Type ID | Reference typeId       | Description  |
 |-----------------|------------------------|------------- |
