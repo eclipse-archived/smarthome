@@ -127,10 +127,11 @@ import com.google.common.collect.SetMultimap;
 public class ThingManagerImpl
         implements ThingManager, ThingTracker, ThingTypeMigrationService, ReadyService.ReadyTracker {
 
+    static final String XML_THING_TYPE = "esh.xmlThingTypes";
+
     private static final String THING_STATUS_STORAGE_NAME = "thing_status_storage";
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
-    private static final String XML_THING_TYPE = "esh.xmlThingTypes";
 
     private final Logger logger = LoggerFactory.getLogger(ThingManagerImpl.class);
 

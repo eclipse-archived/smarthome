@@ -56,6 +56,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingManager;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -158,7 +159,7 @@ public class ThingManagerOSGiTest extends JavaOSGiTest {
                 assertThat(
                         bundleContext
                                 .getServiceReferences(ReadyMarker.class,
-                                        "(" + ThingManager.XML_THING_TYPE + "="
+                                        "(" + ThingManagerImpl.XML_THING_TYPE + "="
                                                 + bundleContext.getBundle().getSymbolicName() + ")"),
                         is(notNullValue()));
             } catch (InvalidSyntaxException e) {
@@ -179,7 +180,7 @@ public class ThingManagerOSGiTest extends JavaOSGiTest {
         BundleResolver bundleResolver = mock(BundleResolver.class);
         when(bundleResolver.resolveBundle(any())).thenReturn(bundle);
 
-        ThingManager thingManager = (ThingManager) getService(ThingTypeMigrationService.class);
+        ThingManagerImpl thingManager = (ThingManagerImpl) getService(ThingTypeMigrationService.class);
         thingManager.setBundleResolver(bundleResolver);
     }
 
@@ -1524,7 +1525,7 @@ public class ThingManagerOSGiTest extends JavaOSGiTest {
 
         waitForAssert(() -> {
             // wait for the XML processing to be finished, then remove the ready marker again
-            ReadyMarker marker = new ReadyMarker(ThingManager.XML_THING_TYPE,
+            ReadyMarker marker = new ReadyMarker(ThingManagerImpl.XML_THING_TYPE,
                     FrameworkUtil.getBundle(this.getClass()).getSymbolicName());
             assertThat(readyService.isReady(marker), is(true));
             readyService.unmarkReady(marker);
@@ -1541,7 +1542,7 @@ public class ThingManagerOSGiTest extends JavaOSGiTest {
         verify(thingHandler, never()).initialize();
         assertThat(thing.getStatusInfo(), is(uninitializedNone));
 
-        readyService.markReady(new ReadyMarker(ThingManager.XML_THING_TYPE,
+        readyService.markReady(new ReadyMarker(ThingManagerImpl.XML_THING_TYPE,
                 FrameworkUtil.getBundle(this.getClass()).getSymbolicName()));
 
         // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
