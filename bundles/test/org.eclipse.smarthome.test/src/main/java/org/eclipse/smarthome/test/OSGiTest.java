@@ -51,6 +51,7 @@ import groovy.lang.Closure;
  * @author Dennis Nobel - Initial contribution
  * @author Tanya Georgieva - Refactor the groovy file to java
  */
+@Deprecated
 public abstract class OSGiTest {
 
     private final Map<String, List<ServiceRegistration<?>>> registeredServices = new HashMap<>();
@@ -323,7 +324,7 @@ public abstract class OSGiTest {
      */
     protected void waitFor(Closure<?> condition, int timeout, int sleepTime) throws Exception {
         int waitingTime = 0;
-        while (condition != null && waitingTime < timeout) {
+        while (condition != null && !Boolean.TRUE.equals(condition.call()) && waitingTime < timeout) {
             waitingTime += sleepTime;
             Thread.sleep(sleepTime);
         }
@@ -418,7 +419,7 @@ public abstract class OSGiTest {
 
         Dictionary<String, Object> properties = config.getProperties();
         if (properties == null) {
-            properties = new Hashtable();
+            properties = new Hashtable<>();
         }
 
         properties.put("language", locale.getLanguage());
@@ -427,12 +428,15 @@ public abstract class OSGiTest {
         properties.put("variant", locale.getVariant());
 
         config.update(properties);
-        Closure closure = new Closure(null) {
+
+        waitForAssert(new Closure<Object>(null) {
+            private static final long serialVersionUID = -5083904877474902686L;
+
             public Object doCall() {
                 assertThat(localeProvider.getLocale(), is(locale));
                 return null;
             }
-        };
-        waitForAssert(closure);
+        });
     }
+
 }
