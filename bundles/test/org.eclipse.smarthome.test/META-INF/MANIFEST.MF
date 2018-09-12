@@ -9,14 +9,10 @@ Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
- org.eclipse.smarthome.test;uses:="groovy.lang,org.osgi.framework"
+ org.eclipse.smarthome.test;uses:="org.osgi.framework"
 Import-Package: com.google.common.collect,
  groovy.lang,
  org.apache.commons.io,
- org.codehaus.groovy.reflection,
- org.codehaus.groovy.runtime,
- org.codehaus.groovy.runtime.callsite,
- org.codehaus.groovy.runtime.typehandling,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.xml.osgi,
  org.eclipse.smarthome.core.i18n;resolution:=optional,
