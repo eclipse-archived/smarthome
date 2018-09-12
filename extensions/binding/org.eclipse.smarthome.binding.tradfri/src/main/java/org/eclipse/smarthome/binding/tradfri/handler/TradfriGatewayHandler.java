@@ -319,6 +319,7 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
             JsonObject json = new JsonParser().parse(data).getAsJsonObject();
             String firmwareVersion = json.get(VERSION).getAsString();
             getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);
+            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
         });
         // restore root URI
         deviceClient.setURI(gatewayURI);
