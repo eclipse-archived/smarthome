@@ -207,7 +207,6 @@ public class AutoUpdateManager {
         for (ChannelUID channelUID : onlineChannelUIDs) {
             Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing == null) {
-                // this should not happen, but we make avoid null warnings from the compiler
                 continue;
             }
             AutoUpdatePolicy policy = AutoUpdatePolicy.DEFAULT;
