@@ -2359,10 +2359,10 @@
           name="org.eclipse.m2e.logback.feature.feature.group"/>
       <requirement
           name="org.eclipse.xtend.sdk.feature.group"
-          versionRange="[2.12.0,2.13.0)"/>
+          versionRange="[2.14.0,2.15.0)"/>
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.12.0,2.13.0)"/>
+          versionRange="[2.14.0,2.15.0)"/>
       <requirement
           name="org.eclipse.emf.mwe2.language.sdk.feature.group"
           versionRange="[2.9.1,2.10.0)"/>
@@ -2389,8 +2389,6 @@
           name="org.eclipse.wst.jsdt.feature.feature.group"/>
       <requirement
           name="org.eclipse.wst.web_ui.feature.feature.group"/>
-      <repository
-          url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
       <repository
           url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.8"/>
     </setupTask>
