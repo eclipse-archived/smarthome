@@ -21,6 +21,7 @@ import org.eclipse.smarthome.io.iota.metadata.IotaMetadataRegistryChangeListener
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +65,12 @@ public class IotaIo {
 
     @Activate
     public synchronized void activate(Map<String, Object> data) {
-        modified(new Configuration(data).as(IotaApiConfiguration.class));
+        modified(data);
     }
 
-    public synchronized void modified(IotaApiConfiguration config) {
+    @Modified
+    public synchronized void modified(Map<String, Object> data) {
+        IotaApiConfiguration config = new Configuration(data).as(IotaApiConfiguration.class);
         try {
             // Updates the API config
             settings.fill(config);

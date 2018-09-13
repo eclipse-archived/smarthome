@@ -14,6 +14,7 @@ package org.eclipse.smarthome.io.iota.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -52,10 +53,27 @@ public class IotaUtilsImpl implements IotaUtils {
 
     }
 
+    /**
+     * Instanciate a new Impl of IotaUtils for a specific node configuration
+     *
+     * @param protocol the protocol
+     * @param host     the host
+     * @param port     the port
+     */
     public IotaUtilsImpl(String protocol, String host, int port) {
         this.iotaAPI = new IotaAPI.Builder().protocol(protocol).host(host).port(String.valueOf(port)).build();
     }
 
+    /**
+     * Instanciate a new Impl of IotaUtils for a specific node configuration, MAM seed and tree depth. Allows messages
+     * to be published after previous messages on the same Merkle Root Tree.
+     *
+     * @param protocol the protocol
+     * @param host     the host
+     * @param port     the port
+     * @param seed     the seed (Merkle Root Address)
+     * @param start    the count of messages already published on the seed
+     */
     public IotaUtilsImpl(String protocol, String host, int port, String seed, int start) {
         this.iotaAPI = new IotaAPI.Builder().protocol(protocol).host(host).port(String.valueOf(port)).build();
         this.seed = seed;
@@ -72,29 +90,28 @@ public class IotaUtilsImpl implements IotaUtils {
     public void publishState(JsonElement states, String mode, String key) {
 
         String payload = states.toString();
-        String[] param = null;
+        ArrayList<String> param = new ArrayList<>();
         JsonParser parser = new JsonParser();
 
         switch (mode) {
             case "public":
             case "private":
-                param = start == -1
-                        ? new String[] { npmPath, PATH + "publish.js",
-                                iotaAPI.getProtocol() + "://" + iotaAPI.getHost() + ":" + iotaAPI.getPort(), payload,
-                                mode, seed }
-                        : new String[] { npmPath, PATH + "publish.js",
-                                iotaAPI.getProtocol() + "://" + iotaAPI.getHost() + ":" + iotaAPI.getPort(), payload,
-                                mode, seed, String.valueOf(start) };
+                param.addAll(Arrays.asList(new String[] { npmPath, PATH + "publish.js",
+                        iotaAPI.getProtocol() + "://" + iotaAPI.getHost() + ":" + iotaAPI.getPort(), payload, mode,
+                        seed }));
+                if (start == -1) {
+                    param.add(String.valueOf(start));
+                }
                 break;
             case "restricted":
                 if (key != null && !key.isEmpty()) {
-                    param = start == -1
-                            ? new String[] { npmPath, PATH + "publish.js",
-                                    iotaAPI.getProtocol() + "://" + iotaAPI.getHost() + ":" + iotaAPI.getPort(),
-                                    payload, mode, key, seed }
-                            : new String[] { npmPath, PATH + "publish.js",
-                                    iotaAPI.getProtocol() + "://" + iotaAPI.getHost() + ":" + iotaAPI.getPort(),
-                                    payload, mode, key, seed, String.valueOf(start) };
+                    param.addAll(Arrays.asList(new String[] { npmPath, PATH + "publish.js",
+                            iotaAPI.getProtocol() + "://" + iotaAPI.getHost() + ":" + iotaAPI.getPort(), payload, mode,
+                            key, seed }));
+                    if (start == -1) {
+                        param.add(String.valueOf(start));
+                    }
+                    break;
                 } else {
                     logger.warn("You must provide a key to use the restricted mode. Aborting");
                 }
@@ -105,9 +122,9 @@ public class IotaUtilsImpl implements IotaUtils {
         }
 
         try {
-            if (param != null) {
+            if (!param.isEmpty()) {
                 logger.debug("Doing proof of work to attach data to the Tangle.... Processing in mode -- {} -- ", mode);
-                process = Runtime.getRuntime().exec(param);
+                process = Runtime.getRuntime().exec(param.toArray(new String[] {}));
                 String result = IOUtils.toString(process.getInputStream(), "UTF-8");
                 if (result != null && !result.isEmpty()) {
                     JsonObject json = (JsonObject) parser.parse(result);

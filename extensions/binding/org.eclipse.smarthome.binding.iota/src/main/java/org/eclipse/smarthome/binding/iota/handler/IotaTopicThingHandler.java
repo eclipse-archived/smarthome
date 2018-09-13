@@ -25,7 +25,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.iota.IotaBindingConstants;
 import org.eclipse.smarthome.binding.iota.internal.NumberValue;
 import org.eclipse.smarthome.binding.iota.internal.OnOffValue;
-import org.eclipse.smarthome.binding.iota.internal.PercentValue;
 import org.eclipse.smarthome.binding.iota.internal.TextValue;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -144,14 +143,11 @@ public class IotaTopicThingHandler extends BaseThingHandler implements ChannelSt
                         case IotaBindingConstants.NUMBER_CHANNEL:
                             config.value = new NumberValue(config.isFloat);
                             break;
-                        case IotaBindingConstants.PERCENTAGE_CHANNEL:
-                            config.value = new PercentValue(config.isFloat);
-                            break;
                         case IotaBindingConstants.ONOFF_CHANNEL:
                             config.value = new OnOffValue(config.on, config.off, config.inverse);
                             break;
                         default:
-                            throw new IllegalArgumentException("ThingTypeUID not recognised");
+                            throw new IllegalArgumentException("ChannelTypeUID not recognised");
                     }
                 }
                 channelDataByChannelUID.put(channel.getUID(), config);

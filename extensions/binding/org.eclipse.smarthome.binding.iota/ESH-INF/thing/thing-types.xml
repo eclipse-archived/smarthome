@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bindingId="iota" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
    <!-- IOTA Binding -->
-   <thing-type id="topic" extensible="text,number,percentage,onoff">
+   <thing-type id="topic" extensible="text,number,onoff">
       <supported-bridge-type-refs>
           <bridge-type-ref id="bridge"/>
       </supported-bridge-type-refs>
@@ -76,24 +76,6 @@
     <channel-type id="number">
         <item-type>Number</item-type>
         <label>Number value</label>
-        <state readOnly="true" pattern="%.2f"> </state>
-        <config-description>
-            <parameter name="transformationPattern" type="text">
-                <label>Transformation pattern</label>
-                <description>Any supported transformation can be used. An example for a received JSON from a IOTA state topic would be a pattern of JSONPATH:$.thingNumber.status.state for a json [{"NAME": name, "STATUS": { "TOPIC": topic, "STATE": state, "TIME": time }}]. If used, the topic is ignored, and the state will be the value pointed by the transformation pattern.</description>
-                <default></default>
-            </parameter>
-            <parameter name="isfloat" type="boolean">
-                <label>Is Decimal?</label>
-                <description>Set to true if the IOTA topic expects a float/double decimal instead of an integer value</description>
-                <default>false</default>
-            </parameter>
-        </config-description>
-    </channel-type>
-
-    <channel-type id="percentage">
-        <item-type>Dimmer</item-type>
-        <label>Percentage value</label>
         <state readOnly="true" pattern="%.2f"> </state>
         <config-description>
             <parameter name="transformationPattern" type="text">

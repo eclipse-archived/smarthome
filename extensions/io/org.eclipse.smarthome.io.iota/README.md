@@ -1,3 +1,3 @@
 # Eclipse SmartHome Iota IO bundle
 
-Everything you need to know can be found in the documentation inside the iota-documentation folder.
+This add-on allows you to expose your SmartHome system to the IOTA blockchain, Tangle. Each Thing in ESH may hold an item which state can be shared on the Tangle, so that other ESH instance can see and use these data.

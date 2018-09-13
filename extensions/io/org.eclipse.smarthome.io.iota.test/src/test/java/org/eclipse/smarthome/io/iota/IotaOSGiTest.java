@@ -20,7 +20,6 @@ import java.util.Map;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.Metadata;
@@ -30,7 +29,6 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.eclipse.smarthome.io.iota.internal.IotaApiConfiguration;
 import org.eclipse.smarthome.io.iota.internal.IotaIo;
 import org.eclipse.smarthome.io.iota.internal.IotaSeedGenerator;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
@@ -81,7 +79,7 @@ public class IotaOSGiTest extends JavaOSGiTest {
 
         iota.setItemRegistry(itemRegistry);
         iota.setMetadataRegistry(metadataRegistry);
-        iota.modified(new Configuration(new HashMap<>()).as(IotaApiConfiguration.class));
+        iota.modified(new HashMap<>());
 
     }
 
