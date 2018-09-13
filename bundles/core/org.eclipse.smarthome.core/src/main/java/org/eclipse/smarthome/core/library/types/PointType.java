@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -36,6 +37,9 @@ import org.eclipse.smarthome.core.types.State;
  */
 @NonNullByDefault
 public class PointType implements ComplexType, Command, State {
+
+    // external format patterns for output
+    public static final String LOCATION_PATTERN = "%2$s°N %3$s°E %1$sm";
 
     public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
     public static final double WGS84_A = 6378137; // The equatorial radius of WGS84 ellipsoid (6378137 m).
@@ -144,17 +148,22 @@ public class PointType implements ComplexType, Command, State {
     }
 
     /**
-     * <p>
-     * Formats the value of this type according to a pattern (@see {@link Formatter}). One single value of this type can
+     * Formats the value of this type according to a pattern (see {@link Formatter}). One single value of this type can
      * be referenced by the pattern using an index. The item order is defined by the natural (alphabetical) order of
      * their keys.
      *
-     * @param pattern the pattern to use containing indexes to reference the
-     *            single elements of this type.
+     * @param pattern the pattern to use containing indexes to reference the single elements of this type
+     * @return the formatted string
      */
     @Override
-    public String format(String pattern) {
-        return String.format(pattern, getConstituents().values().toArray());
+    public String format(@Nullable String pattern) {
+        String formatPattern = pattern;
+
+        if (formatPattern == null || "%s".equals(formatPattern)) {
+            formatPattern = LOCATION_PATTERN;
+        }
+
+        return String.format(formatPattern, getConstituents().values().toArray());
     }
 
     public static PointType valueOf(String value) {
