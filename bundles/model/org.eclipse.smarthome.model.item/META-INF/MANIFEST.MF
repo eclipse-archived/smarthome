@@ -5,8 +5,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.item;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Export-Package: 
- org.eclipse.smarthome.model,
+Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
  org.eclipse.smarthome.model.generator,
  org.eclipse.smarthome.model.item,
@@ -19,8 +18,7 @@ Export-Package:
  org.eclipse.smarthome.model.serializer,
  org.eclipse.smarthome.model.services,
  org.eclipse.smarthome.model.validation
-Import-Package: 
- javax.measure,
+Import-Package: javax.measure,
  javax.measure.quantity,
  org.apache.log4j,
  org.eclipse.jdt.annotation;resolution:=optional,
@@ -39,8 +37,7 @@ Import-Package:
  org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
  org.slf4j
-Require-Bundle: 
- com.ibm.icu;resolution:=optional,
+Require-Bundle: com.ibm.icu;resolution:=optional,
  org.antlr.runtime,
  org.apache.commons.logging;resolution:=optional,
  org.eclipse.emf.codegen.ecore;resolution:=optional,
@@ -54,6 +51,6 @@ Require-Bundle:
  org.eclipse.xtext.common.types,
  org.eclipse.xtext.generator;resolution:=optional,
  org.eclipse.xtext.util,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0"
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.model.item

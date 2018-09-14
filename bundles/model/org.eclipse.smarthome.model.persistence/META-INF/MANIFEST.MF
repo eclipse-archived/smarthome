@@ -3,12 +3,10 @@ Bundle-ClassPath: lib/joda-time-2.9.2.jar,.
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Persistence Model
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-SymbolicName: org.eclipse.smarthome.model.persistence;singleton:=
- true
+Bundle-SymbolicName: org.eclipse.smarthome.model.persistence;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Export-Package: 
- org.eclipse.smarthome.model.persistence,
+Export-Package: org.eclipse.smarthome.model.persistence,
  org.eclipse.smarthome.model.persistence.extensions,
  org.eclipse.smarthome.model.persistence.formatting,
  org.eclipse.smarthome.model.persistence.generator,
@@ -28,8 +26,7 @@ Export-Package:
  org.joda.time.field,
  org.joda.time.format,
  org.joda.time.tz
-Import-Package: 
- com.google.common.base,
+Import-Package: com.google.common.base,
  com.google.common.collect,
  org.apache.commons.logging,
  org.apache.log4j,
@@ -49,8 +46,7 @@ Import-Package:
  org.osgi.service.cm,
  org.osgi.service.event,
  org.slf4j
-Require-Bundle: 
- org.antlr.runtime,
+Require-Bundle: org.antlr.runtime,
  org.eclipse.emf.codegen.ecore;resolution:=optional,
  org.eclipse.emf.common,
  org.eclipse.emf.ecore,
@@ -62,9 +58,8 @@ Require-Bundle:
  org.eclipse.xtext.common.types,
  org.eclipse.xtext.generator;resolution:=optional,
  org.eclipse.xtext.util,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.xtext.xbase;bundle-version="2.1.0";resolution:=optional;vis
- ibility:=reexport,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.xbase;bundle-version="2.1.0";resolution:=optional;visibility:=reexport,
  org.eclipse.xtext;bundle-version="2.1.0";visibility:=reexport
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.model.persistence

@@ -5,8 +5,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.sitemap;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Export-Package: 
- org.eclipse.smarthome.model,
+Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
  org.eclipse.smarthome.model.generator,
  org.eclipse.smarthome.model.parser.antlr,
@@ -18,8 +17,7 @@ Export-Package:
  org.eclipse.smarthome.model.sitemap.impl,
  org.eclipse.smarthome.model.sitemap.util,
  org.eclipse.smarthome.model.validation
-Import-Package: 
- org.apache.commons.lang,
+Import-Package: org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.items.dto,
@@ -28,8 +26,7 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.cm,
  org.slf4j
-Require-Bundle: 
- org.antlr.runtime,
+Require-Bundle: org.antlr.runtime,
  org.apache.commons.logging;resolution:=optional,
  org.eclipse.emf.common,
  org.eclipse.emf.ecore,
@@ -39,6 +36,6 @@ Require-Bundle:
  org.eclipse.xtext,
  org.eclipse.xtext.generator;resolution:=optional,
  org.eclipse.xtext.util,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0"
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.model.sitemap

@@ -7,8 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.script;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Export-Package: 
- org.eclipse.smarthome.model.script,
+Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.actions,
  org.eclipse.smarthome.model.script.engine,
  org.eclipse.smarthome.model.script.engine.action,
@@ -26,8 +25,7 @@ Export-Package:
  org.eclipse.smarthome.model.script.serializer,
  org.eclipse.smarthome.model.script.services,
  org.eclipse.smarthome.model.script.validation
-Import-Package: 
- com.google.common.base,
+Import-Package: com.google.common.base,
  com.google.common.collect,
  javax.measure,
  javax.measure.quantity,
@@ -69,8 +67,7 @@ Import-Package:
  org.quartz.impl.matchers,
  org.quartz.utils,
  org.slf4j
-Require-Bundle: 
- org.antlr.runtime,
+Require-Bundle: org.antlr.runtime,
  org.eclipse.emf.common,
  org.eclipse.emf.ecore,
  org.eclipse.emf.mwe2.launch;resolution:=optional,
@@ -80,7 +77,7 @@ Require-Bundle:
  org.eclipse.xtext.common.types,
  org.eclipse.xtext.generator;resolution:=optional,
  org.eclipse.xtext.util,
- org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
  org.eclipse.xtext.xbase;visibility:=reexport,
  org.eclipse.xtext;visibility:=reexport,
  org.objectweb.asm;resolution:=optional
