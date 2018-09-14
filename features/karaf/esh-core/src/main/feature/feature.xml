@@ -141,7 +141,6 @@
     </capability>
 
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sse/${project.version}</bundle>
-    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.core/${project.version}</bundle>
   </feature>
 
   <!-- optional ESH bundles -->
@@ -386,8 +385,14 @@
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.upnp/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-model-core" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.core/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-model-item" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-model-core</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item/${project.version}</bundle>
   </feature>
 
@@ -473,6 +478,7 @@
 
   <feature name="esh-model-sitemap" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-model-core</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap/${project.version}</bundle>
   </feature>
 
