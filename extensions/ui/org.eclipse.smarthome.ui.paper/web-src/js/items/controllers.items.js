@@ -235,7 +235,7 @@ angular.module('PaperUI.items')//
             var resolveLater = false;
             if (!originalItem.metadata || JSON.stringify(metadata) !== JSON.stringify(originalItem.metadata)) {
                 for ( var namespace in metadata) {
-                    if (!metadata.hasOwnProperty(namespace)) {
+                    if (!metadata.hasOwnProperty(namespace) || metadata[namespace].value === undefined || metadata[namespace].value.length === 0) {
                         continue;
                     }
 

@@ -232,6 +232,22 @@ public class ItemResourceOSGiTest extends JavaOSGiTest {
     }
 
     @Test
+    public void testAddMetadata_ValueEmtpy() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = "";
+        Response response = itemResource.addMetadata(ITEM_NAME1, "foo", dto);
+        assertEquals(400, response.getStatus());
+    }
+
+    @Test
+    public void testAddMetadata_ValueNull() {
+        MetadataDTO dto = new MetadataDTO();
+        dto.value = null;
+        Response response = itemResource.addMetadata(ITEM_NAME1, "foo", dto);
+        assertEquals(400, response.getStatus());
+    }
+
+    @Test
     public void testAddMetadata_update() {
         MetadataDTO dto = new MetadataDTO();
         dto.value = "some value";

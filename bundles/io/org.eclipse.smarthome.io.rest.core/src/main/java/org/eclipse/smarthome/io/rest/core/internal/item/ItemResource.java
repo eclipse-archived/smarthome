@@ -544,6 +544,7 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "OK"), //
             @ApiResponse(code = 201, message = "Created"), //
+            @ApiResponse(code = 400, message = "Metadata value empty."), //
             @ApiResponse(code = 404, message = "Item not found."), //
             @ApiResponse(code = 405, message = "Metadata not editable.") })
     public Response addMetadata(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
@@ -557,8 +558,15 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
 
+        String value = metadata.value;
+        if (value == null || value.isEmpty()) {
+            logger.info("Received HTTP PUT request at '{}' for item '{}' with empty metadata.", uriInfo.getPath(),
+                    itemname);
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
         MetadataKey key = new MetadataKey(namespace, itemname);
-        Metadata md = new Metadata(key, metadata.value, metadata.config);
+        Metadata md = new Metadata(key, value, metadata.config);
         if (metadataRegistry.get(key) == null) {
             metadataRegistry.add(md);
             return Response.status(Status.CREATED).type(MediaType.TEXT_PLAIN).build();
