@@ -19,6 +19,7 @@ Import-Package: javax.measure.quantity,
  org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.util,
  org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
