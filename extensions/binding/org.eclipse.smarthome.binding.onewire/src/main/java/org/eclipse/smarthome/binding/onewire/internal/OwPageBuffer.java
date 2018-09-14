@@ -14,9 +14,8 @@ package org.eclipse.smarthome.binding.onewire.internal;
 
 import java.nio.ByteBuffer;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.core.util.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +94,7 @@ public class OwPageBuffer {
      * @return string representation of the page's data
      */
     public String getPageString(int pageNum) {
-        return DatatypeConverter.printHexBinary(getPage(pageNum)).toUpperCase();
+        return HexUtils.bytesToHex(getPage(pageNum));
     }
 
     /**
