@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.config.core.internal.i18n;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
@@ -30,10 +31,11 @@ import org.junit.Test;
 public class I18nConfigOptionsProviderTest {
 
     private I18nConfigOptionsProvider provider;
-    private ParameterOption expectedLangEN = new ParameterOption("en", "English");
-    private ParameterOption expectedLangFR = new ParameterOption("en", "anglais");
-    private ParameterOption expectedCntryEN = new ParameterOption("US", "United States");
-    private ParameterOption expectedCntryFR = new ParameterOption("US", "Etats-Unis");
+    private final ParameterOption expectedLangEN = new ParameterOption("en", "English");
+    private final ParameterOption expectedLangFR = new ParameterOption("en", "anglais");
+    private final ParameterOption expectedCntryEN = new ParameterOption("US", "United States");
+    private final ParameterOption expectedCntryFRJava8 = new ParameterOption("US", "Etats-Unis");
+    private final ParameterOption expectedCntryFRJava9 = new ParameterOption("US", "États-Unis");
     private URI uriI18N;
 
     @Before
@@ -52,7 +54,8 @@ public class I18nConfigOptionsProviderTest {
     @Test
     public void testRegion() throws Exception {
         assertTrue(provider.getParameterOptions(uriI18N, "region", Locale.US).contains(expectedCntryEN));
-        assertTrue(provider.getParameterOptions(uriI18N, "region", Locale.FRENCH).contains(expectedCntryFR));
+        assertThat(provider.getParameterOptions(uriI18N, "region", Locale.FRENCH),
+                anyOf(hasItem(expectedCntryFRJava8), hasItem(expectedCntryFRJava9)));
         assertFalse(provider.getParameterOptions(uriI18N, "region", null).isEmpty());
     }
 
