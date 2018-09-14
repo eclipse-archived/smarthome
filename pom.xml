@@ -117,6 +117,7 @@
           <artifactId>tycho-compiler-plugin</artifactId>
           <version>${tycho-version}</version>
           <configuration>
+            <useProjectSettings>false</useProjectSettings>
             <extraClasspathElements>
               <extraClasspathElement>
                 <groupId>org.apache.felix</groupId>
