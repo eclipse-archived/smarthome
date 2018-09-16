@@ -176,6 +176,7 @@
           <configuration>
             <supportedProjectTypes>
               <supportedProjectType>eclipse-plugin</supportedProjectType>
+              <supportedProjectType>eclipse-test-plugin</supportedProjectType>
             </supportedProjectTypes>
           </configuration>
         </plugin>

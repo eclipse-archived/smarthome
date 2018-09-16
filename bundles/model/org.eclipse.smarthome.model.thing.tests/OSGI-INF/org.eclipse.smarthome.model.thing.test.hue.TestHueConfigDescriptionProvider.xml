@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.model.thing.test.hue.TestHueConfigDescriptionProvider">
-   <service>
-      <provide interface="org.eclipse.smarthome.config.core.ConfigDescriptionProvider"/>
-   </service>
-   <implementation class="org.eclipse.smarthome.model.thing.test.hue.TestHueConfigDescriptionProvider"/>
-</scr:component>

@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Jan N. Klug - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, name = "binding.dmx.test")
+@Component(service = ThingHandlerFactory.class)
 public class DmxTestHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
