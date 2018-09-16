@@ -21,7 +21,7 @@
     <requirement>esh.tp;filter:="(feature=base)"</requirement>
     <feature dependency="true">esh.tp-base</feature>
 
-    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.12.0)(!(version&gt;=2.13.0)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.14.0)(!(version&gt;=2.15.0)))"</requirement>
     <feature dependency="true">esh.tp-xtext</feature>
 
     <requirement>esh.tp;filter:="(feature=jax-rs)"</requirement>
@@ -520,7 +520,7 @@
 
   <feature name="esh-model-lsp" version="${project.version}">
 
-    <requirement>esh.tp;filter:="(&amp;(feature=xtext-ide)(version&gt;=2.12.0)(!(version&gt;=2.13.0)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext-ide)(version&gt;=2.14.0)(!(version&gt;=2.15.0)))"</requirement>
     <feature dependency="true">esh.tp-xtext-ide</feature>
 
     <requirement>esh.tp;filter:="(&amp;(feature=lsp4j)(version&gt;=0.2.0)(!(version&gt;=0.3.0)))"</requirement>
