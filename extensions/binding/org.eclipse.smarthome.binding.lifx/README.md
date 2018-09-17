@@ -48,6 +48,12 @@ The binding is able to auto-discover all lights in a network over the LIFX UDP p
 
 *Note:* To get the binding working, all lights must be added to the WLAN network first with the help of the [LIFX smart phone applications](http://www.lifx.com/pages/go). The binding is NOT able to add or detect lights outside the network.
 
+To disable auto-discover add the following line to your `services\runtime.cfg` file.
+
+```
+discovery.lifx:background=false
+```
+
 ## Thing Configuration
 
 Each light needs a Device ID or Host as a configuration parameter. The device ID is printed as a serial number on the light and can also be found within the native LIFX Android or iOS application. But usually the discovery works quite reliably, so that a manual configuration is not needed.
