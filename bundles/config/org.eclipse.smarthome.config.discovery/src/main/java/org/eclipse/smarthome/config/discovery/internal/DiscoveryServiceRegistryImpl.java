@@ -32,7 +32,6 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
-import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Activate;
@@ -135,9 +134,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private final AtomicBoolean active = new AtomicBoolean();
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
-
-    @NonNullByDefault({})
-    private SafeCaller safeCaller;
 
     @Activate
     protected void activate() {
@@ -466,15 +462,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     @Override
     public int getMaxScanTimeout(String bindingId) {
         return getMaxScanTimeout(getDiscoveryServices(bindingId));
-    }
-
-    @Reference
-    protected void setSafeCaller(SafeCaller safeCaller) {
-        this.safeCaller = safeCaller;
-    }
-
-    protected void unsetSafeCaller(SafeCaller safeCaller) {
-        this.safeCaller = null;
     }
 
 }

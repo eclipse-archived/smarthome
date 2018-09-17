@@ -26,6 +26,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceCallback;
 import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -51,6 +52,7 @@ public class ExtendedDiscoveryServiceTracker {
 
     private @Nullable Inbox inbox;
     private @Nullable ThingRegistry thingRegistry;
+    private @Nullable SafeCaller safeCaller;
     private volatile @Nullable DiscoveryServiceCallbackImpl discoveryServiceCallback;
 
     private final List<ExtendedDiscoveryService> extendedDiscoveryServices = new ArrayList<>();
@@ -62,8 +64,10 @@ public class ExtendedDiscoveryServiceTracker {
             extendedDiscoveryServices.add(extendedDiscoveryService);
 
             DiscoveryServiceCallback dsc = discoveryServiceCallback;
-            if (dsc != null) {
-                extendedDiscoveryService.setDiscoveryServiceCallback(dsc);
+            SafeCaller sc = safeCaller;
+            if (dsc != null && sc != null) {
+                sc.create(extendedDiscoveryService, ExtendedDiscoveryService.class).build()
+                        .setDiscoveryServiceCallback(dsc);
             }
         }
     }
@@ -93,13 +97,26 @@ public class ExtendedDiscoveryServiceTracker {
         this.thingRegistry = null;
     }
 
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
+    }
+
     @Activate
     protected void activate() {
         DiscoveryServiceCallbackImpl dsc = createDiscoveryServiceCallback();
         this.discoveryServiceCallback = dsc;
 
         for (ExtendedDiscoveryService extendedDiscoveryService : extendedDiscoveryServices) {
-            extendedDiscoveryService.setDiscoveryServiceCallback(dsc);
+            SafeCaller sc = safeCaller;
+            if (sc != null) {
+                sc.create(extendedDiscoveryService, ExtendedDiscoveryService.class).build()
+                        .setDiscoveryServiceCallback(dsc);
+            }
         }
 
     }
