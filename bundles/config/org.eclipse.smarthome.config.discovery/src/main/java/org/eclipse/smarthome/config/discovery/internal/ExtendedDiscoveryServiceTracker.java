@@ -16,7 +16,6 @@ import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -34,6 +33,10 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link ExtendedDiscoveryServiceTracker} adds the {@link DiscoveryServiceCallback} to all
@@ -48,22 +51,19 @@ public class ExtendedDiscoveryServiceTracker {
 
     private @Nullable Inbox inbox;
     private @Nullable ThingRegistry thingRegistry;
-    private @Nullable DiscoveryServiceCallback discoveryServiceCallback;
+    private volatile @Nullable DiscoveryServiceCallbackImpl discoveryServiceCallback;
 
     private final List<ExtendedDiscoveryService> extendedDiscoveryServices = new ArrayList<>();
-    private final AtomicBoolean active = new AtomicBoolean(false);
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addDiscoveryService(DiscoveryService discoveryService) {
         if (discoveryService instanceof ExtendedDiscoveryService) {
             ExtendedDiscoveryService extendedDiscoveryService = (ExtendedDiscoveryService) discoveryService;
             extendedDiscoveryServices.add(extendedDiscoveryService);
 
-            if (active.get()) {
-                DiscoveryServiceCallback dsc = this.discoveryServiceCallback;
-                if (dsc != null) {
-                    extendedDiscoveryService.setDiscoveryServiceCallback(dsc);
-                }
+            DiscoveryServiceCallback dsc = discoveryServiceCallback;
+            if (dsc != null) {
+                extendedDiscoveryService.setDiscoveryServiceCallback(dsc);
             }
         }
     }
@@ -95,9 +95,8 @@ public class ExtendedDiscoveryServiceTracker {
 
     @Activate
     protected void activate() {
-        DiscoveryServiceCallback dsc = createDiscoveryServiceCallback();
+        DiscoveryServiceCallbackImpl dsc = createDiscoveryServiceCallback();
         this.discoveryServiceCallback = dsc;
-        active.set(true);
 
         for (ExtendedDiscoveryService extendedDiscoveryService : extendedDiscoveryServices) {
             extendedDiscoveryService.setDiscoveryServiceCallback(dsc);
@@ -107,12 +106,13 @@ public class ExtendedDiscoveryServiceTracker {
 
     @Deactivate
     protected void deactivate() {
-        active.set(false);
         extendedDiscoveryServices.clear();
+        discoveryServiceCallback.inbox = null;
+        discoveryServiceCallback.thingRegistry = null;
         discoveryServiceCallback = null;
     }
 
-    private DiscoveryServiceCallback createDiscoveryServiceCallback() {
+    private DiscoveryServiceCallbackImpl createDiscoveryServiceCallback() {
         Inbox localInbox = inbox;
         ThingRegistry localThingRegistry = thingRegistry;
 
@@ -126,8 +126,10 @@ public class ExtendedDiscoveryServiceTracker {
 
     private class DiscoveryServiceCallbackImpl implements DiscoveryServiceCallback {
 
-        private final Inbox inbox;
-        private final ThingRegistry thingRegistry;
+        private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceCallbackImpl.class);
+
+        private @Nullable Inbox inbox;
+        private @Nullable ThingRegistry thingRegistry;
 
         public DiscoveryServiceCallbackImpl(Inbox inbox, ThingRegistry thingRegistry) {
             this.inbox = inbox;
@@ -136,13 +138,24 @@ public class ExtendedDiscoveryServiceTracker {
 
         @Override
         public @Nullable Thing getExistingThing(ThingUID thingUID) {
-            return thingRegistry.get(thingUID);
+            ThingRegistry localThingRegistry = thingRegistry;
+            if (localThingRegistry == null) {
+                logger.error("Lifecycle error accessing thingRegistry. The DiscoveryServiceCallback is unusable.");
+                return null;
+            }
+
+            return localThingRegistry.get(thingUID);
         }
 
         @Override
         public @Nullable DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID) {
+            Inbox localInbox = inbox;
+            if (localInbox == null) {
+                logger.error("Lifecycle error accessing inbox. The DiscoveryServiceCallback is unusable.");
+                return null;
+            }
             List<DiscoveryResult> ret = new ArrayList<>();
-            ret = inbox.stream().filter(withFlag(DiscoveryResultFlag.NEW).and(forThingUID(thingUID)))
+            ret = localInbox.stream().filter(withFlag(DiscoveryResultFlag.NEW).and(forThingUID(thingUID)))
                     .collect(Collectors.toList());
             if (ret.size() > 0) {
                 return ret.get(0);
