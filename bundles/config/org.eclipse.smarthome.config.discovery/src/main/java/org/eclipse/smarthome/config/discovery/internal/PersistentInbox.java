@@ -65,7 +65,9 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -599,6 +601,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         thingRegistry.add(thing);
     }
 
+    @Activate
     protected void activate(ComponentContext componentContext) {
         this.timeToLiveChecker = ThreadPoolManager.getScheduledPool("discovery")
                 .scheduleWithFixedDelay(new TimeToLiveCheckingThread(this), 0, 30, TimeUnit.SECONDS);
@@ -611,6 +614,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 .scheduleWithFixedDelay(new TimeToLiveCheckingThread(this), 0, interval, TimeUnit.SECONDS);
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext componentContext) {
         this.discoveryServiceRegistry.removeDiscoveryListener(this);
         this.listeners.clear();
