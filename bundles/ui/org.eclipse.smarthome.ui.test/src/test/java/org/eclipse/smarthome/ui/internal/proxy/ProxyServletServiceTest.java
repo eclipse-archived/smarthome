@@ -45,11 +45,65 @@ import org.junit.Test;
  */
 public class ProxyServletServiceTest {
 
+    private static final String SITEMAP_NAME = "testSitemap";
+
+    private static final String SWITCH_WIDGET_ID = "switchWidget";
+    private static final String IMAGE_WIDGET_ID = "imageWidget";
+    private static final String VIDEO_WIDGET_ID = "videoWidget";
+
+    private static final String ITEM_NAME_UNDEF_STATE = "itemUNDEF";
+    private static final String ITEM_NAME_NULL_STATE = "itemNULL";
+    private static final String ITEM_NAME_ON_STATE = "itemON";
+    private static final String ITEM_NAME_INVALID_URL = "itemInvalidUrl";
+    private static final String ITEM_NAME_VALID_IMAGE_URL = "itemValidImageUrl";
+    private static final String ITEM_NAME_VALID_VIDEO_URL = "itemValidVideoUrl";
+
+    private static final String INVALID_URL = "test";
+    private static final String ITEM_VALID_IMAGE_URL = "https://www.eclipse.org/smarthome/item.jpg";
+    private static final String ITEM_VALID_VIDEO_URL = "https://www.eclipse.org/smarthome/item.mp4";
+    private static final String VALID_IMAGE_URL = "https://www.eclipse.org/smarthome/test.jpg";
+    private static final String VALID_VIDEO_URL = "https://www.eclipse.org/smarthome/test.mp4";
+
     static private ProxyServletService service;
+
+    private ItemUIRegistry itemUIRegistry;
+    private ModelRepository modelRepository;
+    private Sitemap sitemap;
+    private HttpServletRequest request;
+    private Switch switchWidget;
+    private Image imageWidget;
+    private Video videoWidget;
 
     @Before
     public void setUp() {
         service = new ProxyServletService();
+
+        itemUIRegistry = mock(ItemUIRegistry.class);
+        modelRepository = mock(ModelRepository.class);
+        service.setModelRepository(modelRepository);
+        service.setItemUIRegistry(itemUIRegistry);
+
+        sitemap = mock(Sitemap.class);
+        when(modelRepository.getModel(eq(SITEMAP_NAME))).thenReturn(sitemap);
+
+        switchWidget = mock(Switch.class);
+        when(itemUIRegistry.getWidget(eq(sitemap), eq(SWITCH_WIDGET_ID))).thenReturn(switchWidget);
+        imageWidget = mock(Image.class);
+        when(itemUIRegistry.getWidget(eq(sitemap), eq(IMAGE_WIDGET_ID))).thenReturn(imageWidget);
+        videoWidget = mock(Video.class);
+        when(itemUIRegistry.getWidget(eq(sitemap), eq(VIDEO_WIDGET_ID))).thenReturn(videoWidget);
+
+        when(itemUIRegistry.getItemState(eq(ITEM_NAME_UNDEF_STATE))).thenReturn(UnDefType.UNDEF);
+        when(itemUIRegistry.getItemState(eq(ITEM_NAME_NULL_STATE))).thenReturn(UnDefType.NULL);
+        when(itemUIRegistry.getItemState(eq(ITEM_NAME_ON_STATE))).thenReturn(OnOffType.ON);
+        when(itemUIRegistry.getItemState(eq(ITEM_NAME_INVALID_URL))).thenReturn(new StringType(INVALID_URL));
+        when(itemUIRegistry.getItemState(eq(ITEM_NAME_VALID_IMAGE_URL)))
+                .thenReturn(new StringType(ITEM_VALID_IMAGE_URL));
+        when(itemUIRegistry.getItemState(eq(ITEM_NAME_VALID_VIDEO_URL)))
+                .thenReturn(new StringType(ITEM_VALID_VIDEO_URL));
+
+        request = mock(HttpServletRequest.class);
+        when(request.getParameter(eq("sitemap"))).thenReturn(SITEMAP_NAME);
     }
 
     @Test
@@ -80,354 +134,147 @@ public class ProxyServletServiceTest {
 
     @Test
     public void testProxyUriUnexpectedWidgetType() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Switch widget = mock(Switch.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(SWITCH_WIDGET_ID);
         URI uri = service.uriFromRequest(request);
         assertNull(uri);
     }
 
     @Test
     public void testProxyUriImageWithoutItemButValidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.jpg");
-        when(widget.getItem()).thenReturn(null);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(VALID_IMAGE_URL);
+        when(imageWidget.getItem()).thenReturn(null);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.jpg");
+        assertEquals(uri.toString(), VALID_IMAGE_URL);
     }
 
     @Test
     public void testProxyUriImageWithoutItemAndInvalidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("test");
-        when(widget.getItem()).thenReturn(null);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(INVALID_URL);
+        when(imageWidget.getItem()).thenReturn(null);
         URI uri = service.uriFromRequest(request);
         assertNull(uri);
     }
 
     @Test
     public void testProxyUriImageWithItemButUndefState() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.jpg");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(UnDefType.UNDEF);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(VALID_IMAGE_URL);
+        when(imageWidget.getItem()).thenReturn(ITEM_NAME_UNDEF_STATE);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.jpg");
+        assertEquals(uri.toString(), VALID_IMAGE_URL);
     }
 
     @Test
     public void testProxyUriImageWithItemButNullState() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.jpg");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(UnDefType.NULL);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(VALID_IMAGE_URL);
+        when(imageWidget.getItem()).thenReturn(ITEM_NAME_NULL_STATE);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.jpg");
+        assertEquals(uri.toString(), VALID_IMAGE_URL);
     }
 
     @Test
     public void testProxyUriImageWithItemButUnexpectedState() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.jpg");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(OnOffType.ON);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(VALID_IMAGE_URL);
+        when(imageWidget.getItem()).thenReturn(ITEM_NAME_ON_STATE);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.jpg");
+        assertEquals(uri.toString(), VALID_IMAGE_URL);
     }
 
     @Test
     public void testProxyUriImageWithItemButStateWithInvalidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.jpg");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(new StringType("test"));
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(VALID_IMAGE_URL);
+        when(imageWidget.getItem()).thenReturn(ITEM_NAME_INVALID_URL);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.jpg");
+        assertEquals(uri.toString(), VALID_IMAGE_URL);
     }
 
     @Test
     public void testProxyUriImageWithItemAndStateWithValidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Image widget = mock(Image.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.jpg");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem")))
-                .thenReturn(new StringType("https://www.eclipse.org/smarthome/item.jpg"));
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(IMAGE_WIDGET_ID);
+        when(imageWidget.getUrl()).thenReturn(VALID_IMAGE_URL);
+        when(imageWidget.getItem()).thenReturn(ITEM_NAME_VALID_IMAGE_URL);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/item.jpg");
+        assertEquals(uri.toString(), ITEM_VALID_IMAGE_URL);
     }
 
     @Test
     public void testProxyUriVideoWithoutItemButValidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.mp4");
-        when(widget.getItem()).thenReturn(null);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(VALID_VIDEO_URL);
+        when(videoWidget.getItem()).thenReturn(null);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.mp4");
+        assertEquals(uri.toString(), VALID_VIDEO_URL);
     }
 
     @Test
     public void testProxyUriVideoWithoutItemAndInvalidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("test");
-        when(widget.getItem()).thenReturn(null);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(INVALID_URL);
+        when(videoWidget.getItem()).thenReturn(null);
         URI uri = service.uriFromRequest(request);
         assertNull(uri);
     }
 
     @Test
     public void testProxyUriVideoWithItemButUndefState() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.mp4");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(UnDefType.UNDEF);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(VALID_VIDEO_URL);
+        when(videoWidget.getItem()).thenReturn(ITEM_NAME_UNDEF_STATE);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.mp4");
+        assertEquals(uri.toString(), VALID_VIDEO_URL);
     }
 
     @Test
     public void testProxyUriVideoWithItemButNullState() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.mp4");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(UnDefType.NULL);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(VALID_VIDEO_URL);
+        when(videoWidget.getItem()).thenReturn(ITEM_NAME_NULL_STATE);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.mp4");
+        assertEquals(uri.toString(), VALID_VIDEO_URL);
     }
 
     @Test
     public void testProxyUriVideoWithItemButUnexpectedState() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.mp4");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(OnOffType.ON);
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(VALID_VIDEO_URL);
+        when(videoWidget.getItem()).thenReturn(ITEM_NAME_ON_STATE);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.mp4");
+        assertEquals(uri.toString(), VALID_VIDEO_URL);
     }
 
     @Test
     public void testProxyUriVideoWithItemButStateWithInvalidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.mp4");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem"))).thenReturn(new StringType("test"));
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(VALID_VIDEO_URL);
+        when(videoWidget.getItem()).thenReturn(ITEM_NAME_INVALID_URL);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/test.mp4");
+        assertEquals(uri.toString(), VALID_VIDEO_URL);
     }
 
     @Test
     public void testProxyUriVideoWithItemAndStateWithValidUrl() {
-        ItemUIRegistry itemUIRegistry = mock(ItemUIRegistry.class);
-        ModelRepository modelRepository = mock(ModelRepository.class);
-        Sitemap sitemap = mock(Sitemap.class);
-        Video widget = mock(Video.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        service.setModelRepository(modelRepository);
-        service.setItemUIRegistry(itemUIRegistry);
-
-        when(request.getParameter(eq("sitemap"))).thenReturn("testSitemap");
-        when(request.getParameter(eq("widgetId"))).thenReturn("testWidget");
-        when(modelRepository.getModel(eq("testSitemap"))).thenReturn(sitemap);
-        when(itemUIRegistry.getWidget(eq(sitemap), eq("testWidget"))).thenReturn(widget);
-        when(widget.getUrl()).thenReturn("https://www.eclipse.org/smarthome/test.mp4");
-        when(widget.getItem()).thenReturn("testItem");
-        when(itemUIRegistry.getItemState(eq("testItem")))
-                .thenReturn(new StringType("https://www.eclipse.org/smarthome/item.mp4"));
-
+        when(request.getParameter(eq("widgetId"))).thenReturn(VIDEO_WIDGET_ID);
+        when(videoWidget.getUrl()).thenReturn(VALID_VIDEO_URL);
+        when(videoWidget.getItem()).thenReturn(ITEM_NAME_VALID_VIDEO_URL);
         URI uri = service.uriFromRequest(request);
         assertNotNull(uri);
-        assertEquals(uri.toString(), "https://www.eclipse.org/smarthome/item.mp4");
+        assertEquals(uri.toString(), ITEM_VALID_VIDEO_URL);
     }
 
 }
