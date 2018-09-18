@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 public class NtpDiscovery extends AbstractDiscoveryService {
 
     public NtpDiscovery() throws IllegalArgumentException {
-        super(SUPPORTED_THING_TYPES_UIDS, 10);
+        super(SUPPORTED_THING_TYPES_UIDS, 2);
     }
 
     @Override
