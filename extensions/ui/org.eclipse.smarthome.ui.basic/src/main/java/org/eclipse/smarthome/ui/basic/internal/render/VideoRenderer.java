@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.render;
 
-import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -77,14 +76,7 @@ public class VideoRenderer extends AbstractWidgetRenderer {
         State state = itemUIRegistry.getState(w);
         String url;
         if (snippetName.equals("image")) {
-            boolean validUrl = false;
-            if (videoWidget.getUrl() != null && !videoWidget.getUrl().isEmpty()) {
-                try {
-                    URI.create(videoWidget.getUrl());
-                    validUrl = true;
-                } catch (IllegalArgumentException ex) {
-                }
-            }
+            boolean validUrl = isValidURL(videoWidget.getUrl());
             String proxiedUrl = "../proxy?sitemap=" + sitemap + "&amp;widgetId=" + widgetId;
             if (!itemUIRegistry.getVisiblity(w)) {
                 url = URL_NONE_ICON;
