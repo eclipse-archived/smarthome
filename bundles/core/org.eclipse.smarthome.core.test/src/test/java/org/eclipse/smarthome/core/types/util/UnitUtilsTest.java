@@ -22,6 +22,7 @@ import javax.measure.quantity.Temperature;
 import org.eclipse.smarthome.core.library.dimension.Intensity;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.junit.Test;
 
 public class UnitUtilsTest {
@@ -58,8 +59,16 @@ public class UnitUtilsTest {
 
     @Test
     public void shouldParseUnitFromPattern() {
+        assertThat(UnitUtils.parseUnit("%.2f °F"), is(ImperialUnits.FAHRENHEIT));
         assertThat(UnitUtils.parseUnit("%.2f °C"), is(SIUnits.CELSIUS));
         assertThat(UnitUtils.parseUnit("myLabel km"), is(KILO(SIUnits.METRE)));
+        assertThat(UnitUtils.parseUnit("%.2f %%"), is(SmartHomeUnits.PERCENT));
         assertThat(UnitUtils.parseUnit("myLabel %unit%"), is(nullValue()));
+    }
+
+    @Test
+    public void testParsePureUnit() {
+        assertThat(UnitUtils.parseUnit("m"), is(SIUnits.METRE));
+        assertThat(UnitUtils.parseUnit("%"), is(SmartHomeUnits.PERCENT));
     }
 }
