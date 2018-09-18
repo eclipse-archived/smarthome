@@ -47,7 +47,7 @@ public class WeatherUndergroundDiscoveryService extends AbstractDiscoveryService
 
     private final Logger logger = LoggerFactory.getLogger(WeatherUndergroundDiscoveryService.class);
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_WEATHER);
-    private static final int DISCOVER_TIMEOUT_SECONDS = 10;
+    private static final int DISCOVER_TIMEOUT_SECONDS = 2;
     private static final int LOCATION_CHANGED_CHECK_INTERVAL = 60;
 
     private final LocaleProvider localeProvider;
