@@ -28,7 +28,7 @@ The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installe
 ![Step 4](images/ide4.png)
 7. Once it is done, you will see the Eclipse Welcome Screen, which you can close by clicking "Workbench" on the top right. You will see that the installer not only set up an Eclipse IDE instance for you, but also checked out the Eclipse SmartHome git repository and imported all projects into the workspace. Don't worry that you still see error markers at that point, this will be addressed in the next steps.
 ![Step 5](images/ide5.png)
-8. Now select "Help->Perform Setup Tasks..." from the menu and click "Finish":
+8. Wait until all automatic tasks has been finished (see status field bottom left). After that select "Help->Perform Setup Tasks..." from the menu and click "Finish":
 ![Step 6](images/ide6.png)
 9. Your workspace should now fully compile and you can start the runtime by launching the "SmartHome Runtime" launch configuration:
 ![Step 8](images/ide8.png)
