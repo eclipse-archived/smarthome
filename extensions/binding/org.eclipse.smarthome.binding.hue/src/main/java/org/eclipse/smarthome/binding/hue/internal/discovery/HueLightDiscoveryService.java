@@ -53,7 +53,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
-    private static final int SEARCH_TIME = 60;
+    private static final int SEARCH_TIME = 10;
 
     // @formatter:off
     private static final Map<String, @Nullable String> TYPE_TO_ZIGBEE_ID_MAP = Stream.of(
