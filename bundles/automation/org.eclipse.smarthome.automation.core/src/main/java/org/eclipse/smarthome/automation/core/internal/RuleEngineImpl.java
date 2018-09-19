@@ -97,6 +97,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  * @author Markus Rathgeb - use a managed rule
+ * @author Ana Dimova - new reference syntax: array[index], list[index], map["key"], bean.field
  */
 @Component(immediate = true)
 @NonNullByDefault
@@ -519,25 +520,19 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         }
         String rUID = rule.getUID();
         setStatus(rUID, new RuleStatusInfo(RuleStatus.INITIALIZING));
-        for (final WrappedAction action : rule.getActions()) {
-            updateMapModuleTypeToRule(rUID, action.unwrap().getTypeUID());
-            action.setConnections(resolveConnections(action.getInputs()));
-        }
-        for (final WrappedCondition condition : rule.getConditions()) {
-            updateMapModuleTypeToRule(rUID, condition.unwrap().getTypeUID());
-            condition.setConnections(resolveConnections(condition.getInputs()));
-        }
-        for (final WrappedTrigger trigger : rule.getTriggers()) {
-            updateMapModuleTypeToRule(rUID, trigger.unwrap().getTypeUID());
-        }
         try {
+            for (final WrappedAction action : rule.getActions()) {
+                updateMapModuleTypeToRule(rUID, action.unwrap().getTypeUID());
+                action.setConnections(ConnectionValidator.getConnections(action.getInputs()));
+            }
+            for (final WrappedCondition condition : rule.getConditions()) {
+                updateMapModuleTypeToRule(rUID, condition.unwrap().getTypeUID());
+                condition.setConnections(ConnectionValidator.getConnections(condition.getInputs()));
+            }
+            for (final WrappedTrigger trigger : rule.getTriggers()) {
+                updateMapModuleTypeToRule(rUID, trigger.unwrap().getTypeUID());
+            }
             validateModuleIDs(rule);
-        } catch (IllegalArgumentException e) {
-            setStatus(rUID,
-                    new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.INVALID_RULE, e.getMessage()));
-            return;
-        }
-        try {
             autoMapConnections(rule);
             ConnectionValidator.validateConnections(mtRegistry, rule.unwrap());
         } catch (IllegalArgumentException e) {
@@ -584,7 +579,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * This method can be used in order to post events through the Eclipse SmartHome events bus. A common
      * use case is to notify event subscribers about the {@link Rule}'s status change.
      *
-     * @param ruleUID the UID of the {@link Rule}, whose status is changed.
+     * @param ruleUID    the UID of the {@link Rule}, whose status is changed.
      * @param statusInfo the new {@link Rule}s status.
      */
     protected void postRuleStatusInfoEvent(String ruleUID, RuleStatusInfo statusInfo) {
@@ -601,7 +596,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * This method links modules to corresponding module handlers.
      *
-     * @param rUID id of rule containing these modules
+     * @param rUID    id of rule containing these modules
      * @param modules list of modules
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
@@ -717,11 +712,11 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * {@link ModuleHandlerFactory} is disposed or some {@link ModuleType} is updated. The {@link Rule} is
      * available but its state should become {@link RuleStatus#UNINITIALIZED}.
      *
-     * @param r rule that should be unregistered.
+     * @param r      rule that should be unregistered.
      * @param detail provides the {@link RuleStatusDetail}, corresponding to the new <b>uninitialized</b> status, should
-     *            be {@code null} if the status will be skipped.
-     * @param msg provides the {@link RuleStatusInfo} description, corresponding to the new <b>uninitialized</b>
-     *            status, should be {@code null} if the status will be skipped.
+     *               be {@code null} if the status will be skipped.
+     * @param msg    provides the {@link RuleStatusInfo} description, corresponding to the new <b>uninitialized</b>
+     *               status, should be {@code null} if the status will be skipped.
      */
     private void unregister(@Nullable WrappedRule r, @Nullable RuleStatusDetail detail, @Nullable String msg) {
         if (r != null) {
@@ -751,7 +746,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * This method is used to obtain a {@link ModuleHandler} for the specified {@link ModuleImpl}.
      *
-     * @param m the {@link ModuleImpl} which is looking for a handler.
+     * @param m       the {@link ModuleImpl} which is looking for a handler.
      * @param ruleUID UID of the {@link Rule} that the specified {@link ModuleImpl} belongs to.
      * @return handler that processing this module. Could be {@code null} if the {@link ModuleHandlerFactory} is not
      *         available.
@@ -792,7 +787,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * list of
      * {@link Rule}s that use this {@link ModuleType}.
      *
-     * @param rUID the UID of the {@link Rule}.
+     * @param rUID         the UID of the {@link Rule}.
      * @param moduleTypeId the UID of the {@link ModuleType}.
      */
     public synchronized void updateMapModuleTypeToRule(String rUID, String moduleTypeId) {
@@ -899,7 +894,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * This method updates the status of the {@link Rule}
      *
-     * @param ruleUID unique id of the rule
+     * @param ruleUID       unique id of the rule
      * @param newStatusInfo the new status of the rule
      */
     private void setStatus(String ruleUID, RuleStatusInfo newStatusInfo) {
@@ -986,7 +981,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * {@link TriggerData} is available. This method switches
      *
      * @param ruleUID the {@link Rule} which has to evaluate new {@link TriggerData}.
-     * @param td {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
+     * @param td      {@link TriggerData} object containing new values for {@link Trigger}'s {@link Output}s
      */
     protected void runRule(String ruleUID, TriggerHandlerCallbackImpl.TriggerData td) {
         if (thCallbacks.get(ruleUID) == null) {
@@ -1098,7 +1093,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      *
      * @param moduleUID uid of updated module.
      *
-     * @param outputs new output values.
+     * @param outputs   new output values.
      */
     private void updateContext(String ruleUID, String moduleUID, Map<String, ?> outputs) {
         Map<String, Object> context = getContext(ruleUID, null);
@@ -1122,14 +1117,22 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (connections != null) {
             StringBuffer sb = new StringBuffer();
             for (Connection c : connections) {
-                String outputModuleId = c.getOuputModuleId();
+                String outputModuleId = c.getOutputModuleId();
                 if (outputModuleId != null) {
                     sb.append(outputModuleId).append(OUTPUT_SEPARATOR).append(c.getOutputName());
-                    context.put(c.getInputName(), context.get(sb.toString()));
+                    Object outputValue = context.get(sb.toString());
                     sb.setLength(0);
+                    if (outputValue != null) {
+                        if (c.getReference() == null) {
+                            context.put(c.getInputName(), outputValue);
+                        } else {
+                            context.put(c.getInputName(), ReferenceResolver.resolveComplexDataReference(outputValue,
+                                    ReferenceResolver.splitReferenceToTokens(c.getReference())));
+                        }
+                    }
                 } else {
                     // get reference from context
-                    String ref = c.getOutputName();
+                    String ref = c.getReference();
                     final Object value = ReferenceResolver.resolveReference(ref, context);
 
                     if (value != null) {
@@ -1373,8 +1376,8 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
     /**
      * Try to connect a free input to available outputs.
      *
-     * @param input a free input which has to be connected
-     * @param outputTagMap a map of set of tags to outptu references
+     * @param input              a free input which has to be connected
+     * @param outputTagMap       a map of set of tags to outptu references
      * @param currentConnections current connections of this module
      * @return true when only one output which meets auto mapping criteria is found. False otherwise.
      */
@@ -1397,7 +1400,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             }
             if (!conflict && outputRef != null) {
                 currentConnections
-                        .add(new Connection(input.getName(), outputRef.getModuleId(), outputRef.getOutputName()));
+                        .add(new Connection(input.getName(), outputRef.getModuleId(), outputRef.getOutputName(), null));
                 result = true;
             }
         }
@@ -1431,7 +1434,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         Map<String, String> connectionMap = new HashMap<>();
         for (Connection connection : connections) {
             connectionMap.put(connection.getInputName(),
-                    connection.getOuputModuleId() + "." + connection.getOutputName());
+                    connection.getOutputModuleId() + "." + connection.getOutputName());
         }
         return connectionMap;
     }
@@ -1446,45 +1449,9 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         Set<Connection> result = new HashSet<>(connections.size());
         for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
             Connection c = it.next();
-            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
+            result.add(new Connection(c.getInputName(), c.getOutputModuleId(), c.getOutputName(), c.getReference()));
         }
         return result;
-    }
-
-    /**
-     * This method is used for collecting connections of {@link Module}s.
-     *
-     * @param inputs The map of inputs of the module
-     * @return set of connections
-     */
-    public Set<Connection> resolveConnections(Map<String, String> inputs) {
-        final String REF_IDENTIFIER = "$";
-        Set<Connection> connections = new HashSet<>();
-        if (inputs != null) {
-            for (Entry<String, String> input : inputs.entrySet()) {
-                String inputName = input.getKey();
-                String outputName = null;
-
-                String output = input.getValue();
-                if (output.startsWith(REF_IDENTIFIER)) {
-                    outputName = output;
-                    Connection connection = new Connection(inputName, null, outputName);
-                    connections.add(connection);
-                } else {
-                    int index = output.indexOf('.');
-                    if (index != -1) {
-                        String outputId = output.substring(0, index);
-                        outputName = output.substring(index + 1);
-                        Connection connection = new Connection(inputName, outputId, outputName);
-                        connections.add(connection);
-                    } else {
-                        logger.error("Wrong format of Output : {}: {}", inputName, output);
-                        continue;
-                    }
-                }
-            }
-        }
-        return connections;
     }
 
     class OutputRef {
