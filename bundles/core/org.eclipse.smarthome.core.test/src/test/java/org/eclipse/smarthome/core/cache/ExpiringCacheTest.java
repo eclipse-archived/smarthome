@@ -14,18 +14,17 @@ package org.eclipse.smarthome.core.cache;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.lang.RandomStringUtils;
-
-import org.junit.Test;
-import org.junit.Before;
-
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test class for the {@link ExpiringCache} class.
  *
- * @author Christoph Weitkamp - Initial contribution.
+ * @author Christoph Weitkamp - Initial contribution
  */
 public class ExpiringCacheTest {
     private static final long CACHE_EXPIRY = TimeUnit.SECONDS.toMillis(2);
@@ -54,6 +53,18 @@ public class ExpiringCacheTest {
 
         assertNotNull(value2);
         assertEquals(value1, value2);
+    }
+
+    @Test
+    public void testPutValue() {
+        String value1 = subject.getValue();
+
+        // put new value
+        subject.putValue("test");
+
+        String value2 = subject.getValue();
+        assertEquals("test", value2);
+        assertNotEquals(value1, value2);
     }
 
     @Test

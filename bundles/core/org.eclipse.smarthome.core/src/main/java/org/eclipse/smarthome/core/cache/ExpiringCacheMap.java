@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * This is a simple expiring and reloading multiple key-value-pair cache implementation. The value expires after the
  * specified duration has passed since the item was created, or the most recent replacement of the value.
  *
- * @author Christoph Weitkamp - Initial contribution and API.
+ * @author Christoph Weitkamp - Initial contribution
  * @author Martin van Wingerden - Added constructor accepting Duration and putIfAbsentAndGet
  *
  * @param <K> the type of the key
@@ -52,7 +53,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Creates a new instance.
-     * 
+     *
      * @param expiry the duration in milliseconds for how long the value stays valid
      */
     public ExpiringCacheMap(long expiry) {
@@ -62,7 +63,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Creates an {@link ExpiringCache} and adds it to the cache.
-     * 
+     *
      * @param key the key with which the specified value is to be associated
      * @param action the action for the item to be associated with the specified key to retrieve/calculate the value
      */
@@ -72,7 +73,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Adds an {@link ExpiringCache} to the cache.
-     * 
+     *
      * @param key the key with which the specified value is to be associated
      * @param item the item to be associated with the specified key
      */
@@ -133,8 +134,23 @@ public class ExpiringCacheMap<K, V> {
     }
 
     /**
+     * Puts a new value into the cache if the specified key is present.
+     *
+     * @param key the key whose value in the cache is to be updated
+     * @param value the new value
+     */
+    public void putValue(K key, @Nullable V value) {
+        final ExpiringCache<V> item = items.get(key);
+        if (item == null) {
+            throw new IllegalArgumentException(String.format("No item found for key '%s' .", key));
+        } else {
+            item.putValue(value);
+        }
+    }
+
+    /**
      * Checks if the key is present in the cache.
-     * 
+     *
      * @param key the key whose presence in the cache is to be tested
      * @return true if the cache contains a value for the specified key
      */
@@ -144,7 +160,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Removes the item associated with the given key from the cache.
-     * 
+     *
      * @param key the key whose associated value is to be removed
      */
     public void remove(K key) {
@@ -160,7 +176,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Returns a set of all keys.
-     * 
+     *
      * @return the set of all keys
      */
     public synchronized Set<K> keys() {
@@ -173,7 +189,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Returns the value associated with the given key - possibly from the cache, if it is still valid.
-     * 
+     *
      * @param key the key whose associated value is to be returned
      * @return the value associated with the given key, or null if there is no cached value for the given key
      */
@@ -189,7 +205,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Returns a collection of all values - possibly from the cache, if they are still valid.
-     * 
+     *
      * @return the collection of all values
      */
     public synchronized Collection<V> values() {
@@ -202,7 +218,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Invalidates the value associated with the given key in the cache.
-     * 
+     *
      * @param key the key whose associated value is to be invalidated
      */
     public synchronized void invalidate(K key) {
@@ -223,7 +239,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Refreshes and returns the value associated with the given key in the cache.
-     * 
+     *
      * @param key the key whose associated value is to be refreshed
      * @return the value associated with the given key, or null if there is no cached value for the given key
      */
@@ -239,7 +255,7 @@ public class ExpiringCacheMap<K, V> {
 
     /**
      * Refreshes and returns a collection of all new values in the cache.
-     * 
+     *
      * @return the collection of all values
      */
     public synchronized Collection<V> refreshAll() {

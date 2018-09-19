@@ -24,7 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * There must be provided an action in order to retrieve/calculate the value. This action will be called only if the
  * answer from the last calculation is not valid anymore, i.e. if it is expired.
  *
- * @author Christoph Weitkamp - Initial contribution and API.
+ * @author Christoph Weitkamp - Initial contribution
  *
  * @param <V> the type of the value
  */
@@ -64,6 +64,16 @@ public class ExpiringCache<V> {
     }
 
     /**
+     * Puts a new value into the cache.
+     *
+     * @param value the new value
+     */
+    public final synchronized void putValue(@Nullable V value) {
+        this.value = new SoftReference<>(value);
+        expiresAt = calcExpiresAt();
+    }
+
+    /**
      * Invalidates the value in the cache.
      */
     public final synchronized void invalidateValue() {
@@ -80,7 +90,7 @@ public class ExpiringCache<V> {
     public synchronized V refreshValue() {
         V freshValue = action.get();
         value = new SoftReference<>(freshValue);
-        expiresAt = System.nanoTime() + expiry;
+        expiresAt = calcExpiresAt();
         return freshValue;
     }
 
@@ -91,5 +101,9 @@ public class ExpiringCache<V> {
      */
     public boolean isExpired() {
         return expiresAt < System.nanoTime();
+    }
+
+    private long calcExpiresAt() {
+        return System.nanoTime() + expiry;
     }
 }
