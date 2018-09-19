@@ -69,7 +69,6 @@ public class ExpiringCache<V> {
      * @param value the new value
      */
     public final synchronized void putValue(@Nullable V value) {
-        V cachedValue = this.value.get();
         this.value = new SoftReference<>(value);
         expiresAt = calcExpiresAt();
     }
