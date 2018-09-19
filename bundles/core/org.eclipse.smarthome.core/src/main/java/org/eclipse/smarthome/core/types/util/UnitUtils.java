@@ -78,24 +78,25 @@ public class UnitUtils {
     }
 
     /**
-     * A utility method to parse a unit symbol from a given pattern (like stateDescription or widget label).
-     * The unit is always expected to be the last part of the pattern separated by " " (e.g. "%.2f °C" for °C).
+     * A utility method to parse a unit symbol either directly or from a given pattern (like stateDescription or widget
+     * label). In the latter case, the unit is expected to be the last part of the pattern separated by " " (e.g. "%.2f
+     * °C" for °C).
      *
-     * @param pattern The pattern to extract the unit symbol from.
-     * @return the unit symbol extracted from the pattern or {@code null} if the pattern did not match the expected
-     *         format.
+     * @param stringWithUnit the string to extract the unit symbol from
+     * @return the unit symbol extracted from the string or {@code null} if no unit could be parsed
+     *
      */
     public static @Nullable Unit<?> parseUnit(String pattern) {
         if (StringUtils.isBlank(pattern)) {
             return null;
         }
 
+        String unitSymbol = pattern;
         int lastBlankIndex = pattern.lastIndexOf(" ");
-        if (lastBlankIndex < 0) {
-            return null;
+        if (lastBlankIndex >= 0) {
+            unitSymbol = pattern.substring(lastBlankIndex).trim();
         }
 
-        String unitSymbol = pattern.substring(lastBlankIndex).trim();
         if (StringUtils.isNotBlank(unitSymbol) && !unitSymbol.equals(UNIT_PLACEHOLDER)) {
             if (UNIT_PERCENT_FORMAT_STRING.equals(unitSymbol)) {
                 return SmartHomeUnits.PERCENT;
