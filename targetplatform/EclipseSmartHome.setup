@@ -2454,7 +2454,12 @@
         id="launch.smarthome.all"
         excludedTriggers="STARTUP"
         predecessor="antlr-generator-3.2.0-patch"
-        launcher="Generate All Models"/>
+        launcher="EclipseSmartHomeMavenBuild"/>
+    <setupTask
+        xsi:type="projects:ProjectsBuildTask"
+        excludedTriggers="STARTUP"
+        refresh="true"
+        clean="true"/>
     <setupTask
         xsi:type="setup:ResourceCreationTask"
         id="lifecycle-mapping"
