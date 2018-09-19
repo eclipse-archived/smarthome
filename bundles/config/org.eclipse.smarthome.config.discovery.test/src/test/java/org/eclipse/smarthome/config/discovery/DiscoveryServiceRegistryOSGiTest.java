@@ -19,22 +19,18 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.setup.test.discovery.DiscoveryServiceMock;
 import org.eclipse.smarthome.config.setup.test.discovery.DiscoveryServiceMockOfBridge;
-import org.eclipse.smarthome.config.setup.test.discovery.ExtendedDiscoveryServiceMock;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.osgi.framework.ServiceRegistration;
 
@@ -70,9 +66,6 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
     private final String FAULTY_BINDING_ID = "faulty2BindingId";
     private final String FAULTY_THING_TYPE = "faulty2ThingType";
 
-    private final String EXTENDED_BINDING_ID = "extended2BindingId";
-    private final String EXTENDED_THING_TYPE = "extended2ThingType";
-
     private static class AnotherDiscoveryService extends DiscoveryServiceMock {
         public AnotherDiscoveryService(ThingTypeUID thingType, int timeout) {
             super(thingType, timeout);
@@ -80,11 +73,10 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
     }
 
     private DiscoveryServiceMock discoveryServiceMockForBinding1;
-    private ExtendedDiscoveryServiceMock discoveryServiceMockForBinding2;
+    private DiscoveryServiceMock discoveryServiceMockForBinding2;
     private DiscoveryServiceMockOfBridge discoveryServiceMockForBinding3Bridge1;
     private DiscoveryServiceMockOfBridge discoveryServiceMockForBinding3Bridge2;
     private DiscoveryServiceMock discoveryServiceFaultyMock;
-    private ExtendedDiscoveryServiceMock extendedDiscoveryServiceMock;
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private final List<ServiceRegistration<?>> serviceRegs = new ArrayList<>();
     private ThingRegistry thingRegistry;
@@ -106,8 +98,8 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
         discoveryServiceMockForBinding1 = new DiscoveryServiceMock(new ThingTypeUID(ANY_BINDING_ID_1, ANY_THING_TYPE_1),
                 1);
-        discoveryServiceMockForBinding2 = new ExtendedDiscoveryServiceMock(
-                new ThingTypeUID(ANY_BINDING_ID_2, ANY_THING_TYPE_2), 3);
+        discoveryServiceMockForBinding2 = new DiscoveryServiceMock(new ThingTypeUID(ANY_BINDING_ID_2, ANY_THING_TYPE_2),
+                3);
 
         discoveryServiceMockForBinding3Bridge1 = new DiscoveryServiceMockOfBridge(
                 new ThingTypeUID(ANY_BINDING_ID_3, ANY_THING_TYPE_3), 1, BRIDGE_UID_1);
@@ -116,9 +108,6 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
         discoveryServiceFaultyMock = new DiscoveryServiceMock(new ThingTypeUID(FAULTY_BINDING_ID, FAULTY_THING_TYPE), 1,
                 true);
-
-        extendedDiscoveryServiceMock = new ExtendedDiscoveryServiceMock(
-                new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE), 1, true);
 
         serviceRegs.add(
                 bundleContext.registerService(DiscoveryService.class.getName(), discoveryServiceMockForBinding1, null));
@@ -130,15 +119,12 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
                 discoveryServiceMockForBinding3Bridge2, null));
         serviceRegs
                 .add(bundleContext.registerService(DiscoveryService.class.getName(), discoveryServiceFaultyMock, null));
-        serviceRegs.add(
-                bundleContext.registerService(DiscoveryService.class.getName(), extendedDiscoveryServiceMock, null));
 
         discoveryServiceRegistry = getService(DiscoveryServiceRegistry.class);
     }
 
     @After
     public void cleanUp() {
-        extendedDiscoveryServiceMock.abortScan();
         discoveryServiceFaultyMock.abortScan();
         discoveryServiceMockForBinding1.abortScan();
         discoveryServiceMockForBinding2.abortScan();
@@ -384,78 +370,6 @@ public class DiscoveryServiceRegistryOSGiTest extends JavaOSGiTest {
 
         assertEquals(3, discoveryServiceRegistry.getMaxScanTimeout(ANY_BINDING_ID_2));
         assertEquals(0, discoveryServiceRegistry.getMaxScanTimeout("unknownBindingId"));
-    }
-
-    @Test
-    public void testGetExistingThing() {
-        ThingUID thingUID = new ThingUID(EXTENDED_BINDING_ID, "foo");
-
-        // verify that the callback has been set
-        assertNotNull(extendedDiscoveryServiceMock.discoveryServiceCallback);
-
-        // verify that the thing cannot be found if it's not there
-        assertNull(extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingThing(thingUID));
-
-        thingRegistry
-                .add(ThingBuilder.create(new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE), thingUID).build());
-
-        // verify that the existing Thing can be accessed
-        assertNotNull(extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingThing(thingUID));
-    }
-
-    @Test
-    public void testGetExistingDiscoveryResult() {
-        ScanListener mockScanListener1 = mock(ScanListener.class);
-        ThingUID thingUID = new ThingUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE, "foo");
-
-        // verify that the callback has been set
-        assertNotNull(extendedDiscoveryServiceMock.discoveryServiceCallback);
-
-        // verify that the DiscoveryResult cannot be found if it's not there
-        assertNull(extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID));
-
-        discoveryServiceRegistry.startScan(new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE),
-                mockScanListener1);
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
-
-        // verify that the existing DiscoveryResult can be accessed
-        assertNotNull(extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID));
-
-        // verify that a non-existing DiscoveryResult can not be accessed
-        thingUID = new ThingUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE, "bar");
-        assertNull(extendedDiscoveryServiceMock.discoveryServiceCallback.getExistingDiscoveryResult(thingUID));
-    }
-
-    @Test
-    public void testCache() {
-        ScanListener mockScanListener1 = mock(ScanListener.class);
-        ArgumentCaptor<DiscoveryResult> discoveryResultCaptor = ArgumentCaptor.forClass(DiscoveryResult.class);
-        ThingUID thingUID = new ThingUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE, "foo");
-        ThingTypeUID thingTypeUID = new ThingTypeUID(EXTENDED_BINDING_ID, EXTENDED_THING_TYPE);
-
-        inbox.remove(thingUID);
-        discoveryServiceRegistry.startScan(thingTypeUID, mockScanListener1);
-        waitForAssert(() -> verify(mockScanListener1, times(1)).onFinished());
-
-        discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
-        waitForAssert(() -> {
-            verify(mockDiscoveryListener, times(1)).thingDiscovered(any(), discoveryResultCaptor.capture());
-        });
-
-        assertTrue(discoveryResultCaptor.getValue().getProperties().isEmpty());
-
-        discoveryServiceRegistry.removeDiscoveryListener(mockDiscoveryListener);
-        extendedDiscoveryServiceMock.setDiscoveryProperties(Collections.singletonMap("ip", "0.0.0.0"));
-        inbox.remove(thingUID);
-        discoveryServiceRegistry.startScan(thingTypeUID, mockScanListener1);
-        waitForAssert(() -> verify(mockScanListener1, times(2)).onFinished());
-
-        discoveryServiceRegistry.addDiscoveryListener(mockDiscoveryListener);
-        waitForAssert(() -> {
-            verify(mockDiscoveryListener, times(2)).thingDiscovered(any(), discoveryResultCaptor.capture());
-        });
-
-        assertEquals(Collections.singletonMap("ip", "0.0.0.0"), discoveryResultCaptor.getValue().getProperties());
     }
 
 }
