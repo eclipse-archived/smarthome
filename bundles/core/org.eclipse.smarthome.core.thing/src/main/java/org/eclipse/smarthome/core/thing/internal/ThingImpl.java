@@ -23,6 +23,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
@@ -132,6 +133,18 @@ public class ThingImpl implements Thing {
     @Override
     public List<Channel> getChannels() {
         return Collections.unmodifiableList(new ArrayList<>(this.channels));
+    }
+
+    @Override
+    public List<Channel> getChannelsOfGroup(String channelGroupId) {
+        List<Channel> channels = new ArrayList<>();
+        for (Channel channel : this.channels) {
+            ChannelUID channelUID = channel.getUID();
+            if (channelUID.isInGroup() && channelUID.getGroupId().equals(channelGroupId)) {
+                channels.add(channel);
+            }
+        }
+        return Collections.unmodifiableList(channels);
     }
 
     @Override

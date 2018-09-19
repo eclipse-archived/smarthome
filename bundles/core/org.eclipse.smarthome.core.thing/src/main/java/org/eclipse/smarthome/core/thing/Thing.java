@@ -78,6 +78,14 @@ public interface Thing extends Identifiable<ThingUID> {
     List<Channel> getChannels();
 
     /**
+     * Gets the channels of the given channel group or an empty list if no channel group with the id exists or the
+     * channel group does not have channels.
+     *
+     * @return the channels of the given channel group
+     */
+    List<Channel> getChannelsOfGroup(String channelGroupId);
+
+    /**
      * Gets the channel for the given id or null if no channel with the id
      * exists.
      *
