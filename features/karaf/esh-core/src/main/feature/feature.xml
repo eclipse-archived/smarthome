@@ -523,7 +523,7 @@
     <requirement>esh.tp;filter:="(&amp;(feature=xtext-ide)(version&gt;=2.14.0)(!(version&gt;=2.15.0)))"</requirement>
     <feature dependency="true">esh.tp-xtext-ide</feature>
 
-    <requirement>esh.tp;filter:="(&amp;(feature=lsp4j)(version&gt;=0.2.0)(!(version&gt;=0.3.0)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=lsp4j)(version&gt;=0.4.0)(!(version&gt;=0.5.0)))"</requirement>
     <feature dependency="true">esh.tp-lsp4j</feature>
 
     <feature>esh-model-item-ide</feature>
