@@ -69,6 +69,7 @@ public class UnitUtilsTest {
     @Test
     public void testParsePureUnit() {
         assertThat(UnitUtils.parseUnit("DU"), is(SmartHomeUnits.DOBSON_UNIT));
+        assertThat(UnitUtils.parseUnit("°F"), is(ImperialUnits.FAHRENHEIT));
         assertThat(UnitUtils.parseUnit("m"), is(SIUnits.METRE));
         assertThat(UnitUtils.parseUnit("%"), is(SmartHomeUnits.PERCENT));
     }
