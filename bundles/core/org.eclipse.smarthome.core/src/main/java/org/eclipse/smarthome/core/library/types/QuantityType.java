@@ -28,6 +28,7 @@ import javax.measure.quantity.Dimensionless;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.internal.library.unit.UnitInitializer;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -66,6 +67,10 @@ public class QuantityType<T extends Quantity<T>> extends Number
     private static final String UNIT_PATTERN = "(?<=\\d)\\s*(?=[a-zA-Z°µ%'](?![\\+\\-]?\\d))";
 
     private final Quantity<T> quantity;
+
+    static {
+        UnitInitializer.init();
+    }
 
     /**
      * Creates a dimensionless {@link QuantityType} with scalar 0 and unit {@link AbstractUnit#ONE}.

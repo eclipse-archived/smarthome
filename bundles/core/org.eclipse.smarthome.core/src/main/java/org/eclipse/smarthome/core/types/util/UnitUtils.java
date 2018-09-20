@@ -23,6 +23,7 @@ import javax.measure.UnitConverter;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.internal.library.unit.UnitInitializer;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
@@ -49,6 +50,10 @@ public class UnitUtils {
 
     private static final String JAVAX_MEASURE_QUANTITY_PREFIX = "javax.measure.quantity.";
     private static final String FRAMEWORK_DIMENSION_PREFIX = "org.eclipse.smarthome.core.library.dimension.";
+
+    static {
+        UnitInitializer.init();
+    }
 
     /**
      * Parses a String denoting a dimension (e.g. Length, Temperature, Mass,..) into a {@link Class} instance of an
