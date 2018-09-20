@@ -18,7 +18,6 @@ import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
-import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
@@ -26,11 +25,9 @@ import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.dimension.Intensity;
-import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.junit.Before;
 import org.junit.Test;
 
 import tec.uom.se.quantity.QuantityDimension;
@@ -40,12 +37,6 @@ import tec.uom.se.quantity.QuantityDimension;
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "null" })
 public class QuantityTypeTest {
-
-    @Before
-    public void setup() {
-        @SuppressWarnings("unused")
-        Unit<Temperature> fahrenheit = ImperialUnits.FAHRENHEIT;
-    }
 
     @Test
     public void testDimensionless() {
