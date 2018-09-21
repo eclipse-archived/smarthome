@@ -92,7 +92,19 @@ public class ThingBuilder {
         while (iterator.hasNext()) {
             if (iterator.next().getUID().equals(channelUID)) {
                 iterator.remove();
+                break;
             }
+        }
+        return this;
+    }
+
+    public ThingBuilder withoutChannels(Channel... channels) {
+        return withoutChannels(Arrays.asList(channels));
+    }
+
+    public ThingBuilder withoutChannels(List<Channel> channels) {
+        for (Channel channel : channels) {
+            withoutChannel(channel.getUID());
         }
         return this;
     }
