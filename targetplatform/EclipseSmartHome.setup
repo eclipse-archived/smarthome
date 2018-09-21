@@ -2391,6 +2391,8 @@
           name="org.eclipse.wst.web_ui.feature.feature.group"/>
       <repository
           url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.8"/>
+      <repository
+          url="http://download.eclipse.org/releases/photon"/>
     </setupTask>
     <setupTask
         xsi:type="projects:ProjectsImportTask">
