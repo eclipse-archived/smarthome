@@ -187,8 +187,9 @@
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.3.8.v20160314</version>
+        <version>9.4.12.v20180830</version>
         <configuration>
+          <supportedPackagings>pom</supportedPackagings>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <webAppSourceDirectory>${project.build.directory}/repository/</webAppSourceDirectory>
           <webApp>
