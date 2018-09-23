@@ -79,6 +79,18 @@
       <name>JCenter Repository</name>
       <url>https://jcenter.bintray.com</url>
     </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>esh-3rdparty-mvn</id>
+      <name>Eclipse SmartHome 3rd party Maven Repository</name>
+      <url>http://eclipse.github.io/smarthome/third-party/m2-repo/</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
