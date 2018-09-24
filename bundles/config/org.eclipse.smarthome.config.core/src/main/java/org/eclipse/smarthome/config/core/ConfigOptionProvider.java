@@ -16,6 +16,9 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link ConfigOptionProvider} can be implemented and registered as an <i>OSGi</i>
  * service to provide {@link ConfigDescription}s options.
@@ -23,6 +26,7 @@ import java.util.Locale;
  * @author Chris Jackson - Initial contribution
  * @author Kai Kreuzer - added support for contexts
  */
+@NonNullByDefault
 public interface ConfigOptionProvider {
 
     /**
@@ -30,24 +34,26 @@ public interface ConfigOptionProvider {
      *
      * @deprecated Use {@link getParameterOptions} with context instead.
      *
-     * @param uri the uri of the config description
-     * @param param the parameter name for which the requested options shall be returned
+     * @param uri    the uri of the config description
+     * @param param  the parameter name for which the requested options shall be returned
      * @param locale the locale in which the result is expected
      * @return the configuration options provided by this provider if any or {@code null} otherwise
      */
     @Deprecated
-    Collection<ParameterOption> getParameterOptions(URI uri, String param, Locale locale);
+    @Nullable
+    Collection<ParameterOption> getParameterOptions(URI uri, String param, @Nullable Locale locale);
 
     /**
      * Provides a collection of {@link ParameterOptions}s.
      *
-     * @param uri the uri of the config description
-     * @param param the parameter name for which the requested options shall be returned
+     * @param uri     the uri of the config description
+     * @param param   the parameter name for which the requested options shall be returned
      * @param context the defined context of the parameter
-     * @param locale the locale in which the result is expected
+     * @param locale  the locale in which the result is expected
      * @return the configuration options provided by this provider if any or {@code null} otherwise
      */
-    default Collection<ParameterOption> getParameterOptions(URI uri, String param, String context, Locale locale) {
+    default @Nullable Collection<ParameterOption> getParameterOptions(URI uri, String param, @Nullable String context,
+            @Nullable Locale locale) {
         return getParameterOptions(uri, param, locale);
     }
 }
