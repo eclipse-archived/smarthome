@@ -76,10 +76,10 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
 
     private ScheduledFuture<?> connectionChecker;
     private WebSocketClient client;
-    private Session session;
+    private volatile Session session;
 
     private XMLResponseProcessor xmlResponseProcessor;
-    private CommandExecutor commandExecutor;
+    private volatile CommandExecutor commandExecutor;
 
     private PresetContainer presetContainer;
     
@@ -128,10 +128,13 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        logger.debug("{}: handleCommand({}, {});", getDeviceName(), channelUID, command);
-        if (getThing().getStatus() != ThingStatus.ONLINE) {
-            openConnection(); // try to reconnect....
+        if (commandExecutor == null) {
+            logger.debug("Can't handle command '{}' for channel '{}' because of not initialized connection.", command, channelUID);
+            return;
+        } else {
+            logger.debug("{}: handleCommand({}, {});", getDeviceName(), channelUID, command);
         }
+
         if (command.equals(RefreshType.REFRESH)) {
             switch (channelUID.getIdWithoutGroup()) {
                 case CHANNEL_BASS:
@@ -345,9 +348,13 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
     public void onWebSocketError(Throwable e) {
         logger.debug("{}: Error during websocket communication: {}", getDeviceName(), e.getMessage(), e);
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
-        commandExecutor.postOperationMode(OperationModeType.OFFLINE);
+        if (commandExecutor != null) {
+            commandExecutor.postOperationMode(OperationModeType.OFFLINE);
+            commandExecutor = null;
+        }
         if (session != null) {
             session.close(StatusCode.SERVER_ERROR, getDeviceName() + ": Failure: " + e.getMessage());
+            session = null;
         }
     }
 
@@ -372,7 +379,9 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
         logger.debug("{}: onClose({}, '{}')", getDeviceName(), code, reason);
         missedPongsCount = 0;
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason);
-        commandExecutor.postOperationMode(OperationModeType.OFFLINE);
+        if (commandExecutor != null) {
+            commandExecutor.postOperationMode(OperationModeType.OFFLINE);
+        }
     }
     
     @Override
@@ -382,7 +391,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
         }
     }
 
-    private void openConnection() {
+    private synchronized void openConnection() {
         closeConnection();
         try {
             client = new WebSocketClient();
@@ -400,7 +409,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
         }
     }
     
-    private void closeConnection() {
+    private synchronized void closeConnection() {
         if (session != null) {
             try {
                 session.close(StatusCode.NORMAL, "Binding shutdown");
@@ -420,6 +429,8 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
             }
             client = null;
         }
+        
+        commandExecutor = null;
     }
 
     private void checkConnection() {
