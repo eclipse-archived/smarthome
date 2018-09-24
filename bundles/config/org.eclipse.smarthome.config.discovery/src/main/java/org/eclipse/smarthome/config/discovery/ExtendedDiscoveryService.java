@@ -21,8 +21,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * The {@link DiscoveryService} will get a {@link DiscoveryServiceCallback}, which provides the extended framework
  * capabilities.
  *
- * @deprecated The extended access to the core framework was misused most of the time and will be removed in a later
- *             version.
+ * @deprecated The implementation of {@link DiscoveryServiceCallback} caused a cyclic dependency and will be removed in
+ *             future versions. Please see the deprecation documentation on {@link DiscoveryServiceCallback} for more
+ *             details.
  *
  * @author Simon Kaufmann - initial contribution and API.
  * @author Henning Treu - deprecation.
