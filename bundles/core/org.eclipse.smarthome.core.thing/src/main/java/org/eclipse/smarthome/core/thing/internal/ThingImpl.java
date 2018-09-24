@@ -139,8 +139,7 @@ public class ThingImpl implements Thing {
     public List<Channel> getChannelsOfGroup(String channelGroupId) {
         List<Channel> channels = new ArrayList<>();
         for (Channel channel : this.channels) {
-            ChannelUID channelUID = channel.getUID();
-            if (channelUID.isInGroup() && channelUID.getGroupId().equals(channelGroupId)) {
+            if (channelGroupId.equals(channel.getUID().getGroupId())) {
                 channels.add(channel);
             }
         }
