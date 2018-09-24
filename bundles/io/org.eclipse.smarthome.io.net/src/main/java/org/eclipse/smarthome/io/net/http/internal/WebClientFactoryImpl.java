@@ -104,9 +104,19 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
                 // nothing else we can do here
             }
             commonHttpClient = null;
-            threadPool = null;
             logger.debug("Jetty shared http client stopped");
         }
+        if (commonWebSocketClient != null) {
+            try {
+                commonWebSocketClient.stop();
+            } catch (Exception e) {
+                logger.error("error while stopping shared Jetty web socket client", e);
+                // nothing else we can do here
+            }
+            commonWebSocketClient = null;
+            logger.debug("Jetty shared web socket client stopped");
+        }
+        threadPool = null;
     }
 
     @Override
