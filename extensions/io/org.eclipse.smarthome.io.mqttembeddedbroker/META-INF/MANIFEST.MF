@@ -8,6 +8,7 @@ Bundle-Version: 0.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: ., lib/moquette-broker-0.11.jar, lib/netty-all-4.1.19.Final.jar
 Import-Package: 
+ javax.security.cert,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.net.util,
