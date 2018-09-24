@@ -30,15 +30,16 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class SecureHttpClientFactoryTest {
+public class WebClientFactoryTest {
 
-    private SecureHttpClientFactory secureHttpClientFactory;
+    private WebClientFactoryImpl webClientFactory;
 
     private static final String TEST_URL = "https://www.eclipse.org/";
 
@@ -48,42 +49,53 @@ public class SecureHttpClientFactoryTest {
     @Before
     public void setup() {
         initMocks(this);
-        secureHttpClientFactory = new SecureHttpClientFactory();
-        secureHttpClientFactory.setTrustmanagerProvider(trustmanagerProvider);
+        webClientFactory = new WebClientFactoryImpl();
+        webClientFactory.setTrustmanagerProvider(trustmanagerProvider);
     }
 
     @Test
-    public void testGetClient() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+    public void testGetClients() throws Exception {
+        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
-        HttpClient client = secureHttpClientFactory.getCommonHttpClient();
+        HttpClient httpClient = webClientFactory.getCommonHttpClient();
+        WebSocketClient webSocketClient = webClientFactory.getCommonWebSocketClient();
 
-        assertThat(client, is(notNullValue()));
+        assertThat(httpClient, is(notNullValue()));
+        assertThat(webSocketClient, is(notNullValue()));
 
-        secureHttpClientFactory.deactivate();
+        webClientFactory.deactivate();
     }
 
     @Test
-    public void testGetClientWithEndpoint() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+    public void testGetHttpClientWithEndpoint() throws Exception {
+        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
-
-        HttpClient client = secureHttpClientFactory.createHttpClient("consumer", TEST_URL);
-
-        assertThat(client, is(notNullValue()));
-
+        HttpClient httpClient = webClientFactory.createHttpClient("consumer", TEST_URL);
+        assertThat(httpClient, is(notNullValue()));
         verify(trustmanagerProvider).getTrustManagers(TEST_URL);
+        httpClient.stop();
 
-        client.stop();
+        webClientFactory.deactivate();
+    }
 
-        secureHttpClientFactory.deactivate();
+    @Test
+    public void testGetWebSocketClientWithEndpoint() throws Exception {
+        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+
+        when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
+        WebSocketClient webSocketClient = webClientFactory.createWebSocketClient("consumer", TEST_URL);
+        assertThat(webSocketClient, is(notNullValue()));
+        verify(trustmanagerProvider).getTrustManagers(TEST_URL);
+        webSocketClient.stop();
+
+        webClientFactory.deactivate();
     }
 
     @Ignore("only for manual test")
     @Test
     public void testMultiThreadedShared() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50));
@@ -94,7 +106,7 @@ public class SecureHttpClientFactoryTest {
         final int REQUESTS = 2;
 
         for (int i = 0; i < CLIENTS; i++) {
-            HttpClient httpClient = secureHttpClientFactory.getCommonHttpClient();
+            HttpClient httpClient = webClientFactory.getCommonHttpClient();
             clients.add(httpClient);
         }
 
@@ -124,13 +136,13 @@ public class SecureHttpClientFactoryTest {
             fail(failures.toString());
         }
 
-        secureHttpClientFactory.deactivate();
+        webClientFactory.deactivate();
     }
 
     @Ignore("only for manual test")
     @Test
     public void testMultiThreadedCustom() throws Exception {
-        secureHttpClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
 
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50));
@@ -141,7 +153,7 @@ public class SecureHttpClientFactoryTest {
         final int REQUESTS = 2;
 
         for (int i = 0; i < CLIENTS; i++) {
-            HttpClient httpClient = secureHttpClientFactory.createHttpClient("consumer" + i, "https://www.heise.de");
+            HttpClient httpClient = webClientFactory.createHttpClient("consumer" + i, "https://www.heise.de");
             clients.add(httpClient);
         }
 
@@ -175,7 +187,7 @@ public class SecureHttpClientFactoryTest {
             client.stop();
         }
 
-        secureHttpClientFactory.deactivate();
+        webClientFactory.deactivate();
     }
 
     private Map<String, Object> createConfigMap(int minThreadsShared, int maxThreadsShared, int keepAliveTimeoutShared,

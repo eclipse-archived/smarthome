@@ -27,6 +27,9 @@
     <requirement>esh.tp;filter:="(feature=jax-rs)"</requirement>
     <feature dependency="true">esh.tp-jax-rs</feature>
 
+    <requirement>esh.tp;filter:="(feature=httpclient)"</requirement>
+    <feature dependency="true">esh.tp-httpclient</feature>
+
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
     <capability>
       osgi.service;objectClass=org.eclipse.smarthome.config.core.ConfigDescriptionRegistry

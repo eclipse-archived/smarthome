@@ -29,9 +29,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.eclipse.smarthome.io.net.http.HttpClientInitializationException;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
+import org.eclipse.smarthome.io.net.http.WebSocketFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -43,14 +45,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory class to create jetty http clients
+ * Factory class to create Jetty web clients
  *
- * @author Michael Bock - initial API
+ * @author Michael Bock - Initial contribution
+ * @author Kai Kreuzer - added web socket support
  */
-@Component(service = HttpClientFactory.class, immediate = true, configurationPid = "org.eclipse.smarthome.HttpClientFactory")
-public class SecureHttpClientFactory implements HttpClientFactory {
+@Component(service = HttpClientFactory.class, immediate = true, configurationPid = "org.eclipse.smarthome.webclient")
+public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(SecureHttpClientFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(WebClientFactoryImpl.class);
 
     private static final String CONFIG_MIN_THREADS_SHARED = "minThreadsShared";
     private static final String CONFIG_MAX_THREADS_SHARED = "maxThreadsShared";
@@ -67,6 +70,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
     private QueuedThreadPool threadPool;
     private HttpClient commonHttpClient;
+    private WebSocketClient commonWebSocketClient;
 
     private int minThreadsShared;
     private int maxThreadsShared;
@@ -96,28 +100,43 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             try {
                 commonHttpClient.stop();
             } catch (Exception e) {
-                logger.error("error while stopping shared jetty http client", e);
+                logger.error("error while stopping shared Jetty http client", e);
                 // nothing else we can do here
             }
             commonHttpClient = null;
             threadPool = null;
-            logger.debug("jetty shared http client stopped");
+            logger.debug("Jetty shared http client stopped");
         }
     }
 
     @Override
     public HttpClient createHttpClient(@NonNull String consumerName, @NonNull String endpoint) {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
-        logger.debug("httpClient for endpoint {} requested", endpoint);
+        logger.debug("http client for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
         return createHttpClientInternal(consumerName, endpoint, false);
     }
 
     @Override
+    public @NonNull WebSocketClient createWebSocketClient(@NonNull String consumerName, @NonNull String endpoint) {
+        Objects.requireNonNull(endpoint, "endpoint must not be null");
+        logger.debug("web socket client for endpoint {} requested", endpoint);
+        checkConsumerName(consumerName);
+        return createWebSocketClientInternal(consumerName, endpoint, false);
+    }
+
+    @Override
     public HttpClient getCommonHttpClient() {
         initialize();
-        logger.debug("shared httpClient requested");
+        logger.debug("shared http client requested");
         return commonHttpClient;
+    }
+
+    @Override
+    public @NonNull WebSocketClient getCommonWebSocketClient() {
+        initialize();
+        logger.debug("shared web socket client requested");
+        return commonWebSocketClient;
     }
 
     private void getConfigParameters(Map<String, Object> parameters) {
@@ -154,7 +173,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
     }
 
     private synchronized void initialize() {
-        if (threadPool == null || commonHttpClient == null) {
+        if (threadPool == null || commonHttpClient == null || commonWebSocketClient == null) {
             try {
                 AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
                     @Override
@@ -166,7 +185,12 @@ public class SecureHttpClientFactory implements HttpClientFactory {
 
                         if (commonHttpClient == null) {
                             commonHttpClient = createHttpClientInternal("common", null, true);
-                            logger.debug("jetty shared http client created");
+                            logger.debug("Jetty shared http client created");
+                        }
+
+                        if (commonWebSocketClient == null) {
+                            commonWebSocketClient = createWebSocketClientInternal("common", null, true);
+                            logger.debug("Jetty shared web socket client created");
                         }
 
                         return null;
@@ -189,7 +213,7 @@ public class SecureHttpClientFactory implements HttpClientFactory {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
                 public HttpClient run() {
-                    logger.debug("creating httpClient for endpoint {}", endpoint);
+                    logger.debug("creating http client for endpoint {}", endpoint);
                     SslContextFactory sslContextFactory = createSslContextFactory(endpoint);
 
                     HttpClient httpClient = new HttpClient(sslContextFactory);
@@ -203,8 +227,8 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                         try {
                             httpClient.start();
                         } catch (Exception e) {
-                            logger.error("Could not start jetty client", e);
-                            throw new HttpClientInitializationException("Could not start jetty client", e);
+                            logger.error("Could not start Jetty http client", e);
+                            throw new HttpClientInitializationException("Could not start Jetty http client", e);
                         }
                     }
 
@@ -217,7 +241,44 @@ public class SecureHttpClientFactory implements HttpClientFactory {
                 throw (RuntimeException) cause;
             } else {
                 throw new HttpClientInitializationException(
-                        "unexpected checked exception during initialization of the jetty client", cause);
+                        "unexpected checked exception during initialization of the Jetty http client", cause);
+            }
+        }
+    }
+
+    private WebSocketClient createWebSocketClientInternal(String consumerName, String endpoint, boolean startClient) {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<WebSocketClient>() {
+                @Override
+                public WebSocketClient run() {
+                    logger.debug("creating web socket client for endpoint {}", endpoint);
+                    SslContextFactory sslContextFactory = createSslContextFactory(endpoint);
+
+                    WebSocketClient webSocketClient = new WebSocketClient(sslContextFactory);
+                    final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
+                            maxThreadsCustom, keepAliveTimeoutCustom);
+
+                    webSocketClient.setExecutor(queuedThreadPool);
+
+                    if (startClient) {
+                        try {
+                            webSocketClient.start();
+                        } catch (Exception e) {
+                            logger.error("Could not start Jetty web socket client", e);
+                            throw new HttpClientInitializationException("Could not start Jetty web socket client", e);
+                        }
+                    }
+
+                    return webSocketClient;
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new HttpClientInitializationException(
+                        "unexpected checked exception during initialization of the Jetty web socket client", cause);
             }
         }
     }
