@@ -468,5 +468,46 @@
 			<channel id="sign" typeId="sign" />
 		</channels>
 	</channel-group-type>
+	
+    <!-- Facade -->
+    <channel-type id="facadeEvent">
+        <kind>trigger</kind>
+        <label>Facade Event</label>
+        <description>Sun in Facade event</description>
+        <event>
+            <options>
+                <option value="SUN_ENTER">Enters</option>
+                <option value="SUN_LEAVE">Leaves</option>
+                <option value="SUN_FRONT">In Front</option>
+            </options>
+        </event>
+    </channel-type>
+    
+    <channel-type id="facingSun">
+        <item-type>Switch</item-type>
+        <label>Facing Sun</label>
+        <description>Indicates whether the sun is facing facade</description>
+        <state readOnly="true" />
+    </channel-type>
+    
+    <channel-type id="bearing">
+        <item-type>Number:Dimensionless</item-type>
+        <label>Bearing</label>
+        <description>Sun bearing pourcentage (100% when the sun is in facade orientation)</description>
+        <state readOnly="true" pattern="%.0f %unit%" />
+    </channel-type>
+    
+    <channel-type id="side">
+        <item-type>String</item-type>
+        <label>Side</label>
+        <description>The side where sun shines</description>
+        <state readOnly="true">
+            <options>
+                <option value="LEFT">Left</option>
+                <option value="RIGHT">Right</option>
+                <option value="FRONT">Front</option>
+            </options>
+        </state>
+    </channel-type>
 
 </thing:thing-descriptions>

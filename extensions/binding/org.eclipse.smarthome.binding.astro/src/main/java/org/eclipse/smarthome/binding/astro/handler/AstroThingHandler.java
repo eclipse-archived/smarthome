@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -40,10 +41,10 @@ import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils;
 import org.eclipse.smarthome.core.scheduler.CronExpression;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
 import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Gerhard Riegler - Initial contribution
  * @author Amit Kumar Mondal - Implementation to be compliant with ESH Scheduler
  */
-public abstract class AstroThingHandler extends BaseThingHandler {
+public abstract class AstroThingHandler extends BaseBridgeHandler {
 
     private static final String DAILY_MIDNIGHT = "30 0 0 * * ? *";
 
@@ -64,13 +65,16 @@ public abstract class AstroThingHandler extends BaseThingHandler {
     /** Scheduler to schedule jobs */
     private final ExpressionThreadPoolExecutor scheduledExecutor;
 
+    /** Listener array */
+    private final CopyOnWriteArrayList<AstroHandlerListener> listeners = new CopyOnWriteArrayList<>();
+
     private int linkedPositionalChannels = 0;
     protected AstroThingConfig thingConfig;
     private final Lock monitor = new ReentrantLock();
     private Job dailyJob;
     private final Set<ScheduledFuture<?>> scheduledFutures = new HashSet<>();
 
-    public AstroThingHandler(Thing thing) {
+    public AstroThingHandler(Bridge thing) {
         super(thing);
         scheduledExecutor = ExpressionThreadPoolManager.getExpressionScheduledPool("astro");
     }
@@ -139,6 +143,9 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                 publishChannelIfLinked(channel.getUID());
             }
         }
+        listeners.forEach(listener -> {
+            listener.publishPlanet(getPlanet());
+        });
     }
 
     /**
@@ -304,6 +311,20 @@ public abstract class AstroThingHandler extends BaseThingHandler {
                 iterator.remove();
             }
         }
+    }
+
+    /**
+     * Adds a listener to {@link #listeners}
+     */
+    public void addListener(AstroHandlerListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Remove a listener from {@link #listeners}
+     */
+    public void removeListener(AstroHandlerListener listener) {
+        listeners.remove(listener);
     }
 
     /**

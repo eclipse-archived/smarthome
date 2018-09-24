@@ -3,10 +3,11 @@
 The Astro binding is used for calculating 
     * many DateTime and positional values for sun and moon.
     * Radiation levels (direct, diffuse and total) of the sun during the day
+    * Lightning status of facades
 
 ## Supported Things
 
-This binding supports two Things: Sun and Moon
+This binding supports three Things: Sun, Moon and Facade
 
 ## Discovery
 
@@ -20,10 +21,12 @@ No binding configuration required.
 
 ## Thing Configuration
 
-All Things require the parameter `geolocation` (as `<latitude>,<longitude>,[<altitude in m>]`) for which the calculation is done. 
+Sun and Moon Things require the parameter `geolocation` (as `<latitude>,<longitude>,[<altitude in m>]`) for which the calculation is done. 
 The altitude segment is optional and sharpens results provided by the Radiation group.
 Optionally, a refresh `interval` (in seconds) can be defined to also calculate positional data like azimuth and elevation.
 
+Facade requires a bridge reference to the Sun and the orientation of the facade toward geographic north. By default, the facade is considered enlighted when the sun azimuth reaches orientation - 90° (negative offset) until orientation + 90° (positive offset).
+The two parameters (negative and positive offset) are set by default to 90. These can be modified to take in account natural obstacles (wall, trees) that reduces the lightning angle.
 
 ## Channels
 
@@ -86,6 +89,12 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
         * **channel** 
             * `azimuth, elevation` (Number:Angle)
 
+* **thing** `facade`
+        * **channel**: 
+            * `facingsun` (Switch) : ON if orientation - negative offset <= sun azimut <= orientation + negative offset
+            * `bearing` (Number:Dimensionless) : pourcentage of direct lightning. 100% when the sun is in front, 0% when not facing sun 
+            * `side` (String) : indicates if the sun is in the left, in front or on the right of the facade
+
 ### Trigger Channels
 
 * **thing** `sun`
@@ -106,7 +115,9 @@ Optionally, a refresh `interval` (in seconds) can be defined to also calculate p
         * **event**: `PERIGEE`
     * **group** `apogee`
         * **event**: `APOGEE`
-
+* **thing** `face`
+        * **facadeEvent**:: `SUN_ENTER, SUN_LEAVE
+        
 ### Channel config
 
 **Offsets:** For each event group you can optionally configure an `offset` in minutes.

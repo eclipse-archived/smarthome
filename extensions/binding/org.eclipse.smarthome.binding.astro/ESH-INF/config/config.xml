@@ -33,5 +33,27 @@
 			<description>The latest time of the day for the event or the datetime value (hh:mm)</description>
 		</parameter>
 	</config-description>
+	
+    <config-description uri="thing-type:facade:config">
+        <parameter name="orientation" type="integer" min="0" max="359" required="true">
+            <label>Orientation</label>
+            <description>Perpendicular bearing of the facade to geographical north.</description>
+        </parameter>
+        <parameter name="noffset" type="integer" min="0" max="90">
+            <label>Negative Offset</label>
+            <description>Anti-clockwise offset from orientation to determine if the sun is reaching the facade.</description>
+            <default>90</default>
+        </parameter>
+        <parameter name="poffset" type="integer" min="0" max="90">
+            <label>Positive Offset</label>
+            <description>Clockwise offset from orientation to determine the sun is reaching the facade.</description>
+            <default>90</default>
+        </parameter>
+        <parameter name="margin" type="integer" min="0" max="5">
+            <label>Margin</label>
+            <description>Calculation margin for front position.</description>
+            <default>2</default>
+        </parameter>
+    </config-description>
 
 </config-description:config-descriptions>

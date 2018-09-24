@@ -4,7 +4,7 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="moon">
+	<bridge-type id="moon">
 		<label>Astro moon data</label>
 		<description>Provides astronomical data from the moon</description>
 
@@ -39,6 +39,6 @@
 		<representation-property>geolocation</representation-property>
 
 		<config-description-ref uri="thing-type:astro:config" />
-	</thing-type>
+	</bridge-type>
 
 </thing:thing-descriptions>

@@ -32,11 +32,13 @@ public final class AstroBindingConstants {
 
     public static final String SUN = "sun";
     public static final String MOON = "moon";
+    public static final String FACADE = "facade";
     public static final String LOCAL = "local";
 
     // things
     public static final ThingTypeUID THING_TYPE_SUN = new ThingTypeUID(BINDING_ID, SUN);
     public static final ThingTypeUID THING_TYPE_MOON = new ThingTypeUID(BINDING_ID, MOON);
+    public static final ThingTypeUID THING_TYPE_FACADE = new ThingTypeUID(BINDING_ID, FACADE);
 
     // events
     public static final String EVENT_START = "START";
@@ -75,4 +77,15 @@ public final class AstroBindingConstants {
     public static final String EVENT_CHANNEL_ID_DAYLIGHT = "daylight#event";
 
     public static final String CHANNEL_ID_SUN_PHASE_NAME = "phase#name";
+
+    // event channelIds
+    public static final String EVENT_CHANNEL_ID_FACADE = "facadeEvent";
+    public static final String EVENT_ENTER_FACADE = "SUN_ENTER";
+    public static final String EVENT_LEAVE_FACADE = "SUN_LEAVE";
+    public static final String EVENT_FRONT_FACADE = "SUN_FRONT";
+
+    public static final String CHANNEL_ID_FACADE_BEARING = "bearing";
+    public static final String CHANNEL_ID_FACADE_FACING = "facingSun";
+    public static final String CHANNEL_ID_FACADE_SIDE = "side";
+
 }

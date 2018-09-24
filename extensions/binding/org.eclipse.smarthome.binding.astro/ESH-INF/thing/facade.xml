@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="astro"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <thing-type id="facade">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="sun" />
+        </supported-bridge-type-refs>
+
+        <label>Facade</label>
+        <description>Provides lighting data for the facade</description>
+        
+        <channels>
+            <channel id="facingSun" typeId="facingSun"/>
+            <channel id="facadeEvent" typeId="facadeEvent" />
+            <channel id="bearing" typeId="bearing" />
+            <channel id="side" typeId="side" />
+        </channels>
+
+        <config-description-ref uri="thing-type:facade:config" />
+    </thing-type>
+
+</thing:thing-descriptions>

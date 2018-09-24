@@ -24,7 +24,7 @@ import org.eclipse.smarthome.binding.astro.internal.job.DailyJobMoon;
 import org.eclipse.smarthome.binding.astro.internal.job.Job;
 import org.eclipse.smarthome.binding.astro.internal.model.Moon;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
-import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -43,7 +43,7 @@ public class MoonHandler extends AstroThingHandler {
     private Moon moon;
 
     /** Constructor */
-    public MoonHandler(Thing thing) {
+    public MoonHandler(Bridge thing) {
         super(thing);
     }
 

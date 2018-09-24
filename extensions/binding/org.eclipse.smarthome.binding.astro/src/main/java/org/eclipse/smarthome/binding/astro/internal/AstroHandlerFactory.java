@@ -20,11 +20,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.astro.handler.AstroThingHandler;
+import org.eclipse.smarthome.binding.astro.handler.FacadeHandler;
 import org.eclipse.smarthome.binding.astro.handler.MoonHandler;
 import org.eclipse.smarthome.binding.astro.handler.SunHandler;
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils;
 import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -38,11 +42,13 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 @Component(configurationPid = "binding.astro", service = ThingHandlerFactory.class)
 public class AstroHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
-            .concat(SunHandler.SUPPORTED_THING_TYPES.stream(), MoonHandler.SUPPORTED_THING_TYPES.stream())
+            .concat(Stream.concat(SunHandler.SUPPORTED_THING_TYPES.stream(),
+                    MoonHandler.SUPPORTED_THING_TYPES.stream()), FacadeHandler.SUPPORTED_THING_TYPES.stream())
             .collect(Collectors.toSet());
     private static final Map<String, AstroThingHandler> ASTRO_THING_HANDLERS = new HashMap<>();
 
@@ -52,16 +58,18 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected ThingHandler createHandler(Thing thing) {
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
-        AstroThingHandler thingHandler = null;
+        ThingHandler thingHandler = null;
         if (thingTypeUID.equals(THING_TYPE_SUN)) {
-            thingHandler = new SunHandler(thing);
+            thingHandler = new SunHandler((Bridge) thing);
         } else if (thingTypeUID.equals(THING_TYPE_MOON)) {
-            thingHandler = new MoonHandler(thing);
+            thingHandler = new MoonHandler((Bridge) thing);
+        } else if (thingTypeUID.equals(THING_TYPE_FACADE)) {
+            thingHandler = new FacadeHandler(thing);
         }
-        if (thingHandler != null) {
-            ASTRO_THING_HANDLERS.put(thing.getUID().toString(), thingHandler);
+        if (thingHandler != null && thingHandler instanceof AstroThingHandler) {
+            ASTRO_THING_HANDLERS.put(thing.getUID().toString(), (AstroThingHandler) thingHandler);
         }
         return thingHandler;
     }
