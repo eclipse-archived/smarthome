@@ -31,24 +31,30 @@ Depending on the kind of communication that you need to implement, you can optio
 
 You might also have the need to use other libraries for specific use cases like XML processing etc. In order to not have every binding use a different library, the following packages are available by default: 
 
-### For XML processing  
+### For XML Processing  
  - com.thoughtworks.xstream  
  - com.thoughtworks.xstream.annotations  
  - com.thoughtworks.xstream.converters  
  - com.thoughtworks.xstream.io  
  - com.thoughtworks.xstream.io.xml  
 
-### For JSON processing  
+### For JSON Processing  
  - com.google.gson.*  
  
-### For HTTP operations  
+### For HTTP Operations  
  - org.eclipse.jetty.client.*  
  - org.eclipse.jetty.client.api.*  
  - org.eclipse.jetty.http.*  
  - org.eclipse.jetty.util.*  
  
-Note: HttpClient instances should be obtained through the `HttpClientFactory` service and unless there are specific configuration requirements, the shared instance should be used.
+Note: HttpClient instances should be obtained by the handler factory through the `HttpClientFactory` service and unless there are specific configuration requirements, the shared instance should be used.
  
+### For Web Socket Operations  
+ - org.eclipse.jetty.websocket.client  
+ - org.eclipse.jetty.websocket.api
+ 
+Note: WebSocketClient instances should be obtained by the handler factory through the `WebSocketClientFactory` service and unless there are specific configuration requirements, the shared instance should be used.
+
 ## 3rd Party Libraries
 
 If you want your binding to rely on a custom library that might not even be an OSGi bundle, you can embed it in your bundle as a jar file following these steps: 
