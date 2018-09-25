@@ -136,6 +136,8 @@ public class TradfriDiscoveryService extends AbstractDiscoveryService implements
 
                 if (thingId == null) {
                     // we didn't identify any device, so let's quit
+                    logger.debug("Ignoring unknown device on TRADFRI gateway:\n\ttype : {}\n\tmodel: {}\n\tinfo : {}",
+                            type, model, deviceInfo.getAsString());
                     return;
                 }
 
