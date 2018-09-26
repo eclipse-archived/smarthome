@@ -13,11 +13,13 @@ describe('factory configService', function() {
         var $httpBackend;
         var restConfig;
         var itemRepository;
+        var thingRepository;
         var $q;
         beforeEach(inject(function($injector, $rootScope, thingService) {
             $httpBackend = $injector.get('$httpBackend');
             restConfig = $injector.get('restConfig');
             itemRepository = $injector.get('itemRepository');
+            thingRepository = $injector.get('thingRepository');
             $q = $injector.get('$q');
         }));
         it('should accept empty config parameters', function() {
@@ -100,6 +102,47 @@ describe('factory configService', function() {
             })
 
             deferred.resolve(items);
+
+        });
+        it('should return specific thing options for context THING and filter criteria', function() {
+            var inputParams = [ {
+                context : 'thing',
+                filterCriteria : [{
+                    name: 'UID',
+                    value: 'binding:thingType:thingId1'
+                },{
+                    name: 'UID',
+                    value: 'binding:thingType:thingId3'
+                }]
+            } ];
+            
+            var things = [{
+                label : 'Magic Thing 1',
+                UID : 'binding:thingType:thingId1'
+            }, {
+                label : 'Magic Thing 2',
+                UID : 'binding:thingType:thingId2'
+            }, {
+                label : 'Magic Thing 3',
+                UID : 'binding:thingType:thingId3'
+            }]
+            
+            var deferred = $q.defer();
+            var prom = deferred.promise;
+
+            spyOn(thingRepository, 'getAll').and.returnValue(prom);
+            
+            var params = configService.getRenderingModel(inputParams);
+            prom.then(function() {
+                expect(params[0].parameters[0].element).toEqual("select");
+                expect(params[0].parameters[0].options.length).toEqual(2);
+                expect(params[0].parameters[0].options[0]).toBeDefined();
+                expect(params[0].parameters[0].options[0].label).toEqual('Magic Thing 1');
+                expect(params[0].parameters[0].options[1]).toBeDefined();
+                expect(params[0].parameters[0].options[1].label).toEqual('Magic Thing 3');
+            })
+
+            deferred.resolve(things);
 
         });
         it('should return date widget for context DATE type=Text', function() {
