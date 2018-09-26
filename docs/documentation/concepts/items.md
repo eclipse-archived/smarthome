@@ -54,7 +54,7 @@ Available Group functions:
 
 | Function           | Parameters                    | Base Item                                   | Description                                                                                                                                      |
 |--------------------|-------------------------------|---------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| EQUALITY           | -                             | \<all\>                                     | Sets the state of the members if all have equal state. Otherwise UNDEF is set.                                                                   |
+| EQUAL              | -                             | \<all\>                                     | Sets the state of the members if all have equal state. Otherwise UNDEF is set.                                                                   |
 | AND, OR, NAND, NOR | <activeState>, <passiveState> | \<all\> (must match active & passive state) | Sets the \<activeState\>, if the member state \<activeState\> evaluates to `true` under the boolean term. Otherwise the \<passiveState\> is set. |
 | SUM, AVG, MIN, MAX | -                             | Number                                      | Sets the state according to the arithmetic function over all member states.                                                                      |
 | COUNT              | <regular expression>          | Number                                      | Sets the state to the number of members matching the given regular expression with their states.                                                 |
