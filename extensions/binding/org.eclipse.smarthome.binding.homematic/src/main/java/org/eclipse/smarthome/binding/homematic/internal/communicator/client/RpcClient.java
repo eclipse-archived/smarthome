@@ -219,12 +219,7 @@ public abstract class RpcClient<T> {
      */
     private void setChannelDatapointValues(HmChannel channel) throws IOException {
         for (HmDatapoint dp : channel.getDatapoints()) {
-            if (dp.isReadable() && !dp.isVirtual() && dp.getParamsetType() == HmParamsetType.VALUES) {
-                RpcRequest<T> request = createRpcRequest("getValue");
-                request.addArg(getRpcAddress(channel.getDevice().getAddress()) + getChannelSuffix(channel));
-                request.addArg(dp.getName());
-                new GetValueParser(dp).parse(sendMessage(config.getRpcPort(channel), request));
-            }
+            getDatapointValue(dp);
         }
     }
 
@@ -311,6 +306,21 @@ public abstract class RpcClient<T> {
             request.addArg(paramSet);
         }
         sendMessage(config.getRpcPort(dp.getChannel()), request);
+    }
+
+    /**
+     * Retrieves the value of a single {@link HmDatapoint} from the device. Can only be used for the paramset "VALUES".
+     * 
+     * @param dp The HmDatapoint that shall be loaded
+     * @throws IOException If there is a problem while communicating to the gateway
+     */
+    public void getDatapointValue(HmDatapoint dp) throws IOException {
+        if (dp.isReadable() && !dp.isVirtual() && dp.getParamsetType() == HmParamsetType.VALUES) {
+            RpcRequest<T> request = createRpcRequest("getValue");
+            request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + getChannelSuffix(dp.getChannel()));
+            request.addArg(dp.getName());
+            new GetValueParser(dp).parse(sendMessage(config.getRpcPort(dp.getChannel()), request));
+        }
     }
 
     /**

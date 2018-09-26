@@ -64,6 +64,13 @@ public interface HomematicGateway {
     public void loadChannelValues(HmChannel channel) throws IOException;
 
     /**
+     * Loads the value of the given {@link HmDatapoint} from the device.
+     * 
+     * @param dp The HmDatapoint that shall be loaded
+     */
+    public void loadDatapointValue(HmDatapoint dp) throws IOException;
+
+    /**
      * Reenumerates the set of VALUES datapoints for the given channel.
      */
     public void updateChannelValueDatapoints(HmChannel channel) throws IOException;

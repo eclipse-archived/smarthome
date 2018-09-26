@@ -73,6 +73,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
 
     private final String ipv4Address;
     private boolean isInDutyCycle = false;
+    private int dutyCycleRatio = 0;
 
     public HomematicBridgeHandler(@NonNull Bridge bridge, HomematicTypeGenerator typeGenerator, String ipv4Address,
             HttpClient httpClient) {
@@ -341,6 +342,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     @Override
     public void onDutyCycleRatioUpdate(int dutyCycleRatio) {
         synchronized (dutyCycleRatioUpdateLock) {
+            this.dutyCycleRatio = dutyCycleRatio;
             Channel dutyCycleRatioChannel = thing.getChannel(CHANNEL_TYPE_DUTY_CYCLE_RATIO);
             if (dutyCycleRatioChannel != null) {
                 this.updateState(dutyCycleRatioChannel.getUID(), new DecimalType(dutyCycleRatio));
@@ -358,6 +360,15 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
                 this.updateStatus(ThingStatus.ONLINE);
             }
         }
+    }
+
+    /**
+     * Returns the last value for the duty cycle ratio that was retrieved from the homematic gateway.
+     * 
+     * @return The duty cycle ratio of the gateway
+     */
+    public int getDutyCycleRatio() {
+        return dutyCycleRatio;
     }
 
     @Override
@@ -385,6 +396,16 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
         if (((HomematicThingHandler) childHandler).isDeletionPending()) {
             deleteFromGateway(UidUtils.getHomematicAddress(childThing), false, true, false);
         }
+    }
+
+    /**
+     * Updates the {@link HmDatapoint} by reloading the value from the homematic gateway.
+     * 
+     * @param dp The HmDatapoint that shall be updated
+     * @throws IOException If there is a problem while communicating to the gateway
+     */
+    public void updateDatapoint(HmDatapoint dp) throws IOException {
+        getGateway().loadDatapointValue(dp);
     }
 
     /**
