@@ -127,6 +127,7 @@ public class GroupFunctionHelper {
                 return new DateTimeGroupFunction.Latest();
             case "EARLIEST":
                 return new DateTimeGroupFunction.Earliest();
+            case "EQUALITY":
             case "EQUAL":
                 return new GroupFunction.Equality();
             default:
