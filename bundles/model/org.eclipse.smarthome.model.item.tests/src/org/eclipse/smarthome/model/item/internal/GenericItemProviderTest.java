@@ -114,7 +114,7 @@ public class GenericItemProviderTest extends JavaOSGiTest {
         Collection<Item> items = itemRegistry.getAll();
         assertThat(items.size(), is(0));
 
-        String model = "Group:Switch:EQUAL Switches";
+        String model = "Group:Switch:EQUALITY Switches";
 
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
         Collection<Item> actualItems = itemRegistry.getAll();
