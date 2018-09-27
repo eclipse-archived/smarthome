@@ -29,6 +29,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.items.GroupFunction;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemRegistryEvent;
@@ -90,6 +92,36 @@ public class GenericItemProviderTest extends JavaOSGiTest {
         Collection<Item> actualItems = itemRegistry.getAll();
 
         assertThat(actualItems.size(), is(7));
+    }
+
+    @Test
+    public void assertThatGroupItemWithBaseItemGetsEqualityFunction() {
+        Collection<Item> items = itemRegistry.getAll();
+        assertThat(items.size(), is(0));
+
+        String model = "Group:Switch Switches";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        Collection<Item> actualItems = itemRegistry.getAll();
+
+        assertThat(actualItems.size(), is(1));
+        GroupItem groupItem = (GroupItem) actualItems.iterator().next();
+        assertThat(groupItem.getFunction(), instanceOf(GroupFunction.Equality.class));
+    }
+
+    @Test
+    public void assertThatGroupItemWithEqualFunctionGetsEquality() {
+        Collection<Item> items = itemRegistry.getAll();
+        assertThat(items.size(), is(0));
+
+        String model = "Group:Switch:EQUALITY Switches";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        Collection<Item> actualItems = itemRegistry.getAll();
+
+        assertThat(actualItems.size(), is(1));
+        GroupItem groupItem = (GroupItem) actualItems.iterator().next();
+        assertThat(groupItem.getFunction(), instanceOf(GroupFunction.Equality.class));
     }
 
     @Test

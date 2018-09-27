@@ -127,7 +127,7 @@ public class GroupFunctionHelper {
                 return new DateTimeGroupFunction.Latest();
             case "EARLIEST":
                 return new DateTimeGroupFunction.Earliest();
-            case "EQUAL":
+            case "EQUALITY":
                 return new GroupFunction.Equality();
             default:
                 LoggerFactory.getLogger(GroupFunctionHelper.class)
