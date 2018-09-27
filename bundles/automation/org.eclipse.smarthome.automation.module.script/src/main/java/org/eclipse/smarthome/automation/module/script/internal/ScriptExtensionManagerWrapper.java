@@ -14,6 +14,7 @@ package org.eclipse.smarthome.automation.module.script.internal;
 
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineContainer;
 import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
 
@@ -21,39 +22,41 @@ import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
  *
  * @author Simon Merschjohann - Initial contribution
  */
+@NonNullByDefault
 public class ScriptExtensionManagerWrapper {
     private ScriptEngineContainer container;
+    private ScriptExtensionManager manager;
 
-    public ScriptExtensionManagerWrapper(ScriptEngineContainer container) {
+    public ScriptExtensionManagerWrapper(ScriptExtensionManager manager, ScriptEngineContainer container) {
+        this.manager = manager;
         this.container = container;
     }
 
     public void addScriptExtensionProvider(ScriptExtensionProvider provider) {
-        ScriptExtensionManager.addExtension(provider);
+        manager.addExtension(provider);
     }
 
     public void removeScriptExtensionProvider(ScriptExtensionProvider provider) {
-        ScriptExtensionManager.removeExtension(provider);
+        manager.removeExtension(provider);
     }
 
     public List<String> getTypes() {
-        return ScriptExtensionManager.getTypes();
+        return manager.getTypes();
     }
 
     public List<String> getPresets() {
-        return ScriptExtensionManager.getPresets();
+        return manager.getPresets();
     }
 
     public Object get(String type) {
-        return ScriptExtensionManager.get(type, container.getIdentifier());
+        return manager.get(type, container.getIdentifier());
     }
 
     public List<String> getDefaultPresets() {
-        return ScriptExtensionManager.getDefaultPresets();
+        return manager.getDefaultPresets();
     }
 
     public void importPreset(String preset) {
-        ScriptExtensionManager.importPreset(preset, container.getFactory(), container.getScriptEngine(),
-                container.getIdentifier());
+        manager.importPreset(preset, container.getFactory(), container.getScriptEngine(), container.getIdentifier());
     }
 }

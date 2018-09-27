@@ -14,10 +14,13 @@ package org.eclipse.smarthome.automation.module.script;
 
 import javax.script.ScriptEngine;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * @author Simon Merschjohann - Initial contribution
  */
+@NonNullByDefault
 public class ScriptEngineContainer {
     private ScriptEngine scriptEngine;
     private ScriptEngineFactory factory;

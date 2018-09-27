@@ -24,6 +24,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.eclipse.smarthome.automation.module.script.ScriptEngineFactory;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Simon Merschjohann - Initial contribution
  */
+@Component(service = ScriptEngineFactory.class)
 public class NashornScriptEngineFactory implements ScriptEngineFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

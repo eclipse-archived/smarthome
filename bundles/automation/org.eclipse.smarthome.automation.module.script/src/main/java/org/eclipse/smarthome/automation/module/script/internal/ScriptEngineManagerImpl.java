@@ -21,10 +21,15 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineContainer;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineFactory;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
-import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,20 +39,29 @@ import org.slf4j.LoggerFactory;
  * @author Simon Merschjohann
  *
  */
+@NonNullByDefault
+@Component(service = ScriptEngineManager.class)
 public class ScriptEngineManagerImpl implements ScriptEngineManager {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private Set<ScriptEngineFactory> scriptEngineFactories = new HashSet<>();
-    private HashMap<String, ScriptEngineContainer> loadedScriptEngineInstances = new HashMap<>();
-    private HashMap<String, ScriptEngineFactory> supportedLanguages = new HashMap<>();
+    private HashMap<String, @Nullable ScriptEngineContainer> loadedScriptEngineInstances = new HashMap<>();
+    private HashMap<String, @Nullable ScriptEngineFactory> supportedLanguages = new HashMap<>();
     private GenericScriptEngineFactory genericScriptEngineFactory = new GenericScriptEngineFactory();
 
-    public ScriptEngineManagerImpl() {
-        logger.debug("ScriptManager loading...");
+    private @NonNullByDefault({}) ScriptExtensionManager scriptExtensionManager;
+
+    @Reference
+    public void setScriptExtensionManager(ScriptExtensionManager scriptExtensionManager) {
+        this.scriptExtensionManager = scriptExtensionManager;
     }
 
-    public void activate(BundleContext bundleContext) {
+    public void unsetScriptExtensionManager(ScriptExtensionManager scriptExtensionManager) {
+        this.scriptExtensionManager = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addScriptEngineFactory(ScriptEngineFactory provider) {
         this.scriptEngineFactories.add(provider);
 
@@ -70,7 +84,7 @@ public class ScriptEngineManagerImpl implements ScriptEngineManager {
     }
 
     @Override
-    public ScriptEngineContainer createScriptEngine(String fileExtension, String scriptIdentifier) {
+    public @Nullable ScriptEngineContainer createScriptEngine(String fileExtension, String scriptIdentifier) {
         ScriptEngineContainer result = null;
         ScriptEngineFactory engineProvider = findEngineFactory(fileExtension);
 
@@ -82,11 +96,12 @@ public class ScriptEngineManagerImpl implements ScriptEngineManager {
                 ScriptEngine engine = engineProvider.createScriptEngine(fileExtension);
                 HashMap<String, Object> scriptExManager = new HashMap<>();
                 result = new ScriptEngineContainer(engine, engineProvider, scriptIdentifier);
-                ScriptExtensionManagerWrapper wrapper = new ScriptExtensionManagerWrapper(result);
+                ScriptExtensionManagerWrapper wrapper = new ScriptExtensionManagerWrapper(scriptExtensionManager,
+                        result);
                 scriptExManager.put("scriptExtension", wrapper);
                 scriptExManager.put("se", wrapper);
                 engineProvider.scopeValues(engine, scriptExManager);
-                ScriptExtensionManager.importDefaultPresets(engineProvider, engine, scriptIdentifier);
+                scriptExtensionManager.importDefaultPresets(engineProvider, engine, scriptIdentifier);
 
                 loadedScriptEngineInstances.put(scriptIdentifier, result);
             } catch (Exception ex) {
@@ -149,13 +164,13 @@ public class ScriptEngineManagerImpl implements ScriptEngineManager {
 
     private void removeScriptExtensions(String pathIdentifier) {
         try {
-            ScriptExtensionManager.dispose(pathIdentifier);
+            scriptExtensionManager.dispose(pathIdentifier);
         } catch (Exception ex) {
             logger.error("error removing engine", ex);
         }
     }
 
-    private ScriptEngineFactory findEngineFactory(String fileExtension) {
+    private @Nullable ScriptEngineFactory findEngineFactory(String fileExtension) {
         ScriptEngineFactory engineProvider = supportedLanguages.get(fileExtension);
 
         if (engineProvider != null) {
@@ -163,7 +178,7 @@ public class ScriptEngineManagerImpl implements ScriptEngineManager {
         }
 
         for (ScriptEngineFactory provider : supportedLanguages.values()) {
-            if (provider.isSupported(fileExtension)) {
+            if (provider != null && provider.isSupported(fileExtension)) {
                 return provider;
             }
         }
