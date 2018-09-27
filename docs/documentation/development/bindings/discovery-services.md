@@ -118,46 +118,6 @@ Normally, older discovery results already in the inbox are left untouched by a n
     }
 ```
 
-### Compare with existing results
-
-In some cases it might be of interest for a discovery service if the same device was discovered before or even if a thing already exists.
-Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or thing for a given thing UID, if it exists.
-
-_Do not use this method to check if an equal result already exists.
-Use the special [representationProperty](../../concepts/discovery.html#inbox) to achieve this._
-
-_Do not use this method to update properties of an existing thing.
-See [Re-Discovered Results and Things](#re-discovered-results-and-things)._ 
-
-
-```java
-    public class SampleDiscoveryService extends AbstractDiscoveryService implements ExtendedDiscoveryService {
-
-        private DiscoveryServiceCallback discoveryServiceCallback;
-
-        @Override
-        public void setDiscoveryServiceCallback(DiscoveryServiceCallback discoveryServiceCallback) {
-            this.discoveryServiceCallback = discoveryServiceCallback;
-        }
-
-        public void discoverSomething() {
-            
-            [...]
-               
-            ThingUID thingUID = [...]
-        
-            if (discoveryServiceCallback.getExistingDiscoveryResult(thingUID) != null) {
-                // "Thing " + thingUID.toString() + " was already discovered"
-            }
-            if (discoveryServiceCallback.getExistingThing(thingUID) != null) {
-                // "Thing " + thingUID.toString() + " already exists"
-            }
-            
-            thingDiscovered(discoveryResult);
-        }
-    }
-``` 
-
 ## UPnP Discovery
 
 UPnP discovery is implemented in the framework as `UpnpDiscoveryService`. It is widely used in bindings. To facilitate the development, binding developers only need to implement a `UpnpDiscoveryParticipant`. Here the developer only needs to implement three simple methods: 
