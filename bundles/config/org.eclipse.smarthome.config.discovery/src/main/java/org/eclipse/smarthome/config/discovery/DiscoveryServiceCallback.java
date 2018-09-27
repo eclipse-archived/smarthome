@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
-import java.util.List;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -24,25 +23,30 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * <p>
  * This interface must not be implemented by bindings.
  *
+ * @deprecated The use of this callback is deprecated. The {@link Inbox} is able to deal with updates.
+ *             Incremental discovery should be handled internally by each {@link DiscoveryService}.
+ *
  * @author Simon Kaufmann - initial contribution and API.
+ * @author Henning Treu - deprecation.
  */
+@Deprecated
 @NonNullByDefault
 public interface DiscoveryServiceCallback {
 
     /**
-     * Get an existing {@link Thing} from the ThingRegistry, it it exists.
-     *
-     * @param thingUID the {@link ThingUID} by which the {@link Thing} is identified
-     * @return the {@link Thing} if it exists or <code>null</code> otherwise
+     * @deprecated Will always return null.
      */
-    public @Nullable Thing getExistingThing(ThingUID thingUID);
+    @Deprecated
+    default @Nullable Thing getExistingThing(ThingUID thingUID) {
+        return null;
+    }
 
     /**
-     * Get the already existing {@link DiscoveryResult}s from the Inbox(es).
-     *
-     * @param thingUID the {@link ThingUID} which identify the {@link DiscoveryResult}
-     * @return a {@link List} of {@link DiscoveryResult}s which are stored in the Inbox(es), can be <code>null</code>
+     * @deprecated Will always return null.
      */
-    public @Nullable DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID);
+    @Deprecated
+    default @Nullable DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID) {
+        return null;
+    }
 
 }

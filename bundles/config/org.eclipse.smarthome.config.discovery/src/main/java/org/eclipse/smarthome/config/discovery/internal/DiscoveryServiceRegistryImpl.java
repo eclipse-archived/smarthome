@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -26,22 +24,17 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
-import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceCallback;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ExtendedDiscoveryService;
 import org.eclipse.smarthome.config.discovery.ScanListener;
-import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.core.common.SafeCaller;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Activate;
@@ -145,43 +138,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
-    private @Nullable Inbox inbox;
-
-    @NonNullByDefault({})
-    private ThingRegistry thingRegistry;
-
     @NonNullByDefault({})
     private SafeCaller safeCaller;
-
-    private final DiscoveryServiceCallback discoveryServiceCallback = new DiscoveryServiceCallback() {
-
-        @Override
-        public @Nullable Thing getExistingThing(ThingUID thingUID) {
-            ThingRegistry thingRegistryReference = thingRegistry;
-            if (thingRegistryReference == null) {
-                logger.debug("ThingRegistry not set");
-                return null;
-            }
-            return thingRegistryReference.get(thingUID);
-        }
-
-        @Override
-        public @Nullable DiscoveryResult getExistingDiscoveryResult(ThingUID thingUID) {
-            Inbox inboxReference = inbox;
-            if (inboxReference == null) {
-                logger.debug("Inbox not set");
-                return null;
-            }
-            List<DiscoveryResult> ret = new ArrayList<>();
-            ret = inboxReference.stream().filter(withFlag(DiscoveryResultFlag.NEW).and(forThingUID(thingUID)))
-                    .collect(Collectors.toList());
-            if (ret.size() > 0) {
-                return ret.get(0);
-            } else {
-                return null;
-            }
-        }
-    };
 
     @Activate
     protected void activate() {
@@ -474,7 +432,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         discoveryService.addDiscoveryListener(this);
         if (discoveryService instanceof ExtendedDiscoveryService) {
             safeCaller.create((ExtendedDiscoveryService) discoveryService, ExtendedDiscoveryService.class).build()
-                    .setDiscoveryServiceCallback(discoveryServiceCallback);
+                    .setDiscoveryServiceCallback(new DiscoveryServiceCallback() {
+                    });
         }
         this.discoveryServices.add(discoveryService);
     }
@@ -514,24 +473,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     @Override
     public int getMaxScanTimeout(String bindingId) {
         return getMaxScanTimeout(getDiscoveryServices(bindingId));
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setInbox(Inbox inbox) {
-        this.inbox = inbox;
-    }
-
-    protected void unsetInbox(Inbox inbox) {
-        this.inbox = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = thingRegistry;
-    }
-
-    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = null;
     }
 
     @Reference

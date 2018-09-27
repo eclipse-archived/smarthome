@@ -8,7 +8,8 @@ layout: documentation
 
 Bindings can implement the `DiscoveryService` interface and register it as an OSGi service to inform the framework about devices and services, that can be added as things to the system (see also [Inbox & Discovery Concept](../../concepts/discovery.html)).
 
-A discovery service provides discovery results. The following table gives an overview about the main parts of a `DiscoveryResult`: 
+A discovery service provides discovery results.
+The following table gives an overview about the main parts of a `DiscoveryResult`: 
 
 | Field | Description |
 |-------|-------------|
@@ -19,11 +20,16 @@ A discovery service provides discovery results. The following table gives an ove
 | `label` | The human readable representation of the discovery result. Do not put IP/MAC addresses or similar into the label but use the special `representationProperty` instead. |
 | `representationProperty` | The name of one of the properties which discriminates the discovery result best against other results of the same type. Typically this is a serial number, IP or MAC address. The representationProperty often matches a configuration parameter and is also explicitly given in the thing-type definition. |
 
-To simplify the implementation of own discovery services, an abstract base class `AbstractDiscoveryService` implements the `DiscoveryService`, that must only be extended. Subclasses of `AbstractDiscoveryService` do not need to handle the `DiscoveryListeners` themselves, they can use the methods `thingDiscovered` and `thingRemoved` to notify the registered listeners. Most of the descriptions in this chapter refer to the `AbstractDiscoveryService`.
+To simplify the implementation of own discovery services, an abstract base class `AbstractDiscoveryService` implements the `DiscoveryService`, that must only be extended.
+Subclasses of `AbstractDiscoveryService` do not need to handle the `DiscoveryListeners` themselves, they can use the methods `thingDiscovered` and `thingRemoved` to notify the registered listeners.
+Most of the descriptions in this chapter refer to the `AbstractDiscoveryService`.
 
-For UPnP and mDNS there already are generic discovery services available. Bindings only need to implement a `UpnpDiscoveryParticipant` resp. `mDNSDiscoveryParticipant`. For details refer to the chapters [UPnP Discovery](#upnp-discovery) and [mDNS Discovery](#mdns-discovery). 
+For UPnP and mDNS there already are generic discovery services available.
+Bindings only need to implement a `UpnpDiscoveryParticipant` resp. `mDNSDiscoveryParticipant`.
+For details refer to the chapters [UPnP Discovery](#upnp-discovery) and [mDNS Discovery](#mdns-discovery). 
 
-The following example is taken from the `HueLightDiscoveryService`, it calls `thingDiscovered` for each found light. It uses the `DiscoveryResultBuilder` to create the discovery result. 
+The following example is taken from the `HueLightDiscoveryService`, it calls `thingDiscovered` for each found light.
+It uses the `DiscoveryResultBuilder` to create the discovery result. 
 
 ```java
     private void onLightAddedInternal(FullLight light) {
@@ -41,7 +47,8 @@ The following example is taken from the `HueLightDiscoveryService`, it calls `th
     }
 ```
 
-The discovery service needs to provide the list of supported thing types, that can be found by the discovery service. This list will be given to the constructor of `AbstractDiscoveryService` and can be requested by using `DiscoveryService#getSupportedThingTypes` method. 
+The discovery service needs to provide the list of supported thing types, that can be found by the discovery service.
+This list will be given to the constructor of `AbstractDiscoveryService` and can be requested by using `DiscoveryService#getSupportedThingTypes` method. 
 
 ## Registering as an OSGi service
 
@@ -51,13 +58,18 @@ The `Discovery` class of a binding which implements `AbstractDiscoveryService` s
 @Component(service = DiscoveryService.class, immediate = true, configurationPid = "discovery.<bindingID>")
 ```
 
-where `<bindingID>` is the id of the binding, i.e. `astro` for the Astro binding. Such a registered service will be picked up automatically by the framework.
+where `<bindingID>` is the id of the binding, i.e. `astro` for the Astro binding.
+Such a registered service will be picked up automatically by the framework.
 
 ## Discovery 
 
 ### Background Discovery 
 
-If the implemented discovery service enables background discovery, the `AbstractDiscoveryService` class automatically starts it. If background discovery is enabled, the framework calls `AbstractDiscoveryService#startBackgroundDiscovery` when the binding is activated and `AbstractDiscoveryService#stopBackgroundDiscovery` when the component is deactivated. The default implementations of both methods are empty and could be overridden by the binding developer. Depending on the concrete implementation the discovery service might start and stop a scheduler in these method or register a listener for an external protocol. The`thingDiscovered` method can be used to notify about a newly discovered thing.
+If the implemented discovery service enables background discovery, the `AbstractDiscoveryService` class automatically starts it.
+If background discovery is enabled, the framework calls `AbstractDiscoveryService#startBackgroundDiscovery` when the binding is activated and `AbstractDiscoveryService#stopBackgroundDiscovery` when the component is deactivated.
+The default implementations of both methods are empty and could be overridden by the binding developer.
+Depending on the concrete implementation the discovery service might start and stop a scheduler in these method or register a listener for an external protocol.
+The `thingDiscovered` method can be used to notify about a newly discovered thing.
 
 The following example shows the implementation of the above mentioned methods in the Wemo binding. 
 
@@ -82,9 +94,12 @@ The following example shows the implementation of the above mentioned methods in
 
 ### Active Scan
 
-If the user triggers an active scan for a binding or specific set of thing types, the method `startScan` of each discovery service which supports these thing type is called. Within these methods the things can be discovered. The abstract base class automatically starts a thread, so the implementation of this method can be long-running.
+If the user triggers an active scan for a binding or specific set of thing types, the method `startScan` of each discovery service which supports these thing type is called.
+Within these methods the things can be discovered.
+The abstract base class automatically starts a thread, so the implementation of this method can be long-running.
 
-The following example implementation for `startScan` is taken from the `HueLightDiscoveryService`, that triggers a scan for known and also for new lights of the hue bridge. Already discovered things are identified by the ThingUID the DiscoveryResult was created with, and won't appear in the inbox again.
+The following example implementation for `startScan` is taken from the `HueLightDiscoveryService`, that triggers a scan for known and also for new lights of the hue bridge.
+Already discovered things are identified by the ThingUID the DiscoveryResult was created with, and won't appear in the inbox again.
 
 ```java
     @Override
@@ -108,7 +123,8 @@ With this, dynamic discoveries (like UPnP or mDNS) can re-discover existing thin
 
 ### Remove older results
 
-Normally, older discovery results already in the inbox are left untouched by a newly triggered scan. If this behavior is not appropriate for the implemented discovery service, one can override the method `stopScan` to call `removeOlderResults` as shown in the following example from the Hue binding: 
+Normally, older discovery results already in the inbox are left untouched by a newly triggered scan.
+If this behavior is not appropriate for the implemented discovery service, one can override the method `stopScan` to call `removeOlderResults` as shown in the following example from the Hue binding: 
 
 ```java
     @Override
@@ -118,53 +134,19 @@ Normally, older discovery results already in the inbox are left untouched by a n
     }
 ```
 
-### Compare with existing results
-
-In some cases it might be of interest for a discovery service if the same device was discovered before or even if a thing already exists.
-Therefore, a discovery service may implement the ExtendedDiscoveryService interface and use the injected callback in order to access the DiscoveryResult or thing for a given thing UID, if it exists.
-
-_Do not use this method to check if an equal result already exists.
-Use the special [representationProperty](../../concepts/discovery.html#inbox) to achieve this._
-
-_Do not use this method to update properties of an existing thing.
-See [Re-Discovered Results and Things](#re-discovered-results-and-things)._ 
-
-
-```java
-    public class SampleDiscoveryService extends AbstractDiscoveryService implements ExtendedDiscoveryService {
-
-        private DiscoveryServiceCallback discoveryServiceCallback;
-
-        @Override
-        public void setDiscoveryServiceCallback(DiscoveryServiceCallback discoveryServiceCallback) {
-            this.discoveryServiceCallback = discoveryServiceCallback;
-        }
-
-        public void discoverSomething() {
-            
-            [...]
-               
-            ThingUID thingUID = [...]
-        
-            if (discoveryServiceCallback.getExistingDiscoveryResult(thingUID) != null) {
-                // "Thing " + thingUID.toString() + " was already discovered"
-            }
-            if (discoveryServiceCallback.getExistingThing(thingUID) != null) {
-                // "Thing " + thingUID.toString() + " already exists"
-            }
-            
-            thingDiscovered(discoveryResult);
-        }
-    }
-``` 
-
 ## UPnP Discovery
 
-UPnP discovery is implemented in the framework as `UpnpDiscoveryService`. It is widely used in bindings. To facilitate the development, binding developers only need to implement a `UpnpDiscoveryParticipant`. Here the developer only needs to implement three simple methods: 
+UPnP discovery is implemented in the framework as `UpnpDiscoveryService`.
+It is widely used in bindings. To facilitate the development, binding developers only need to implement a `UpnpDiscoveryParticipant`.
+Here the developer only needs to implement three simple methods: 
 
-- `getSupportedThingTypeUIDs` - Returns the list of thing type UIDs that this participant supports. The discovery service uses this method of all registered discovery participants to return the list of currently supported thing type UIDs. 
-- `getThingUID` - Creates a thing UID out of the UPnP result or returns `null` if this is not possible. This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
-- `createResult` - Creates the `DiscoveryResult` out of the UPnP result. This method is called from the discovery service to create the actual discovery result. It uses the `getThingUID` method to create the thing UID of the result. 
+- `getSupportedThingTypeUIDs` - Returns the list of thing type UIDs that this participant supports.
+The discovery service uses this method of all registered discovery participants to return the list of currently supported thing type UIDs. 
+- `getThingUID` - Creates a thing UID out of the UPnP result or returns `null` if this is not possible.
+This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
+- `createResult` - Creates the `DiscoveryResult` out of the UPnP result.
+This method is called from the discovery service to create the actual discovery result.
+It uses the `getThingUID` method to create the thing UID of the result. 
 
 The following example shows the implementation of the UPnP discovery participant for the Hue binding, the `HueBridgeDiscoveryParticipant`. 
 
@@ -213,9 +195,15 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
 ## mDNS Discovery
 
-mDNS discovery is implemented in the framework as `MDNSDiscoveryService`. To facilitate the development, binding developers only need to implement a `MDNSDiscoveryParticipant`. Here the developer only needs to implement four simple methods: 
+mDNS discovery is implemented in the framework as `MDNSDiscoveryService`.
+To facilitate the development, binding developers only need to implement a `MDNSDiscoveryParticipant`.
+Here the developer only needs to implement four simple methods: 
 
 - `getServiceType` - Defines the [mDNS service type](http://www.dns-sd.org/ServiceTypes.html).
-- `getSupportedThingTypeUIDs` - Returns the list of thing type UIDs that this participant supports. The discovery service uses this method of all registered discovery participants to return the list of currently supported thing type UIDs. 
-- `getThingUID` - Creates a thing UID out of the mDNS service info or returns `null` if this is not possible. This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
-- `createResult` - Creates the `DiscoveryResult` out of the UPnP result. This method is called from the discovery service to create the actual discovery result. It uses the `getThingUID` method to create the thing UID of the result. 
+- `getSupportedThingTypeUIDs` - Returns the list of thing type UIDs that this participant supports.
+The discovery service uses this method of all registered discovery participants to return the list of currently supported thing type UIDs. 
+- `getThingUID` - Creates a thing UID out of the mDNS service info or returns `null` if this is not possible.
+This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
+- `createResult` - Creates the `DiscoveryResult` out of the UPnP result.
+This method is called from the discovery service to create the actual discovery result.
+It uses the `getThingUID` method to create the thing UID of the result. 
