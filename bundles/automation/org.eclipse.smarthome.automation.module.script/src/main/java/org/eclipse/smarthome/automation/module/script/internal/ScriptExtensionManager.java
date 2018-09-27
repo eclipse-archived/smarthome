@@ -22,6 +22,10 @@ import javax.script.ScriptEngine;
 
 import org.eclipse.smarthome.automation.module.script.ScriptEngineFactory;
 import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This manager allows a script import extension providers
@@ -29,13 +33,11 @@ import org.eclipse.smarthome.automation.module.script.ScriptExtensionProvider;
  * @author Simon Merschjohann
  *
  */
+@Component(service = ScriptExtensionManager.class)
 public class ScriptExtensionManager {
-    private static Set<ScriptExtensionProvider> scriptExtensionProviders = new CopyOnWriteArraySet<ScriptExtensionProvider>();
+    private Set<ScriptExtensionProvider> scriptExtensionProviders = new CopyOnWriteArraySet<ScriptExtensionProvider>();
 
-    public static Set<ScriptExtensionProvider> getScriptExtensionProviders() {
-        return scriptExtensionProviders;
-    }
-
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addScriptExtensionProvider(ScriptExtensionProvider provider) {
         scriptExtensionProviders.add(provider);
     }
@@ -44,15 +46,15 @@ public class ScriptExtensionManager {
         scriptExtensionProviders.remove(provider);
     }
 
-    public static void addExtension(ScriptExtensionProvider provider) {
+    public void addExtension(ScriptExtensionProvider provider) {
         scriptExtensionProviders.add(provider);
     }
 
-    public static void removeExtension(ScriptExtensionProvider provider) {
+    public void removeExtension(ScriptExtensionProvider provider) {
         scriptExtensionProviders.remove(provider);
     }
 
-    public static List<String> getTypes() {
+    public List<String> getTypes() {
         ArrayList<String> types = new ArrayList<>();
 
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
@@ -62,7 +64,7 @@ public class ScriptExtensionManager {
         return types;
     }
 
-    public static List<String> getPresets() {
+    public List<String> getPresets() {
         ArrayList<String> presets = new ArrayList<>();
 
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
@@ -72,7 +74,7 @@ public class ScriptExtensionManager {
         return presets;
     }
 
-    public static Object get(String type, String scriptIdentifier) {
+    public Object get(String type, String scriptIdentifier) {
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             if (provider.getTypes().contains(type)) {
                 return provider.get(scriptIdentifier, type);
@@ -82,7 +84,7 @@ public class ScriptExtensionManager {
         return null;
     }
 
-    public static List<String> getDefaultPresets() {
+    public List<String> getDefaultPresets() {
         ArrayList<String> defaultPresets = new ArrayList<>();
 
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
@@ -92,14 +94,14 @@ public class ScriptExtensionManager {
         return defaultPresets;
     }
 
-    public static void importDefaultPresets(ScriptEngineFactory engineProvider, ScriptEngine scriptEngine,
+    public void importDefaultPresets(ScriptEngineFactory engineProvider, ScriptEngine scriptEngine,
             String scriptIdentifier) {
         for (String preset : getDefaultPresets()) {
             importPreset(preset, engineProvider, scriptEngine, scriptIdentifier);
         }
     }
 
-    public static void importPreset(String preset, ScriptEngineFactory engineProvider, ScriptEngine scriptEngine,
+    public void importPreset(String preset, ScriptEngineFactory engineProvider, ScriptEngine scriptEngine,
             String scriptIdentifier) {
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             if (provider.getPresets().contains(preset)) {
@@ -110,7 +112,7 @@ public class ScriptExtensionManager {
         }
     }
 
-    public static void dispose(String scriptIdentifier) {
+    public void dispose(String scriptIdentifier) {
         for (ScriptExtensionProvider provider : scriptExtensionProviders) {
             provider.unload(scriptIdentifier);
         }

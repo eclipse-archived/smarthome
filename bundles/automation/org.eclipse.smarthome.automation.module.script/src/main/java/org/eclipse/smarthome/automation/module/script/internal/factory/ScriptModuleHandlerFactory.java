@@ -15,15 +15,21 @@ package org.eclipse.smarthome.automation.module.script.internal.factory;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptActionHandler;
 import org.eclipse.smarthome.automation.module.script.internal.handler.ScriptConditionHandler;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +39,13 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer
  *
  */
+@NonNullByDefault
+@Component(service = ModuleHandlerFactory.class)
 public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptModuleHandlerFactory.class);
 
-    private ScriptEngineManager scriptEngineManager;
+    private @NonNullByDefault({}) ScriptEngineManager scriptEngineManager;
 
     private static final Collection<String> TYPES = Arrays
             .asList(new String[] { ScriptActionHandler.SCRIPT_ACTION_ID, ScriptConditionHandler.SCRIPT_CONDITION });
@@ -53,6 +61,7 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
         return TYPES;
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC)
     public void setScriptEngineManager(ScriptEngineManager scriptEngineManager) {
         this.scriptEngineManager = scriptEngineManager;
     }
@@ -62,7 +71,7 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    protected ModuleHandler internalCreate(Module module, String ruleUID) {
+    protected @Nullable ModuleHandler internalCreate(Module module, String ruleUID) {
         logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
         String moduleTypeUID = module.getTypeUID();
         if (moduleTypeUID != null) {
