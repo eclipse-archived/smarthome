@@ -158,22 +158,26 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
                 return false;
         }
 
-        if (!parameter.options || parameter.options.length <= 0) {
-            switch (context) {
-                case "ITEM":
-                    getItemOptions(parameter);
-                    break;
-                case "THING":
-                    getThingOptions(parameter);
-                    break;
-                case "CHANNEL":
-                    getChannelOptions(parameter);
-                    break;
-                case "RULE":
-                    getRuleOptions(parameter);
-                    break;
-            }
+        switch (context) {
+            case "ITEM":
+                getItemOptions(parameter);
+                break;
+            case "THING":
+                getThingOptions(parameter);
+                break;
+            case "CHANNEL":
+                getChannelOptions(parameter);
+                break;
+            case "RULE":
+                getRuleOptions(parameter);
+                break;
         }
+
+        angular.forEach(parameter.options, function(option) {
+            if (!option.label || option.label.length == 0) {
+                option.label = option.value;
+            }
+        });
 
         return true;
     }
@@ -246,16 +250,41 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         return channels;
     }
 
+    function lookupOptionLabels(options, entities, valueName, labelName) {
+        angular.forEach(options, function(option) {
+            if (!option.label || option.label.length == 0) {
+                // find corresponding entity for this option
+                optionEntities = entities.filter(function(entity) {
+                    return entity[valueName] === option.value;
+                });
+                if (optionEntities && optionEntities.length > 0) {
+                    option.label = optionEntities[0][labelName]; // set the option label to the entity label
+                } else {
+                    option.label = option.value; // fallback to option value
+                }
+            }
+        });
+    }
+
     function getItemOptions(parameter) {
-        return itemRepository.getAll().then(function(items) {
+        itemRepository.getAll().then(function(items) {
             var filteredItems = filterByAttributes(items, parameter.filterCriteria);
-            parameter.options = $filter('orderBy')(filteredItems, 'label');
+            if (parameter.options && parameter.options.length > 0) {
+                lookupOptionLabels(parameter.options, filteredItems, 'name', 'label')
+            } else {
+                parameter.options = $filter('orderBy')(filteredItems, 'label');
+            }
         });
     }
 
     function getThingOptions(parameter) {
         thingRepository.getAll().then(function(things) {
-            parameter.options = filterByAttributes(things, parameter.filterCriteria);
+            filteredThings = filterByAttributes(things, parameter.filterCriteria);
+            if (parameter.options && parameter.options.length > 0) {
+                lookupOptionLabels(parameter.options, filteredThings, 'UID', 'label')
+            } else {
+                parameter.options = filteredThings;
+            }
         });
     }
 
