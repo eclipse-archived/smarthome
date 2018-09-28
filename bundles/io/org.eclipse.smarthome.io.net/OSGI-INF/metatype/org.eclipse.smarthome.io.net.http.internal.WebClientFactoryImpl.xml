@@ -2,7 +2,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.1.0 http://www.osgi.org/xmlns/metatype/v1.1.0">
 
-	<OCD name="HTTP Client Factory" id="HttpClientFactory" description="HTTP Client Factory for generting jetty http clients">
+	<OCD name="Web Client Factory" id="WebClientFactory" description="HTTP Client Factory for generating Jetty http clients">
 		<AD name="minThreadsShared" id="minThreadsShared" default="10" min="1" type="Integer" description="Minimal threads for thread pool" />
 
 		<AD name="maxThreadsShared" id="maxThreadsShared" default="40" min="5" type="Integer" description="Maximal threads for thread pool" />
@@ -19,8 +19,8 @@
 
 	</OCD>
 
-	<Designate pid="org.eclipse.smarthome.HttpClientFactory">
-		<Object ocdref="HttpClientFactory" />
+	<Designate pid="org.eclipse.smarthome.webclient">
+		<Object ocdref="WebClientFactory" />
 	</Designate>
 
 </metatype:MetaData>

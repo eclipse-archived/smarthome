@@ -14,9 +14,12 @@ package org.eclipse.smarthome.io.net.http.internal;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +31,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLHandshakeException;
+
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 public class WebClientFactoryTest {
@@ -46,57 +55,96 @@ public class WebClientFactoryTest {
     @Mock
     private TrustManagerProvider trustmanagerProvider;
 
+    @Mock
+    private ExtensibleTrustManager extensibleTrustManager;
+
     @Before
     public void setup() {
         initMocks(this);
         webClientFactory = new WebClientFactoryImpl();
         webClientFactory.setTrustmanagerProvider(trustmanagerProvider);
+        webClientFactory.setExtensibleTrustManager(extensibleTrustManager);
+
+        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+    }
+
+    @After
+    public void tearDown() {
+        webClientFactory.deactivate();
     }
 
     @Test
     public void testGetClients() throws Exception {
-        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
-
         HttpClient httpClient = webClientFactory.getCommonHttpClient();
         WebSocketClient webSocketClient = webClientFactory.getCommonWebSocketClient();
 
         assertThat(httpClient, is(notNullValue()));
         assertThat(webSocketClient, is(notNullValue()));
+    }
 
-        webClientFactory.deactivate();
+    @Test
+    public void testCommonClientUsesExtensibleTrustManager() throws Exception {
+        ArgumentCaptor<X509Certificate[]> certificateChainCaptor = ArgumentCaptor.forClass(X509Certificate[].class);
+        ArgumentCaptor<SSLEngine> sslEngineCaptor = ArgumentCaptor.forClass(SSLEngine.class);
+        HttpClient httpClient = webClientFactory.getCommonHttpClient();
+
+        ContentResponse response = httpClient.GET(TEST_URL);
+        if (response.getStatus() != 200) {
+            fail("Statuscode != 200");
+        }
+
+        verify(extensibleTrustManager).checkServerTrusted(certificateChainCaptor.capture(), anyString(),
+                sslEngineCaptor.capture());
+        verifyNoMoreInteractions(extensibleTrustManager);
+        assertThat(sslEngineCaptor.getValue().getPeerHost(), is("www.eclipse.org"));
+        assertThat(sslEngineCaptor.getValue().getPeerPort(), is(443));
+        assertThat(certificateChainCaptor.getValue()[0].getSubjectX500Principal().getName(),
+                containsString("eclipse.org"));
+
+        httpClient.stop();
     }
 
     @Test
     public void testGetHttpClientWithEndpoint() throws Exception {
-        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
-
         when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
+
         HttpClient httpClient = webClientFactory.createHttpClient("consumer", TEST_URL);
+
         assertThat(httpClient, is(notNullValue()));
         verify(trustmanagerProvider).getTrustManagers(TEST_URL);
         httpClient.stop();
-
-        webClientFactory.deactivate();
     }
 
     @Test
     public void testGetWebSocketClientWithEndpoint() throws Exception {
-        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
-
         when(trustmanagerProvider.getTrustManagers("https://www.heise.de")).thenReturn(Stream.empty());
+
         WebSocketClient webSocketClient = webClientFactory.createWebSocketClient("consumer", TEST_URL);
+
         assertThat(webSocketClient, is(notNullValue()));
         verify(trustmanagerProvider).getTrustManagers(TEST_URL);
         webSocketClient.stop();
+    }
 
-        webClientFactory.deactivate();
+    @Ignore("connecting to the outside world makes this test flaky")
+    @Test(expected = SSLHandshakeException.class)
+    public void testCommonClientUsesExtensibleTrustManagerFailure() throws Throwable {
+        doThrow(new CertificateException()).when(extensibleTrustManager).checkServerTrusted(
+                ArgumentMatchers.any(X509Certificate[].class), anyString(), ArgumentMatchers.any(SSLEngine.class));
+        HttpClient httpClient = webClientFactory.getCommonHttpClient();
+
+        try {
+            httpClient.GET(TEST_URL);
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        } finally {
+            httpClient.stop();
+        }
     }
 
     @Ignore("only for manual test")
     @Test
     public void testMultiThreadedShared() throws Exception {
-        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
-
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50));
 
@@ -135,15 +183,11 @@ public class WebClientFactoryTest {
         if (!failures.isEmpty()) {
             fail(failures.toString());
         }
-
-        webClientFactory.deactivate();
     }
 
     @Ignore("only for manual test")
     @Test
     public void testMultiThreadedCustom() throws Exception {
-        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
-
         ThreadPoolExecutor workers = new ThreadPoolExecutor(20, 80, 60, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<Runnable>(50 * 50));
 
@@ -186,8 +230,6 @@ public class WebClientFactoryTest {
         for (HttpClient client : clients) {
             client.stop();
         }
-
-        webClientFactory.deactivate();
     }
 
     private Map<String, Object> createConfigMap(int minThreadsShared, int maxThreadsShared, int keepAliveTimeoutShared,

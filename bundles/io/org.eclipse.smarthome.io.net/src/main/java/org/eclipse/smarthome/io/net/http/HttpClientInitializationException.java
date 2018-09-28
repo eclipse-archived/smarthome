@@ -13,9 +13,9 @@
 package org.eclipse.smarthome.io.net.http;
 
 /**
- * This exception is thrown, if an unexpected error occurs during initialization of the jetty client
- * 
- * @author Michael Bock - initial API
+ * This exception is thrown, if an unexpected error occurs during initialization of the Jetty client
+ *
+ * @author Michael Bock - Initial contribution
  */
 public class HttpClientInitializationException extends RuntimeException {
 
