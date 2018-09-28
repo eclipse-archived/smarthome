@@ -149,7 +149,7 @@ For best performance it is recommended to set the resolution only as high as nee
  
 ## Full Example
 
-This is the configuration for a OneWire network consisting of an owserver and a temperature sensor. 
+This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) and a temperature sensor as thing (`onewire:temperature:mybridge:mysensor`). 
 
 ### demo.things:
 
@@ -162,7 +162,7 @@ Bridge onewire:owserver:mybridge [ network-address="192.168.0.51" ] {
 ### demo.items:
 
 ```
-Number:Temperature MySensor "MySensor [%.1f %unit%]" { channel="onewire:mybridge:mysensor:temperature" }
+Number:Temperature MySensor "MySensor [%.1f %unit%]" { channel="onewire:temperature:mybridge:mysensor:temperature" }
 ```
 
 ### demo.sitemap:
