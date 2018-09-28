@@ -145,18 +145,18 @@ describe('factory configService', function() {
             deferred.resolve(things);
 
         });
-        it('should retain thing options for context THING', function() {
+        it('should retain thing options for context THING and update label', function() {
             var inputParams = [ {
                     context : 'thing',
                     options : [ 
-                        {label:'Existing Thing 1', value:'thingUID1'},
-                        {label:'Existing Thing 2', value:'thingUID2'}
+                        { value:'thingUID1', label:'Existing Thing 1' },
+                        { value:'thingUID2' }
                     ]
             }];
             
             var things = [{
-                label : 'Magic Thing 1',
-                UID : 'binding:thingType:thingId1'
+                label : 'Magic Thing 2',
+                UID : 'thingUID2'
             }]
             
             var deferred = $q.defer();
@@ -171,7 +171,7 @@ describe('factory configService', function() {
                 expect(params[0].parameters[0].options[0]).toBeDefined();
                 expect(params[0].parameters[0].options[0].label).toEqual('Existing Thing 1');
                 expect(params[0].parameters[0].options[1]).toBeDefined();
-                expect(params[0].parameters[0].options[1].label).toEqual('Existing Thing 2');
+                expect(params[0].parameters[0].options[1].label).toEqual('Magic Thing 2');
             })
             
             deferred.resolve(things);
