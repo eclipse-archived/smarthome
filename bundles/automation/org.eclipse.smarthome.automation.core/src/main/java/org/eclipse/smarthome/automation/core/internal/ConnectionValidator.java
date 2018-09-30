@@ -256,6 +256,14 @@ public class ConnectionValidator {
         String outputName = connection.getOutputName();
         if (outputs != null && !outputs.isEmpty()) {
             for (Output output : outputs) {
+                if (outputName.matches(output.getName() + "\\.*[a-zA-Z0-9_]+$")) {
+                    String dataStructure = outputName.split("\\.")[0];
+                    if (output.getName().equals(dataStructure)) {
+                        // we are referencing a value inside an existing data structure of the output and will not check
+                        // if the property inside of it really exists, so the connection will be treated as valid
+                        return;
+                    }
+                }
                 if (output.getName().equals(outputName)) {
                     if (input.getType().equals("*")) {
                         return;
