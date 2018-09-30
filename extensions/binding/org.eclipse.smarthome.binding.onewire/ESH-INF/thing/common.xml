@@ -17,12 +17,13 @@
 			<parameter name="resolution" type="text">
 				<label>Sensor resolution</label>
 				<options>
+					<option value="">default</option>
 					<option value="9">9 bit</option>
 					<option value="10">10 bit</option>
 					<option value="11">11 bit</option>
 					<option value="12">12 bit</option>
 				</options>
-				<default>10</default>
+				<default></default>
 				<limitToOptions>true</limitToOptions>
 				<required>false</required>
 			</parameter>

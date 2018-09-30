@@ -22,6 +22,7 @@ public enum OwSensorType {
     DS1420,
     DS18S20,
     DS18B20,
+    DS1923,
     DS2401,
     DS2405,
     DS2406,

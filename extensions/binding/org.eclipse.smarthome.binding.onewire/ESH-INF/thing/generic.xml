@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="onewire" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+	<thing-type id="th">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>TH</label>
+		<description>A 1-wire generic multisensor</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+			<channel id="humidity" typeId="humidity" />
+            <channel id="absolutehumidity" typeId="absolutehumidity" />
+            <channel id="dewpoint" typeId="dewpoint" />
+		</channels>
+		<properties>
+			<property name="sensorCount">1</property>
+		</properties>
+		<config-description>
+			<parameter name="id" type="text">
+				<label>Sensor ID</label>
+				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+</thing:thing-descriptions>

@@ -48,11 +48,12 @@ public class OwBindingConstants {
     public static final ThingTypeUID THING_TYPE_MS_TV = new ThingTypeUID(BINDING_ID, "ms-tv");
     public static final ThingTypeUID THING_TYPE_BMS = new ThingTypeUID(BINDING_ID, "bms");
     public static final ThingTypeUID THING_TYPE_AMS = new ThingTypeUID(BINDING_ID, "ams");
+    public static final ThingTypeUID THING_TYPE_TH = new ThingTypeUID(BINDING_ID, "th");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_OWSERVER, THING_TYPE_TEMPERATURE, THING_TYPE_IBUTTON, THING_TYPE_DIGITALIO,
                     THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8, THING_TYPE_AMS, THING_TYPE_BMS, THING_TYPE_MS_TH,
-                    THING_TYPE_MS_THS, THING_TYPE_MS_TV));
+                    THING_TYPE_MS_THS, THING_TYPE_MS_TV, THING_TYPE_TH));
 
     // List of all config options
     public static final String CONFIG_ADDRESS = "network-address";
@@ -98,6 +99,7 @@ public class OwBindingConstants {
         initThingTypeMap.put(OwSensorType.DS1420, THING_TYPE_IBUTTON);
         initThingTypeMap.put(OwSensorType.DS18B20, THING_TYPE_TEMPERATURE);
         initThingTypeMap.put(OwSensorType.DS18S20, THING_TYPE_TEMPERATURE);
+        initThingTypeMap.put(OwSensorType.DS1923, THING_TYPE_TH);
         initThingTypeMap.put(OwSensorType.DS2401, THING_TYPE_IBUTTON);
         initThingTypeMap.put(OwSensorType.DS2405, THING_TYPE_DIGITALIO);
         initThingTypeMap.put(OwSensorType.DS2406, THING_TYPE_DIGITALIO2);
@@ -123,6 +125,7 @@ public class OwBindingConstants {
         initThingLabelMap.put(THING_TYPE_MS_TV, "Multisensor");
         initThingLabelMap.put(THING_TYPE_BMS, "Elaborated Networks BMS");
         initThingLabelMap.put(THING_TYPE_AMS, "Elaborated Networks AMS");
+        initThingLabelMap.put(THING_TYPE_TH, "Temperature and humidity sensor");
         THING_LABEL_MAP = Collections.unmodifiableMap(initThingLabelMap);
     }
 

@@ -50,8 +50,8 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class MultisensorThingHandler extends OwBaseThingHandler {
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
-            Arrays.asList(THING_TYPE_MS_TH, THING_TYPE_MS_THS, THING_TYPE_MS_TV, THING_TYPE_AMS, THING_TYPE_BMS));
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_MS_TH,
+            THING_TYPE_MS_THS, THING_TYPE_MS_TV, THING_TYPE_AMS, THING_TYPE_BMS, THING_TYPE_TH));
 
     private final Logger logger = LoggerFactory.getLogger(MultisensorThingHandler.class);
 
@@ -177,7 +177,8 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         if (THING_TYPE_MS_TV.equals(thingType)) {
             sensors.get(0).enableChannel(CHANNEL_VOLTAGE);
         } else if (THING_TYPE_AMS.equals(thingType) || THING_TYPE_BMS.equals(thingType)
-                || THING_TYPE_MS_TH.equals(thingType) || THING_TYPE_MS_THS.equals(thingType)) {
+                || THING_TYPE_TH.equals(thingType) || THING_TYPE_MS_TH.equals(thingType)
+                || THING_TYPE_MS_THS.equals(thingType)) {
             sensors.get(0).enableChannel(CHANNEL_HUMIDITY);
             if (thing.getChannel(CHANNEL_ABSOLUTE_HUMIDITY) != null) {
                 sensors.get(0).enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);

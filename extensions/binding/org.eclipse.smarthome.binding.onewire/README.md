@@ -52,9 +52,16 @@ It has two parameters: sensor id `id` and refresh time `refresh`.
 
 ### iButton (`ibutton`)
 
-The iButton thing supports only the DS2401 chips.
+The iButton thing supports only the DS2401 and DS1420 chips.
 It is used for presence detection and therefore only supports the `present` channel.
 It's value is `ON` if the device is detected on the bus and `OFF` otherwise.
+
+It has two parameters: sensor id `id` and refresh time `refresh`.
+
+### Sensor with Humidity (`th`)
+
+The generic sensor with humidity and temperature using DS1923 chipset. 
+It provides a `temperature` and `humidity` channels.
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
@@ -109,16 +116,16 @@ The correct formula for the ambient light is automatically determined from the s
 
 ## Channels
 
-| Type-ID         | Thing                       | Item    | readonly   | Description                                        |
-|-----------------|-----------------------------|---------|------------|----------------------------------------------------|
-| current         | multisensors                | Number  | yes        | current (if light option not installed)            |
-| digital         | digitalX, AMS               | Switch  | no         | digital, can be configured as input or output      |
-| humidity        | multisensors (except ms-tv) | Number  | yes        | relative humidity                                  |
-| light           | ams, bms                    | Number  | yes        | lightness (if installed)                           |
-| present         | all                         | Switch  | yes        | sensor found on bus                                |
-| supplyvoltage   | multisensors                | Number  | yes        | sensor supplyvoltage                               |
-| temperature     | not digitalX, ibutton       | Number  | yes        | environmental temperature                          |
-| voltage         | ms-tv, ams                  | Number  | yes        | voltage input                                      |
+| Type-ID         | Thing                           | Item    | readonly   | Description                                        |
+|-----------------|---------------------------------|---------|------------|----------------------------------------------------|
+| current         | multisensors                    | Number  | yes        | current (if light option not installed)            |
+| digital         | digitalX, AMS                   | Switch  | no         | digital, can be configured as input or output      |
+| humidity        | multisensors (except ms-tv), th | Number  | yes        | relative humidity                                  |
+| light           | ams, bms                        | Number  | yes        | lightness (if installed)                           |
+| present         | all                             | Switch  | yes        | sensor found on bus                                |
+| supplyvoltage   | multisensors                    | Number  | yes        | sensor supplyvoltage                               |
+| temperature     | not digitalX, ibutton           | Number  | yes        | environmental temperature                          |
+| voltage         | ms-tv, ams                      | Number  | yes        | voltage input                                      |
 
 ### Digital I/O (`digitalX`)
 
@@ -134,7 +141,7 @@ In `inverted` mode `ON` is logic low and `OFF` is logic high.
 
 Depending on the sensor, the `humidity` channel may have the `humiditytype` parameter.
 This is only needed for the `ms-th` sensors.
-`ams` and `bms` sensors select the correct sensor type automatically.
+`th`, `ams` and `bms` sensors select the correct sensor type automatically.
 
 Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for HIH-4000 sensors, `/HTM1735/humidity` for HTM-1735 sensors and `/DATANAB/humidity` for sensors from Datanab.
 
@@ -142,7 +149,8 @@ Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for H
 
 The `temperature` channel has one parameter: `resolution`.
 
-OneWire temperature sensors are capable of different resolutions: `9`, `10`, `11` and `12` bits.
+OneWire temperature sensors are capable of different resolutions: `9`, `10`, `11` and `12` bits. 
+Parameter `resolution` can be used for `DS18B20`, but not `DS18S20` or other temperature sensors.   
 This corresponds to 0.5 °C, 0.25 °C, 0.125 °C, 0.0625 °C respectively.
 The conversion time is inverse to that and ranges from 95 ms to 750 ms.
 For best performance it is recommended to set the resolution only as high as needed. 
