@@ -280,9 +280,9 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             if (tmpBrightness != null) {
                 lastSentBrightness = tmpBrightness;
             }
-            Integer tmpColotTemp = lightState.getColorTemperature();
-            if (tmpColotTemp != null) {
-                lastSentColorTemp = tmpBrightness;
+            Integer tmpColorTemp = lightState.getColorTemperature();
+            if (tmpColorTemp != null) {
+                lastSentColorTemp = tmpColorTemp;
             }
             hueBridge.updateLightState(light, lightState);
         } else {
