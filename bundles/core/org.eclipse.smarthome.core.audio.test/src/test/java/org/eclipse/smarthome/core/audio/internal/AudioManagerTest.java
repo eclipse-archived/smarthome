@@ -12,9 +12,10 @@
  */
 package org.eclipse.smarthome.core.audio.internal;
 
-import static org.eclipse.smarthome.core.audio.internal.AudioManagerImpl.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,16 +25,19 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioFormat;
+import org.eclipse.smarthome.core.audio.AudioSource;
 import org.eclipse.smarthome.core.audio.AudioStream;
-import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
-import org.eclipse.smarthome.core.audio.URLAudioStream;
-import org.eclipse.smarthome.core.audio.UnsupportedAudioFormatException;
+import org.eclipse.smarthome.core.audio.ByteArrayAudioStream;
+import org.eclipse.smarthome.core.audio.FileAudioStream;
 import org.eclipse.smarthome.core.audio.UnsupportedAudioStreamException;
 import org.eclipse.smarthome.core.audio.internal.fake.AudioSinkFake;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -42,86 +46,127 @@ import org.junit.Test;
  * @author Petar Valchev - Initial contribution and API
  * @author Christoph Weitkamp - Added parameter to adjust the volume
  * @author Wouter Born - Migrate tests from Groovy to Java
+ * @author Henning Treu - Convert to plain java tests
  */
-public class AudioManagerTest extends AudioOSGiTest {
+public class AudioManagerTest {
+
+    private AudioManagerImpl audioManager;
+
+    private AudioSinkFake audioSink;
+    private AudioSource audioSource;
+
+    private static final String CONFIGURATION_DIRECTORY_NAME = "configuration";
+
+    protected static final String MP3_FILE_NAME = "mp3AudioFile.mp3";
+    protected static final String MP3_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + MP3_FILE_NAME;
+
+    protected static final String WAV_FILE_NAME = "wavAudioFile.wav";
+    protected static final String WAV_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + WAV_FILE_NAME;
+
+    @Before
+    public void setup() {
+        audioManager = new AudioManagerImpl();
+        audioSink = new AudioSinkFake();
+
+        audioSource = mock(AudioSource.class);
+        when(audioSource.getId()).thenReturn("audioSourceId");
+        when(audioSource.getLabel(any(Locale.class))).thenReturn("audioSourceLabel");
+
+        System.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, CONFIGURATION_DIRECTORY_NAME);
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, ConfigConstants.DEFAULT_CONFIG_FOLDER);
+    }
 
     @Test
     public void audioManagerPlaysByteArrayAudioStream() throws AudioException {
-        audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_MP3);
-        assertProcessedStreamTypeStream(audioStream);
+        audioManager.addAudioSink(audioSink);
+        ByteArrayAudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_MP3);
+
+        audioManager.play(audioStream, audioSink.getId());
+
+        AudioFormat expectedAudioFormat = audioStream.getFormat();
+
+        assertThat(audioSink.audioFormat.isCompatible(expectedAudioFormat), is(true));
     }
 
     @Test
     public void nullStreamsAreProcessed() {
-        registerSink();
+        audioManager.addAudioSink(audioSink);
+        audioManager.play(null, audioSink.getId());
 
-        audioManager.play(null, audioSinkFake.getId());
-
-        waitForAssert(
-                () -> assertThat("The 'null' stream was not processed", audioSinkFake.isStreamProcessed, is(true)));
-        assertThat("The currently playing stream was not stopped", audioSinkFake.isStreamStopped, is(true));
+        assertThat(audioSink.isStreamProcessed, is(true));
+        assertThat(audioSink.isStreamStopped, is(true));
     }
 
     @Test
     public void audioManagerPlaysStreamFromWavAudioFiles() throws AudioException {
-        audioStream = getFileAudioStream(WAV_FILE_PATH);
-        assertProcessedStreamTypeStream(audioStream);
+        audioManager.addAudioSink(audioSink);
+        AudioStream audioStream = new FileAudioStream(new File(WAV_FILE_PATH));
+
+        audioManager.play(audioStream, audioSink.getId());
+
+        assertThat(audioSink.audioFormat.isCompatible(audioStream.getFormat()), is(true));
     }
 
     @Test
     public void audioManagerPlaysStreamFromMp3AudioFiles() throws AudioException {
-        audioStream = getFileAudioStream(MP3_FILE_PATH);
-        assertProcessedStreamTypeStream(audioStream);
+        audioManager.addAudioSink(audioSink);
+        AudioStream audioStream = new FileAudioStream(new File(MP3_FILE_PATH));
+
+        audioManager.play(audioStream, audioSink.getId());
+
+        assertThat(audioSink.audioFormat.isCompatible(audioStream.getFormat()), is(true));
     }
 
     @Test
-    public void audioManagerPlaysWavAudioFiles() throws AudioException {
-        audioStream = getFileAudioStream(WAV_FILE_PATH);
-        assertProcessedStreamTypeFile(WAV_FILE_NAME);
+    public void audioManagerPlaysWavAudioFiles() throws AudioException, IOException {
+        audioManager.addAudioSink(audioSink);
+        AudioStream audioStream = new FileAudioStream(new File(WAV_FILE_PATH));
+        audioManager.playFile(WAV_FILE_NAME, audioSink.getId());
+
+        assertThat(audioSink.audioFormat.isCompatible(audioStream.getFormat()), is(true));
+        audioStream.close();
     }
 
     @Test
-    public void audioManagerPlaysMp3AudioFiles() throws AudioException {
-        audioStream = getFileAudioStream(MP3_FILE_PATH);
-        assertProcessedStreamTypeFile(MP3_FILE_NAME);
+    public void audioManagerPlaysMp3AudioFiles() throws AudioException, IOException {
+        audioManager.addAudioSink(audioSink);
+        AudioStream audioStream = new FileAudioStream(new File(MP3_FILE_PATH));
+        audioManager.playFile(MP3_FILE_NAME, audioSink.getId());
+
+        assertThat(audioSink.audioFormat.isCompatible(audioStream.getFormat()), is(true));
+        audioStream.close();
     }
 
     @Test
     public void fileIsNotProcessedIfThereIsNoRegisteredSink() throws AudioException {
         File file = new File(MP3_FILE_PATH);
-        assertThat(String.format("The file %s does not exist", file.getName()), file.exists(), is(true));
 
-        audioSinkFake = new AudioSinkFake();
+        audioManager.playFile(file.getName(), audioSink.getId());
 
-        audioManager.playFile(file.getName(), audioSinkFake.getId());
-
-        waitForAssert(() -> assertThat(String.format("The file %s was processed", file.getName()),
-                audioSinkFake.isStreamProcessed, is(false)));
+        assertThat(audioSink.isStreamProcessed, is(false));
     }
 
     @Test
     public void audioManagerHandlesUnsupportedAudioFormatException() throws AudioException {
-        registerSink();
-
-        audioStream = getFileAudioStream(MP3_FILE_PATH);
-
-        audioSinkFake.isUnsupportedAudioFormatExceptionExpected = true;
+        audioManager.addAudioSink(audioSink);
+        audioSink.isUnsupportedAudioFormatExceptionExpected = true;
         try {
-            audioManager.playFile(MP3_FILE_NAME, audioSinkFake.getId());
-        } catch (UnsupportedAudioFormatException e) {
+            audioManager.playFile(MP3_FILE_NAME, audioSink.getId());
+        } catch (UnsupportedAudioStreamException e) {
             fail("An exception " + e + " was thrown, while trying to process a stream");
         }
     }
 
     @Test
     public void audioManagerHandlesUnsupportedAudioStreamException() throws AudioException {
-        registerSink();
-
-        audioStream = getFileAudioStream(MP3_FILE_PATH);
-
-        audioSinkFake.isUnsupportedAudioStreamExceptionExpected = true;
+        audioManager.addAudioSink(audioSink);
+        audioSink.isUnsupportedAudioStreamExceptionExpected = true;
         try {
-            audioManager.playFile(MP3_FILE_NAME, audioSinkFake.getId());
+            audioManager.playFile(MP3_FILE_NAME, audioSink.getId());
         } catch (UnsupportedAudioStreamException e) {
             fail("An exception " + e + " was thrown, while trying to process a stream");
         }
@@ -129,31 +174,24 @@ public class AudioManagerTest extends AudioOSGiTest {
 
     @Test
     public void audioManagerSetsTheVolumeOfASink() throws IOException {
-        registerSink();
-
+        audioManager.addAudioSink(audioSink);
         PercentType initialVolume = new PercentType(67);
         PercentType sinkMockVolume = getSinkMockVolume(initialVolume);
 
-        waitForAssert(
-                () -> assertThat(String.format("The volume of the sink %s was not as expected", audioSinkFake.getId()),
-                        sinkMockVolume, is(initialVolume)));
+        assertThat(sinkMockVolume, is(initialVolume));
     }
 
     @Test
     public void theVolumeOfANullSinkIsZero() throws IOException {
-        assertThat("The volume was not as expected", audioManager.getVolume(null), is(PercentType.ZERO));
+        assertThat(audioManager.getVolume(null), is(PercentType.ZERO));
     }
 
     @Test
     public void audioManagerSetsTheVolumeOfNotRegisteredSinkToZero() throws IOException {
-        audioSinkFake = new AudioSinkFake();
-
         PercentType initialVolume = new PercentType(67);
         PercentType sinkMockVolume = getSinkMockVolume(initialVolume);
 
-        waitForAssert(
-                () -> assertThat(String.format("The volume of the sink %s was not as expected", audioSinkFake.getId()),
-                        sinkMockVolume, is(PercentType.ZERO)));
+        assertThat(sinkMockVolume, is(PercentType.ZERO));
     }
 
     @Test
@@ -188,98 +226,54 @@ public class AudioManagerTest extends AudioOSGiTest {
 
     @Test
     public void inCaseOfWrongUriNoParameterOptionsAreAdded() {
-        registerSink();
+        audioManager.addAudioSink(audioSink);
 
         Collection<ParameterOption> parameterOptions = audioManager.getParameterOptions(URI.create("wrong.uri"),
                 AudioManagerImpl.CONFIG_DEFAULT_SINK, Locale.US);
         assertThat("The parameter options were not as expected", parameterOptions, is(nullValue()));
     }
 
-    @Test
-    public void audioManagerProcessesMultitimeStreams() throws AudioException {
-        registerSink();
-        int streamTimeout = 10;
-        assertServedStream(streamTimeout);
-    }
-
-    @Test
-    public void audioManagerProcessesOneTimeStream() throws AudioException {
-        registerSink();
-        assertServedStream(null);
-    }
-
-    @Test
-    public void audioManagerDoesNotProcessStreamsIfThereIsNoRegisteredSink() throws AudioException {
-        audioSinkFake = new AudioSinkFake();
-        int streamTimeout = 10;
-        assertServedStream(streamTimeout);
-    }
-
     private void assertRegisteredSource(boolean isSourceDefault) {
-        registerSource();
+        audioManager.addAudioSource(audioSource);
 
         if (isSourceDefault) {
-            audioManager.modified(Collections.singletonMap(CONFIG_DEFAULT_SOURCE, audioSourceMock.getId()));
+            audioManager
+                    .modified(Collections.singletonMap(AudioManagerImpl.CONFIG_DEFAULT_SOURCE, audioSource.getId()));
         } else {
             // just to make sure there is no default source
             audioManager.modified(Collections.emptyMap());
         }
 
-        assertThat(String.format("The source %s was not registered", audioSourceMock.getId()), audioManager.getSource(),
-                is(audioSourceMock));
-        assertThat(String.format("The source %s was not added to the set of sources", audioSourceMock.getId()),
-                audioManager.getAllSources().contains(audioSourceMock), is(true));
-        assertThat(String.format("The source %s was not added to the set of sources", audioSourceMock.getId()),
-                audioManager.getSourceIds(audioSourceMock.getId()).contains(audioSourceMock.getId()), is(true));
+        assertThat(String.format("The source %s was not registered", audioSource.getId()), audioManager.getSource(),
+                is(audioSource));
+        assertThat(String.format("The source %s was not added to the set of sources", audioSource.getId()),
+                audioManager.getAllSources().contains(audioSource), is(true));
+        assertThat(String.format("The source %s was not added to the set of sources", audioSource.getId()),
+                audioManager.getSourceIds(audioSource.getId()).contains(audioSource.getId()), is(true));
     }
 
     private void assertRegisteredSink(boolean isSinkDefault) {
-        registerSink();
+        audioManager.addAudioSink(audioSink);
 
         if (isSinkDefault) {
-            audioManager.modified(Collections.singletonMap(CONFIG_DEFAULT_SINK, audioSinkFake.getId()));
+            audioManager.modified(Collections.singletonMap(AudioManagerImpl.CONFIG_DEFAULT_SINK, audioSink.getId()));
         } else {
             // just to make sure there is no default sink
             audioManager.modified(Collections.emptyMap());
         }
 
-        assertThat(String.format("The sink %s was not registered", audioSinkFake.getId()), audioManager.getSink(),
-                is(audioSinkFake));
-        assertThat(String.format("The sink %s was not added to the set of sinks", audioSinkFake.getId()),
-                audioManager.getAllSinks().contains(audioSinkFake), is(true));
-        assertThat(String.format("The sink %s was not added to the set of sinks", audioSinkFake.getId()),
-                audioManager.getSinkIds(audioSinkFake.getId()).contains(audioSinkFake.getId()), is(true));
-    }
-
-    private void assertProcessedStreamTypeStream(AudioStream audioStream) throws AudioException {
-        registerSink();
-
-        waitForAssert(() -> assertThat("The format of the audio sink mock was not as expected",
-                audioSinkFake.audioFormat, is(nullValue())));
-
-        assertThat("The currently playing stream was stopped", audioSinkFake.isStreamStopped, is(false));
-        audioManager.play(audioStream, audioSinkFake.getId());
-
-        assertCompatibleFormat();
-    }
-
-    private void assertProcessedStreamTypeFile(String audioFileName) throws AudioException {
-        registerSink();
-
-        waitForAssert(() -> assertThat("The format of the audio sink mock was not as expected",
-                audioSinkFake.audioFormat, is(nullValue())));
-
-        assertThat("The currently playing stream was stopped", audioSinkFake.isStreamStopped, is(false));
-
-        audioManager.playFile(audioFileName, audioSinkFake.getId());
-
-        assertCompatibleFormat();
+        assertThat(String.format("The sink %s was not registered", audioSink.getId()), audioManager.getSink(),
+                is(audioSink));
+        assertThat(String.format("The sink %s was not added to the set of sinks", audioSink.getId()),
+                audioManager.getAllSinks().contains(audioSink), is(true));
+        assertThat(String.format("The sink %s was not added to the set of sinks", audioSink.getId()),
+                audioManager.getSinkIds(audioSink.getId()).contains(audioSink.getId()), is(true));
     }
 
     private PercentType getSinkMockVolume(PercentType initialVolume) throws IOException {
-        audioManager.setVolume(initialVolume, audioSinkFake.getId());
+        audioManager.setVolume(initialVolume, audioSink.getId());
 
-        String sinkMockId = audioSinkFake.getId();
+        String sinkMockId = audioSink.getId();
         return audioManager.getVolume(sinkMockId);
     }
 
@@ -293,14 +287,14 @@ public class AudioManagerTest extends AudioOSGiTest {
 
         switch (param) {
             case AudioManagerImpl.CONFIG_DEFAULT_SINK:
-                registerSink();
-                id = audioSinkFake.getId();
-                label = audioSinkFake.getLabel(locale);
+                audioManager.addAudioSink(audioSink);
+                id = audioSink.getId();
+                label = audioSink.getLabel(locale);
                 break;
             case AudioManagerImpl.CONFIG_DEFAULT_SOURCE:
-                registerSource();
-                id = audioSourceMock.getId();
-                label = audioSourceMock.getLabel(locale);
+                audioManager.addAudioSource(audioSource);
+                id = audioSource.getId();
+                label = audioSource.getLabel(locale);
                 break;
             default:
                 fail("The parameter must be either default sink or default source");
@@ -313,44 +307,21 @@ public class AudioManagerTest extends AudioOSGiTest {
                 .anyMatch(po -> po.getValue().equals(v) && po.getLabel().equals(l));
 
         assertThat(param + " was not added to the parameter options", isParameterOptionAdded.apply(id, label),
-                is(equalTo(true)));
+                is(true));
     }
 
-    private void assertServedStream(Integer timeInterval) throws AudioException {
-        initializeAudioServlet();
+    private ByteArrayAudioStream getByteArrayAudioStream(String container, String codec) {
+        int bitDepth = 16;
+        int bitRate = 1000;
+        long frequency = 16384;
+        byte[] testByteArray = new byte[] { 0, 1, 2 };
 
-        String path;
-        audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED);
-        if (timeInterval != null) {
-            path = audioServlet.serve((FixedLengthAudioStream) audioStream, timeInterval);
-        } else {
-            path = audioServlet.serve(audioStream);
-        }
-        String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, AUDIO_SERVLET_PORT, path);
+        AudioFormat audioFormat = new AudioFormat(container, codec, true, bitDepth, bitRate, frequency);
 
-        audioManager.stream(url, audioSinkFake.getId());
-
-        if (audioManager.getSink() == audioSinkFake) {
-            assertThat("The streamed url was not as expected", ((URLAudioStream) audioSinkFake.audioStream).getURL(),
-                    is(url));
-        } else {
-            assertThat(String.format("The sink %s received an unexpected stream", audioSinkFake.getId()),
-                    audioSinkFake.audioStream, is(nullValue()));
-        }
+        return new ByteArrayAudioStream(testByteArray, audioFormat);
     }
 
-    private enum PlayType {
-        STREAM("stream"),
-        FILE("file");
-
-        private String playType;
-
-        PlayType(String playType) {
-            this.playType = playType;
-        }
-
-        public String getPlayType() {
-            return playType;
-        }
+    private String generateURL(String protocol, String hostname, int port, String path) {
+        return String.format("%s://%s:%s%s", protocol, hostname, port, path);
     }
 }

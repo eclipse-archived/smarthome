@@ -11,13 +11,15 @@ Import-Package:
  org.eclipse.jetty.client,
  org.eclipse.jetty.client.api,
  org.eclipse.jetty.http,
- org.eclipse.jetty.io,
+ org.eclipse.jetty.servlet,
  org.eclipse.jetty.util.component,
- org.eclipse.smarthome.test,
- org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
+ org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit,
+ org.mockito,
+ org.mockito.stubbing,
  org.osgi.framework
 Automatic-Module-Name: org.eclipse.smarthome.core.audio.test

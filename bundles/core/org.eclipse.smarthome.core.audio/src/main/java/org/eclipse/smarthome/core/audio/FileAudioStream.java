@@ -36,10 +36,10 @@ public class FileAudioStream extends FixedLengthAudioStream {
     public static final String OGG_EXTENSION = "ogg";
     public static final String AAC_EXTENSION = "aac";
 
-    private File file;
-    private AudioFormat audioFormat;
+    private final File file;
+    private final AudioFormat audioFormat;
     private InputStream inputStream;
-    private long length;
+    private final long length;
 
     public FileAudioStream(File file) throws AudioException {
         this(file, getAudioFormat(file));
@@ -74,7 +74,7 @@ public class FileAudioStream extends FixedLengthAudioStream {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new AudioException("File '" + file.getName() + "' not found!");
+            throw new AudioException("File '" + file.getAbsolutePath() + "' not found!");
         }
     }
 
