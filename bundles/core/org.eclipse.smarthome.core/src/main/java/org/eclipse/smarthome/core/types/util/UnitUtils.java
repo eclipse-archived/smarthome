@@ -14,11 +14,20 @@ package org.eclipse.smarthome.core.types.util;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import javax.measure.Dimension;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
+import javax.measure.spi.SystemOfUnits;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -33,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.TransformedUnit;
+import tec.uom.se.unit.Units;
 
 /**
  * A utility for parsing dimensions to interface classes of {@link Quantity} and parsing units from format strings.
@@ -50,6 +60,9 @@ public class UnitUtils {
 
     private static final String JAVAX_MEASURE_QUANTITY_PREFIX = "javax.measure.quantity.";
     private static final String FRAMEWORK_DIMENSION_PREFIX = "org.eclipse.smarthome.core.library.dimension.";
+
+    private static final Collection<Class<? extends SystemOfUnits>> ALL_SYSTEM_OF_UNITS = Arrays.asList(SIUnits.class,
+            ImperialUnits.class, SmartHomeUnits.class, Units.class);
 
     static {
         UnitInitializer.init();
@@ -80,6 +93,45 @@ public class UnitUtils {
                         "Error creating a dimension Class instance for name '" + dimension + "'.");
             }
         }
+    }
+
+    /**
+     * The name of the dimension as stated in the ChannelType configuration.
+     * e.g.
+     * <p>
+     * <code> Unit: 'm' -> "Length"</code>
+     * <p>
+     * <code> Unit: 'kWh' -> "Energy"</code>
+     * <p>
+     * If the {@link Unit} can not be found in any of the available Measurement systems, it returns <code>null</code>
+     *
+     * @param unit The {@link Unit} to get the Dimension's name from.
+     * @return The Dimension string or null if the unit can not be found in any of the SystemOfUnits.
+     */
+    public static @Nullable String getDimensionName(Unit<?> unit) {
+        for (Map.Entry<Dimension, String> systemUnit : getAllDimensions().entrySet()) {
+            if (systemUnit.getKey().equals(unit.getDimension())) {
+                return systemUnit.getValue();
+            }
+        }
+        return null;
+    }
+
+    private static Map<Dimension, String> getAllDimensions() {
+        return ALL_SYSTEM_OF_UNITS.stream().collect(HashMap<Dimension, String>::new, (map, system) -> {
+            for (Field field : system.getDeclaredFields()) {
+                if (field.getType().isAssignableFrom(Unit.class) && Modifier.isStatic(field.getModifiers())) {
+                    try {
+                        String dimension = ((Class<?>) ((ParameterizedType) field.getGenericType())
+                                .getActualTypeArguments()[0]).getSimpleName();
+                        Unit<?> unit = (Unit<?>) field.get(null);
+                        map.put(unit.getDimension(), dimension);
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to get Dimension string for unit: {}", field, e);
+                    }
+                }
+            }
+        }, Map::putAll);
     }
 
     /**

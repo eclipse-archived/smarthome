@@ -17,10 +17,15 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import javax.measure.Quantity;
+import javax.measure.Unit;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Power;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.library.dimension.Intensity;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
+import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.junit.Test;
@@ -72,5 +77,21 @@ public class UnitUtilsTest {
         assertThat(UnitUtils.parseUnit("°F"), is(ImperialUnits.FAHRENHEIT));
         assertThat(UnitUtils.parseUnit("m"), is(SIUnits.METRE));
         assertThat(UnitUtils.parseUnit("%"), is(SmartHomeUnits.PERCENT));
+    }
+
+    @Test
+    public void testGetDimensionName() {
+        assertThat(UnitUtils.getDimensionName(SIUnits.CELSIUS), is(Temperature.class.getSimpleName()));
+        assertThat(UnitUtils.getDimensionName(SmartHomeUnits.KILOWATT_HOUR), is(Energy.class.getSimpleName()));
+        assertThat(UnitUtils.getDimensionName(SmartHomeUnits.WATT), is(Power.class.getSimpleName()));
+        assertThat(UnitUtils.getDimensionName(MetricPrefix.MEGA(SmartHomeUnits.KILOWATT_HOUR)),
+                is(Energy.class.getSimpleName()));
+
+        Unit<?> unit = UnitUtils.parseUnit("°F");
+        assertNotNull(unit);
+        assertThat(UnitUtils.getDimensionName(unit), is(Temperature.class.getSimpleName()));
+        unit = UnitUtils.parseUnit("m");
+        assertNotNull(unit);
+        assertThat(UnitUtils.getDimensionName(unit), is(Length.class.getSimpleName()));
     }
 }
