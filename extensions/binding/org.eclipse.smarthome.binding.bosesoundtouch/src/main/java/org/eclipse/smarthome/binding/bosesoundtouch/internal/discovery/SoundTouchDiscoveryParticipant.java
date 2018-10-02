@@ -126,11 +126,11 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
             if (deviceType.toLowerCase().contains("soundtouch 20")) {
                 return BST_20_THING_TYPE_UID;
             }
-            if (deviceType.toLowerCase().contains("soundtouch 30")) {
-                return BST_30_THING_TYPE_UID;
-            }
             if (deviceType.toLowerCase().contains("soundtouch 300")) {
                 return BST_300_THING_TYPE_UID;
+            }
+            if (deviceType.toLowerCase().contains("soundtouch 30")) {
+                return BST_30_THING_TYPE_UID;
             }
             if (deviceType.toLowerCase().contains("soundtouch wireless link adapter")) {
                 return BST_WLA_THING_TYPE_UID;
