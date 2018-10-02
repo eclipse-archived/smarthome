@@ -36,7 +36,7 @@ public class JavaTestTest {
     @Test
     public void waitForAssertShouldRunAfterLastCall_whenAssertionSucceeds() {
         Runnable afterLastCall = mock(Runnable.class);
-        javaTest.waitForAssert(() -> assertTrue(true), null, afterLastCall, 1000, 50);
+        javaTest.waitForAssert(() -> assertTrue(true), null, afterLastCall, 100, 50);
         verify(afterLastCall, times(1)).run();
     }
 
@@ -44,10 +44,21 @@ public class JavaTestTest {
     public void waitForAssertShouldRunAfterLastCall_whenAssertionFails() {
         Runnable afterLastCall = mock(Runnable.class);
         try {
-            javaTest.waitForAssert(() -> assertTrue(false), null, afterLastCall, 1000, 50);
+            javaTest.waitForAssert(() -> assertTrue(false), null, afterLastCall, 100, 50);
         } catch (final AssertionError ex) {
         }
         verify(afterLastCall, times(1)).run();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void waitForAssertShouldNotCatchNPE() {
+        javaTest.waitForAssert(() -> {
+            getObject().getClass();
+        });
+    }
+
+    private Object getObject() {
+        return null;
     }
 
 }
