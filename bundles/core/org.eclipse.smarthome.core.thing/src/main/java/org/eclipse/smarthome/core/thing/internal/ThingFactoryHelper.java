@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility methods for creation of Things.
  *
- * It is supposed to contain methods that are commonly shared between {@link ThingManager} and {@link ThingFactory}.
+ * It is supposed to contain methods that are commonly shared between {@link ThingManagerImpl} and {@link ThingFactory}.
  *
  * @author Simon Kaufmann - Initial contribution and API
  * @author Kai Kreuzer - Changed creation of channels to not require a thing type

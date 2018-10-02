@@ -257,6 +257,11 @@ public class ThingImpl implements Thing {
     }
 
     @Override
+    public boolean isEnabled() {
+        return ThingStatusDetail.DISABLED != getStatusInfo().getStatusDetail();
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;

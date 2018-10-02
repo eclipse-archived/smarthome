@@ -13,7 +13,11 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import org.eclipse.smarthome.core.service.ReadyService;
@@ -55,7 +59,7 @@ public class ThingManagerTest {
         ThingHandlerFactory mockFactory1 = mock(ThingHandlerFactory.class);
         ThingHandlerFactory mockFactory2 = mock(ThingHandlerFactory.class);
 
-        ThingManager thingManager = new ThingManager();
+        ThingManagerImpl thingManager = new ThingManagerImpl();
         thingManager.setBundleResolver(mockBundleResolver);
         thingManager.setThingRegistry(thingRegistry);
         thingManager.setReadyService(mockReadyService);
