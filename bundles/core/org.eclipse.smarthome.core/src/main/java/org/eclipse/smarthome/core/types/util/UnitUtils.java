@@ -19,11 +19,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
-import javax.measure.Dimension;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
@@ -109,29 +106,23 @@ public class UnitUtils {
      * @return The Dimension string or null if the unit can not be found in any of the SystemOfUnits.
      */
     public static @Nullable String getDimensionName(Unit<?> unit) {
-        for (Map.Entry<Dimension, String> systemUnit : getAllDimensions().entrySet()) {
-            if (systemUnit.getKey().equals(unit.getDimension())) {
-                return systemUnit.getValue();
-            }
-        }
-        return null;
-    }
-
-    private static Map<Dimension, String> getAllDimensions() {
-        return ALL_SYSTEM_OF_UNITS.stream().collect(HashMap<Dimension, String>::new, (map, system) -> {
+        for (Class<? extends SystemOfUnits> system : ALL_SYSTEM_OF_UNITS) {
             for (Field field : system.getDeclaredFields()) {
                 if (field.getType().isAssignableFrom(Unit.class) && Modifier.isStatic(field.getModifiers())) {
                     try {
                         String dimension = ((Class<?>) ((ParameterizedType) field.getGenericType())
                                 .getActualTypeArguments()[0]).getSimpleName();
-                        Unit<?> unit = (Unit<?>) field.get(null);
-                        map.put(unit.getDimension(), dimension);
+                        Unit<?> systemUnit = (Unit<?>) field.get(null);
+                        if (systemUnit.isCompatible(unit)) {
+                            return dimension;
+                        }
                     } catch (Exception e) {
                         LOGGER.error("Failed to get Dimension string for unit: {}", field, e);
                     }
                 }
             }
-        }, Map::putAll);
+        }
+        return null;
     }
 
     /**
