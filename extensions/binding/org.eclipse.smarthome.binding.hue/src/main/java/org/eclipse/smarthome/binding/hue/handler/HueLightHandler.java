@@ -405,7 +405,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         updateState(CHANNEL_COLOR, hsbType);
 
         ColorMode colorMode = fullLight.getState().getColorMode();
-        if (colorMode != null && colorMode.equals(ColorMode.CT)) {
+        if (colorMode != null && ColorMode.CT.equals(colorMode)) {
             PercentType colorTempPercentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
             updateState(CHANNEL_COLORTEMPERATURE, colorTempPercentType);
         } else {
