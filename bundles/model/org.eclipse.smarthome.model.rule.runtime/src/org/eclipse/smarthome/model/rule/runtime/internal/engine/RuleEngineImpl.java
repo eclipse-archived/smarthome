@@ -76,8 +76,9 @@ public class RuleEngineImpl implements ItemRegistryChangeListener, StateChangeLi
 
     private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 
-    protected final ScheduledExecutorService scheduler = ThreadPoolManager
-            .getScheduledPool(RuleEngine.class.getSimpleName());
+    private static final String THREAD_POOL_NAME = "ruleEngine";
+
+    protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THREAD_POOL_NAME);
 
     private ItemRegistry itemRegistry;
     private ModelRepository modelRepository;
