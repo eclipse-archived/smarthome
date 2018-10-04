@@ -1382,16 +1382,11 @@ input[type=number].multiSel::-webkit-outer-spin-button {
 	cursor:pointer;
 }
 
-.textControl {
+.text-control {
 	height: 100%;
 }
 
-.textControl .state {
-	font-size: 30px;
-	font-weight: 300;
-}
-
-.textControl .minDimension {
+.text-control .minDimension {
 	min-height: 40px;
 	min-width: 140px;
 }
