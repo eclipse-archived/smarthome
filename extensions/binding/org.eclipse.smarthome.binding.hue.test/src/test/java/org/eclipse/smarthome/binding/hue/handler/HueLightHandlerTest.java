@@ -205,13 +205,13 @@ public class HueLightHandlerTest {
 
     @Test
     public void assertXYCommandForColorChannelWhite() {
-        String expectedReply = "{\"xy\" : [ 0.31271592 , 0.32900152 ]}";
+        String expectedReply = "{\"xy\" : [ 0.31271592 , 0.32900152 ], \"bri\" : 254}";
         assertSendCommandForColor(HSBType.WHITE, new HueLightState().colormode(ColorMode.XY), expectedReply);
     }
 
     @Test
     public void assertXYCommandForColorChannelColorful() {
-        String expectedReply = "{\"xy\" : [ 0.16969365 , 0.12379659 ]}";
+        String expectedReply = "{\"xy\" : [ 0.16969365 , 0.12379659 ], \"bri\" : 127}";
         assertSendCommandForColor(new HSBType("220,90,50"), new HueLightState().colormode(ColorMode.XY), expectedReply);
     }
 
