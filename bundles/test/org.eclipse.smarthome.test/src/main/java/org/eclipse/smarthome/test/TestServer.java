@@ -86,9 +86,11 @@ public class TestServer {
                     server.join();
                 } catch (InterruptedException ex) {
                     logger.error("Server got interrupted", ex);
+                    serverStarted.completeExceptionally(ex);
                     return;
                 } catch (Exception e) {
                     logger.error("Error in starting the server", e);
+                    serverStarted.completeExceptionally(e);
                     return;
                 }
 
