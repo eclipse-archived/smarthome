@@ -340,4 +340,9 @@ public class JsonStorage<T> implements Storage<T> {
         commitTimer.schedule(commitTimerTask, writeDelay);
     }
 
+    boolean hasClassLoader(ClassLoader classLoader) {
+        // explicit comparison over identity.
+        return this.classLoader == classLoader;
+    }
+
 }
