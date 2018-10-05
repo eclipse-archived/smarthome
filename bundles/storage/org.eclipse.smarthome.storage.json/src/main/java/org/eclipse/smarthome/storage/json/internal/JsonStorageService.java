@@ -109,11 +109,17 @@ public class JsonStorageService implements StorageService {
         if (legacyFile.exists()) {
             file = legacyFile;
         }
-        if (!storageList.containsKey(name)) {
-            storageList.put(name, (JsonStorage<Object>) new JsonStorage<T>(file, classLoader, maxBackupFiles,
-                    writeDelay, maxDeferredPeriod));
+
+        JsonStorage<T> newStorage = new JsonStorage<T>(file, classLoader, maxBackupFiles, writeDelay,
+                maxDeferredPeriod);
+
+        @SuppressWarnings("unchecked")
+        JsonStorage<?> oldStorage = storageList.put(name, (JsonStorage<Object>) newStorage);
+
+        if (oldStorage != null) {
+            oldStorage.commitDatabase();
         }
-        return (Storage<T>) storageList.get(name);
+        return newStorage;
     }
 
     @Override
