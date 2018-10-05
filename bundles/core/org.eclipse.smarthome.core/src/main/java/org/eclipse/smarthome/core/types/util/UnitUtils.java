@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toSet;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -109,15 +110,25 @@ public class UnitUtils {
         for (Class<? extends SystemOfUnits> system : ALL_SYSTEM_OF_UNITS) {
             for (Field field : system.getDeclaredFields()) {
                 if (field.getType().isAssignableFrom(Unit.class) && Modifier.isStatic(field.getModifiers())) {
-                    try {
-                        String dimension = ((Class<?>) ((ParameterizedType) field.getGenericType())
-                                .getActualTypeArguments()[0]).getSimpleName();
-                        Unit<?> systemUnit = (Unit<?>) field.get(null);
-                        if (systemUnit.isCompatible(unit)) {
-                            return dimension;
+
+                    Type genericType = field.getGenericType();
+                    if (genericType instanceof ParameterizedType) {
+                        String dimension = ((Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0])
+                                .getSimpleName();
+                        Unit<?> systemUnit;
+                        try {
+                            systemUnit = (Unit<?>) field.get(null);
+                            if (systemUnit == null) {
+                                LOGGER.warn("Unit field points to a null value: {}", field);
+                            } else if (systemUnit.isCompatible(unit)) {
+                                return dimension;
+                            }
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
+                            LOGGER.error("The unit field '{}' seems to be not accessible", field, e);
                         }
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to get Dimension string for unit: {}", field, e);
+                    } else {
+                        LOGGER.warn("There is a unit field defined which has no generic type parametrization: {}",
+                                field);
                     }
                 }
             }
