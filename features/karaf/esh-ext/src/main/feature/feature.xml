@@ -100,6 +100,17 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.mqtt/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-mqtt-generic" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-mqtt</feature>
+    <feature>esh-binding-mqtt</feature>
+
+    <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
+    <feature dependency="true">esh.tp-commons-net</feature>
+
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.mqtt.generic/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-ntp" version="${project.version}">
     <feature>esh-base</feature>
 

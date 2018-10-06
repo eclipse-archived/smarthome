@@ -1,0 +1,209 @@
+/**
+ * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.eclipse.smarthome.binding.mqtt.generic.internal.handler;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.TransformationServiceProvider;
+import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
+import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
+import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Base class for MQTT thing handlers. If you are going to implement an MQTT convention, you probably
+ * want to inherit from here.<br>
+ *
+ * This base class will make sure you get a working {@link MqttBrokerConnection}, you will be informed
+ * when to start your subscriptions ({@link #start(MqttBrokerConnection)}) and when to free your resources
+ * because of a lost connection ({@link AbstractMQTTThingHandler#stop()}).<br>
+ *
+ * If you inherit from this base class, you must use {@link ChannelState} to (a) keep a cached channel value,
+ * (b) to link a MQTT topic value to a channel value ("MQTT state topic") and (c) to have a secondary MQTT topic
+ * where any changes to the {@link ChannelState} are send to ("MQTT command topic").<br>
+ *
+ * You are expected to keep your channel data structure organized in a way, to resolve a {@link ChannelUID} to
+ * the corresponding {@link ChannelState} in {@link #getChannelState(ChannelUID)}.<br>
+ *
+ * To inform the framework of changed values, received via MQTT, a {@link ChannelState} calls a listener callback.
+ * While setting up your {@link ChannelState} you would set the callback to your thing handler,
+ * because this base class implements {@link ChannelStateUpdateListener}.
+ *
+ * @author David Graeff - Initial contribution
+ */
+@NonNullByDefault
+public abstract class AbstractMQTTThingHandler extends BaseThingHandler implements ChannelStateUpdateListener {
+    private final Logger logger = LoggerFactory.getLogger(AbstractMQTTThingHandler.class);
+    protected final @Nullable TransformationServiceProvider transformationServiceProvider;
+    protected final MqttChannelTypeProvider channelTypeProvider;
+    // Timeout for the entire tree parsing and subscription
+    private final int subscribeTimeout;
+
+    protected @Nullable MqttBrokerConnection connection;
+
+    public AbstractMQTTThingHandler(Thing thing, MqttChannelTypeProvider provider,
+            @Nullable TransformationServiceProvider transformationServiceProvider, int subscribeTimeout) {
+        super(thing);
+        this.channelTypeProvider = provider;
+        this.transformationServiceProvider = transformationServiceProvider;
+        this.subscribeTimeout = subscribeTimeout;
+    }
+
+    /**
+     * Return the channel state for the given channelUID.
+     *
+     * @param channelUID The channelUID
+     * @return A channel state. May be null.
+     */
+    abstract protected @Nullable ChannelState getChannelState(ChannelUID channelUID);
+
+    /**
+     * Start the topic discovery and subscribe to all channel state topics on all {@link ChannelState}s.
+     * Put the thing ONLINE on success otherwise complete the returned future exceptionally.
+     *
+     * @param connection A started broker connection
+     * @return A future that completes normal on success and exceptionally on any errors.
+     */
+    abstract protected CompletableFuture<Void> start(MqttBrokerConnection connection);
+
+    /**
+     * Called when the MQTT connection disappeared.
+     * You should clean up all resources that depend on a working connection.
+     */
+    protected void stop() {
+    }
+
+    @Override
+    public void handleCommand(ChannelUID channelUID, Command command) {
+        if (connection == null) {
+            return;
+        }
+
+        final @Nullable ChannelState data = getChannelState(channelUID);
+
+        if (data == null) {
+            logger.warn("Channel {} not supported", channelUID.getId());
+            return;
+        }
+
+        if (command instanceof RefreshType || data.isReadOnly()) {
+            updateState(channelUID.getId(), data.getValue().getValue());
+            return;
+        }
+
+        data.setValue(command).thenRun(
+                () -> logger.debug("Successfully published value {} to topic {}", command, data.getStateTopic()))
+                .exceptionally(e -> {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
+                    return null;
+                });
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        if (bridgeStatusInfo.getStatus() == ThingStatus.OFFLINE) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+            stop();
+            connection = null;
+            return;
+        }
+        if (bridgeStatusInfo.getStatus() != ThingStatus.ONLINE) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+            stop();
+            return;
+        }
+
+        AbstractBrokerHandler h = getBridgeHandler();
+        if (h == null) {
+            return;
+        }
+        this.connection = h.getConnection();
+        MqttBrokerConnection connection = this.connection;
+        if (connection != null) {
+            // Start up (subscribe to MQTT topics). Limit with a timeout and catch exceptions.
+            // We do not set the thing to ONLINE here in the AbstractBase, that is the responsibility of a derived
+            // class.
+            try {
+                start(connection).thenApply(e -> true).exceptionally(e -> {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
+                    return null;
+                }).get(subscribeTimeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                        "Did not receive all required topics");
+            }
+
+        }
+    }
+
+    /**
+     * Return the bride handler. The bridge is from the "MQTT" bundle.
+     */
+    public @Nullable AbstractBrokerHandler getBridgeHandler() {
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            return null;
+        }
+        return (AbstractBrokerHandler) bridge.getHandler();
+    }
+
+    /**
+     * Return the bridge status.
+     */
+    public ThingStatusInfo getBridgeStatus() {
+        Bridge b = getBridge();
+        if (b != null) {
+            return b.getStatusInfo();
+        } else {
+            return new ThingStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE, null);
+        }
+    }
+
+    @Override
+    public void initialize() {
+        bridgeStatusChanged(getBridgeStatus());
+    }
+
+    @Override
+    public void dispose() {
+        MqttBrokerConnection connection = this.connection;
+        if (connection != null) {
+            connection.unsubscribeAll();
+        }
+        super.dispose();
+    }
+
+    @Override
+    public void updateChannelState(ChannelUID channelUID, State value) {
+        super.updateState(channelUID, value);
+    }
+
+}
