@@ -29,11 +29,13 @@
 
         function activate() {
             ctrl.item = angular.copy(ctrl.item);
-            longEditMode = ctrl.item.stateText > 7;
+            controlItemService.updateStateText(ctrl.item);
+            ctrl.longEditMode = ctrl.item.stateText > 7;
 
             controlItemService.onStateChange(ctrl.item.name, function(stateObject) {
                 ctrl.item.state = stateObject.value;
                 controlItemService.updateStateText(ctrl.item);
+                ctrl.longEditMode = ctrl.item.stateText > 7;
             });
         }
 

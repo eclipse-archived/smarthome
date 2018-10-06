@@ -130,11 +130,16 @@ section#main.header-tabs {
 }
 
 .items .item md-input-container {
-	padding: 0px;
+	padding: 0;
+	margin: 0;
 }
 
 .item-edit metadata md-select, .item-edit metadata md-input-container, .item-edit metadata button {
     margin-top: 0;
+}
+
+.items .text-control span.state {
+	margin-top: 2px;
 }
 
 metadata h4 {
