@@ -153,13 +153,15 @@ public class ThingFactoryHelper {
         ChannelBuilder channelBuilder = createChannelBuilder(channelUID, type, configDescriptionRegistry);
 
         // If we want to override the label, add it...
-        if (channelDefinition.getLabel() != null) {
-            channelBuilder = channelBuilder.withLabel(channelDefinition.getLabel());
+        final String label = channelDefinition.getLabel();
+        if (label != null) {
+            channelBuilder = channelBuilder.withLabel(label);
         }
 
         // If we want to override the description, add it...
-        if (channelDefinition.getDescription() != null) {
-            channelBuilder = channelBuilder.withDescription(channelDefinition.getDescription());
+        final String description = channelDefinition.getDescription();
+        if (description != null) {
+            channelBuilder = channelBuilder.withDescription(description);
         }
 
         channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
@@ -237,12 +239,11 @@ public class ThingFactoryHelper {
     /**
      * Apply the {@link ThingType}'s default values to the given {@link Configuration}.
      *
-     * @param configuration the {@link Configuration} where the default values should be added (may be null, but method
-     *            won't have any effect then)
+     * @param configuration the {@link Configuration} where the default values should be added (may be null,
+     *            but method won't have any effect then)
      * @param thingType the {@link ThingType} where to look for the default values (must not be null)
      * @param configDescriptionRegistry the {@link ConfigDescriptionRegistry} to use (may be null, but method won't have
-     *            any
-     *            effect then)
+     *            any effect then)
      */
     public static void applyDefaultConfiguration(Configuration configuration, ThingType thingType,
             ConfigDescriptionRegistry configDescriptionRegistry) {

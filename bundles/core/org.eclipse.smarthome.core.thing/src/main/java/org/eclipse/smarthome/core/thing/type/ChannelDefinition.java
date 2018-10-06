@@ -13,9 +13,10 @@
 package org.eclipse.smarthome.core.thing.type;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 
@@ -30,14 +31,15 @@ import org.eclipse.smarthome.core.thing.Thing;
  * @author Chris Jackson - Added properties and label/description
  * @author Dennis Nobel - Introduced ChannelTypeRegistry and channel type references
  */
+@NonNullByDefault
 public class ChannelDefinition {
 
     private final String id;
     private final ChannelTypeUID channelTypeUID;
     private final Map<String, String> properties;
-    private final String label;
-    private final String description;
-    private final AutoUpdatePolicy autoUpdatePolicy;
+    private final @Nullable String label;
+    private final @Nullable String description;
+    private final @Nullable AutoUpdatePolicy autoUpdatePolicy;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -60,8 +62,8 @@ public class ChannelDefinition {
      * @param description the description for the channel to override channelType (could be null)
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, Map<String, String> properties, String label,
-            String description) throws IllegalArgumentException {
+    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, @Nullable Map<String, String> properties,
+            @Nullable String label, @Nullable String description) throws IllegalArgumentException {
         this(id, channelTypeUID, properties, label, description, null);
     }
 
@@ -76,8 +78,9 @@ public class ChannelDefinition {
      * @param autoUpdatePolicy the auto update policy for the channel to override from the thing type (could be null)
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, Map<String, String> properties, String label,
-            String description, AutoUpdatePolicy autoUpdatePolicy) throws IllegalArgumentException {
+    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, @Nullable Map<String, String> properties,
+            @Nullable String label, @Nullable String description, @Nullable AutoUpdatePolicy autoUpdatePolicy)
+            throws IllegalArgumentException {
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
         }
@@ -89,7 +92,7 @@ public class ChannelDefinition {
         if (properties != null) {
             this.properties = Collections.unmodifiableMap(properties);
         } else {
-            this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
+            this.properties = Collections.emptyMap();
         }
 
         this.id = id;
@@ -123,7 +126,7 @@ public class ChannelDefinition {
      *
      * @return the label for the channel. Can be null.
      */
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return this.label;
     }
 
@@ -134,14 +137,14 @@ public class ChannelDefinition {
      *
      * @return the description for the channel. Can be null.
      */
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return this.description;
     }
 
     /**
      * Returns the properties for this {@link ChannelDefinition}
      *
-     * @return the properties for this {@link ChannelDefinition} (not null)
+     * @return the unmodfiable properties for this {@link ChannelDefinition} (not null)
      */
     public Map<String, String> getProperties() {
         return properties;
@@ -152,7 +155,7 @@ public class ChannelDefinition {
      *
      * @return the auto update policy
      */
-    public AutoUpdatePolicy getAutoUpdatePolicy() {
+    public @Nullable AutoUpdatePolicy getAutoUpdatePolicy() {
         return autoUpdatePolicy;
     }
 
