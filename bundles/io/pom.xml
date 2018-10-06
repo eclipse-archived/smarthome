@@ -23,10 +23,13 @@
     <module>org.eclipse.smarthome.io.monitor</module>
     <module>org.eclipse.smarthome.io.net</module>
     <module>org.eclipse.smarthome.io.net.test</module>
+    <module>org.eclipse.smarthome.io.http</module>
+    <module>org.eclipse.smarthome.io.http.auth</module>
+    <module>org.eclipse.smarthome.io.http.auth.basic</module>
+    <module>org.eclipse.smarthome.io.http.test</module>
     <module>org.eclipse.smarthome.io.rest</module>
     <module>org.eclipse.smarthome.io.rest.test</module>
     <module>org.eclipse.smarthome.io.rest.auth</module>
-    <module>org.eclipse.smarthome.io.rest.auth.basic</module>
     <module>org.eclipse.smarthome.io.rest.core</module>
     <module>org.eclipse.smarthome.io.rest.core.test</module>
     <module>org.eclipse.smarthome.io.rest.mdns</module>

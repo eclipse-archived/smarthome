@@ -18,7 +18,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,12 +27,12 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.io.http.servlet.SmartHomeServlet;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -44,7 +43,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,14 +68,12 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, service = ChartServlet.class, configurationPid = "org.eclipse.smarthome.chart", property = {
         "service.pid=org.eclipse.smarthome.chart", "service.config.description.uri=system:chart",
         "service.config.label=Charts", "service.config.category=system" })
-public class ChartServlet extends HttpServlet {
+public class ChartServlet extends SmartHomeServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
     private static final int CHART_HEIGHT = 240;
     private static final int CHART_WIDTH = 480;
     private static final String DATE_FORMAT = "yyyyMMddHHmm";
-
-    private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
     private String providerName = "default";
     private int defaultHeight = CHART_HEIGHT;
@@ -106,16 +102,28 @@ public class ChartServlet extends HttpServlet {
         PERIODS.put("Y", 31536000000L);
     }
 
-    protected HttpService httpService;
     protected static Map<String, ChartProvider> chartProviders = new ConcurrentHashMap<String, ChartProvider>();
 
+    @Override
     @Reference
     public void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
+        super.setHttpService(httpService);
     }
 
+    @Override
     public void unsetHttpService(HttpService httpService) {
-        this.httpService = null;
+        super.unsetHttpService(httpService);
+    }
+
+    @Override
+    @Reference
+    public void setHttpContext(HttpContext httpContext) {
+        super.setHttpContext(httpContext);
+    }
+
+    @Override
+    public void unsetHttpContext(HttpContext httpContext) {
+        super.unsetHttpContext(httpContext);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -133,23 +141,13 @@ public class ChartServlet extends HttpServlet {
 
     @Activate
     protected void activate(Map<String, Object> config) {
-        try {
-            logger.debug("Starting up chart servlet at " + SERVLET_NAME);
-
-            Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
-        } catch (NamespaceException e) {
-            logger.error("Error during chart servlet startup", e);
-        } catch (ServletException e) {
-            logger.error("Error during chart servlet startup", e);
-        }
-
+        super.activate(SERVLET_NAME);
         applyConfig(config);
     }
 
     @Deactivate
     protected void deactivate() {
-        httpService.unregister(SERVLET_NAME);
+        super.deactivate(SERVLET_NAME);
     }
 
     @Modified
@@ -356,16 +354,6 @@ public class ChartServlet extends HttpServlet {
             }
             res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    }
-
-    /**
-     * Creates a {@link HttpContext}
-     *
-     * @return a {@link HttpContext}
-     */
-    protected HttpContext createHttpContext() {
-        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-        return defaultHttpContext;
     }
 
     @Override

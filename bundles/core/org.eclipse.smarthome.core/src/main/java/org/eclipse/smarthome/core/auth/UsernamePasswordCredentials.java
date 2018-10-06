@@ -53,4 +53,9 @@ public class UsernamePasswordCredentials implements Credentials {
         return password;
     }
 
+    @Override
+    public String toString() {
+        return username + ":" + password.replaceAll(".", "*");
+    }
+
 }

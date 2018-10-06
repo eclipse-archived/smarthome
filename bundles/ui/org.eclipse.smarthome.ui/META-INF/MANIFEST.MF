@@ -40,6 +40,7 @@ Import-Package:
  org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.core.types.util,
+ org.eclipse.smarthome.io.http.servlet,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.items,
  org.eclipse.smarthome.model.sitemap,

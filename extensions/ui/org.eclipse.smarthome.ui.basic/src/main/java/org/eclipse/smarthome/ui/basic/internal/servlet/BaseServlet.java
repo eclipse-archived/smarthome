@@ -12,28 +12,21 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.servlet;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.io.net.http.HttpContextFactoryService;
-import org.osgi.framework.Bundle;
-import org.osgi.service.http.HttpContext;
-import org.osgi.service.http.HttpService;
+import org.eclipse.smarthome.io.http.servlet.SmartHomeBundleServlet;
 
 /**
  * This is the base servlet class for other servlet in the Basic UI.
  *
  * @author Thomas.Eichstaedt-Engelen
  */
-public abstract class BaseServlet implements Servlet {
+public abstract class BaseServlet extends SmartHomeBundleServlet {
+
+    private static final long serialVersionUID = -4012800772403491132L;
 
     /** the root path of this web application */
     public static final String WEBAPP_ALIAS = "/basicui";
 
-    protected HttpService httpService;
-    private HttpContextFactoryService httpContextFactoryService;
     protected ItemRegistry itemRegistry;
 
     public void setItemRegistry(ItemRegistry itemRegistry) {
@@ -42,49 +35,6 @@ public abstract class BaseServlet implements Servlet {
 
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
-    }
-
-    public void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
-    }
-
-    public void unsetHttpService(HttpService httpService) {
-        this.httpService = null;
-    }
-
-    public void setHttpContextFactoryService(HttpContextFactoryService httpContextFactoryService) {
-        this.httpContextFactoryService = httpContextFactoryService;
-    }
-
-    public void unsetHttpContextFactoryService(HttpContextFactoryService httpContextFactoryService) {
-        this.httpContextFactoryService = null;
-    }
-
-    /**
-     * Creates a {@link HttpContext}
-     *
-     * @return a {@link HttpContext}
-     */
-    protected HttpContext createHttpContext(Bundle bundle) {
-        return httpContextFactoryService.createDefaultHttpContext(bundle);
-    }
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-    }
-
-    @Override
-    public ServletConfig getServletConfig() {
-        return null;
-    }
-
-    @Override
-    public String getServletInfo() {
-        return null;
-    }
-
-    @Override
-    public void destroy() {
     }
 
 }

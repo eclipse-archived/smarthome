@@ -10,6 +10,8 @@ Bundle-Version: 0.10.0.qualifier
 Import-Package: 
  javax.servlet.http,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.http,
+ org.eclipse.smarthome.io.http.servlet,
  org.eclipse.smarthome.io.net.http,
  org.osgi.framework,
  org.osgi.service.component;resolution:=optional,

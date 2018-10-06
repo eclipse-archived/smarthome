@@ -25,9 +25,17 @@ public interface AuthenticationProvider {
      * Verify given credentials and give back authentication if they are valid.
      *
      * @param credentials User credentials.
-     * @return null if credentials were not valid for this provider, otherwise in case of failed authentication an
-     *         AuthenticationException should be thrown
+     * @return null if credentials were not valid for this provider
+     * @throws AuthenticationException if authentication failed due to credentials mismatch.
      */
-    Authentication authenticate(Credentials credentials);
+    Authentication authenticate(Credentials credentials) throws AuthenticationException;
+
+    /**
+     * Additional method to verify if given authentication provider can handle given type of credentials.
+     *
+     * @param type Type of credentials.
+     * @return True if credentials of given type can be used for authentication attempt with provider.
+     */
+    boolean supports(Class<? extends Credentials> type);
 
 }

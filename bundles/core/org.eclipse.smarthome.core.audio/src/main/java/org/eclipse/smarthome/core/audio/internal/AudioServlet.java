@@ -15,14 +15,12 @@ package org.eclipse.smarthome.core.audio.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,15 +31,12 @@ import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioHTTPServer;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
+import org.eclipse.smarthome.io.http.servlet.SmartHomeServlet;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A servlet that serves audio streams via HTTP.
@@ -50,58 +45,36 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Component
-public class AudioServlet extends HttpServlet implements AudioHTTPServer {
+public class AudioServlet extends SmartHomeServlet implements AudioHTTPServer {
 
     private static final long serialVersionUID = -3364664035854567854L;
 
     private static final String SERVLET_NAME = "/audio";
-
-    private final Logger logger = LoggerFactory.getLogger(AudioServlet.class);
 
     private final Map<String, AudioStream> oneTimeStreams = new ConcurrentHashMap<>();
     private final Map<String, FixedLengthAudioStream> multiTimeStreams = new ConcurrentHashMap<>();
 
     private final Map<String, Long> streamTimeouts = new ConcurrentHashMap<>();
 
-    protected HttpService httpService;
-
     @Activate
     protected void activate() {
-        try {
-            logger.debug("Starting up the audio servlet at " + SERVLET_NAME);
-            Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
-        } catch (NamespaceException e) {
-            logger.error("Error during servlet startup", e);
-        } catch (ServletException e) {
-            logger.error("Error during servlet startup", e);
-        }
+        super.activate(SERVLET_NAME);
     }
 
     @Deactivate
     protected void deactivate() {
-        httpService.unregister(SERVLET_NAME);
+        super.deactivate(SERVLET_NAME);
     }
 
+    @Override
     @Reference
     protected void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
+        super.setHttpService(httpService);
     }
 
-    protected void unsetHttpService(HttpService httpService) {
-        this.httpService = null;
-    }
-
-    /**
-     * Creates an {@link HttpContext}.
-     *
-     * @return an {@link HttpContext} that grants anonymous access
-     */
-    protected HttpContext createHttpContext() {
-        // TODO: Once we have a role-based permission system in place, we need to make sure that we create an
-        // HttpContext here, which allows accessing the servlet without any authentication.
-        HttpContext httpContext = httpService.createDefaultHttpContext();
-        return httpContext;
+    @Override
+    public void unsetHttpService(HttpService httpService) {
+        super.unsetHttpService(httpService);
     }
 
     private InputStream prepareInputStream(final String streamId, final HttpServletResponse resp)

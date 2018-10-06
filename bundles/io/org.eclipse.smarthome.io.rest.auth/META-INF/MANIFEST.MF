@@ -7,12 +7,13 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.rest.auth
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Export-Package: org.eclipse.smarthome.io.rest.auth
 Import-Package: 
- com.eclipsesource.jaxrs.provider.security,
+ com.eclipsesource.jaxrs.publisher,
  javax.ws.rs.container,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.core.auth,
- org.eclipse.smarthome.io.rest.auth,
+ org.osgi.service.http,
  org.slf4j
 Automatic-Module-Name: org.eclipse.smarthome.io.rest.auth
+Service-Component: OSGI-INF/*.xml
+Bundle-ActivationPolicy: lazy
