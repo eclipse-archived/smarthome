@@ -59,7 +59,8 @@ public class Eq3UdpResponse {
      * Returns true, if this response is from a Homematic CCU gateway.
      */
     public boolean isValid() {
-        return this.senderId == Eq3UdpRequest.getSenderId() && deviceTypeId.startsWith("eQ3-HM-CCU")
+        return this.senderId == Eq3UdpRequest.getSenderId()
+                && (deviceTypeId.startsWith("eQ3-HM-CCU") || deviceTypeId.startsWith("eQ3-HmIP-CCU3"))
                 && !serialNumber.contains(Eq3UdpRequest.getEq3SerialNumber());
     }
 
