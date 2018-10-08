@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.internal;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 
 import java.math.BigDecimal;
 import java.util.concurrent.ScheduledFuture;

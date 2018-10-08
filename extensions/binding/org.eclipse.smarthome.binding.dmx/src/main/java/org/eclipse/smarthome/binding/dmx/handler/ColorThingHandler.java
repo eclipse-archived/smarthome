@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.handler;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import org.eclipse.smarthome.binding.dmx.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
 import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.Util;
 import org.eclipse.smarthome.binding.dmx.internal.ValueSet;
+import org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;

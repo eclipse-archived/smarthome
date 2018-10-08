@@ -12,9 +12,8 @@
  */
 package org.eclipse.smarthome.binding.dmx.internal;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 
-import org.eclipse.smarthome.binding.dmx.DmxBindingConstants;
 import org.eclipse.smarthome.binding.dmx.handler.ArtnetBridgeHandler;
 import org.eclipse.smarthome.binding.dmx.handler.ChaserThingHandler;
 import org.eclipse.smarthome.binding.dmx.handler.ColorThingHandler;

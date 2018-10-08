@@ -15,8 +15,8 @@ package org.eclipse.smarthome.binding.dmx.multiverse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.eclipse.smarthome.binding.dmx.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.handler.DimmerThingHandler;
+import org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
 import org.eclipse.smarthome.binding.dmx.internal.action.ResumeAction;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;

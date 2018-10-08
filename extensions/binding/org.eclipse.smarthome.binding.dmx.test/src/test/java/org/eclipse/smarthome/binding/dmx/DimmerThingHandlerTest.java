@@ -12,8 +12,10 @@
  */
 package org.eclipse.smarthome.binding.dmx;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
-import static org.junit.Assert.assertEquals;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.number.IsCloseTo.closeTo;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.dmx.handler.DimmerThingHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -54,6 +57,8 @@ public class DimmerThingHandlerTest extends AbstractDmxThingTest {
         thingProperties = new HashMap<>();
         thingProperties.put(CONFIG_DMX_ID, TEST_CHANNEL_CONFIG);
         thingProperties.put(CONFIG_DIMMER_FADE_TIME, TEST_FADE_TIME);
+        thingProperties.put(CONFIG_DIMMER_DYNAMICTURNONVALUE, true);
+
         dimmerThing = ThingBuilder
                 .create(THING_TYPE_DIMMER, "testdimmer").withLabel("Dimmer Thing").withBridge(bridge.getUID())
                 .withConfiguration(new Configuration(thingProperties)).withChannel(ChannelBuilder
@@ -106,6 +111,39 @@ public class DimmerThingHandlerTest extends AbstractDmxThingTest {
         waitForAssert(() -> {
             assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS,
                     state -> assertEquals(OnOffType.OFF, state.as(OnOffType.class)));
+        });
+    }
+
+    @Test
+    public void testDynamicTurnOnValue() {
+        long currentTime = System.currentTimeMillis();
+        int testValue = 75;
+
+        // turn on with arbitrary value
+        dimmerThingHandler.handleCommand(CHANNEL_UID_BRIGHTNESS, new PercentType(testValue));
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS,
+                    state -> assertThat(((PercentType) state).doubleValue(), is(closeTo(testValue, 1.0))));
+        });
+
+        // turn off and hopefully store last value
+        dimmerThingHandler.handleCommand(CHANNEL_UID_BRIGHTNESS, OnOffType.OFF);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS,
+                    state -> assertEquals(OnOffType.OFF, state.as(OnOffType.class)));
+        });
+
+        // turn on and restore value
+        dimmerThingHandler.handleCommand(CHANNEL_UID_BRIGHTNESS, OnOffType.ON);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS,
+                    state -> assertThat(((PercentType) state).doubleValue(), is(closeTo(testValue, 1.0))));
         });
     }
 
