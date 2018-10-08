@@ -14,14 +14,18 @@ package org.eclipse.smarthome.io.mqttembeddedbroker.internal;
 
 import java.util.Arrays;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 import io.moquette.spi.security.IAuthenticator;
 
 /**
  * Provides a {@link IAuthenticator} for the Moquette server, that accepts given user name and password.
  * If ESH gains user credentials at some point, those should be accepted as well.
- * 
+ *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class MqttEmbeddedBrokerUserAuthenticator implements IAuthenticator {
     final String username;
     final byte[] password;
@@ -32,7 +36,7 @@ public class MqttEmbeddedBrokerUserAuthenticator implements IAuthenticator {
     }
 
     @Override
-    public boolean checkValid(String clientId, String username, byte[] password) {
+    public boolean checkValid(@Nullable String clientId, @Nullable String username, byte @Nullable [] password) {
         return this.username.equals(username) && Arrays.equals(this.password, password);
     }
 }

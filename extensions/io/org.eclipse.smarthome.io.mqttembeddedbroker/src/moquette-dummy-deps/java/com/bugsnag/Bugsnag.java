@@ -12,13 +12,18 @@
  */
 package com.bugsnag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 //Dummy to make moquette happy. Will not be used
 public class Bugsnag {
+    private final Logger logger = LoggerFactory.getLogger(Bugsnag.class);
+
     public Bugsnag(String a) {
 
     }
 
     public void notify(Throwable t) {
-
+        logger.warn("MQTT Broker crashed", t);
     }
 }

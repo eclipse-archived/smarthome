@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.io.transport.mqtt;
 
-import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -20,13 +20,14 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @author David Graeff - Initial contribution and API
  */
+@NonNullByDefault
 public class MqttBrokerConnectionConfig {
     // Optional connection name
     public @Nullable String name;
     // Connection parameters (host+port+secure)
     public @Nullable String host;
     public @Nullable Integer port;
-    public Boolean secure = true;
+    public boolean secure = true;
     // Authentication parameters
     public @Nullable String username;
     public @Nullable String password;
@@ -47,18 +48,20 @@ public class MqttBrokerConnectionConfig {
      * This method will return an empty string, if none of the parameters is set.
      */
     public String getBrokerID() {
-        if (StringUtils.isNotBlank(name)) {
+        final String name = this.name;
+        if (name != null && name.length() > 0) {
             return name;
         } else {
             StringBuffer b = new StringBuffer();
             if (host != null) {
                 b.append(host);
             }
+            final Integer port = this.port;
             if (port != null) {
                 b.append(":");
                 b.append(port.toString());
             }
-            if (secure != null) {
+            if (secure) {
                 b.append(":s");
             }
             return b.toString();
@@ -78,11 +81,12 @@ public class MqttBrokerConnectionConfig {
         if (host != null) {
             b.append(host);
         }
+        final Integer port = this.port;
         if (port != null) {
             b.append(":");
             b.append(port.toString());
         }
-        if (secure != null) {
+        if (secure) {
             b.append(":s");
         }
         return b.toString();

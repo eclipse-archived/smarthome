@@ -183,7 +183,8 @@ public class MqttBrokerConnection {
      * @param secure A secure connection
      * @param clientId Client id. Each client on a MQTT server has a unique client id. Sometimes client ids are
      *            used for access restriction implementations.
-     *            If none is specified, a default is generated. The client id cannot be longer than 65535 characters.
+     *            If none is specified, a default is generated. The client id cannot be longer than 65535
+     *            characters.
      * @throws IllegalArgumentException If the client id or port is not valid.
      */
     public MqttBrokerConnection(String host, @Nullable Integer port, boolean secure, @Nullable String clientId) {
@@ -199,7 +200,8 @@ public class MqttBrokerConnection {
      * @param secure A secure connection
      * @param clientId Client id. Each client on a MQTT server has a unique client id. Sometimes client ids are
      *            used for access restriction implementations.
-     *            If none is specified, a default is generated. The client id cannot be longer than 65535 characters.
+     *            If none is specified, a default is generated. The client id cannot be longer than 65535
+     *            characters.
      * @throws IllegalArgumentException If the client id or port is not valid.
      */
     public MqttBrokerConnection(Protocol protocol, String host, @Nullable Integer port, boolean secure,
@@ -471,8 +473,12 @@ public class MqttBrokerConnection {
      * topic are allowed. This method will not protect you from adding a subscriber object
      * multiple times!
      *
-     * @param consumer Consumer to add
-     * @throws MqttException If connected and the subscribe fails, this exception is thrown.
+     * If there is a retained message for the topic, you are guaranteed to receive a callback
+     * for each new subscriber, even for the same topic.
+     *
+     * @param topic The topic to subscribe to.
+     * @param subscriber The callback listener for received messages for the given topic.
+     * @return Completes with true if successful. Exceptionally otherwise.
      */
     public CompletableFuture<Boolean> subscribe(String topic, MqttMessageSubscriber subscriber) {
         CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
@@ -495,6 +501,8 @@ public class MqttBrokerConnection {
     /**
      * Subscribes to a topic on the given connection, but does not alter the subscriber list.
      *
+     * @param topic The topic to subscribe to.
+     * @return Completes with true if successful. Exceptionally otherwise.
      */
     protected CompletableFuture<Boolean> subscribeRaw(String topic) {
         logger.trace("subscribeRaw message consumer for topic '{}' from broker '{}'", topic, host);
@@ -515,8 +523,11 @@ public class MqttBrokerConnection {
 
     /**
      * Remove a previously registered consumer from this connection.
+     * If no more consumers are registered for a topic, the topic will be unsubscribed from.
      *
-     * @param subscriber to remove.
+     * @param topic The topic to unsubscribe from.
+     * @param subscriber The callback listener to remove.
+     * @return Completes with true if successful. Exceptionally otherwise.
      */
     @SuppressWarnings({ "null", "unused" })
     public CompletableFuture<Boolean> unsubscribe(String topic, MqttMessageSubscriber subscriber) {
@@ -543,11 +554,12 @@ public class MqttBrokerConnection {
     }
 
     /**
-     * Unsubscribes a topic on the given connection, but does not alter the subscriber list.
+     * Unsubscribes from a topic on the given connection, but does not alter the subscriber list.
      *
      * @param client The client connection
      * @param topic The topic to unsubscribe from
-     * @return Completes with true if successful. Exceptionally otherwise.
+     * @return Completes with true if successful. Completes with false if no broker connection is established.
+     *         Exceptionally otherwise.
      */
     protected CompletableFuture<Boolean> unsubscribeRaw(MqttAsyncClient client, String topic) {
         logger.trace("Unsubscribing message consumer for topic '{}' from broker '{}'", topic, host);
@@ -628,7 +640,6 @@ public class MqttBrokerConnection {
         // We don't want multiple concurrent threads to start a connection
         synchronized (this) {
             if (connectionState() != MqttConnectionState.DISCONNECTED) {
-                logger.debug("Connection already running");
                 return CompletableFuture.completedFuture(true);
             }
 

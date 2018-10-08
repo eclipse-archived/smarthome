@@ -235,7 +235,7 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
             server = null;
         }
         detectStart.stopBrokerStartDetection();
-        metrics.setServer(null);
+        metrics.resetServer();
     }
 
     /**
@@ -251,9 +251,9 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
             logger.debug("Embedded broker connection connected");
         } else {
             if (error == null) {
-                logger.debug("Offline - Reason unknown");
+                logger.warn("Embedded broker offline - Reason unknown");
             } else {
-                logger.debug(error.getMessage());
+                logger.warn("Embedded broker offline", error);
             }
         }
 
@@ -262,11 +262,15 @@ public class EmbeddedBrokerServiceImpl implements EmbeddedBrokerService, Configu
         }
     }
 
-    @SuppressWarnings("null")
+    /**
+     * The callback from the detectStart.startBrokerStartedDetection() call within
+     * {@link #startEmbeddedServer(Integer, boolean, String, String, String)}.
+     */
     @Override
     public void mqttEmbeddedBrokerStarted(boolean timeout) {
         MqttBrokerConnection connection = this.connection;
-        if (connection == null) {
+        MqttService service = this.service;
+        if (connection == null || service == null) {
             return;
         }
         service.addBrokerConnection(Constants.CLIENTID, connection);
