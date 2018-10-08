@@ -7,7 +7,7 @@ This binding allows you to integrate, view, control and configure all Homematic 
 
 All gateways which provides the Homematic BIN- or XML-RPC API:
 
-- CCU 1+2
+- CCU 1, 2 and 3
 - [RaspberryMatic](https://github.com/jens-maus/RaspberryMatic)
 - [Homegear](https://www.homegear.eu) (>= 0.8.0-1988)
 - [piVCCU](https://github.com/alexreinert/piVCCU)
@@ -19,7 +19,7 @@ The Homematic IP Access Point **does not support** this API and and can't be use
 
 Homematic IP support:
 - CCU2 with at least firmware 2.17.15
-- [RaspberryMatic](https://github.com/jens-maus/RaspberryMatic) with the [HM-MOD-RPI-PCB](https://www.elv.de/homematic-funkmodul-fuer-raspberry-pi-bausatz.html) RF module
+- [RaspberryMatic](https://github.com/jens-maus/RaspberryMatic) with the [HM-MOD-RPI-PCB](https://www.elv.de/homematic-funkmodul-fuer-raspberry-pi-bausatz.html) or [RPI-RF-MOD](https://www.elv.de/homematic-funk-modulplatine-fuer-raspberry-pi-3-rpi-rf-mod-komplettbausatz.html) RF module
 - [piVCCU](https://github.com/alexreinert/piVCCU)
 - [YAHM](https://github.com/leonsio/YAHM)
 
@@ -371,7 +371,9 @@ smarthome send Display_Options "TEXT, TONE1, BLINK_FAST, TONE3"
 
 ### DISPLAY_SUBMIT
 
-Adds multiple virtual datapoints to the HM-Dis-WM55 device to easily send colored text and icons to the display
+Adds multiple virtual datapoints to the HM-Dis-WM55 and HM-Dis-EP-WM55 devices to easily send (colored) text and icons to the display.
+
+**Note:** The HM-Dis-EP-WM55 has only a black and white display and therefore does not support datapoints for colored lines. In addition, only lines 1-3 can be set.
 
 Example: Display text at line 1,3 and 5 when the bottom button on the display is pressed
 
