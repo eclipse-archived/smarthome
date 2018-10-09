@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.auth.client.oauth2.OAuthResponseException;
  */
 public interface TestAgent {
 
-    String testCreateClient();
+    OAuthClientService testCreateClient();
 
     AccessTokenResponse testGetAccessTokenByResourceOwnerPasswordCredentials()
             throws OAuthException, IOException, OAuthResponseException;

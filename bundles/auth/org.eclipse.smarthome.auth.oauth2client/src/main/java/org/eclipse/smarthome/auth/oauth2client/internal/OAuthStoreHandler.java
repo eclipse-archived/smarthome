@@ -16,7 +16,6 @@ import java.security.GeneralSecurityException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.auth.oauth2client.internal.OAuthClientServiceImpl.PersistedParams;
 import org.eclipse.smarthome.core.auth.client.oauth2.AccessTokenResponse;
 
 /**
@@ -35,7 +34,7 @@ public interface OAuthStoreHandler {
      * If the storage is not available, it is still possible to get the AccessTokenResponse from memory cache.
      * However, the last-used statistics will be broken. It is a measured risk to take.
      *
-     * @param handle, the handle given by the call
+     * @param handle the handle given by the call
      *            {@code OAuthFactory#createOAuthClientService(String, String, String, String, String, Boolean)}
      * @return AccessTokenResponse if available, null if not.
      * @throws GeneralSecurityException when the token cannot be decrypted.

@@ -28,7 +28,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.auth.oauth2client.internal.OAuthClientServiceImpl.PersistedParams;
 import org.eclipse.smarthome.auth.oauth2client.internal.cipher.SymmetricKeyCipher;
 import org.eclipse.smarthome.core.auth.client.oauth2.AccessTokenResponse;
 import org.eclipse.smarthome.core.auth.client.oauth2.StorageCipher;

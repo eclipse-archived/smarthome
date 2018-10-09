@@ -21,46 +21,62 @@ import org.eclipse.jdt.annotation.Nullable;
  * This is the service factory to produce a OAuth2 service client that authenticates using OAUTH2.
  * This is a service factory pattern; the OAuthe2 service client is not shared between bundles.
  *
+ * <p>
  * The basic uses of this OAuthClient are as follows:
  *
+ * <p>
  * Use case 1 - For the full authorization code grant flow, as described in RFC 6749 section 4.1
  * https://tools.ietf.org/html/rfc6749#section-4.1
  *
- * 1. Method {@code #getAuthorizationUrl(String, String, String)} to get an authorization code url
- * 2. Redirect the user-agent/ real user (outside scope of this client)
- * 3. Method {@code #extractAuthCodeFromAuthResponse(String)} to verify and extract the authorization
+ * <ul>
+ * <li>Method {@code #getAuthorizationUrl(String, String, String)} to get an authorization code url
+ * <li>Redirect the user-agent/ real user (outside scope of this client)
+ * <li>Method {@code #extractAuthCodeFromAuthResponse(String)} to verify and extract the authorization
  * code from the response
- * 4. Method {@code #getAccessTokenResponseByAuthorizationCode(String, String)} to get an access token (may contain
+ * <li>Method {@code #getAccessTokenResponseByAuthorizationCode(String, String)} to get an access token (may contain
  * optional refresh token) by authorization code extracted in above step.
- * 5. Use the {@code AccessTokenResponse} in code
- * 6. When access token is expired, see Use case 3 - refresh token.
+ * <li>Use the {@code AccessTokenResponse} in code
+ * <li>When access token is expired, see Use case 3 - refresh token.
+ * </ul>
  *
  * Use case 2 - For Resource Owner Password Credentials Grant, as described in RFC 6749 section 4.3
  * https://tools.ietf.org/html/rfc6749#section-4.3
  *
- * 1. Method {@code #getAccessTokenByResourceOwnerPasswordCredentials(String, String, String)} to get
+ * <ul>
+ * <li>Method {@code #getAccessTokenByResourceOwnerPasswordCredentials(String, String, String)} to get
  * {@code AccessTokenResponse} (may contain optional refresh token) by username and password
- * 2. Use the {@code AccessTokenResponse} in code
- * 3. When access token is expired, Use {@code #refreshToken()} to get another access token
+ * <li>Use the {@code AccessTokenResponse} in code
+ * <li>When access token is expired, Use {@code #refreshToken()} to get another access token
+ * </ul>
  *
  * Use case 3 - Refresh token
- * 1. Method {@code #refreshToken}
+ * <ul>
+ * <li>Method {@code #refreshToken}
+ * </ul>
  *
  * Use case 4 - Client Credentials. This is used to get the AccessToken by purely the client credential (ESH).
- * 1. Method {@code #getAccessTokenByClientCredentials(String)}
+ * <ul>
+ * <li>Method {@code #getAccessTokenByClientCredentials(String)}
+ * </ul>
  *
  * Use case 5 - Implicit Grant (RFC 6749 section 4.2). The implicit grant usually involves browser/javascript
  * redirection flows.
- * 1. Method {@code #getAccessTokenByImplicit(String, String, String)}
- *
+ * <ul>
+ * <li>Method {@code #getAccessTokenByImplicit(String, String, String)}
+ * </ul>
  * Use case 6 - Import OAuth access token for data migration. Existing implementations may choose to migrate
  * existing OAuth access tokens to be managed by this client.
- * 1. Method {@code #importAccessTokenResponse(AccessTokenResponse)}
+ * <ul>
+ * <li>Method {@code #importAccessTokenResponse(AccessTokenResponse)}
+ * </ul>
  *
  * Use case 7 - Get tokens - continue from Use case 1/2/4/5.
- * 1. Method {@code #getAccessTokenResponse()}
+ * <ul>
+ * <li>Method {@code #getAccessTokenResponse()}
+ * </ul>
  *
  * @author Gary Tse - Initial contribution
+ * @author Hilbrand Bouwkamp - Added AccessTokenRefreshListener, fixed javadoc warnings
  *
  */
 @NonNullByDefault
@@ -73,13 +89,15 @@ public interface OAuthClientService extends AutoCloseable {
      * The OAuthClientService generate an authorization URL, which contains the HTTP query parameters needed for
      * authorization code grant.
      *
-     * @see https://tools.ietf.org/html/rfc6749#section-4.1 Authorization Code Grant illustration
-     * @see https://tools.ietf.org/html/rfc6749#section-4.1.1 Concerning which parameters must be set and which ones are
-     *      optional.
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1">Authorization Code Grant illustration - rfc6749
+     *      section-4.1</a>
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Concerning which parameters must be set and
+     *      which ones are optional - rfc6749 section-4.1.1</a>
      * @param redirectURI is the http request parameter which tells the oauth provider the URI to redirect the
      *            user-agent. This may/ may not be present as per agreement with the oauth provider.
      *            e.g. after the human user authenticate with the oauth provider by the browser, the oauth provider
      *            will redirect the browser to this redirectURL.
+     * @param scope Specific scopes, if null the service specified scopes will be used
      * @param state If the state is not null, it will be added as the HTTP query parameter state=xxxxxxxx .
      *            If the state is null, a random UUID will be generated and added state=<random UUID>,
      *            the state will be assigned to the requestParams in this case.
@@ -97,7 +115,8 @@ public interface OAuthClientService extends AutoCloseable {
      * Grant, part (C).
      *
      * @param redirectURLwithParams This is the full redirectURI from Part (A),
-     *            {@link #getAuthorizationUrl(String, String)}, but added with authorizationCode and state parameters
+     *            {@link #getAuthorizationUrl(String, String, String)}, but added with authorizationCode and state
+     *            parameters
      *            returned by the oauth provider. It is encoded in application/x-www-form-urlencoded format
      *            as stated in RFC 6749 section 4.1.2.
      *            To quote from the RFC:
@@ -107,7 +126,8 @@ public interface OAuthClientService extends AutoCloseable {
      * @throws OAuthException If the state from redirectURLwithParams does not exactly match the expectedState, or
      *             exceptions arise while parsing redirectURLwithParams.
      * @see #getAuthorizationUrl(String, String, String) for part (A)
-     * @see https://tools.ietf.org/html/rfc6749#section-4.1 Authorization Code Grant illustration
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1">Authorization Code Grant illustration - rfc6749
+     *      section-4.1</a>
      */
     String extractAuthCodeFromAuthResponse(String redirectURLwithParams) throws OAuthException;
 
@@ -119,14 +139,18 @@ public interface OAuthClientService extends AutoCloseable {
      * RFC 4.1.3 Access Token Request
      *
      * @param authorizationCode authorization code given by part (C) of the Authorization Code Grant
-     *            {{@link #extractAuthCodeFromAuthResponse(String, String)}
+     *            {{@link #extractAuthCodeFromAuthResponse(String)}
+     * @param redirectURI is the http request parameter which tells the oauth provider the URI to redirect the
+     *            user-agent. This may/ may not be present as per agreement with the oauth provider.
+     *            e.g. after the human user authenticate with the oauth provider by the browser, the oauth provider
+     *            will redirect the browser to this redirectURL.
      * @return AccessTokenResponse
      * @throws IOException IO/ network exceptions
      * @throws OAuthException Other exceptions
      * @throws OAuthErrorException Error codes given by authorization provider, as in RFC 6749 section 5.2 Error
      *             Response
-     * @see https://tools.ietf.org/html/rfc6749#section-4.1.3 Access Token Request
-     * @see https://tools.ietf.org/html/rfc6749#section-5.2 Error Response
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Access Token Request - rfc6749 section-4.1.3</a>
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">Error Response - rfc6749 section-5.2</a>
      */
     AccessTokenResponse getAccessTokenResponseByAuthorizationCode(String authorizationCode, String redirectURI)
             throws OAuthException, IOException, OAuthResponseException;
@@ -143,7 +167,7 @@ public interface OAuthClientService extends AutoCloseable {
      * @throws OAuthException Other exceptions
      * @throws OAuthErrorException Error codes given by authorization provider, as in RFC 6749 section 5.2 Error
      *             Response
-     * @see https://tools.ietf.org/html/rfc6749#section-4.3.2
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.3.2">rfc6749 section-4.3.2</>
      */
     AccessTokenResponse getAccessTokenByResourceOwnerPasswordCredentials(String username, String password,
             @Nullable String scope) throws OAuthException, IOException, OAuthResponseException;
@@ -159,7 +183,7 @@ public interface OAuthClientService extends AutoCloseable {
      * @throws IOException Web/ network issues etc.
      * @throws OAuthErrorException For OAUTH error responses.
      * @throws OAuthException For other exceptions.
-     * @see https://tools.ietf.org/html/rfc6749#section-5.2
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">rfc6749 section-5.2</a>
      */
     AccessTokenResponse refreshToken() throws OAuthException, IOException, OAuthResponseException;
 
@@ -193,7 +217,7 @@ public interface OAuthClientService extends AutoCloseable {
      * @throws IOException Web/ network issues etc.
      * @throws OAuthErrorException For OAUTH error responses.
      * @throws OAuthException For other exceptions.
-     * @see https://tools.ietf.org/html/rfc6749#section-4.2 Implicit Grant
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2>Implicit Grant - rfc6749 section-4.2</a>
      */
     AccessTokenResponse getAccessTokenByImplicit(@Nullable String redirectURI, @Nullable String scope,
             @Nullable String state) throws OAuthException, IOException, OAuthResponseException;
@@ -202,9 +226,7 @@ public interface OAuthClientService extends AutoCloseable {
      * Use case 6 - Import This method is used for importing/ migrating existing Access Token Response to be stored by
      * this service.
      *
-     * @param oauthProviderParams
-     * @param requestParams Request parameters
-     * @param oAuthToken
+     * @param accessTokenResponse
      * @throws OAuthException if client is closed
      */
     void importAccessTokenResponse(AccessTokenResponse accessTokenResponse) throws OAuthException;
@@ -251,5 +273,19 @@ public interface OAuthClientService extends AutoCloseable {
      * @return true if client is closed. i.e. {@link #close()} has been called.
      */
     boolean isClosed();
+
+    /**
+     * Adds a {@link AccessTokenRefreshListener}.
+     *
+     * @param listener the listener to add
+     */
+    void addAccessTokenRefreshListener(AccessTokenRefreshListener listener);
+
+    /**
+     * Removes the {@link AccessTokenRefreshListener}.
+     *
+     * @param listener the listener to remove
+     */
+    boolean removeAccessTokenRefreshListener(AccessTokenRefreshListener listener);
 
 }

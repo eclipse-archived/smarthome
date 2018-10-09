@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 public class ConsoleOAuthCommandExtension extends AbstractConsoleCommandExtension implements ConsoleCommandExtension {
 
     public ConsoleOAuthCommandExtension() {
-        super("oauth", "Test of oauth client with console.  Available test agent: {Code, ResourceOwner}.\n"
+        super("oauth", "Test of oauth client with console. Available test agent: {Code, ResourceOwner}.\n"
                 + "The commands in oauth requires oauth provider data to be inputted in configuration admin.");
     }
 
@@ -67,8 +67,8 @@ public class ConsoleOAuthCommandExtension extends AbstractConsoleCommandExtensio
         try {
             switch (args[1]) {
                 case "create":
-                    String handle = agent.testCreateClient();
-                    console.println("handle: " + handle);
+                    OAuthClientService newService = agent.testCreateClient();
+                    console.println("handle: " + agent.handle + ", service: " + newService);
                     break;
                 case "getAccessTokenByResourceOwnerPassword":
                     response = agent.testGetAccessTokenByResourceOwnerPasswordCredentials();
