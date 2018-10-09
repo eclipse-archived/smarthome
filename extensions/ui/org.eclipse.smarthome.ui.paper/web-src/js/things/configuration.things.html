@@ -36,7 +36,7 @@
 						<div class="cbody item-content">
 							<div class="description">
 								<h3>
-									{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
+									{{thing.label}} <thing-status status-info="thing.statusInfo"></thing-status>
 								</h3>
 								<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
 								<p>{{thing.UID}}</p>
