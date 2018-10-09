@@ -54,6 +54,11 @@ angular.module('PaperUI.services.repositories')//
             existingThing.statusInfo = statusInfo;
         });
     });
+    eventService.onEvent('smarthome/things/*/statuschanged', function(topic, statusInfo) {
+        updateInRepository(topic.split('/')[2], true, function(existingThing) {
+            existingThing.statusInfo = statusInfo[0];
+        });
+    });
     eventService.onEvent('smarthome/things/*/added', function(topic, thing) {
         updateInRepository(topic.split('/')[2], false, function(existingThing) {
             repository.add(thing);
