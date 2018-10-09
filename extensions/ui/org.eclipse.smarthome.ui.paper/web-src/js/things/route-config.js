@@ -9,12 +9,12 @@
             template : '<things-list />',
             title : 'Configuration'
         }).when('/configuration/things/view/:thingUID', {
-            templateUrl : 'partials/things/configuration.things.html',
-            controller : 'ThingController',
+            templateUrl : 'partials/things/configuration.things.view.html',
+            controller : 'ViewThingController',
             title : 'Configuration'
         }).when('/configuration/things/edit/:thingUID', {
             templateUrl : 'partials/things/configuration.things.html',
-            controller : 'ThingController',
+            controller : 'EditThingController',
             title : 'Configuration'
         })
     }

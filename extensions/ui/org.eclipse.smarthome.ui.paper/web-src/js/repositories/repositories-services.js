@@ -50,20 +50,11 @@ angular.module('PaperUI.services.repositories')//
     }
 
     eventService.onEvent('smarthome/things/*/status', function(topic, statusInfo) {
-        var thingUID = topic.split('/')[2];
-        updateInRepository(thingUID, true, function(existingThing) {
+        updateInRepository(topic.split('/')[2], true, function(existingThing) {
             existingThing.statusInfo = statusInfo;
         });
     });
-    // eventService.onEvent('smarthome/things/*/statuschanged', function(topic, statusInfo) {
-    // var thingUID = topic.split('/')[2];
-    // updateInRepository(thingUID, true, function(existingThing) {
-    // $scope.$emit("ThingStatusChanged", {
-    // thingUID : thingUID,
-    // statusInfo : statusInfo
-    // })
-    // });
-    // });
+
     eventService.onEvent('smarthome/things/*/added', function(topic, thing) {
         updateInRepository(topic.split('/')[2], false, function(existingThing) {
             repository.add(thing);

@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<div class="row" ng-show="showMore" class="searchBox" search-filters>
-			<md-autocomplete md-no-cache config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions(bindings,['name'],searchType) | orderBy:'name'" placeholder="Filter by binding"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
+			<md-autocomplete md-no-cache config='{"index":0,"targetField":"bindingType","sourceField":"id"}' class="col-xs-12 md-filter" md-min-length="0" md-selected-item="selectedOptions[0].value" md-item-text="binding.name" md-search-text="searchType" md-items="binding in searchInOptions($ctrl.bindings,['name'],searchType) | orderBy:'name'" placeholder="Filter by binding"> <md-item-template> <span md-highlight-text="searchType" md-highlight-flags="^i">{{binding.name}}</span> </md-item-template> <md-not-found> No matches found. </md-not-found> </md-autocomplete>
 		</div>
 		<div class="container thingContainer">
 			<p class="text-center" ng-show="$ctrl.things.length == 0">
@@ -31,23 +31,7 @@
 			</p>
 			<div class="things">
 				<div class="clickable" ng-class="{'new':newThingUID==thing.UID,'lastThing':$last}" ng-repeat="thing in $ctrl.things | filter:filterItems(['label','UID'])| orderBy:'label'">
-					<div class="thing fab-item text-left" data-thing-uid="{{thing.UID}}" ng-click="$ctrl.navigateTo('view/' + thing.UID)">
-						<div class="circle">{{thing.thingTypeUID?thing.thingTypeUID.split(':')[1].substring(0,1).toUpperCase():''}}</div>
-						<div class="cbody item-content">
-							<div class="description">
-								<h3>
-									{{thing.label}} <thing-status status-info="thing.statusInfo"></thing-status>
-								</h3>
-								<p>{{$ctrl.getThingTypeLabel(thing.thingTypeUID)}}</p>
-								<p>{{thing.UID}}</p>
-							</div>
-							<div class="actions" ng-class="{'new':newThingUID==thing.UID}">
-								<i class="material-icons" ng-click="$ctrl.navigateTo('edit/' + thing.UID)" aria-label="Edit">edit</i>
-								<i class="material-icons" ng-click="$ctrl.remove(thing, $event)" aria-label="Delete">delete</i>
-							</div>
-						</div>
-						<hr class="border-line" ng-show="!$last" />
-					</div>
+					<thing-entry thing="thing"></thing-entry>
 				</div>
 			</div>
 		</div>

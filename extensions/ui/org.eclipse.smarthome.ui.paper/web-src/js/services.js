@@ -22,7 +22,7 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
     });
 }).factory('eventService', function($resource, $log, restConfig) {
 
-    var callbacks = [];
+    var listeners = [];
     var eventSrc;
 
     var initializeEventService = function() {
@@ -39,10 +39,10 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
         eventSrc.addEventListener('message', function(event) {
             var data = JSON.parse(event.data);
             $log.debug('Event received: ' + data.topic + ' - ' + data.payload);
-            angular.forEach(callbacks, function(element) {
-                var match = data.topic.match(element.topic);
+            angular.forEach(listeners, function(listener) {
+                var match = data.topic.match(listener.topic);
                 if (match != null && match == data.topic) {
-                    element.callback(data.topic, JSON.parse(data.payload));
+                    listener.callback(data.topic, JSON.parse(data.payload));
                 }
             });
         });
@@ -54,10 +54,18 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
     return new function() {
         this.onEvent = function(topic, callback) {
             var topicRegex = topic.replace('/', '\/').replace('*', '.*');
-            callbacks.push({
+            listeners.push({
                 topic : topicRegex,
                 callback : callback
             });
+        }
+
+        this.removeListener = function(topic) {
+            for ( var i in listeners) {
+                if (listeners[i]['topic'] === topic) {
+                    listeners.splice(i, 1);
+                }
+            }
         }
     };
 }).factory('toastService', function($mdToast, $rootScope) {

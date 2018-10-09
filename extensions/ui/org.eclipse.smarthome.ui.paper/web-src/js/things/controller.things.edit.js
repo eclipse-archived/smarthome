@@ -1,5 +1,5 @@
 angular.module('PaperUI.things') //
-.controller('EditThingController', function($scope, $mdDialog, $q, toastService, thingRepository, configService, configDescriptionService, thingService) {
+.controller('EditThingController', function($scope, $mdDialog, $q, $location, toastService, thingRepository, configService, configDescriptionService, thingService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 
@@ -17,6 +17,14 @@ angular.module('PaperUI.things') //
     $scope.update = update;
 
     this.$onInit = activate;
+
+    $scope.navigateTo = function(path) {
+        if (path.startsWith("/")) {
+            $location.path(path);
+        } else {
+            $location.path('configuration/things/' + path);
+        }
+    }
 
     function activate() {
         $q(function() {
