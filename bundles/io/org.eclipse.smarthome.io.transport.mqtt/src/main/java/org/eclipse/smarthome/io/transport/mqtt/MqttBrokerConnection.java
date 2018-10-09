@@ -88,6 +88,7 @@ public class MqttBrokerConnection {
     private int qos = DEFAULT_QOS;
     private boolean retain = false;
     private @Nullable MqttWillAndTestament lastWill;
+    private @Nullable Path persistencePath;
     protected @Nullable AbstractReconnectStrategy reconnectStrategy;
     private SSLContextProvider sslContextProvider = new AcceptAllCertificatesSSLContext();
     private int keepAliveInterval = DEFAULT_KEEPALIVE_INTERVAL;
@@ -383,6 +384,23 @@ public class MqttBrokerConnection {
     }
 
     /**
+     * Sets the path for the persistence storage.
+     *
+     * A persistence mechanism is necessary to enable reliable messaging.
+     * For messages sent at qualities of service (QoS) 1 or 2 to be reliably delivered, messages must be stored (on both
+     * the client and server) until the delivery of the message is complete.
+     * If messages are not safely stored when being delivered then a failure in the client or server can result in lost
+     * messages.
+     * A file persistence storage is used that uses the given path. If the path does not exist it will be created on
+     * runtime (if possible). If it is set to {@code null} a implementation specific default path is used.
+     *
+     * @param persistencePath the path that should be used to store persistent data
+     */
+    public void setPersistencePath(final @Nullable Path persistencePath) {
+        this.persistencePath = persistencePath;
+    }
+
+    /**
      * Get client id to use when connecting to the broker.
      *
      * @return value clientId to use.
@@ -652,14 +670,17 @@ public class MqttBrokerConnection {
         serverURI.append(port);
 
         // Storage
-        Path tmpDir = Paths.get(ConfigConstants.getUserDataFolder());
+        Path persistencePath = this.persistencePath;
+        if (persistencePath == null) {
+            persistencePath = Paths.get(ConfigConstants.getUserDataFolder()).resolve("mqtt").resolve(host);
+        }
         try {
-            tmpDir = Files.createDirectories(tmpDir.resolve("mqtt").resolve(host));
+            persistencePath = Files.createDirectories(persistencePath);
         } catch (IOException e) {
             future.completeExceptionally(new MqttException(e));
             return future;
         }
-        MqttDefaultFilePersistence _dataStore = new MqttDefaultFilePersistence(tmpDir.toString());
+        MqttDefaultFilePersistence _dataStore = new MqttDefaultFilePersistence(persistencePath.toString());
 
         // Create the client
         MqttAsyncClient _client;
@@ -679,7 +700,7 @@ public class MqttBrokerConnection {
         try {
             _client.connect(createMqttOptions(), null, connectionCallback);
             logger.info("Starting MQTT broker connection to '{}' with clientid {} and file store '{}'", host,
-                    getClientId(), tmpDir);
+                    getClientId(), persistencePath);
         } catch (org.eclipse.paho.client.mqttv3.MqttException | ConfigurationException e) {
             future.completeExceptionally(new MqttException(e));
             return future;
