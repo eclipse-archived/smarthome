@@ -180,4 +180,15 @@
 			</parameter>
 		</config-description>
 	</thing-type>
+
+	<thing-type id="online-offline">
+		<label>Magic Online Offline</label>
+		<description>An online/offline toggle thing</description>
+		<config-description>
+			<parameter name="toggleTime" type="integer" required="true">
+				<label>Toggle Time</label>
+				<description>The time in seconds to toggle between ONLINE and OFFLINE status.</description>
+			</parameter>
+		</config-description>
+	</thing-type>
 </thing:thing-descriptions>
