@@ -13,21 +13,22 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericChannelConfig;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.AbstractMqttThingValue;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 
 /**
- * This object consists of an {@link AbstractMqttThingValue}, which is updated on the respective MQTT topic change.
+ * This object consists of a {@link Value}, which is updated on the respective MQTT topic change.
  * If a transformation is configured in {@link GenericChannelConfig}, the transformation is applied before assigning
- * the result to the {@link AbstractMqttThingValue}. Updates to the value are propagated via the
+ * the result to the {@link Value}. Updates to the value are propagated via the
  * {@link ChannelStateUpdateListener}.
  *
  * @author David Graeff - Initial contribution
@@ -54,9 +55,9 @@ public class ChannelStateWithTransformation extends ChannelState {
      * @param transformationServiceProvider The transformation service provider
      */
     public ChannelStateWithTransformation(String stateTopic, String commandTopic, String transformationPattern,
-            ChannelUID channelUID, AbstractMqttThingValue value,
+            ChannelUID channelUID, Value value, ChannelStateUpdateListener channelStateUpdateListener,
             TransformationServiceProvider transformationServiceProvider) {
-        super(stateTopic, commandTopic, channelUID, value);
+        super(stateTopic, commandTopic, channelUID, value, channelStateUpdateListener);
         this.transformationServiceProvider = transformationServiceProvider;
         if (StringUtils.isNotBlank(transformationPattern)) {
             int index = transformationPattern.indexOf(':');
@@ -86,9 +87,9 @@ public class ChannelStateWithTransformation extends ChannelState {
     }
 
     @Override
-    public CompletableFuture<Boolean> start(MqttBrokerConnection connection,
-            ChannelStateUpdateListener channelStateUpdateListener) throws IllegalArgumentException {
-        CompletableFuture<Boolean> r = super.start(connection, channelStateUpdateListener);
+    public CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection, ScheduledExecutorService scheduler,
+            int timeout) throws IllegalArgumentException {
+        CompletableFuture<@Nullable Void> r = super.start(connection, scheduler, timeout);
         if (!transformationServiceName.isEmpty()) {
             transformationService = transformationServiceProvider.getTransformationService(transformationServiceName);
             if (transformationService == null) {

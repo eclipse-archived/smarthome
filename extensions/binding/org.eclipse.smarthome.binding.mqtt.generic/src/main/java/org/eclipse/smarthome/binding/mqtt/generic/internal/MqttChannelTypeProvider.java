@@ -21,7 +21,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -39,8 +39,9 @@ import org.osgi.service.component.annotations.Component;
  *
  */
 @NonNullByDefault
-@Component(immediate = false, service = { ChannelTypeProvider.class, MqttChannelTypeProvider.class })
-public class MqttChannelTypeProvider implements ChannelTypeProvider {
+@Component(immediate = false, service = { ChannelTypeProvider.class, ChannelGroupTypeProvider.class,
+        MqttChannelTypeProvider.class })
+public class MqttChannelTypeProvider implements ChannelGroupTypeProvider, ChannelTypeProvider {
     private final Map<ChannelTypeUID, ChannelType> types = new HashMap<>();
     private final Map<ChannelGroupTypeUID, ChannelGroupType> groups = new HashMap<>();
 
@@ -54,12 +55,14 @@ public class MqttChannelTypeProvider implements ChannelTypeProvider {
         return types.get(channelTypeUID);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable ChannelGroupType getChannelGroupType(@NonNull ChannelGroupTypeUID channelGroupTypeUID,
             @Nullable Locale locale) {
         return groups.get(channelGroupTypeUID);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable Collection<@NonNull ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
         return groups.values();
@@ -73,15 +76,11 @@ public class MqttChannelTypeProvider implements ChannelTypeProvider {
         groups.remove(uid);
     }
 
-    public void addChannelGroupType(ChannelGroupTypeUID uid, ChannelGroupType type) {
+    public void setChannelGroupType(ChannelGroupTypeUID uid, ChannelGroupType type) {
         groups.put(uid, type);
     }
 
-    public void addChannelGroupType(ChannelGroupTypeUID uid, String label) {
-        groups.put(uid, ChannelGroupTypeBuilder.instance(uid, label).build());
-    }
-
-    public void addChannelType(ChannelTypeUID uid, ChannelType type) {
+    public void setChannelType(ChannelTypeUID uid, ChannelType type) {
         types.put(uid, type);
     }
 }

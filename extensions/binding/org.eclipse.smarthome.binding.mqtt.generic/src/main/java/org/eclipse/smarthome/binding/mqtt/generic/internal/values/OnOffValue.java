@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * Implements an on/off boolean value.
@@ -30,7 +31,8 @@ import org.eclipse.smarthome.core.types.StateDescription;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class OnOffValue implements AbstractMqttThingValue {
+public class OnOffValue implements Value {
+    private State state = UnDefType.UNDEF;
     private OnOffType boolValue;
     private final String onValue;
     private final String offValue;
@@ -95,7 +97,7 @@ public class OnOffValue implements AbstractMqttThingValue {
 
     @Override
     public State getValue() {
-        return boolValue;
+        return state;
     }
 
     @Override
@@ -113,6 +115,7 @@ public class OnOffValue implements AbstractMqttThingValue {
                     "Type " + command.getClass().getName() + " not supported for OnOffValue");
         }
 
+        state = boolValue;
         return (boolValue == OnOffType.ON) ? onValue : offValue;
     }
 
@@ -128,7 +131,7 @@ public class OnOffValue implements AbstractMqttThingValue {
         }
 
         boolValue = inverse ? (boolValue == OnOffType.ON ? OnOffType.OFF : OnOffType.ON) : boolValue;
-
+        state = boolValue;
         return boolValue;
     }
 
@@ -140,5 +143,10 @@ public class OnOffValue implements AbstractMqttThingValue {
     @Override
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(null, null, null, "%s " + unit, receivesOnly || readOnly, Collections.emptyList());
+    }
+
+    @Override
+    public void resetState() {
+        state = UnDefType.UNDEF;
     }
 }

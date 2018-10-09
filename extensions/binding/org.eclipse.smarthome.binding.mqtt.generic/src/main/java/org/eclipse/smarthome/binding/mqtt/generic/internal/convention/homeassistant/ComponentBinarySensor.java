@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -55,8 +56,9 @@ public class ComponentBinarySensor extends AbstractComponent {
 
     protected Config config = new Config();
 
-    public ComponentBinarySensor(ThingUID thing, String componentID, String configJSON) {
-        super(thing, componentID);
+    public ComponentBinarySensor(ThingUID thing, HaID haID, String configJSON,
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+        super(thing, haID, configJSON);
         config = new Gson().fromJson(configJSON, Config.class);
 
         if (config.force_update) {
@@ -64,9 +66,9 @@ public class ComponentBinarySensor extends AbstractComponent {
         }
 
         channels.put(sensorChannelID,
-                new CChannel(thing, componentID, sensorChannelID,
+                new CChannel(this, sensorChannelID,
                         OnOffValue.createReceiveOnly(config.payload_on, config.payload_off, false), config.state_topic,
-                        null, config.name, config.unit_of_measurement));
+                        null, config.name, config.unit_of_measurement, channelStateUpdateListener));
     }
 
     @Override

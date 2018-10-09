@@ -12,29 +12,32 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.discovery;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.TopicToID;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.discovery.MqttTopicDiscovery.TopicDiscovered;
-import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HaID;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * The {@link HomeAssistantDiscovery} is responsible for discovering device nodes that follow the
@@ -44,8 +47,11 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.mqttha")
 @NonNullByDefault
-public class HomeAssistantDiscovery extends AbstractDiscoveryService implements TopicDiscovered {
+public class HomeAssistantDiscovery extends AbstractMQTTDiscovery {
     private final Logger logger = LoggerFactory.getLogger(HomeAssistantDiscovery.class);
+    protected final Map<String, Set<String>> componentsPerThingID = new TreeMap<>();
+    private @Nullable ScheduledFuture<?> future;
+
     public static final Map<String, String> HA_COMP_TO_NAME = new TreeMap<String, String>();
     {
         HA_COMP_TO_NAME.put("alarm_control_panel", "Alarm Control Panel");
@@ -59,66 +65,42 @@ public class HomeAssistantDiscovery extends AbstractDiscoveryService implements 
         HA_COMP_TO_NAME.put("sensor", "Sensor");
         HA_COMP_TO_NAME.put("switch", "Switch");
     }
-    final String baseTopic = "homeassistant";
 
-    protected @Nullable MqttTopicDiscovery mqttTopicDiscovery;
-    protected Map<String, Set<String>> componentsPerThingID = new TreeMap<>();
+    private static class Config {
+        String name = "";
+    }
+
+    final static String baseTopic = "homeassistant";
 
     public HomeAssistantDiscovery() {
-        super(Stream.of(MqttBindingConstants.HOMEASSISTANT_MQTT_THING).collect(Collectors.toSet()), 500, true);
+        super(Stream.of(MqttBindingConstants.HOMEASSISTANT_MQTT_THING).collect(Collectors.toSet()), 3, true,
+                baseTopic + "/#");
     }
+
+    @NonNullByDefault({})
+    protected MQTTTopicDiscoveryService mqttTopicDiscovery;
 
     @Reference
-    public void setThingRegistry(ThingRegistry service) {
-        mqttTopicDiscovery = new MqttTopicDiscovery(service, this, baseTopic + "/#");
+    public void setMQTTTopicDiscoveryService(MQTTTopicDiscoveryService service) {
+        mqttTopicDiscovery = service;
     }
 
-    public void unsetThingRegistry(@Nullable ThingRegistry service) {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.stopBackgroundDiscovery();
-            this.mqttTopicDiscovery = null;
-        }
+    public void unsetMQTTTopicDiscoveryService(@Nullable MQTTTopicDiscoveryService service) {
+        mqttTopicDiscovery.unsubscribe(this);
+        this.mqttTopicDiscovery = null;
     }
 
     @Override
-    protected void startScan() {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.startScan();
-        }
-        stopScan();
-    }
-
-    @Override
-    protected synchronized void stopScan() {
-        componentsPerThingID.clear();
-        super.stopScan();
-    }
-
-    @Override
-    protected void startBackgroundDiscovery() {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.startBackgroundDiscovery();
-        }
-    }
-
-    @Override
-    protected void stopBackgroundDiscovery() {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.stopBackgroundDiscovery();
-        }
-        componentsPerThingID.clear();
+    protected MQTTTopicDiscoveryService getDiscoveryService() {
+        return mqttTopicDiscovery;
     }
 
     /**
      * @param topic A topic like "homeassistant/binary_sensor/garden/config"
      * @return Returns the "mydevice" part of the example
      */
-    public static TopicToID determineTopicParts(String topic) {
-        return new TopicToID(topic);
+    public static HaID determineTopicParts(String topic) {
+        return new HaID(topic);
     }
 
     /**
@@ -134,10 +116,11 @@ public class HomeAssistantDiscovery extends AbstractDiscoveryService implements 
     }
 
     @Override
-    public void topicDiscovered(ThingUID connectionBridge, MqttBrokerConnection connection, String topic,
-            String topicValue) {
+    public void receivedMessage(ThingUID connectionBridge, MqttBrokerConnection connection, String topic,
+            byte[] payload) {
         // For HomeAssistant we need to subscribe to a wildcard topic, because topics can either be:
-        // homeassistant/<component>/<node_id>/<object_id>/config OR homeassistant/<component>/<object_id>/config.
+        // homeassistant/<component>/<node_id>/<object_id>/config OR
+        // homeassistant/<component>/<object_id>/config.
         // We check for the last part to filter all non-config topics out.
         if (!topic.endsWith("/config")) {
             return;
@@ -145,12 +128,19 @@ public class HomeAssistantDiscovery extends AbstractDiscoveryService implements 
 
         // We will of course find multiple of the same unique Thing IDs, for each different component another one.
         // Therefore the components are assembled into a list and given to the DiscoveryResult label for the user to
-        // easily
-        // recognize object capabilities.
-        TopicToID topicParts = determineTopicParts(topic);
+        // easily recognise object capabilities.
+        HaID topicParts = determineTopicParts(topic);
         final String thingID = topicParts.getThingID();
         final ThingUID thingUID = new ThingUID(MqttBindingConstants.HOMEASSISTANT_MQTT_THING, connectionBridge,
                 thingID);
+
+        // Reset the found-component timer.
+        // We will collect components for the thing label description for another 2 seconds.
+        final ScheduledFuture<?> future = this.future;
+        if (future != null) {
+            future.cancel(false);
+        }
+        this.future = scheduler.schedule(componentsPerThingID::clear, 2, TimeUnit.SECONDS);
 
         // We need to keep track of already found component topics for a specific object_id/node_id
         Set<String> components = componentsPerThingID.getOrDefault(thingID, new HashSet<>());
@@ -164,22 +154,22 @@ public class HomeAssistantDiscovery extends AbstractDiscoveryService implements 
         final String componentNames = components.stream().map(c -> HA_COMP_TO_NAME.getOrDefault(c, c))
                 .collect(Collectors.joining(","));
 
+        Config config = new Gson().fromJson(new String(payload, StandardCharsets.UTF_8), Config.class);
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("objectid", topicParts.objectID);
         properties.put("nodeid", topicParts.nodeID);
         properties.put("basetopic", baseTopic);
-        properties.put("deviceid", thingID);
         // First remove an already discovered thing with the same ID
         thingRemoved(thingUID);
         // Because we need the new properties map with the updated "components" list
         thingDiscovered(DiscoveryResultBuilder.create(thingUID).withProperties(properties)
-                .withRepresentationProperty("deviceid").withLabel("HomeAssistant MQTT Object (" + componentNames + ")")
-                .build());
+                .withRepresentationProperty("objectid").withBridge(connectionBridge)
+                .withLabel(config.name + " (" + componentNames + ")").build());
     }
 
     @Override
-    public void topicVanished(ThingUID connectionBridge, MqttBrokerConnection connection, String topic,
-            String topicValue) {
+    public void topicVanished(ThingUID connectionBridge, MqttBrokerConnection connection, String topic) {
         if (!topic.endsWith("/config")) {
             return;
         }

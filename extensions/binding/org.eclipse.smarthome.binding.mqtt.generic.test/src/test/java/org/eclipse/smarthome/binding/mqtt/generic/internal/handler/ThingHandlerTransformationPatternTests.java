@@ -26,7 +26,6 @@ import javax.naming.ConfigurationException;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateWithTransformation;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.TransformationServiceProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -36,12 +35,10 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.transform.TransformationService;
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 /**
@@ -84,7 +81,7 @@ public class ThingHandlerTransformationPatternTests {
         when(thing.getConfiguration()).thenReturn(new Configuration());
 
         // Return the mocked connection object if the bridge handler is asked for it
-        when(bridgeHandler.getConnection()).thenReturn(connection);
+        when(bridgeHandler.getConnectionAsync()).thenReturn(CompletableFuture.completedFuture(connection));
 
         CompletableFuture<Void> voidFutureComplete = new CompletableFuture<Void>();
         voidFutureComplete.complete(null);
@@ -128,9 +125,7 @@ public class ThingHandlerTransformationPatternTests {
         // Test process message
         channelConfig.processMessage(channelConfig.getStateTopic(), payload);
 
-        ArgumentCaptor<State> stateCaptor = ArgumentCaptor.forClass(State.class);
-        verify(callback).stateUpdated(eq(textChannelUID), stateCaptor.capture());
-        assertThat(stateCaptor.getValue().toString(), is("23.2"));
+        verify(callback).stateUpdated(eq(textChannelUID), argThat(arg -> "23.2".equals(arg.toString())));
         assertThat(channelConfig.getValue().getValue().toString(), is("23.2"));
     }
 }

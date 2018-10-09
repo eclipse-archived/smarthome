@@ -13,20 +13,25 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.FieldChanged;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MqttAttributeClass;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MqttTopicClassMapper;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.SubtopicFieldObserver;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
+import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Homie 3.x Node.
@@ -37,23 +42,36 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class Node implements MqttAttributeClass {
+public class Node implements AbstractMqttAttributeClass.AttributeChanged {
+    private final Logger logger = LoggerFactory.getLogger(Node.class);
     // Homie
     public final String nodeID;
-    public NodeAttributes attributes = new NodeAttributes();
-    public Map<Integer, NodeInstance> instances = new TreeMap<>();
-    public Map<String, Property> properties = new TreeMap<>();
+    public final NodeAttributes attributes;
+    public ChildMap<Property> properties;
     // Runtime
     public final DeviceCallback callback;
     // ESH
-    public final ThingUID thingUID;
+    protected final ChannelGroupUID channelGroupUID;
     public final ChannelGroupTypeUID channelGroupTypeUID;
+    private final String topic;
+    private boolean initialized = false;
 
-    public Node(String nodeID, ThingUID thingUID, DeviceCallback callback) {
+    /**
+     * Creates a Homie Node.
+     *
+     * @param topic The base topic for this node (e.g. "homie/device")
+     * @param nodeID The node ID
+     * @param thingUID The Thing UID, used to determine the ChannelGroupUID.
+     * @param callback The callback for the handler.
+     */
+    public Node(String topic, String nodeID, ThingUID thingUID, DeviceCallback callback, NodeAttributes attributes) {
+        this.attributes = attributes;
+        this.topic = topic + "/" + nodeID;
         this.nodeID = nodeID;
-        this.thingUID = thingUID;
         this.callback = callback;
-        channelGroupTypeUID = new ChannelGroupTypeUID(MqttBindingConstants.BINDING_ID, thingUID.getId() + "_" + nodeID);
+        channelGroupTypeUID = new ChannelGroupTypeUID(MqttBindingConstants.BINDING_ID, this.topic.replace('/', '_'));
+        channelGroupUID = new ChannelGroupUID(thingUID, nodeID);
+        properties = new ChildMap<>();
     }
 
     /**
@@ -61,25 +79,125 @@ public class Node implements MqttAttributeClass {
      * {@link Device#startChannels(MqttBrokerConnection)} as soon as the returned future has
      * completed.
      */
-    @Override
-    public CompletableFuture<Void> subscribe(MqttTopicClassMapper topicMapper, int timeout) {
-        Map<String, FieldChanged> m = new TreeMap<>();
-        m.put("properties", new SubtopicFieldObserver<>(topicMapper, callback, properties,
-                key -> new Property(this, key, thingUID), timeout));
-        return topicMapper.subscribe("homie/" + thingUID.getId() + "/" + nodeID, attributes, m, timeout);
+    public CompletableFuture<@Nullable Void> subscribe(MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, int timeout) {
+        return attributes.subscribeAndReceive(connection, scheduler, topic, this, timeout)
+                // On success, create all properties and tell the handler about this node
+                .thenCompose(b -> attributesReceived(connection, scheduler, timeout))
+                // No matter if values have been received or not -> the subscriptions have been performed
+                .whenComplete((r, e) -> {
+                    initialized = true;
+                });
+    }
+
+    public CompletableFuture<@Nullable Void> attributesReceived(MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, int timeout) {
+        callback.nodeAddedOrChanged(this);
+        return applyProperties(connection, scheduler, timeout);
+    }
+
+    public void nodeRestoredFromConfig() {
+        initialized = true;
     }
 
     /**
-     * Unsubscribe from all node attribute and also all property attributes within this node.
+     * Unsubscribe from node attribute and also all property attributes and the property value
      *
      * @param connection A broker connection
      * @return Returns a future that completes as soon as all unsubscriptions have been performed.
      */
-    @Override
-    public CompletableFuture<Void> unsubscribe(MqttTopicClassMapper topicMapper) {
-        List<CompletableFuture<Void>> futures = properties.values().stream().map(p -> p.unsubscribe(topicMapper))
+    public CompletableFuture<@Nullable Void> stop() {
+        return attributes.unsubscribe().thenCompose(
+                b -> CompletableFuture.allOf(properties.stream().map(p -> p.stop()).toArray(CompletableFuture[]::new)));
+    }
+
+    /**
+     * Return the channel group type for this Node.
+     */
+    public ChannelGroupType type() {
+        final List<ChannelDefinition> channelDefinitions = properties.stream()
+                .map(c -> new ChannelDefinitionBuilder(c.propertyID, c.channelTypeUID).build())
                 .collect(Collectors.toList());
-        futures.add(topicMapper.unsubscribe(attributes));
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+        return ChannelGroupTypeBuilder.instance(channelGroupTypeUID, attributes.name)
+                .withChannelDefinitions(channelDefinitions).build();
+    }
+
+    /**
+     * Return the channel group UID.
+     */
+    public ChannelGroupUID uid() {
+        return channelGroupUID;
+    }
+
+    /**
+     * Create a Homie Property for this Node.
+     *
+     * @param propertyID The property ID
+     * @return A Homie Property
+     */
+    public Property createProperty(String propertyID) {
+        return new Property(topic, this, propertyID, callback, new PropertyAttributes());
+    }
+
+    /**
+     * Create a Homie Property for this Node.
+     *
+     * @param propertyID The property ID
+     * @param attributes The node attributes object
+     * @return A Homie Property
+     */
+    public Property createProperty(String propertyID, PropertyAttributes attributes) {
+        return new Property(topic, this, propertyID, callback, attributes);
+    }
+
+    /**
+     * <p>
+     * The properties of a node are determined by the node attribute "$properties". If that attribute changes,
+     * {@link #attributeChanged(CompletableFuture, String, Object, MqttBrokerConnection, ScheduledExecutorService)} is
+     * called. The {@link #properties} map will be synchronized and this method will be called for every removed
+     * property.
+     * </p>
+     *
+     * <p>
+     * This method will stop the property and will notify about the removed property.
+     * </p>
+     *
+     * @param property The removed property.
+     */
+    protected void notifyPropertyRemoved(Property property) {
+        property.stop();
+        callback.propertyRemoved(property);
+    }
+
+    protected CompletableFuture<@Nullable Void> applyProperties(MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, int timeout) {
+        return properties.apply(attributes.properties, prop -> prop.subscribe(connection, scheduler, timeout),
+                this::createProperty, this::notifyPropertyRemoved).exceptionally(e -> {
+                    logger.warn("Could not subscribe", e);
+                    return null;
+                });
+    }
+
+    @Override
+    public void attributeChanged(String name, Object value, MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, boolean allMandatoryFieldsReceived) {
+
+        if (!initialized || !allMandatoryFieldsReceived) {
+            return;
+        }
+        // Special case: Not all fields were known before
+        if (!attributes.isComplete()) {
+            attributesReceived(connection, scheduler, 500);
+        } else {
+            if ("properties".equals(name)) {
+                applyProperties(connection, scheduler, 500);
+            }
+        }
+        callback.nodeAddedOrChanged(this);
+    }
+
+    @Override
+    public String toString() {
+        return channelGroupUID.toString();
     }
 }

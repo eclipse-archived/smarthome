@@ -15,6 +15,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ColorValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -91,14 +92,14 @@ public class ComponentLight extends AbstractComponent {
 
     protected Config config = new Config();
 
-    public ComponentLight(ThingUID thing, String componentID, String configJSON) {
-        super(thing, componentID);
+    public ComponentLight(ThingUID thing, HaID haID, String configJSON,
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+        super(thing, haID, configJSON);
         config = new Gson().fromJson(configJSON, Config.class);
 
         channels.put(switchChannelID,
-                new CChannel(thing, componentID, switchChannelID,
-                        new ColorValue(true, config.payload_on, config.payload_off), config.state_topic,
-                        config.command_topic, config.name, ""));
+                new CChannel(this, switchChannelID, new ColorValue(true, config.payload_on, config.payload_off),
+                        config.state_topic, config.command_topic, config.name, "", channelStateUpdateListener));
     }
 
     @Override

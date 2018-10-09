@@ -39,4 +39,11 @@ public class MqttBindingConstants {
     public static final String NUMBER = "Number";
     public static final String STRING = "String";
     public static final String SWITCH = "Switch";
+    public static final String ENUM = "EnumSwitch";
+
+    public static final String CONFIG_HA_CHANNEL = "mqtt:ha_channel";
+    public static final String CONFIG_HOMIE_CHANNEL = "mqtt:homie_channel";
+
+    public static final String HOMIE_PROPERTY_VERSION = "homieversion";
+    public static final String HOMIE_PROPERTY_HEARTBEAT_INTERVAL = "heartbeat_interval";
 }

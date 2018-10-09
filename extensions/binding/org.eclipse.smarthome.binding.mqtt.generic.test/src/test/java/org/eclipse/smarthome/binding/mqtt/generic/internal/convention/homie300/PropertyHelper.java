@@ -10,18 +10,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal.mapping;
-
-import java.util.concurrent.CompletableFuture;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
 
 /**
- * Implement this interface to be notified of an updated field, registered by {@link MqttTopicClassMapper}.
+ * Helper to access {@link Property} internals.
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public interface FieldChanged {
-    void fieldChanged(CompletableFuture<Boolean> future, String fieldname, Object value);
+public class PropertyHelper {
+    public static void setChannelState(Property property, @Nullable ChannelState channelState) {
+        property.channelState = channelState;
+    }
 }

@@ -19,35 +19,46 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceCallback;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Node;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.NodeAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyHelper;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomieThingHandler;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.ThingChannelConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MqttTopicClassMapper;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.WaitForTopicValue;
+import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
-import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
@@ -65,6 +76,16 @@ public class HomieImplementationTests extends JavaOSGiTest {
     private MqttBrokerConnection connection;
     private int registeredTopics = 100;
 
+    // The handler is not tested here, so just mock the callback
+    @Mock
+    DeviceCallback callback;
+
+    // A handler mock is required to verify that channel value changes have been received
+    @Mock
+    HomieThingHandler handler;
+
+    ScheduledExecutorService scheduler;
+
     /**
      * Create an observer that fails the test as soon as the broker client connection changes its connection state
      * to something else then CONNECTED.
@@ -76,9 +97,13 @@ public class HomieImplementationTests extends JavaOSGiTest {
         }
     };
 
+    private final String baseTopic = "homie";
+    private final String deviceID = ThingChannelConstants.testHomieThing.getId();
+    private final String deviceTopic = baseTopic + "/" + deviceID;
+    String propertyBellTopic;
+
     @Before
-    public void setUp()
-            throws InterruptedException, MqttException, ConfigurationException, ExecutionException, TimeoutException {
+    public void setUp() throws InterruptedException, ConfigurationException, ExecutionException, TimeoutException {
         registerVolatileStorageService();
         initMocks(this);
         mqttService = getService(MqttService.class);
@@ -97,30 +122,37 @@ public class HomieImplementationTests extends JavaOSGiTest {
         embeddedConnection.setRetain(true);
         embeddedConnection.setQos(1);
 
-        // Add homie device topics
-        final String deviceID = "homie/" + ThingChannelConstants.testHomieThing.getId();
         List<CompletableFuture<Boolean>> futures = new ArrayList<>();
-        futures.add(embeddedConnection.publish(deviceID + "/$homie", "3.0".getBytes()));
-        futures.add(embeddedConnection.publish(deviceID + "/$name", "Name".getBytes()));
-        futures.add(embeddedConnection.publish(deviceID + "/$state", "ready".getBytes()));
-        futures.add(embeddedConnection.publish(deviceID + "/$nodes", "testnode".getBytes()));
+        futures.add(embeddedConnection.publish(deviceTopic + "/$homie", "3.0".getBytes()));
+        futures.add(embeddedConnection.publish(deviceTopic + "/$name", "Name".getBytes()));
+        futures.add(embeddedConnection.publish(deviceTopic + "/$state", "ready".getBytes()));
+        futures.add(embeddedConnection.publish(deviceTopic + "/$nodes", "testnode".getBytes()));
 
         // Add homie node topics
-        final String testNode = deviceID + "/testnode";
+        final String testNode = deviceTopic + "/testnode";
         futures.add(embeddedConnection.publish(testNode + "/$name", "Testnode".getBytes()));
         futures.add(embeddedConnection.publish(testNode + "/$type", "Type".getBytes()));
-        futures.add(embeddedConnection.publish(testNode + "/$properties", "temperature".getBytes()));
+        futures.add(embeddedConnection.publish(testNode + "/$properties", "temperature,doorbell".getBytes()));
 
         // Add homie property topics
         final String property = testNode + "/temperature";
+        futures.add(embeddedConnection.publish(property, "10".getBytes()));
         futures.add(embeddedConnection.publish(property + "/$name", "Testprop".getBytes()));
         futures.add(embeddedConnection.publish(property + "/$settable", "true".getBytes()));
         futures.add(embeddedConnection.publish(property + "/$unit", "°C".getBytes()));
         futures.add(embeddedConnection.publish(property + "/$datatype", "float".getBytes()));
         futures.add(embeddedConnection.publish(property + "/$format", "-100:100".getBytes()));
 
+        propertyBellTopic = testNode + "/doorbell";
+        futures.add(embeddedConnection.publish(propertyBellTopic + "/$name", "Doorbell".getBytes()));
+        futures.add(embeddedConnection.publish(propertyBellTopic + "/$settable", "false".getBytes()));
+        futures.add(embeddedConnection.publish(propertyBellTopic + "/$retained", "false".getBytes()));
+        futures.add(embeddedConnection.publish(propertyBellTopic + "/$datatype", "boolean".getBytes()));
+
         registeredTopics = futures.size();
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).get(200, TimeUnit.MILLISECONDS);
+
+        scheduler = new ScheduledThreadPoolExecutor(4);
     }
 
     @After
@@ -129,83 +161,159 @@ public class HomieImplementationTests extends JavaOSGiTest {
             connection.removeConnectionObserver(failIfChange);
             connection.stop().get(500, TimeUnit.MILLISECONDS);
         }
+        scheduler.shutdownNow();
     }
 
     @Test
-    public void reconnectTest()
-            throws InterruptedException, ExecutionException, TimeoutException, MqttException, ConfigurationException {
-        connection.removeConnectionObserver(failIfChange);
-        connection.stop().get(2000, TimeUnit.MILLISECONDS);
-        connection = new MqttBrokerConnection(embeddedConnection.getHost(), embeddedConnection.getPort(),
-                embeddedConnection.isSecure(), "homie");
-        connection.start().get(2000, TimeUnit.MILLISECONDS);
-        connection.stop().get(2000, TimeUnit.MILLISECONDS);
-        connection = new MqttBrokerConnection(embeddedConnection.getHost(), embeddedConnection.getPort(),
-                embeddedConnection.isSecure(), "homie");
-        connection.start().get(2000, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void retrieveAllTopics() throws MqttException, InterruptedException, ExecutionException, TimeoutException {
+    public void retrieveAllTopics() throws InterruptedException, ExecutionException, TimeoutException {
         CountDownLatch c = new CountDownLatch(registeredTopics);
-        connection.subscribe("homie/" + ThingChannelConstants.testHomieThing.getId() + "/#",
-                (topic, payload) -> c.countDown()).get(200, TimeUnit.MILLISECONDS);
+        connection.subscribe(deviceTopic + "/#", (topic, payload) -> c.countDown()).get(200, TimeUnit.MILLISECONDS);
         assertTrue("Connection " + connection.getClientId() + " not retrieving all topics",
                 c.await(200, TimeUnit.MILLISECONDS));
     }
 
     @Test
-    public void retrieveAttribute() throws MqttException, InterruptedException, ExecutionException, TimeoutException {
-        Semaphore semaphore = new Semaphore(1);
-        semaphore.acquire();
-        connection.subscribe("homie/" + ThingChannelConstants.testHomieThing.getId() + "/$homie",
-                (topic, payload) -> semaphore.release()).get(200, TimeUnit.MILLISECONDS);
-
-        assertTrue("Connection " + connection.getClientId() + " not retrieving the $homie topic",
-                semaphore.tryAcquire(200, TimeUnit.MILLISECONDS));
-    }
-
-    public Object answer(InvocationOnMock invocation) {
-        Device device = (Device) invocation.getMock();
-        return spy(new Node((String) invocation.getArguments()[0], device.thingUID, device.callback));
+    public void retrieveOneAttribute() throws InterruptedException, ExecutionException {
+        WaitForTopicValue watcher = new WaitForTopicValue(connection, deviceTopic + "/$homie");
+        assertThat(watcher.waitForTopicValue(100), is("3.0"));
     }
 
     @SuppressWarnings("null")
     @Test
-    public void parseHomieTree() throws MqttException, InterruptedException, ExecutionException, TimeoutException {
-        DeviceCallback callback = mock(DeviceCallback.class);
-        Device device = spy(new Device(ThingChannelConstants.testHomieThing, callback));
+    public void retrieveAttributes() throws InterruptedException, ExecutionException {
+        assertThat(connection.hasSubscribers(), is(false));
+
+        Node node = new Node(deviceTopic, "testnode", ThingChannelConstants.testHomieThing, callback,
+                new NodeAttributes());
+        Property property = spy(
+                new Property(deviceTopic + "/testnode", node, "temperature", callback, new PropertyAttributes()));
+
+        // Create a scheduler
         ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(4);
-        MqttTopicClassMapper topicMapper = new MqttTopicClassMapper(connection, scheduler);
 
-        doAnswer(this::answer).when(device).createNewNode(any());
-        device.subscribe(topicMapper, 200).get(500, TimeUnit.MILLISECONDS);
+        property.subscribe(connection, scheduler, 100).get();
 
-        assertThat(device.isInitializing(), is(false));
-        verify(callback).readyStateChanged(eq(ReadyState.ready));
-
-        assertThat(device.attributes.homie, is("3.0"));
-        assertThat(device.attributes.name, is("Name"));
-        assertThat(device.attributes.state, is(ReadyState.ready));
-
-        // Expect 1 node
-        verify(device, times(1)).createNewNode(any());
-
-        Node node = device.nodes.get("testnode");
-        verify(node).subscribe(any(), anyInt());
-        assertThat(node.attributes.type, is("Type"));
-        assertThat(node.attributes.name, is("Testnode"));
-
-        Property property = node.properties.get("temperature");
         assertThat(property.attributes.settable, is(true));
+        assertThat(property.attributes.retained, is(true));
         assertThat(property.attributes.name, is("Testprop"));
         assertThat(property.attributes.unit, is("°C"));
         assertThat(property.attributes.datatype, is(DataTypeEnum.float_));
         assertThat(property.attributes.format, is("-100:100"));
+        verify(property).attributesReceived();
+
+        // Receive property value
+        ChannelState channelState = spy(property.getChannelState());
+        PropertyHelper.setChannelState(property, channelState);
+
+        property.startChannel(connection, scheduler, 200).get();
+        verify(channelState).start(any(), any(), anyInt());
+        verify(channelState).processMessage(any(), any());
+        verify(callback).updateChannelState(any(), any());
+
+        assertThat(property.getChannelState().getValue().getValue(), is(new DecimalType(10)));
+
+        property.stop().get();
+        assertThat(connection.hasSubscribers(), is(false));
+    }
+
+    // Inject a spy'ed property
+    public Property createSpyProperty(InvocationOnMock invocation) {
+        final Node node = (Node) invocation.getMock();
+        final String id = (String) invocation.getArguments()[0];
+        Property property = spy(node.createProperty(id, spy(new PropertyAttributes())));
+        return property;
+    }
+
+    // Inject a spy'ed node
+    public Node createSpyNode(InvocationOnMock invocation) {
+        final Device device = (Device) invocation.getMock();
+        final String id = (String) invocation.getArguments()[0];
+        // Create the node
+        Node node = spy(device.createNode(id, spy(new NodeAttributes())));
+        // Intercept creating a property in the next call and inject a spy'ed property.
+        doAnswer(this::createSpyProperty).when(node).createProperty(any());
+        return node;
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void parseHomieTree() throws InterruptedException, ExecutionException, TimeoutException {
+        // Create a Homie Device object. Because spied Nodes are required for call verification,
+        // the full Device constructor need to be used and a ChildMap object need to be created manually.
+        ChildMap<Node> nodeMap = new ChildMap<>();
+        Device device = spy(new Device(ThingChannelConstants.testHomieThing, callback, new DeviceAttributes(),
+                new DeviceStatsAttributes(), nodeMap, Device.createDeviceStatisticsListener(handler)));
+
+        // Intercept creating a node in initialize()->start() and inject a spy'ed node.
+        doAnswer(this::createSpyNode).when(device).createNode(any());
+
+        // initialize the device, subscribe and wait.
+        device.initialize(baseTopic, deviceID, Collections.emptyList());
+        device.subscribe(connection, scheduler, 200).get();
+
+        assertThat(device.isInitialized(), is(true));
+
+        // Check device attributes
+        assertThat(device.attributes.homie, is("3.0"));
+        assertThat(device.attributes.name, is("Name"));
+        assertThat(device.attributes.state, is(ReadyState.ready));
+        assertThat(device.attributes.nodes.length, is(1));
+        verify(device, times(4)).attributeChanged(any(), any(), any(), any(), anyBoolean());
+        verify(callback).readyStateChanged(eq(ReadyState.ready));
+        verify(device).attributesReceived(any(), any(), anyInt());
+
+        // Expect 1 node
+        assertThat(device.nodes.size(), is(1));
+
+        // Check node and node attributes
+        Node node = device.nodes.get("testnode");
+        verify(node).subscribe(any(), any(), anyInt());
+        verify(node).attributesReceived(any(), any(), anyInt());
+        verify(node.attributes).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+        assertThat(node.attributes.type, is("Type"));
+        assertThat(node.attributes.name, is("Testnode"));
+
+        // Expect 2 property
+        assertThat(node.properties.size(), is(2));
+
+        // Check property and property attributes
+        Property property = node.properties.get("temperature");
+        assertThat(property.attributes.settable, is(true));
+        assertThat(property.attributes.retained, is(true));
+        assertThat(property.attributes.name, is("Testprop"));
+        assertThat(property.attributes.unit, is("°C"));
+        assertThat(property.attributes.datatype, is(DataTypeEnum.float_));
+        assertThat(property.attributes.format, is("-100:100"));
+        verify(property).attributesReceived();
+        assertNotNull(property.getChannelState());
         assertThat(property.getType().getState().getMinimum().intValue(), is(-100));
         assertThat(property.getType().getState().getMaximum().intValue(), is(100));
 
-        // One for node parsing, one for each nodes property parsing
-        verify(callback, times(2)).propertiesChanged();
+        // Check property and property attributes
+        Property propertyBell = node.properties.get("doorbell");
+        verify(propertyBell).attributesReceived();
+        assertThat(propertyBell.attributes.settable, is(false));
+        assertThat(propertyBell.attributes.retained, is(false));
+        assertThat(propertyBell.attributes.name, is("Doorbell"));
+        assertThat(propertyBell.attributes.datatype, is(DataTypeEnum.boolean_));
+
+        // The device->node->property tree is ready. Now subscribe to property values.
+        device.startChannels(connection, scheduler, 50, handler).get();
+        assertThat(propertyBell.getChannelState().isStateful(), is(false));
+        assertThat(propertyBell.getChannelState().getValue().getValue(), is(UnDefType.UNDEF));
+        assertThat(property.getChannelState().getValue().getValue(), is(new DecimalType(10)));
+
+        WaitForTopicValue watcher = new WaitForTopicValue(embeddedConnection, propertyBellTopic + "/set");
+        // Watch the topic. Publish a retain=false ON value to MQTT
+        propertyBell.getChannelState().setValue(OnOffType.ON).get();
+        assertThat(watcher.waitForTopicValue(50), is("true"));
+
+        // Publish a retain=false OFF value to MQTT.
+        propertyBell.getChannelState().setValue(OnOffType.OFF).get();
+        // This test is flaky if the MQTT broker does not get a time to "forget" this non-retained value
+        Thread.sleep(50);
+        // No value is expected to be retained on this MQTT topic
+        watcher = new WaitForTopicValue(embeddedConnection, propertyBellTopic + "/set");
+        assertNull(watcher.waitForTopicValue(50));
     }
 }

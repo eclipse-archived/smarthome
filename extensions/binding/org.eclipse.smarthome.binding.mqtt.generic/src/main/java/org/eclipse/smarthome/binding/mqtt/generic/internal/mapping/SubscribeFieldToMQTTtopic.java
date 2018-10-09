@@ -30,31 +30,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Used by {@link MqttTopicClassMapper}. Represents an internal MessageSubscriber object for a specific field.
+ * Use this class to subscribe to a given MQTT topic via a {@link MqttMessageSubscriber}
+ * and convert received values to the type of the given field and notify the user of the changed value.
+ *
+ * Used by {@link AbstractMqttAttributeClass}.
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class FieldMqttMessageSubscriber implements MqttMessageSubscriber {
-    private final Logger logger = LoggerFactory.getLogger(FieldMqttMessageSubscriber.class);
-    protected final CompletableFuture<Boolean> future = new CompletableFuture<>();
+public class SubscribeFieldToMQTTtopic implements MqttMessageSubscriber {
+    private final Logger logger = LoggerFactory.getLogger(SubscribeFieldToMQTTtopic.class);
+    protected CompletableFuture<@Nullable Void> future = new CompletableFuture<>();
     public final Field field;
-    public final Object objectWithFields;
+    public final FieldChanged changeConsumer;
     public final String topic;
-    public final @Nullable FieldChanged changeCallback;
     private final ScheduledExecutorService scheduler;
     private @Nullable ScheduledFuture<?> scheduledFuture;
+    private final boolean mandatory;
+    private boolean receivedValue = false;
 
-    FieldMqttMessageSubscriber(ScheduledExecutorService scheduler, Field field, Object objectWithFields, String topic,
-            @Nullable FieldChanged changeCallback) {
-        this.scheduler = scheduler;
-        this.field = field;
-        this.objectWithFields = objectWithFields;
-        this.topic = topic;
-        this.changeCallback = changeCallback;
+    /**
+     * Implement this interface to be notified of an updated field.
+     */
+    public interface FieldChanged {
+        void fieldChanged(Field field, Object value);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Create a {@link SubscribeFieldToMQTTtopic}.
+     *
+     * @param scheduler A scheduler to realize subscription timeouts.
+     * @param field The destination field.
+     * @param fieldChangeListener A listener for field changes. This is only called if the received value
+     *            could successfully be converted to the field type.
+     * @param topic The MQTT topic.
+     * @param mandatory True of this field is a mandatory one. A timeout will cause a future to complete exceptionally.
+     */
+    public SubscribeFieldToMQTTtopic(ScheduledExecutorService scheduler, Field field, FieldChanged fieldChangeListener,
+            String topic, boolean mandatory) {
+        this.scheduler = scheduler;
+        this.field = field;
+        this.changeConsumer = fieldChangeListener;
+        this.topic = topic;
+        this.mandatory = mandatory;
+    }
+
     static Object numberConvert(Object value, Class<?> type) throws IllegalArgumentException, NumberFormatException {
         Object result = value;
         // Handle the conversion case of BigDecimal to Float,Double,Long,Integer and the respective
@@ -88,17 +108,24 @@ public class FieldMqttMessageSubscriber implements MqttMessageSubscriber {
                 result = Integer.valueOf(bdValue);
             } else if (type.equals(Boolean.class) || typeName.equals("boolean")) {
                 result = Boolean.valueOf(bdValue);
-            } else
-            // Handle enums
-            if (type.isEnum()) {
-                @SuppressWarnings({ "rawtypes" })
+            } else if (type.isEnum()) {
+                @SuppressWarnings({ "rawtypes", "unchecked" })
                 final Class<? extends Enum> enumType = (Class<? extends Enum>) type;
-                return Enum.valueOf(enumType, value.toString());
+                @SuppressWarnings("unchecked")
+                Enum<?> enumValue = Enum.valueOf(enumType, value.toString());
+                result = enumValue;
             }
         }
         return result;
     }
 
+    /**
+     * Callback by the {@link MqttBrokerConnection} if a matching topic received a new value.
+     * Because routing is already done by aforementioned class, the topic parameter is not checked again.
+     *
+     * @param topic The MQTT topic. Not used.
+     * @param payload The MQTT payload.
+     */
     @SuppressWarnings({ "null", "unused" })
     @Override
     public void processMessage(@NonNull String topic, byte @NonNull [] payload) {
@@ -109,50 +136,45 @@ public class FieldMqttMessageSubscriber implements MqttMessageSubscriber {
         }
         String valueStr = new String(payload, StandardCharsets.UTF_8);
 
-        try {
-            // Check if there is a manipulation annotation attached to the field
-            final MapToField mapToField = field.getAnnotation(MapToField.class);
-            Object value;
-            if (mapToField != null) {
-                // Add a prefix/suffix to the value
-                valueStr = mapToField.prefix() + valueStr + mapToField.suffix();
-                // Split the value if the field is an array. Convert numbers/enums if necessary.
-                value = field.getType().isArray() ? valueStr.split(mapToField.splitCharacter())
-                        : numberConvert(valueStr, field.getType());
-            } else if (field.getType().isArray()) {
-                throw new IllegalArgumentException("No split character defined!");
-            } else {
-                // Convert numbers/enums if necessary
-                value = numberConvert(valueStr, field.getType());
-            }
-            // Assign to field, invoke callback
-            field.set(objectWithFields, value);
-            if (changeCallback != null) {
-                changeCallback.fieldChanged(future, field.getName(), value);
-            } else {
-                future.complete(true);
-            }
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            logger.warn("Could not assign value {} to field {}", valueStr, field, e);
-            future.complete(true);
+        // Check if there is a manipulation annotation attached to the field
+        final MQTTvalueTransform transform = field.getAnnotation(MQTTvalueTransform.class);
+        Object value;
+        if (transform != null) {
+            // Add a prefix/suffix to the value
+            valueStr = transform.prefix() + valueStr + transform.suffix();
+            // Split the value if the field is an array. Convert numbers/enums if necessary.
+            value = field.getType().isArray() ? valueStr.split(transform.splitCharacter())
+                    : numberConvert(valueStr, field.getType());
+        } else if (field.getType().isArray()) {
+            throw new IllegalArgumentException("No split character defined!");
+        } else {
+            // Convert numbers/enums if necessary
+            value = numberConvert(valueStr, field.getType());
         }
+        receivedValue = true;
+        changeConsumer.fieldChanged(field, value);
+        future.complete(null);
     }
 
     void timeoutReached() {
-        future.complete(false);
+        if (mandatory) {
+            future.completeExceptionally(new Exception("Did not receive mandatory topic value: " + topic));
+        } else {
+            future.complete(null);
+        }
     }
 
     /**
-     * Subscribe to the MQTT topic now.
+     * Subscribe to the MQTT topic. A {@link SubscribeFieldToMQTTtopic} cannot be stopped.
+     * You need to manually unsubscribe from the {@link #topic} before disposing.
      *
      * @param connection An MQTT connection.
      * @param timeout Timeout in milliseconds. The returned future completes after this time even if no message has
-     *            been
-     *            received for the MQTT topic.
+     *            been received for the MQTT topic.
      * @return Returns a future that completes if either a value is received for the topic or a timeout happens.
      * @throws MqttException If an MQTT IO exception happens this exception is thrown.
      */
-    public CompletableFuture<Boolean> start(MqttBrokerConnection connection, int timeout) {
+    public CompletableFuture<@Nullable Void> subscribeAndReceive(MqttBrokerConnection connection, int timeout) {
         connection.subscribe(topic, this).exceptionally(e -> {
             logger.debug("Failed to subscribe to topic {}", topic, e);
             final ScheduledFuture<?> scheduledFuture = this.scheduledFuture;
@@ -160,10 +182,27 @@ public class FieldMqttMessageSubscriber implements MqttMessageSubscriber {
                 scheduledFuture.cancel(false);
                 this.scheduledFuture = null;
             }
-            future.complete(false);
+            future.complete(null);
             return false;
+        }).thenRun(() -> {
+            if (!future.isDone()) {
+                this.scheduledFuture = scheduler.schedule(this::timeoutReached, timeout, TimeUnit.MILLISECONDS);
+            }
         });
-        this.scheduledFuture = scheduler.schedule(this::timeoutReached, timeout, TimeUnit.MILLISECONDS);
         return future;
+    }
+
+    /**
+     * Return true if the corresponding field has received a value at least once.
+     */
+    public boolean hasReceivedValue() {
+        return receivedValue;
+    }
+
+    /**
+     * Return true if the corresponding field is mandatory.
+     */
+    public boolean isMandatory() {
+        return mandatory;
     }
 }

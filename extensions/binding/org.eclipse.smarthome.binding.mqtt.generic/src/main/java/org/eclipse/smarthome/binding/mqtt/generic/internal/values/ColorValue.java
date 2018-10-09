@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * Implements a color value.
@@ -36,7 +37,8 @@ import org.eclipse.smarthome.core.types.StateDescription;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class ColorValue implements AbstractMqttThingValue {
+public class ColorValue implements Value {
+    private State state = UnDefType.UNDEF;
     private HSBType colorValue;
     private final boolean isRGB;
     private final String onValue;
@@ -72,7 +74,7 @@ public class ColorValue implements AbstractMqttThingValue {
 
     @Override
     public State getValue() {
-        return colorValue;
+        return state;
     }
 
     /**
@@ -111,6 +113,7 @@ public class ColorValue implements AbstractMqttThingValue {
         } else {
             throw new IllegalArgumentException("Didn't recognise the color value " + command.toString());
         }
+        state = colorValue;
         return colorValue.toString();
     }
 
@@ -136,6 +139,7 @@ public class ColorValue implements AbstractMqttThingValue {
         } else {
             colorValue = new HSBType(updatedValue);
         }
+        state = colorValue;
         return colorValue;
     }
 
@@ -147,5 +151,10 @@ public class ColorValue implements AbstractMqttThingValue {
     @Override
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(null, null, null, "%s " + unit, readOnly, Collections.emptyList());
+    }
+
+    @Override
+    public void resetState() {
+        state = UnDefType.UNDEF;
     }
 }

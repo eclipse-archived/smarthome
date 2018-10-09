@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
      * @param connection A started broker connection
      * @return A future that completes normal on success and exceptionally on any errors.
      */
-    abstract protected CompletableFuture<Void> start(MqttBrokerConnection connection);
+    abstract protected CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection);
 
     /**
      * Called when the MQTT connection disappeared.
@@ -111,6 +112,9 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
 
         if (data == null) {
             logger.warn("Channel {} not supported", channelUID.getId());
+            if (command instanceof RefreshType) {
+                updateState(channelUID.getId(), UnDefType.UNDEF);
+            }
             return;
         }
 
@@ -119,12 +123,11 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
             return;
         }
 
-        data.setValue(command).thenRun(
-                () -> logger.debug("Successfully published value {} to topic {}", command, data.getStateTopic()))
-                .exceptionally(e -> {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
-                    return null;
-                });
+        final CompletableFuture<@Nullable Void> future = data.setValue(command);
+        future.exceptionally(e -> {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
+            return null;
+        }).thenRun(() -> logger.debug("Successfully published value {} to topic {}", command, data.getStateTopic()));
     }
 
     @Override
@@ -143,24 +146,31 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
 
         AbstractBrokerHandler h = getBridgeHandler();
         if (h == null) {
+            logger.warn("Bridge handler not found!");
             return;
         }
-        this.connection = h.getConnection();
-        MqttBrokerConnection connection = this.connection;
-        if (connection != null) {
-            // Start up (subscribe to MQTT topics). Limit with a timeout and catch exceptions.
-            // We do not set the thing to ONLINE here in the AbstractBase, that is the responsibility of a derived
-            // class.
-            try {
-                start(connection).thenApply(e -> true).exceptionally(e -> {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
-                    return null;
-                }).get(subscribeTimeout, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                        "Did not receive all required topics");
-            }
 
+        final MqttBrokerConnection connection;
+        try {
+            connection = h.getConnectionAsync().get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED,
+                    "Bridge handler has no valid broker connection!");
+            return;
+        }
+        this.connection = connection;
+
+        // Start up (subscribe to MQTT topics). Limit with a timeout and catch exceptions.
+        // We do not set the thing to ONLINE here in the AbstractBase, that is the responsibility of a derived
+        // class.
+        try {
+            start(connection).thenApply(e -> true).exceptionally(e -> {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
+                return null;
+            }).get(subscribeTimeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    "Did not receive all required topics");
         }
     }
 
@@ -190,6 +200,12 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
     @Override
     public void initialize() {
         bridgeStatusChanged(getBridgeStatus());
+    }
+
+    @Override
+    public void handleRemoval() {
+        stop();
+        super.handleRemoval();
     }
 
     @Override

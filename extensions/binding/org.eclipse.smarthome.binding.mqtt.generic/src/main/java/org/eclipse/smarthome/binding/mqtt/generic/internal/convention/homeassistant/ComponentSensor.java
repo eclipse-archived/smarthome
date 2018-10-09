@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -53,16 +54,17 @@ public class ComponentSensor extends AbstractComponent {
 
     protected Config config = new Config();
 
-    public ComponentSensor(ThingUID thing, String componentID, String configJSON) {
-        super(thing, componentID);
+    public ComponentSensor(ThingUID thing, HaID haID, String configJSON,
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+        super(thing, haID, configJSON);
         config = new Gson().fromJson(configJSON, Config.class);
 
         if (config.force_update) {
             throw new UnsupportedOperationException("Component:Sensor does not support forced updates");
         }
 
-        channels.put(sensorChannelID, new CChannel(thing, componentID, sensorChannelID, new TextValue(),
-                config.state_topic, null, config.name, config.unit_of_measurement));
+        channels.put(sensorChannelID, new CChannel(this, sensorChannelID, new TextValue(), config.state_topic, null,
+                config.name, config.unit_of_measurement, channelStateUpdateListener));
     }
 
     @Override

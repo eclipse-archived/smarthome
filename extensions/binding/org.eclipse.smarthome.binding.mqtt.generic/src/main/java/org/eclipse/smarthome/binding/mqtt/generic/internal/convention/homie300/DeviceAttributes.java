@@ -12,7 +12,10 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MapToField;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MQTTvalueTransform;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MandatoryField;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.TopicPrefix;
 
 /**
@@ -21,7 +24,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.TopicPrefix;
  * @author David Graeff - Initial contribution
  */
 @TopicPrefix
-public class DeviceAttributes {
+public class DeviceAttributes extends AbstractMqttAttributeClass {
     // Lower-case enum value names required. Those are identifiers for the MQTT/homie protocol.
     public enum ReadyState {
         unknown,
@@ -33,14 +36,15 @@ public class DeviceAttributes {
         alert
     }
 
-    public String homie;
-    public String name;
-    public ReadyState state = ReadyState.unknown;
-    public String localip;
-    public String mac;
-    public @MapToField(splitCharacter = ",") String[] nodes;
-    public String implementation;
-    public String stats;
+    public @MandatoryField String homie;
+    public @MandatoryField String name;
+    public @MandatoryField ReadyState state = ReadyState.unknown;
+    public @MandatoryField @MQTTvalueTransform(splitCharacter = ",") String[] nodes;
+
+    @Override
+    public @NonNull Object getFieldsOf() {
+        return this;
+    }
 
     // TODO A later PR may implement the firmware/OTA part
     // @TopicPrefix("")

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * Implements a text/string value. Allows to restrict the incoming value to a set of states.
@@ -33,13 +35,25 @@ import org.eclipse.smarthome.core.types.StateOption;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class TextValue implements AbstractMqttThingValue {
+public class TextValue implements Value {
+    private State state = UnDefType.UNDEF;
     private StringType strValue;
     private final @Nullable Set<String> states;
 
+    /**
+     * Create a string value with a limited number of allowed states.
+     *
+     * @param states Allowed states. Empty states are filtered out. If the resulting set is empty, all string values
+     *            will be allowed.
+     */
     public TextValue(String[] states) {
         strValue = new StringType();
-        this.states = states.length > 0 ? Stream.of(states).collect(Collectors.toSet()) : null;
+        Set<String> s = Stream.of(states).filter(e -> StringUtils.isNotBlank(e)).collect(Collectors.toSet());
+        if (s.size() > 0) {
+            this.states = s;
+        } else {
+            this.states = null;
+        }
     }
 
     public TextValue() {
@@ -49,7 +63,7 @@ public class TextValue implements AbstractMqttThingValue {
 
     @Override
     public State getValue() {
-        return strValue;
+        return state;
     }
 
     @Override
@@ -60,7 +74,8 @@ public class TextValue implements AbstractMqttThingValue {
             throw new IllegalArgumentException("Value " + value + " not within range");
         }
         strValue = new StringType(value);
-        return strValue.toString();
+        state = strValue;
+        return value;
     }
 
     @Override
@@ -70,6 +85,7 @@ public class TextValue implements AbstractMqttThingValue {
             throw new IllegalArgumentException("Value " + value + " not within range");
         }
         strValue = new StringType(value);
+        state = strValue;
         return strValue;
     }
 
@@ -95,5 +111,10 @@ public class TextValue implements AbstractMqttThingValue {
             }
         }
         return new StateDescription(null, null, null, "%s " + unit, readOnly, stateOptions);
+    }
+
+    @Override
+    public void resetState() {
+        state = UnDefType.UNDEF;
     }
 }

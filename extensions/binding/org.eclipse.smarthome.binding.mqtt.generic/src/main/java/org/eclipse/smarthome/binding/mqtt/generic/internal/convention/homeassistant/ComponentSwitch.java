@@ -15,6 +15,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -56,8 +57,9 @@ public class ComponentSwitch extends AbstractComponent {
 
     protected Config config = new Config();
 
-    public ComponentSwitch(ThingUID thing, String componentID, String configJSON) {
-        super(thing, componentID);
+    public ComponentSwitch(ThingUID thing, HaID haID, String configJSON,
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+        super(thing, haID, configJSON);
         config = new Gson().fromJson(configJSON, Config.class);
 
         // We do not support all HomeAssistant quirks
@@ -67,8 +69,8 @@ public class ComponentSwitch extends AbstractComponent {
 
         final OnOffValue value = config.command_topic != null ? new OnOffValue(config.state_on, config.state_off, false)
                 : OnOffValue.createReceiveOnly(config.state_on, config.state_off, false);
-        channels.put(switchChannelID, new CChannel(thing, componentID, switchChannelID, value, config.state_topic,
-                config.command_topic, config.name, ""));
+        channels.put(switchChannelID, new CChannel(this, switchChannelID, value, config.state_topic,
+                config.command_topic, config.name, "", channelStateUpdateListener));
     }
 
     @Override
