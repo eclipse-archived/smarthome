@@ -106,11 +106,12 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     }
 
     /**
-     * Creates a new instance of this class with the specified parameters.
+     * Creates a new instance of this class with the specified parameters and background discovery enabled.
      *
      * @param supportedThingTypes the list of Thing types which are supported (can be null)
      * @param timeout the discovery timeout in seconds after which the discovery service
      *            automatically stops its forced discovery process (>= 0).
+     *            If set to 0, disables the automatic stop.
      * @throws IllegalArgumentException if the timeout < 0
      */
     public AbstractDiscoveryService(@Nullable Set<ThingTypeUID> supportedThingTypes, int timeout)
@@ -119,10 +120,11 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     }
 
     /**
-     * Creates a new instance of this class with the specified parameters.
+     * Creates a new instance of this class with the specified parameters and background discovery enabled.
      *
      * @param timeout the discovery timeout in seconds after which the discovery service
      *            automatically stops its forced discovery process (>= 0).
+     *            If set to 0, disables the automatic stop.
      * @throws IllegalArgumentException if the timeout < 0
      */
     public AbstractDiscoveryService(int timeout) throws IllegalArgumentException {
