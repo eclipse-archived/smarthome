@@ -46,6 +46,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -432,7 +433,7 @@ public class ChangeThingTypeOSGiTest extends JavaOSGiTest {
 
         channelTypes.put(channelTypeUID, channelType);
 
-        ChannelDefinition cd = new ChannelDefinition("channel" + thingTypeUID.getId(), channelTypeUID);
+        ChannelDefinition cd = new ChannelDefinitionBuilder("channel" + thingTypeUID.getId(), channelTypeUID).build();
         channelDefinitions.add(cd);
         return channelDefinitions;
     }

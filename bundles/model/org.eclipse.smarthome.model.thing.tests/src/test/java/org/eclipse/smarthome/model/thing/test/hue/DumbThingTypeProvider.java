@@ -23,6 +23,7 @@ import java.util.Map;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
@@ -42,8 +43,8 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
     public DumbThingTypeProvider() {
         logger.debug("DumbThingTypeProvider created");
         try {
-            ChannelDefinition channel1 = new ChannelDefinition("channel1",
-                    new ChannelTypeUID(DumbThingHandlerFactory.BINDING_ID, "channel1"));
+            ChannelDefinition channel1 = new ChannelDefinitionBuilder("channel1",
+                    new ChannelTypeUID(DumbThingHandlerFactory.BINDING_ID, "channel1")).build();
             List<ChannelDefinition> channelDefinitions = Collections.singletonList(channel1);
 
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,

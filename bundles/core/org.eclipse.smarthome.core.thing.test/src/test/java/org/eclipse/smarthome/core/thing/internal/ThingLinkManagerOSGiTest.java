@@ -43,7 +43,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ThingLinkManager;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
@@ -79,7 +79,7 @@ public class ThingLinkManagerOSGiTest extends JavaOSGiTest {
     private ItemRegistry itemRegistry;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
 
-    private Map<String, Object> context = new ConcurrentHashMap<>();
+    private final Map<String, Object> context = new ConcurrentHashMap<>();
 
     @Before
     public void setup() {
@@ -122,7 +122,8 @@ public class ThingLinkManagerOSGiTest extends JavaOSGiTest {
         registerService(channelTypeProvider);
 
         ThingType thingType = ThingTypeBuilder.instance(new ThingTypeUID("hue:lamp"), "label")
-                .withChannelDefinitions(singletonList(new ChannelDefinition("1", channelType.getUID()))).build();
+                .withChannelDefinitions(singletonList(new ChannelDefinitionBuilder("1", channelType.getUID()).build()))
+                .build();
         SimpleThingTypeProvider thingTypeProvider = new SimpleThingTypeProvider(singletonList(thingType));
         registerService(thingTypeProvider);
     }

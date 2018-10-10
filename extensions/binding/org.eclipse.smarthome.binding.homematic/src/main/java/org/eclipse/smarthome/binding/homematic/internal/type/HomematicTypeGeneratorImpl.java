@@ -42,6 +42,7 @@ import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
@@ -160,8 +161,8 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
                                     channelTypeProvider.addChannelType(channelType);
                                 }
 
-                                ChannelDefinition channelDef = new ChannelDefinition(dp.getName(),
-                                        channelType.getUID());
+                                ChannelDefinition channelDef = new ChannelDefinitionBuilder(dp.getName(),
+                                        channelType.getUID()).build();
                                 channelDefinitions.add(channelDef);
                             }
                         }

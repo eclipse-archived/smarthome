@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.AutoUpdatePolicy;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -131,10 +132,9 @@ public class ChannelXmlResult {
             propertiesMap.put(property.getAttributes().get("name"), (String) property.getValue());
         }
 
-        ChannelDefinition channelDefinition = new ChannelDefinition(id, new ChannelTypeUID(typeUID), propertiesMap,
-                getLabel(), getDescription(), getAutoUpdatePolicy());
-
-        return channelDefinition;
+        return new ChannelDefinitionBuilder(id, new ChannelTypeUID(typeUID)).withProperties(propertiesMap)
+                .withLabel(getLabel()).withDescription(getDescription()).withAutoUpdatePolicy(getAutoUpdatePolicy())
+                .build();
     }
 
     private String getTypeUID(String bindingId, String typeId) {
