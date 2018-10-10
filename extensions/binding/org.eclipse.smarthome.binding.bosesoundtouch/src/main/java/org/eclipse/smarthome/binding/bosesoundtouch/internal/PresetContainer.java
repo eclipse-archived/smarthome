@@ -77,6 +77,15 @@ public class PresetContainer {
             throw new ContentItemNotPresetableException();
         }
     }
+    
+    /**
+     * Remove the Preset stored under the specified Id
+     * @param presetID
+     */
+    public void remove(int presetID) {
+        mapOfPresets.remove(presetID);
+        writeToStorage();
+    }
 
     /**
      * Returns the Preset with presetID

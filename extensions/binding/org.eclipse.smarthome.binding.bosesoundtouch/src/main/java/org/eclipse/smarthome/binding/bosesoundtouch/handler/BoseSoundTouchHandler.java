@@ -17,10 +17,13 @@ import static org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchBinding
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
@@ -33,6 +36,7 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.APIRequest;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration;
+import org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseStateDescriptionOptionProvider;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.CommandExecutor;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.OperationModeType;
 import org.eclipse.smarthome.binding.bosesoundtouch.internal.PresetContainer;
@@ -54,6 +58,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +87,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
     private volatile CommandExecutor commandExecutor;
 
     private PresetContainer presetContainer;
-    
+    private BoseStateDescriptionOptionProvider stateOptionProvider;
     private int missedPongsCount = 0;
 
     /**
@@ -93,9 +98,11 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
      *
      * @throws IllegalArgumentException if thing or factory argument is null
      */
-    public BoseSoundTouchHandler(Thing thing, PresetContainer presetContainer) {
+    public BoseSoundTouchHandler(Thing thing, PresetContainer presetContainer,
+            BoseStateDescriptionOptionProvider stateOptionProvider) {
         super(thing);
         this.presetContainer = presetContainer;
+        this.stateOptionProvider = stateOptionProvider;
         xmlResponseProcessor = new XMLResponseProcessor(this);
     }
 
@@ -107,18 +114,18 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
 
     @Override
     public void dispose() {
-        super.dispose();
-        closeConnection();
         if (connectionChecker != null && !connectionChecker.isCancelled()) {
-            connectionChecker.cancel(false);
+            connectionChecker.cancel(true);
             connectionChecker = null;
         }
+        closeConnection();
+        super.dispose();
     }
 
     @Override
     public void handleRemoval() {
-        super.handleRemoval();
         presetContainer.clear();
+        super.handleRemoval();
     }
 
     @Override // just overwrite to give CommandExecutor access
@@ -402,6 +409,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
             logger.debug("{}: Connecting to: {}", getDeviceName(), wsUrl);
             ClientUpgradeRequest request = new ClientUpgradeRequest();
             request.setSubProtocols("gabbo");
+            client.setStopTimeout(1000);
             client.start();
             client.connect(this, new URI(wsUrl), request);
         } catch (Exception e) {
@@ -456,4 +464,12 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
         }
     }
 
+    public void refreshPresetChannel() {
+        List<StateOption> stateOptions = presetContainer.getAllPresets().stream()
+                .map(e -> new StateOption(String.valueOf(e.getPresetID()),
+                        String.valueOf(e.getPresetID()) + ": " + e.getItemName()))
+                .sorted(Comparator.comparing(StateOption::getValue)).collect(Collectors.toList());
+        
+        stateOptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), CHANNEL_PRESET), stateOptions);
+    }
 }
