@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.i18n.TranslationProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
@@ -150,16 +151,18 @@ public class DsDeviceThingTypeProvider extends BaseDsI18n implements ThingTypePr
                 logger.debug("An URISyntaxException occurred: ", e);
             }
             if (SupportedThingTypes.GR.equals(supportedThingType)) {
-                thingTypeBuilder.withChannelDefinitions(Arrays.asList(new ChannelDefinition(DsChannelTypeProvider.SHADE,
-                        new ChannelTypeUID(DigitalSTROMBindingConstants.BINDING_ID, DsChannelTypeProvider.SHADE))));
+                thingTypeBuilder.withChannelDefinitions(Arrays.asList(new ChannelDefinitionBuilder(
+                        DsChannelTypeProvider.SHADE,
+                        new ChannelTypeUID(DigitalSTROMBindingConstants.BINDING_ID, DsChannelTypeProvider.SHADE))
+                                .build()));
             }
             if (SupportedThingTypes.circuit.equals(supportedThingType)) {
                 List<ChannelDefinition> channelDefinitions = new ArrayList<ChannelDefinition>(3);
                 for (MeteringTypeEnum meteringType : MeteringTypeEnum.values()) {
-                    channelDefinitions.add(new ChannelDefinition(
+                    channelDefinitions.add(new ChannelDefinitionBuilder(
                             DsChannelTypeProvider.getMeteringChannelID(meteringType, MeteringUnitsEnum.WH, false),
                             new ChannelTypeUID(DigitalSTROMBindingConstants.BINDING_ID, DsChannelTypeProvider
-                                    .getMeteringChannelID(meteringType, MeteringUnitsEnum.WH, false))));
+                                    .getMeteringChannelID(meteringType, MeteringUnitsEnum.WH, false))).build());
                 }
                 thingTypeBuilder.withChannelDefinitions(channelDefinitions);
             }

@@ -41,6 +41,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
@@ -115,8 +116,8 @@ public class ThingFactoryTest extends JavaOSGiTest {
 
         registerChannelTypes(Stream.of(channelType1, channelType2).collect(toSet()), emptyList());
 
-        ChannelDefinition cd1 = new ChannelDefinition("channel1", channelType1.getUID());
-        ChannelDefinition cd2 = new ChannelDefinition("channel2", channelType2.getUID());
+        ChannelDefinition cd1 = new ChannelDefinitionBuilder("channel1", channelType1.getUID()).build();
+        ChannelDefinition cd2 = new ChannelDefinitionBuilder("channel2", channelType2.getUID()).build();
 
         return Stream.of(cd1, cd2).collect(toList());
     }
@@ -216,8 +217,8 @@ public class ThingFactoryTest extends JavaOSGiTest {
 
         registerChannelTypes(Stream.of(channelType1, channelType2).collect(toSet()), emptyList());
 
-        ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1.getUID());
-        ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2.getUID());
+        ChannelDefinition channelDef1 = new ChannelDefinitionBuilder("ch1", channelType1.getUID()).build();
+        ChannelDefinition channelDef2 = new ChannelDefinitionBuilder("ch2", channelType2.getUID()).build();
 
         ThingType thingType = ThingTypeBuilder.instance(new ThingTypeUID("bindingId:thingType"), "label")
                 .withSupportedBridgeTypeUIDs(emptyList())
@@ -247,8 +248,8 @@ public class ThingFactoryTest extends JavaOSGiTest {
                 .state(new ChannelTypeUID("bindingId:channelTypeId2"), "channelLabel2", "Dimmer").withTag("tag3")
                 .build();
 
-        ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1.getUID());
-        ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2.getUID());
+        ChannelDefinition channelDef1 = new ChannelDefinitionBuilder("ch1", channelType1.getUID()).build();
+        ChannelDefinition channelDef2 = new ChannelDefinitionBuilder("ch2", channelType2.getUID()).build();
 
         ChannelGroupType channelGroupType1 = ChannelGroupTypeBuilder
                 .instance(new ChannelGroupTypeUID("bindingid:groupTypeId1"), "label").isAdvanced(false)

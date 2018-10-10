@@ -70,7 +70,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
@@ -124,7 +124,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private static final ThingUID BRIDGE_UID = new ThingUID(BRIDGE_TYPE_UID, "bridge");
 
     private static final ChannelUID CHANNEL_UID = new ChannelUID(THING_UID, CHANNEL_ID);
-    
+
     private static final ChannelGroupUID CHANNEL_GROUP_UID = new ChannelGroupUID(THING_UID, CHANNEL_GROUP_ID);
 
     private Thing THING;
@@ -622,7 +622,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         ThingStatusInfo thingStatusInfo = ThingStatusInfoBuilder
                 .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
         THING.setStatusInfo(thingStatusInfo);
-        
+
         new Thread((Runnable) () -> managedThingProvider.add(THING)).start();
 
         waitForAssert(() -> {
@@ -645,7 +645,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
 
         // Reset the flag
         disposeInvoked.set(false);
-        
+
         // Enable the thing
         thingManager.setEnabled(THING_UID, true);
         waitForAssert(() -> {
@@ -929,7 +929,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
             }).when(mockHandler).setCallback(ArgumentMatchers.isA(ThingHandlerCallback.class));
 
             doAnswer(a -> {
-                
+
                 initializeInvoked.set(true);
 
                 // call thingUpdated() from within initialize()
@@ -1019,7 +1019,8 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private void registerThingTypeProvider() throws Exception {
         ThingType thingType = ThingTypeBuilder.instance(THING_TYPE_UID, "label")
                 .withConfigDescriptionURI(CONFIG_DESCRIPTION_THING)
-                .withChannelDefinitions(Collections.singletonList(new ChannelDefinition(CHANNEL_ID, CHANNEL_TYPE_UID)))
+                .withChannelDefinitions(
+                        Collections.singletonList(new ChannelDefinitionBuilder(CHANNEL_ID, CHANNEL_TYPE_UID).build()))
                 .build();
 
         ThingTypeProvider mockThingTypeProvider = mock(ThingTypeProvider.class);
@@ -1040,7 +1041,8 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     private void registerChannelGroupTypeProvider() throws Exception {
         ChannelGroupType channelGroupType = ChannelGroupTypeBuilder.instance(CHANNEL_GROUP_TYPE_UID, "Test Group Label")
                 .withDescription("Test Group Description").withCategory("Test Group Category")
-                .withChannelDefinitions(Collections.singletonList(new ChannelDefinition(CHANNEL_ID, CHANNEL_TYPE_UID)))
+                .withChannelDefinitions(
+                        Collections.singletonList(new ChannelDefinitionBuilder(CHANNEL_ID, CHANNEL_TYPE_UID).build()))
                 .build();
 
         ChannelGroupTypeProvider mockChannelGroupTypeProvider = mock(ChannelGroupTypeProvider.class);

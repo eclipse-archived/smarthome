@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.thing.i18n.ChannelGroupTypeI18nLocalizationSer
 import org.eclipse.smarthome.core.thing.i18n.ChannelTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.i18n.ThingTypeI18nLocalizationService;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -65,6 +66,7 @@ public class ChannelI18nUtil {
             final @Nullable Locale locale) {
         List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(channelDefinitions.size());
         for (final ChannelDefinition channelDefinition : channelDefinitions) {
+            final ChannelDefinitionBuilder builder = new ChannelDefinitionBuilder(channelDefinition);
             String channelLabel = channelLabelResolver.apply(channelDefinition);
             String channelDescription = channelDescriptionResolver.apply(channelDefinition);
             if (channelLabel == null || channelDescription == null) {
@@ -81,9 +83,9 @@ public class ChannelI18nUtil {
                     }
                 }
             }
-            localizedChannelDefinitions.add(new ChannelDefinition(channelDefinition.getId(),
-                    channelDefinition.getChannelTypeUID(), channelDefinition.getProperties(), channelLabel,
-                    channelDescription, channelDefinition.getAutoUpdatePolicy()));
+            builder.withLabel(channelLabel);
+            builder.withDescription(channelDescription);
+            localizedChannelDefinitions.add(builder.build());
         }
         return localizedChannelDefinitions;
     }
