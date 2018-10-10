@@ -48,7 +48,6 @@ import org.junit.BeforeClass;
  * @author Wouter Born - Migrate tests from Groovy to Java
  */
 public class AudioOSGiTest extends JavaOSGiTest {
-    protected AudioManagerImpl audioManager;
     protected AudioSinkFake audioSinkFake;
     protected AudioStream audioStream;
     protected AudioServlet audioServlet;
@@ -77,11 +76,6 @@ public class AudioOSGiTest extends JavaOSGiTest {
         defaultConfigDir = System.getProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT);
         // Set new configuration directory for test purposes.
         System.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, CONFIGURATION_DIRECTORY_NAME);
-    }
-
-    @Before
-    public void setUp() {
-        audioManager = getService(AudioManager.class, AudioManagerImpl.class);
     }
 
     @After

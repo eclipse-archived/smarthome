@@ -95,20 +95,8 @@ public class AudioManagerServletTest {
     }
 
     private void assertServedStream(Integer timeInterval) throws AudioException {
-        try {
-            serverStarted.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        String path;
         AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED);
-        if (timeInterval != null) {
-            path = audioServlet.serve((FixedLengthAudioStream) audioStream, timeInterval);
-        } else {
-            path = audioServlet.serve(audioStream);
-        }
-        String url = generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, port, path);
+        String url = serveStream(audioStream, timeInterval);
 
         audioManager.stream(url, audioSink.getId());
 
@@ -119,6 +107,23 @@ public class AudioManagerServletTest {
             assertThat(String.format("The sink %s received an unexpected stream", audioSink.getId()),
                     audioSink.audioStream, is(nullValue()));
         }
+    }
+
+    private String serveStream(AudioStream stream, Integer timeInterval) {
+        try {
+            serverStarted.get();
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String path;
+        if (timeInterval != null) {
+            path = audioServlet.serve((FixedLengthAudioStream) stream, timeInterval);
+        } else {
+            path = audioServlet.serve(stream);
+        }
+
+        return generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, port, path);
     }
 
     private ByteArrayAudioStream getByteArrayAudioStream(String container, String codec) {

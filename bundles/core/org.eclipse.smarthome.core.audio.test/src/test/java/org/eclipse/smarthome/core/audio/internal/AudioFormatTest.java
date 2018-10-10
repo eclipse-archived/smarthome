@@ -27,13 +27,13 @@ import org.junit.Test;
  * @author Petar Valchev - Initial contribution
  * @author Wouter Born - Migrate tests from Groovy to Java
  */
-public class AudioFormatTest extends AudioOSGiTest {
-    private String testContainer = AudioFormat.CONTAINER_WAVE;
-    private String testCodec = AudioFormat.CODEC_PCM_SIGNED;
-    private boolean testBigEndian = true;
-    private Integer testBitDepth = new Integer(16);
-    private Integer testBitRate = new Integer(1000);
-    private Long testFrequency = new Long(1024);
+public class AudioFormatTest {
+    private final String testContainer = AudioFormat.CONTAINER_WAVE;
+    private final String testCodec = AudioFormat.CODEC_PCM_SIGNED;
+    private final boolean testBigEndian = true;
+    private final Integer testBitDepth = new Integer(16);
+    private final Integer testBitRate = new Integer(1000);
+    private final Long testFrequency = new Long(1024);
 
     @Test
     public void thereIsNoBestMatchForAnAudioFormatIfOneOfTheFieldsIsNull() {
