@@ -57,6 +57,28 @@ public class CommandExecutor implements AvailableSources {
         this.handler = handler;
         init();
     }
+    
+    /**
+     * Synchronizes the underlying storage container with the current value for the presets stored on the player
+     * by updating the available ones and deleting the cleared ones
+     * 
+     * @param playerPresets a Map<Integer, ContentItems> containing the items currently stored on the player
+     */
+    public void updatePresetContainerFromPlayer(Map<Integer, ContentItem> playerPresets) {
+        playerPresets.forEach((k,v) -> {
+            try {
+                if (v != null) {
+                    handler.getPresetContainer().put(k, v);                    
+                } else {
+                    handler.getPresetContainer().remove(k);
+                }
+            } catch (ContentItemNotPresetableException e) {
+                logger.debug("{}: ContentItem is not presetable", handler.getDeviceName());
+            }
+        });
+        
+        handler.refreshPresetChannel();
+    }
 
     /**
      * Adds a ContentItem to the PresetContainer
@@ -72,6 +94,7 @@ public class CommandExecutor implements AvailableSources {
         } catch (ContentItemNotPresetableException e) {
             logger.debug("{}: ContentItem is not presetable", handler.getDeviceName());
         }
+        handler.refreshPresetChannel();
     }
 
     /**

@@ -94,6 +94,7 @@ public class XMLResponseProcessor {
         updatesMap.put("volumeUpdated", XMLHandlerState.MsgBody);
         updatesMap.put("zoneUpdated", XMLHandlerState.ZoneUpdated); // just notifies but dosn't provide details
         updatesMap.put("bassUpdated", XMLHandlerState.BassUpdated);
+        updatesMap.put("presetsUpdated", XMLHandlerState.MsgBody);
 
         Map<String, XMLHandlerState> volume = new HashMap<>();
         stateSwitchingMap.put(XMLHandlerState.Volume, volume);

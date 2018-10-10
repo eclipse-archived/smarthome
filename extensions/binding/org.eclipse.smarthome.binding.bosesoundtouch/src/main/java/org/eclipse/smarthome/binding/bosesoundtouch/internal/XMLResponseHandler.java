@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.bosesoundtouch.internal;
 
 import static org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchBindingConstants.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -60,6 +61,8 @@ public class XMLResponseHandler extends DefaultHandler {
     private OnOffType skipPreviousEnabled;
 
     private State nowPlayingSource;
+    
+    private Map<Integer, ContentItem> playerPresets;
 
     /**
      * Creates a new instance of this class
@@ -173,6 +176,13 @@ public class XMLResponseHandler extends DefaultHandler {
                     }
                 } else if ("zone".equals(localName)) {
                     state = XMLHandlerState.Zone;
+                } else if ("presets".equals(localName)) {
+                    // reset the current playerPrests
+                    playerPresets = new HashMap<>();
+                    for (int i=1; i<=6; i++) {
+                        playerPresets.put(i, null);
+                    }
+                    state = XMLHandlerState.Presets;
                 } else {
                     state = stateMap.get(localName);
                     if (state == null) {
@@ -369,7 +379,7 @@ public class XMLResponseHandler extends DefaultHandler {
                 break;
             case Preset:
                 if (state == XMLHandlerState.Presets) {
-                    commandExecutor.addContentItemToPresetContainer(contentItem.getPresetID(), contentItem);
+                    playerPresets.put(contentItem.getPresetID(), contentItem);
                     contentItem = null;
                 }
                 break;
@@ -404,6 +414,10 @@ public class XMLResponseHandler extends DefaultHandler {
                 break;
             case ZoneUpdated:
                 commandExecutor.getInformations(APIRequest.GET_ZONE);
+                break;
+            case Presets:
+                commandExecutor.updatePresetContainerFromPlayer(playerPresets);
+                playerPresets = null;
                 break;
             default:
                 // no actions...
