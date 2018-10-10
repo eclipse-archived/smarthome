@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.net.security.internal;
+package org.eclipse.smarthome.io.net.security.internal.utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,6 +21,8 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
+
+import org.eclipse.smarthome.io.net.security.internal.providerImpl.SelfSignedSSLContextProviderConfig;
 
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
@@ -58,7 +60,7 @@ public class CertificateUtils {
      * @throws KeyStoreException Throws if the KeyStore is not loaded
      * @throws CertificateException Throws if no certificates can be found
      */
-    protected static boolean checkCertificate(Date date, Certificate[] certificateChain, boolean throwException)
+    public static boolean checkCertificate(Date date, Certificate[] certificateChain, boolean throwException)
             throws KeyStoreException, CertificateException {
         for (Certificate c : certificateChain) {
             try {
@@ -73,13 +75,13 @@ public class CertificateUtils {
         return true;
     }
 
-    public static X509Certificate[] createX509Cert(ServiceConfiguration configuration, String domain, String sigAlg,
+    public static X509Certificate[] createX509Cert(SelfSignedSSLContextProviderConfig configuration, String sigAlg,
             KeyPair key, Date firstDate) throws GeneralSecurityException, IOException {
         X509CertImpl cert;
         Date lastDate;
         long validityInS = configuration.validityInDays.longValue() * 24 * 60 * 60;
-        X500Name x500Name = new X500Name(domain, configuration.organizationalUnit, configuration.organization,
-                configuration.city, configuration.state, configuration.country);
+        X500Name x500Name = new X500Name(configuration.commonName, configuration.organizationalUnit,
+                configuration.organization, configuration.city, configuration.state, configuration.country);
 
         try {
             lastDate = new Date();
@@ -104,5 +106,18 @@ public class CertificateUtils {
         } catch (IOException e) {
             throw new CertificateEncodingException("getSelfCert: " + e.getMessage());
         }
+    }
+
+    /**
+     * Returns true if the given certificate chain has a CA certificated certificate.
+     */
+    public static boolean isCAcert(Certificate[] certificateChain) {
+        for (Certificate c : certificateChain) {
+            X509Certificate x509 = (X509Certificate) c;
+            if (x509.getBasicConstraints() != -1 && x509.getKeyUsage()[5]) {
+                return true;
+            }
+        }
+        return false;
     }
 }
