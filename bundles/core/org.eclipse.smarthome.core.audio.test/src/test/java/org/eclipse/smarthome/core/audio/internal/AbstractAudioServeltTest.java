@@ -85,7 +85,7 @@ public abstract class AbstractAudioServeltTest extends JavaTest {
         return getHttpRequest(url).send();
     }
 
-    protected String serveStream(AudioStream stream) {
+    protected String serveStream(AudioStream stream) throws Exception {
         return serveStream(stream, null);
     }
 

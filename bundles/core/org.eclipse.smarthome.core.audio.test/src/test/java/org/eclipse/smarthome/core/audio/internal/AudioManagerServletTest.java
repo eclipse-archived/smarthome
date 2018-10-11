@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.audio.internal;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-import org.eclipse.smarthome.core.audio.AudioException;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioStream;
 import org.eclipse.smarthome.core.audio.ByteArrayAudioStream;
@@ -45,25 +44,25 @@ public class AudioManagerServletTest extends AbstractAudioServeltTest {
     }
 
     @Test
-    public void audioManagerProcessesMultitimeStreams() throws AudioException {
+    public void audioManagerProcessesMultitimeStreams() throws Exception {
         audioManager.addAudioSink(audioSink);
         int streamTimeout = 10;
         assertServedStream(streamTimeout);
     }
 
     @Test
-    public void audioManagerProcessesOneTimeStream() throws AudioException {
+    public void audioManagerProcessesOneTimeStream() throws Exception {
         audioManager.addAudioSink(audioSink);
         assertServedStream(null);
     }
 
     @Test
-    public void audioManagerDoesNotProcessStreamsIfThereIsNoRegisteredSink() throws AudioException {
+    public void audioManagerDoesNotProcessStreamsIfThereIsNoRegisteredSink() throws Exception {
         int streamTimeout = 10;
         assertServedStream(streamTimeout);
     }
 
-    private void assertServedStream(Integer timeInterval) throws AudioException {
+    private void assertServedStream(Integer timeInterval) throws Exception {
         AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_WAVE, AudioFormat.CODEC_PCM_SIGNED);
         String url = serveStream(audioStream, timeInterval);
 

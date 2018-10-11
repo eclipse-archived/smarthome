@@ -150,7 +150,7 @@ public class AudioConsoleTest extends AbstractAudioServeltTest {
     }
 
     @Test
-    public void audioConsolePlaysStream() {
+    public void audioConsolePlaysStream() throws Exception {
         AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_WAVE,
                 AudioFormat.CODEC_PCM_SIGNED);
 
@@ -163,7 +163,7 @@ public class AudioConsoleTest extends AbstractAudioServeltTest {
     }
 
     @Test
-    public void audioConsolePlaysStreamForASpecifiedSink() {
+    public void audioConsolePlaysStreamForASpecifiedSink() throws Exception {
         AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_WAVE,
                 AudioFormat.CODEC_PCM_SIGNED);
 
