@@ -32,6 +32,7 @@ public enum XMLHandlerState {
     BassDefault,
     ContentItem,
     ContentItemItemName,
+    ContentItemContainerArt,
     Info,
     InfoName,
     InfoType,

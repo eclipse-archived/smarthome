@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.eclipse.smarthome.core.types.StateOption;
 
 import com.google.gson.annotations.Expose;
 
@@ -33,6 +34,7 @@ public class ContentItem {
     private boolean presetable;
     private String itemName;
     private int presetID;
+    private String containerArt;
     @Expose
     private final Map<String, String> additionalAttributes;
 
@@ -46,6 +48,7 @@ public class ContentItem {
         presetable = false;
         itemName = null;
         presetID = 0;
+        containerArt = null;
         additionalAttributes = new HashMap<>();
     }
 
@@ -162,6 +165,10 @@ public class ContentItem {
         this.presetID = presetID;
     }
 
+    public void setContainerArt(String containerArt) {
+        this.containerArt = containerArt;
+    }
+
     public String getSource() {
         return source;
     }
@@ -184,6 +191,10 @@ public class ContentItem {
 
     public int getPresetID() {
         return presetID;
+    }
+    
+    public String getContainerArt() {
+        return containerArt;
     }
 
     /**
@@ -229,11 +240,19 @@ public class ContentItem {
                 if (itemName != null) {
                     sbXml.append("<itemName>").append(itemName).append("</itemName>");
                 }
+                if (containerArt != null) {
+                    sbXml.append("<containerArt>").append(containerArt).append("</containerArt>");
+                }
                 sbXml.append("</ContentItem>");
                 xml = sbXml.toString();
                 break;
         }
         return xml;
+    }
+    
+    public StateOption toStateOption() {
+        String stateOptionLabel = String.valueOf(presetID) + ": " + itemName;
+        return new StateOption(String.valueOf(presetID), stateOptionLabel);
     }
 
     @Override
