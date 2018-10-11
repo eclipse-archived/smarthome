@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Core Semantics Tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.core.semantics.test
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.core.semantics;bundle-version="0.10.0.qualifier"
+Import-Package: 
+ javax.measure.quantity,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.java,
+ org.hamcrest;core=split,
+ org.hamcrest.collection,
+ org.hamcrest.core,
+ org.hamcrest.number,
+ org.junit,
+ org.junit.rules,
+ org.junit.runner,
+ org.junit.runners,
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing
+Automatic-Module-Name: org.eclipse.smarthome.core.test

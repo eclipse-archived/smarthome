@@ -27,6 +27,8 @@
     <module>org.eclipse.smarthome.core.thing.test</module>
     <module>org.eclipse.smarthome.core.persistence</module>
     <module>org.eclipse.smarthome.core.scheduler</module>
+    <module>org.eclipse.smarthome.core.semantics</module>
+    <!--<module>org.eclipse.smarthome.core.semantics.test</module>-->
     <module>org.eclipse.smarthome.core.transform</module>
     <module>org.eclipse.smarthome.core.transform.test</module>
     <module>org.eclipse.smarthome.core.binding.xml</module>

@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ClassPath: .
+Bundle-License: https://www.eclipse.org/legal/epl-2.0/
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Core Semantics
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.eclipse.smarthome.core.semantics
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Import-Package: 
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.types,
+ org.osgi.framework,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.core.semantics
+Export-Package: org.eclipse.smarthome.core.semantics,
+ org.eclipse.smarthome.core.semantics.model,
+ org.eclipse.smarthome.core.semantics.model.equipment,
+ org.eclipse.smarthome.core.semantics.model.location,
+ org.eclipse.smarthome.core.semantics.model.point,
+ org.eclipse.smarthome.core.semantics.model.property
