@@ -44,7 +44,7 @@ public class MqttActionAdapterCallback implements IMqttActionListener {
         } else if (token.getUserContext() instanceof CompletableFuture) {
             @SuppressWarnings("unchecked")
             CompletableFuture<Boolean> future = (CompletableFuture<Boolean>) token.getUserContext();
-            future.complete(false);
+            future.completeExceptionally(throwable);
         }
     }
 }

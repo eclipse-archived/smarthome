@@ -13,12 +13,13 @@
 package org.eclipse.smarthome.binding.mqtt.internal.discovery;
 
 import java.net.Inet4Address;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -28,10 +29,10 @@ import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.net.CidrAddress;
 import org.eclipse.smarthome.core.net.NetUtil;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -49,14 +50,14 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class NetworkDiscoveryService extends AbstractDiscoveryService {
     private static final int MAX_IPS_PER_INTERFACE = 255;
-    private static final int TIMEOUT_IN_MS = 700;
 
     private final Logger logger = LoggerFactory.getLogger(NetworkDiscoveryService.class);
 
-    private int scannedIPcount = 0;
+    protected MqttBrokerConnection testConnections[] = new MqttBrokerConnection[0];
+    protected int foundBrokers = 0;
 
     public NetworkDiscoveryService() {
-        super(Collections.singleton(MqttBindingConstants.BRIDGE_TYPE_BROKER), 0);
+        super(Collections.singleton(MqttBindingConstants.BRIDGE_TYPE_BROKER), 7, false);
     }
 
     @Override
@@ -69,15 +70,6 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
     @Deactivate
     protected void deactivate() {
         super.deactivate();
-    }
-
-    /**
-     * Explicitly override getScanTimeout() instead of using the constructor.
-     * This allows to mock the timeout for tests.
-     */
-    @Override
-    public int getScanTimeout() {
-        return TIMEOUT_IN_MS;
     }
 
     /**
@@ -94,9 +86,9 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
 
         MqttBrokerConnection o[] = new MqttBrokerConnection[networkIPs.size() * 2];
         for (int i = 0; i < networkIPs.size(); ++i) {
-            o[i * 2] = new MqttBrokerConnection("ssl://" + networkIPs.get(i), 8883, false, "testssl");
+            o[i * 2] = new MqttBrokerConnection(networkIPs.get(i), 8883, true, "testssl");
             o[i * 2].setTimeoutExecutor(scheduler, 100);
-            o[i * 2 + 1] = new MqttBrokerConnection("tcp://" + networkIPs.get(i), 1883, false, "test");
+            o[i * 2 + 1] = new MqttBrokerConnection(networkIPs.get(i), 1883, false, "test");
             o[i * 2 + 1].setTimeoutExecutor(scheduler, 100);
         }
         return o;
@@ -109,13 +101,11 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
      * to signal the scan has finished.
      *
      * @param testConnection The destination to test
-     * @throws ConfigurationException If the IP cannot be used by the {@link MqttBrokerConnection}, this exception will
-     *             be thrown.
-     * @throws MqttException Throws if the connection to the target is not a valid Mqtt connection.
-     * @throws InterruptedException Throws if interrupted while waiting for the Mqtt connection to establish.
+     * @return A future that completes as soon as the connection attempt succeeded or timed out
      */
-    protected void scanTarget(MqttBrokerConnection testConnection) {
-        testConnection.start().thenAccept(v -> {
+    protected CompletableFuture<Void> scanTarget(MqttBrokerConnection testConnection) {
+        return testConnection.start().thenAccept(v -> {
+            testConnection.stop();
             if (v == false) {
                 return;
             }
@@ -126,24 +116,17 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
             properties.put("host", testConnection.getHost());
             properties.put("port", testConnection.getPort());
 
+            ++foundBrokers;
             ThingUID thingUID = MqttThingID.getThingUID(testConnection.getHost(), testConnection.getPort());
             thingDiscovered(DiscoveryResultBuilder.create(thingUID).withTTL(120).withProperties(properties)
                     .withRepresentationProperty("host").withLabel("MQTT Broker").build());
-            testConnection.stop();
         });
     }
 
-    /**
-     * Increase a counter and calls stopScan() if counter equals total.
-     *
-     * @param total The total size
-     */
-    synchronized protected void stopScanIfAllScanned(int total) {
-        scannedIPcount += 1;
-        if (scannedIPcount == total) {
-            logger.trace("Scan of {} IPs successful", scannedIPcount);
-            stopScan();
-        }
+    private List<String> addressesForInterface(CidrAddress interfaceIP) {
+        String[] addresses = new SubnetUtils(interfaceIP.getAddress().getHostAddress(),
+                NetUtil.networkPrefixLengthToNetmask(interfaceIP.getPrefix())).getInfo().getAllAddresses();
+        return Stream.of(addresses).limit(MAX_IPS_PER_INTERFACE).collect(Collectors.toList());
     }
 
     /**
@@ -151,10 +134,14 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
      */
     protected List<String> getScannableIPs() {
         return NetUtil.getAllInterfaceAddresses().stream().filter(i -> i.getAddress() instanceof Inet4Address)
-                .map(interfaceIP -> Arrays
-                        .asList(new SubnetUtils(interfaceIP.getAddress().getHostAddress()).getInfo().getAllAddresses())
-                        .subList(0, MAX_IPS_PER_INTERFACE))
-                .flatMap(List::stream).collect(Collectors.toList());
+                .map(interfaceIP -> addressesForInterface(interfaceIP)).flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    protected void finished() {
+        logger.info("Found {} Mqtt Broker Connections", foundBrokers);
+        stopScan();
+        foundBrokers = 0;
     }
 
     /**
@@ -162,31 +149,37 @@ public class NetworkDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     protected void startScan() {
+        foundBrokers = 0;
+        // If a scan is started, while another run is not completed yet, stop all broker connections of the old one
+        // first
+        if (this.testConnections.length > 0) {
+            for (MqttBrokerConnection c : testConnections) {
+                c.stop();
+            }
+            this.testConnections = new MqttBrokerConnection[0];
+        }
+
         removeOlderResults(getTimestampOfLastScan(), null);
         logger.trace("Starting Discovery");
 
         List<String> networkIPs = getScannableIPs();
-
-        // We perform two scans per IP (plain/secure)
-        scannedIPcount = 0;
+        if (networkIPs.isEmpty()) {
+            logger.warn("Could not determine subnet IP addresses for MQTT Broker Network discovery");
+        }
 
         // Check localhost first
         networkIPs.add(0, "127.0.0.1");
-        final int totalScans = networkIPs.size() * 2;
 
         // Create necessary objects to test
-        MqttBrokerConnection o[];
         try {
-            o = createTestConnections(networkIPs);
+            testConnections = createTestConnections(networkIPs);
         } catch (ConfigurationException e) {
             logger.debug("Could not create MqttBrokerConnection object", e);
             stopScan();
             return;
         }
 
-        for (MqttBrokerConnection c : o) {
-            scanTarget(c);
-            stopScanIfAllScanned(totalScans);
-        }
+        CompletableFuture.allOf(Stream.of(testConnections).map(c -> scanTarget(c)).toArray(CompletableFuture[]::new))
+                .thenRun(this::finished);
     }
 }

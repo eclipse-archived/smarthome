@@ -126,7 +126,7 @@ public class BrokerHandlerTest {
         assertThat(initializeHandlerWaitForTimeout(), is(true));
 
         ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback, times(2)).statusUpdated(eq(thing), statusInfoCaptor.capture());
+        verify(callback, times(3)).statusUpdated(eq(thing), statusInfoCaptor.capture());
         Assert.assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.ONLINE));
     }
 
@@ -153,9 +153,11 @@ public class BrokerHandlerTest {
         verify(connection, times(2)).addConnectionObserver(any());
         verify(connection, times(1)).start();
         boolean s = o.semaphore.tryAcquire(300, TimeUnit.MILLISECONDS);
-        // First we expect a CONNECTING state and then a CONNECTED state change
+        // First we expect a CONNECTING state and then a CONNECTED unique state change
         assertThat(o.counter, is(2));
-        verify(handler, times(2)).connectionStateChanged(any(), any());
+        // First we expect a CONNECTING state and then a CONNECTED state change
+        // (and other CONNECTED after the future completes)
+        verify(handler, times(3)).connectionStateChanged(any(), any());
         return s;
     }
 

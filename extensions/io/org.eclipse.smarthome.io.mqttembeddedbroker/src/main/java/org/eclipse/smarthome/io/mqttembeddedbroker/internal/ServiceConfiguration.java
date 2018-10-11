@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.io.mqttembeddedbroker.internal;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -20,10 +20,11 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class ServiceConfiguration {
     public @Nullable Integer port;
-    public @NonNull Boolean secure = false;
-    public @NonNull String persistenceFile = "mqttembedded.bin";
+    public Boolean secure = false;
+    public String persistenceFile = "mqttembedded.bin";
 
     public @Nullable String username;
     public @Nullable String password;

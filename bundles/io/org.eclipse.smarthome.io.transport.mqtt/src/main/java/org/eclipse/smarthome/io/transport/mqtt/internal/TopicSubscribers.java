@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.mqtt.MqttMessageSubscriber;
 
 /**
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttMessageSubscriber;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class TopicSubscribers extends ArrayList<MqttMessageSubscriber> {
     private static final long serialVersionUID = -2969599983479371961L;
     final String regexMatchTopic;

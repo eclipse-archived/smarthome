@@ -75,10 +75,10 @@ public class PinTrustManager extends X509ExtendedTrustManager {
      * E.g.: "SHA256withRSA". We need "SHA" and "256" to initialize a {@link PinMessageDigest}.
      */
     PinMessageDigest getMessageDigestForSigAlg(String sigAlg) throws CertificateException {
-        Matcher matcher = Pattern.compile("(\\D*)(\\d+)").matcher(sigAlg);
+        final Matcher matcher = Pattern.compile("(\\D*)(\\d+)").matcher(sigAlg);
         matcher.find();
-        String sigAlgName = matcher.group(1);
-        String sigAlgBits = matcher.group(2);
+        final String sigAlgName = matcher.group(1);
+        final String sigAlgBits = matcher.group(2);
         try {
             return new PinMessageDigest(sigAlgName + "-" + sigAlgBits);
         } catch (NoSuchAlgorithmException e) {
@@ -94,7 +94,8 @@ public class PinTrustManager extends X509ExtendedTrustManager {
             return;
         }
 
-        PinMessageDigest digestForSigAlg = getMessageDigestForSigAlg(chain[0].getSigAlgName());
+        final PinMessageDigest digestForSigAlg = getMessageDigestForSigAlg(chain[0].getSigAlgName());
+        final PinnedCallback callback = this.callback;
 
         // All pins have to accept the connection
         for (Pin pin : pins) {
@@ -108,10 +109,13 @@ public class PinTrustManager extends X509ExtendedTrustManager {
                 }
                 continue;
             } else {
-                // Check if algorithm is equal
+                final PinMessageDigest hashDigest = pin.hashDigest;
+                if (hashDigest == null) {
+                    throw new CertificateException("No hashDigest given!");
+                }
 
                 // Check if hash is equal
-                byte[] digestData = pin.hashDigest.digest(origData);
+                final byte[] digestData = hashDigest.digest(origData);
                 if (pin.isEqual(digestData)) {
                     continue;
                 }
@@ -120,7 +124,7 @@ public class PinTrustManager extends X509ExtendedTrustManager {
                     callback.pinnedConnectionDenied(pin);
                 }
                 throw new CertificateException(pin.getType().name() + " pinning denied access. Destination pin is "
-                        + pin.hashDigest.toHexString(digestData) + "' but expected: " + pin.toString());
+                        + hashDigest.toHexString(digestData) + "' but expected: " + pin.toString());
             }
         }
         // All pin instances passed, the connection is accepted

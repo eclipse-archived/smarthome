@@ -45,7 +45,7 @@ public class MqttServiceDiscoveryService extends AbstractDiscoveryService implem
 
     public MqttServiceDiscoveryService() {
         super(Stream.of(MqttBindingConstants.BRIDGE_TYPE_SYSTEMBROKER, MqttBindingConstants.BRIDGE_TYPE_BROKER)
-                .collect(Collectors.toSet()), 500, true);
+                .collect(Collectors.toSet()), 0, true);
     }
 
     @Override

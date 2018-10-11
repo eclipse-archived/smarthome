@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.handler;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
@@ -39,6 +39,7 @@ public class AbstractBrokerHandlerTest {
     private final String HOST = "tcp://123.1.2.3";
     private final int PORT = 80;
     private SystemBrokerHandler handler;
+    int stateChangeCounter = 0;
 
     @Mock
     private ThingHandlerCallback callback;
@@ -56,6 +57,7 @@ public class AbstractBrokerHandlerTest {
         handler = new SystemBrokerHandler(thing, service);
         handler.setCallback(callback);
         assertThat(handler.brokerID, is(MqttThingID.getThingID(HOST, PORT)));
+        stateChangeCounter = 0;
     }
 
     @Test
@@ -82,12 +84,16 @@ public class AbstractBrokerHandlerTest {
     public void brokerAdded() throws ConfigurationException, MqttException {
         MqttBrokerConnectionEx connection = spy(
                 new MqttBrokerConnectionEx("10.10.0.10", 80, false, "BrokerHandlerTest"));
+        doReturn(connection).when(service).getBrokerConnection(eq(handler.brokerID));
+
+        verify(callback, times(0)).statusUpdated(any(), any());
         handler.brokerAdded(handler.brokerID, connection);
+
         assertThat(handler.connection, is(connection));
 
         verify(connection).start();
 
-        // First connecting then connected
-        verify(callback, times(2)).statusUpdated(any(), any());
+        // First connecting then connected and another connected after the future completes
+        verify(callback, times(3)).statusUpdated(any(), any());
     }
 }

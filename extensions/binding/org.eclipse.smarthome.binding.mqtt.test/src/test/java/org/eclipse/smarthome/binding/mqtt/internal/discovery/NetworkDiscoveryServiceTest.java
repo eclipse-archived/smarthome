@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.binding.mqtt.internal.discovery;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -40,13 +40,13 @@ import org.osgi.service.cm.ConfigurationException;
  * @author David Graeff - Initial contribution
  */
 public class NetworkDiscoveryServiceTest {
-    private static class NetworkDiscoveryServiceEx extends NetworkDiscoveryService {
-        public int countScans = 0;
+    public static class NetworkDiscoveryServiceEx extends NetworkDiscoveryService {
+        public int savedFoundBrokers = 0;
 
         @Override
-        protected synchronized void stopScanIfAllScanned(int total) {
-            ++countScans;
-            super.stopScanIfAllScanned(total);
+        protected synchronized void finished() {
+            savedFoundBrokers = foundBrokers;
+            super.finished();
         }
 
         @Override
@@ -65,6 +65,7 @@ public class NetworkDiscoveryServiceTest {
         // Half of them return isConnected()==true
         @Override
         protected MqttBrokerConnection[] createTestConnections(List<String> networkIPs) throws ConfigurationException {
+            assertThat(networkIPs.size(), is(2));
             MqttBrokerConnection[] connections = new MqttBrokerConnection[networkIPs.size() * 2];
             for (int i = 0; i < networkIPs.size(); ++i) {
                 MqttBrokerConnectionEx c = new MqttBrokerConnectionEx(networkIPs.get(i), 80, false, null);
@@ -90,6 +91,7 @@ public class NetworkDiscoveryServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testDiscovery() throws ConfigurationException, MqttException, InterruptedException {
         subject.addDiscoveryListener(discoverListener);
@@ -102,8 +104,11 @@ public class NetworkDiscoveryServiceTest {
             return;
         }
 
-        // local ip and additional ip (only for tcp, no ssl)
-        assertThat(subject.countScans, is(4));
+        assertTrue(subject.testConnections != null);
+        assertThat(subject.testConnections.length, is(4));
+
+        // only half of the test connections "connect"
+        assertThat(subject.savedFoundBrokers, is(2));
 
         verify(scanListener).onFinished();
 

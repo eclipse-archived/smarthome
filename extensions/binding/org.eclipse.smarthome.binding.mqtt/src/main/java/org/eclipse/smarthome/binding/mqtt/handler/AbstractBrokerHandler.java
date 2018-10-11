@@ -61,9 +61,7 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
     }
 
     /**
-     * Registers a connection status listener and attempts a connection. This should be called only once per connection
-     * object. A connection usually tries to reconnect to the server via the configured reconnect strategy.
-     *
+     * Registers a connection status listener and attempts a connection if there is none so far.
      */
     @Override
     public void initialize() {
@@ -79,6 +77,8 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
         }).thenAccept(v -> {
             if (!v) {
                 connectionStateChanged(MqttConnectionState.DISCONNECTED, new TimeoutException("Timeout"));
+            } else {
+                connectionStateChanged(MqttConnectionState.CONNECTED, null);
             }
         });
     }
@@ -101,9 +101,10 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
      */
     @Override
     public void dispose() {
+        final MqttBrokerConnection connection = this.connection;
         if (connection != null) {
             connection.removeConnectionObserver(this);
-            connection = null;
+            this.connection = null;
         }
         super.dispose();
     }

@@ -14,6 +14,9 @@ package org.eclipse.smarthome.io.mqttembeddedbroker.internal;
 
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 import io.moquette.interception.InterceptHandler;
 import io.moquette.interception.messages.InterceptAcknowledgedMessage;
 import io.moquette.interception.messages.InterceptConnectMessage;
@@ -32,6 +35,7 @@ import io.moquette.server.Server;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class MqttEmbeddedBrokerMetrics implements InterceptHandler {
     /**
      * Metric listener interface. Implement this to get notified of currently connected clients.
@@ -41,10 +45,20 @@ public class MqttEmbeddedBrokerMetrics implements InterceptHandler {
     }
 
     private final BrokerMetricsListener listener;
-    private Server server;
+    private @Nullable Server server;
 
     public MqttEmbeddedBrokerMetrics(BrokerMetricsListener listener) {
         this.listener = listener;
+    }
+
+    /**
+     * Removes the intercept handler from the server, if a server was set with {@link #setServer(Server)} before.
+     */
+    public void resetServer() {
+        if (this.server != null) {
+            this.server.removeInterceptHandler(this);
+        }
+        this.server = null;
     }
 
     /**
@@ -57,40 +71,47 @@ public class MqttEmbeddedBrokerMetrics implements InterceptHandler {
             this.server.removeInterceptHandler(this);
         }
         this.server = server;
+        server.addInterceptHandler(this);
+    }
+
+    @Override
+    public void onUnsubscribe(@Nullable InterceptUnsubscribeMessage msg) {
+    }
+
+    @Override
+    public void onSubscribe(@Nullable InterceptSubscribeMessage msg) {
+    }
+
+    @Override
+    public void onPublish(@Nullable InterceptPublishMessage msg) {
+    }
+
+    @Override
+    public void onMessageAcknowledged(@Nullable InterceptAcknowledgedMessage msg) {
+    }
+
+    @Override
+    public void onDisconnect(@Nullable InterceptDisconnectMessage msg) {
+        Server server = this.server;
         if (server != null) {
-            server.addInterceptHandler(this);
+            listener.connectedClientIDs(server.getConnectionsManager().getConnectedClientIds());
         }
     }
 
     @Override
-    public void onUnsubscribe(InterceptUnsubscribeMessage msg) {
+    public void onConnectionLost(@Nullable InterceptConnectionLostMessage msg) {
+        Server server = this.server;
+        if (server != null) {
+            listener.connectedClientIDs(server.getConnectionsManager().getConnectedClientIds());
+        }
     }
 
     @Override
-    public void onSubscribe(InterceptSubscribeMessage msg) {
-    }
-
-    @Override
-    public void onPublish(InterceptPublishMessage msg) {
-    }
-
-    @Override
-    public void onMessageAcknowledged(InterceptAcknowledgedMessage msg) {
-    }
-
-    @Override
-    public void onDisconnect(InterceptDisconnectMessage msg) {
-        listener.connectedClientIDs(server.getConnectionsManager().getConnectedClientIds());
-    }
-
-    @Override
-    public void onConnectionLost(InterceptConnectionLostMessage msg) {
-        listener.connectedClientIDs(server.getConnectionsManager().getConnectedClientIds());
-    }
-
-    @Override
-    public void onConnect(InterceptConnectMessage msg) {
-        listener.connectedClientIDs(server.getConnectionsManager().getConnectedClientIds());
+    public void onConnect(@Nullable InterceptConnectMessage msg) {
+        Server server = this.server;
+        if (server != null) {
+            listener.connectedClientIDs(server.getConnectionsManager().getConnectedClientIds());
+        }
     }
 
     @Override

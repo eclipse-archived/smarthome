@@ -33,6 +33,12 @@ public class ChannelGroupUID extends UID {
         super();
     }
 
+    /**
+     * Parses a {@link ChannelGroupUID} for a given string. The UID must be in the format
+     * 'bindingId:segment:segment:...'.
+     *
+     * @param channelGroupUid uid in form a string (must not be null)
+     */
     public ChannelGroupUID(String channelGroupUid) {
         super(channelGroupUid);
     }
