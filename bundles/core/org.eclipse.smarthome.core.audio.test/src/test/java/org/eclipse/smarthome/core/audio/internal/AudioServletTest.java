@@ -13,26 +13,17 @@
 package org.eclipse.smarthome.core.audio.internal;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
-import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.audio.AudioFormat;
 import org.eclipse.smarthome.core.audio.AudioStream;
-import org.eclipse.smarthome.core.audio.ByteArrayAudioStream;
 import org.eclipse.smarthome.core.audio.FileAudioStream;
-import org.eclipse.smarthome.core.audio.FixedLengthAudioStream;
-import org.eclipse.smarthome.test.TestPortUtil;
-import org.eclipse.smarthome.test.TestServer;
-import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,15 +34,7 @@ import org.junit.Test;
  * @author Petar Valchev - Initial contribution
  * @author Wouter Born - Migrate tests from Groovy to Java
  */
-public class AudioServletTest extends JavaTest {
-
-    private AudioServlet audioServlet;
-
-    private int port;
-    private TestServer server;
-
-    private final static String AUDIO_SERVLET_PROTOCOL = "http";
-    private final static String AUDIO_SERVLET_HOSTNAME = "localhost";
+public class AudioServletTest extends AbstractAudioServeltTest {
 
     private final String MEDIA_TYPE_AUDIO_WAV = "audio/wav";
     private final String MEDIA_TYPE_AUDIO_OGG = "audio/ogg";
@@ -59,37 +42,25 @@ public class AudioServletTest extends JavaTest {
 
     private static final String CONFIGURATION_DIRECTORY_NAME = "configuration";
 
-    protected static final String MP3_FILE_NAME = "mp3AudioFile.mp3";
-    protected static final String MP3_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + MP3_FILE_NAME;
+    private static final String WAV_FILE_NAME = "wavAudioFile.wav";
+    private static final String WAV_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + WAV_FILE_NAME;
 
-    protected static final String WAV_FILE_NAME = "wavAudioFile.wav";
-    protected static final String WAV_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + WAV_FILE_NAME;
-
-    private CompletableFuture<Boolean> serverStarted;
-
-    private byte[] testByteArray;
+    private final byte[] testByteArray = new byte[] { 0, 1, 2 };
 
     @Before
     public void setup() {
-        testByteArray = new byte[] { 0, 1, 2 };
-
-        audioServlet = new AudioServlet();
-
-        ServletHolder servletHolder = new ServletHolder(audioServlet);
-
-        port = TestPortUtil.findFreePort();
-        server = new TestServer(AUDIO_SERVLET_HOSTNAME, port, 10000, servletHolder);
-        serverStarted = server.startServer();
+        System.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, CONFIGURATION_DIRECTORY_NAME);
     }
 
     @After
     public void tearDown() {
-        server.stopServer();
+        System.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, ConfigConstants.DEFAULT_CONFIG_FOLDER);
     }
 
     @Test
     public void audioServletProcessesByteArrayStream() throws Exception {
-        AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_MP3);
+        AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_NONE,
+                AudioFormat.CODEC_MP3);
 
         ContentResponse response = getHttpResponse(audioStream);
 
@@ -111,7 +82,8 @@ public class AudioServletTest extends JavaTest {
 
     @Test
     public void audioServletProcessesStreamFromOggContainer() throws Exception {
-        AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_OGG, AudioFormat.CODEC_PCM_SIGNED);
+        AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_OGG,
+                AudioFormat.CODEC_PCM_SIGNED);
 
         ContentResponse response = getHttpResponse(audioStream);
 
@@ -122,7 +94,8 @@ public class AudioServletTest extends JavaTest {
 
     @Test
     public void mimeTypeIsNullWhenNoContainerAndTheAudioFormatIsNotMp3() throws Exception {
-        AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_PCM_SIGNED);
+        AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_NONE,
+                AudioFormat.CODEC_PCM_SIGNED);
 
         ContentResponse response = getHttpResponse(audioStream);
 
@@ -132,7 +105,8 @@ public class AudioServletTest extends JavaTest {
 
     @Test
     public void onlyOneRequestToOneTimeStreamsCanBeMade() throws Exception {
-        AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_MP3);
+        AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_NONE,
+                AudioFormat.CODEC_MP3);
 
         String url = serveStream(audioStream);
 
@@ -151,7 +125,8 @@ public class AudioServletTest extends JavaTest {
 
     @Test
     public void requestToMultitimeStreamCannotBeDoneAfterTheTimeoutOfTheStreamHasExipred() throws Exception {
-        AudioStream audioStream = getByteArrayAudioStream(AudioFormat.CONTAINER_NONE, AudioFormat.CODEC_MP3);
+        AudioStream audioStream = getByteArrayAudioStream(testByteArray, AudioFormat.CONTAINER_NONE,
+                AudioFormat.CODEC_MP3);
 
         int streamTimeout = 1;
         String url = serveStream(audioStream, streamTimeout);
@@ -181,59 +156,4 @@ public class AudioServletTest extends JavaTest {
         assertThat("The response status was not as expected", response.getStatus(), is(HttpStatus.NOT_FOUND_404));
     }
 
-    private ContentResponse getHttpResponse(AudioStream audioStream) throws Exception {
-        String url = serveStream(audioStream);
-        return getHttpRequest(url).send();
-    }
-
-    private String serveStream(AudioStream stream) {
-        return serveStream(stream, null);
-    }
-
-    private void startHttpClient(HttpClient client) {
-        if (!client.isStarted()) {
-            try {
-                client.start();
-            } catch (Exception e) {
-                fail("An exception " + e + " was thrown, while starting the HTTP client");
-            }
-        }
-    }
-
-    private Request getHttpRequest(String url) {
-        HttpClient httpClient = new HttpClient();
-        startHttpClient(httpClient);
-        return httpClient.newRequest(url).method(HttpMethod.GET);
-    }
-
-    private String serveStream(AudioStream stream, Integer timeInterval) {
-        try {
-            serverStarted.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        String path;
-        if (timeInterval != null) {
-            path = audioServlet.serve((FixedLengthAudioStream) stream, timeInterval);
-        } else {
-            path = audioServlet.serve(stream);
-        }
-
-        return generateURL(AUDIO_SERVLET_PROTOCOL, AUDIO_SERVLET_HOSTNAME, port, path);
-    }
-
-    private ByteArrayAudioStream getByteArrayAudioStream(String container, String codec) {
-        int bitDepth = 16;
-        int bitRate = 1000;
-        long frequency = 16384;
-
-        AudioFormat audioFormat = new AudioFormat(container, codec, true, bitDepth, bitRate, frequency);
-
-        return new ByteArrayAudioStream(testByteArray, audioFormat);
-    }
-
-    private String generateURL(String protocol, String hostname, int port, String path) {
-        return String.format("%s://%s:%s%s", protocol, hostname, port, path);
-    }
 }

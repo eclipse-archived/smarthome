@@ -21,6 +21,5 @@ Import-Package:
  org.hamcrest;core=split,
  org.junit,
  org.mockito,
- org.mockito.stubbing,
- org.osgi.framework
+ org.mockito.stubbing
 Automatic-Module-Name: org.eclipse.smarthome.core.audio.test

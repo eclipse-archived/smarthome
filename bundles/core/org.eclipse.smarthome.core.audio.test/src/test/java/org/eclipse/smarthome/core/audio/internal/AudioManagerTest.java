@@ -57,11 +57,11 @@ public class AudioManagerTest {
 
     private static final String CONFIGURATION_DIRECTORY_NAME = "configuration";
 
-    protected static final String MP3_FILE_NAME = "mp3AudioFile.mp3";
-    protected static final String MP3_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + MP3_FILE_NAME;
+    private static final String MP3_FILE_NAME = "mp3AudioFile.mp3";
+    private static final String MP3_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + MP3_FILE_NAME;
 
-    protected static final String WAV_FILE_NAME = "wavAudioFile.wav";
-    protected static final String WAV_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + WAV_FILE_NAME;
+    private static final String WAV_FILE_NAME = "wavAudioFile.wav";
+    private static final String WAV_FILE_PATH = CONFIGURATION_DIRECTORY_NAME + "/sounds/" + WAV_FILE_NAME;
 
     @Before
     public void setup() {
@@ -303,6 +303,7 @@ public class AudioManagerTest {
         Collection<ParameterOption> parameterOptions = audioManager
                 .getParameterOptions(URI.create(AudioManagerImpl.CONFIG_URI), param, locale);
 
+        @SuppressWarnings("null")
         BiFunction<String, String, Boolean> isParameterOptionAdded = (v, l) -> parameterOptions.stream()
                 .anyMatch(po -> po.getValue().equals(v) && po.getLabel().equals(l));
 
@@ -321,7 +322,4 @@ public class AudioManagerTest {
         return new ByteArrayAudioStream(testByteArray, audioFormat);
     }
 
-    private String generateURL(String protocol, String hostname, int port, String path) {
-        return String.format("%s://%s:%s%s", protocol, hostname, port, path);
-    }
 }
