@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.audio.internal;
 import static org.junit.Assert.fail;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -50,8 +49,10 @@ public abstract class AbstractAudioServeltTest extends JavaTest {
 
     private CompletableFuture<Boolean> serverStarted;
 
+    private HttpClient httpClient;
+
     @Before
-    public void setupServer() {
+    public void setupServerAndClient() {
         audioServlet = new AudioServlet();
 
         ServletHolder servletHolder = new ServletHolder(audioServlet);
@@ -59,11 +60,14 @@ public abstract class AbstractAudioServeltTest extends JavaTest {
         port = TestPortUtil.findFreePort();
         server = new TestServer(AUDIO_SERVLET_HOSTNAME, port, 10000, servletHolder);
         serverStarted = server.startServer();
+
+        httpClient = new HttpClient();
     }
 
     @After
-    public void tearDownServer() {
+    public void tearDownServerAndClient() throws Exception {
         server.stopServer();
+        httpClient.stop();
     }
 
     protected ByteArrayAudioStream getByteArrayAudioStream(byte[] byteArray, String container, String codec) {
@@ -96,18 +100,13 @@ public abstract class AbstractAudioServeltTest extends JavaTest {
     }
 
     protected Request getHttpRequest(String url) {
-        HttpClient httpClient = new HttpClient();
         startHttpClient(httpClient);
         return httpClient.newRequest(url).method(HttpMethod.GET);
     }
 
-    protected String serveStream(AudioStream stream, Integer timeInterval) {
-        try {
-            serverStarted.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    protected String serveStream(AudioStream stream, Integer timeInterval) throws Exception {
+        serverStarted.get(); // wait for the server thread to be started
+
         String path;
         if (timeInterval != null) {
             path = audioServlet.serve((FixedLengthAudioStream) stream, timeInterval);
