@@ -7,7 +7,7 @@
 	           name="{{::$ctrl.parameter.name}}" 
 	           ng-readonly="$ctrl.parameter.readOnly" 
 	           ng-model="$ctrl.model" 
-	           ng-required="true" 
+	           ng-required="$ctrl.parameter.required" 
 	           type="text" 
 	           ng-focus="focus=true" 
 	           ng-blur="focus=false" 

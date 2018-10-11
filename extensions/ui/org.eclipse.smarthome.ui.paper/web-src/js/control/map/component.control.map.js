@@ -88,6 +88,7 @@
         };
 
         var ctrl = this;
+        this.hasMapSource
         this.mapId;
         this.map;
         this.point;
@@ -97,7 +98,7 @@
         activate();
 
         function activate() {
-            if (!mapSourceService) {
+            if (!mapSourceService.getMapSource()) {
                 ctrl.hasMapSource = false;
                 ctrl.redrawMap = function() {
                 };
@@ -178,6 +179,9 @@
         }
 
         function updateMap(model) {
+            if (!ctrl.hasMapSource) {
+                return;
+            }
             var location = getLocation(model);
             var latitude = location[0];
             var longitude = location[1];
