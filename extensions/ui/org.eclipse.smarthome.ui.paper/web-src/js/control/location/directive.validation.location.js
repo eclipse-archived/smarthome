@@ -8,7 +8,7 @@
             require : 'ngModel',
             link : function(scope, elem, attr, ctrl) {
 
-                var required = scope.$ctrl.parameter.required;
+                var required = elem[0].required;
 
                 // process each time the value is parsed into the model:
                 ctrl.$parsers.unshift(function(value) {
