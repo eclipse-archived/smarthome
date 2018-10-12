@@ -30,6 +30,7 @@ import org.eclipse.smarthome.io.http.Handler;
 import org.eclipse.smarthome.io.http.HandlerContext;
 import org.eclipse.smarthome.io.http.HandlerPriorities;
 import org.eclipse.smarthome.io.http.auth.CredentialsExtractor;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -58,7 +59,7 @@ public class AuthenticationHandler implements Handler {
     private AuthenticationManager authenticationManager;
 
     // configuration properties
-    private boolean enabled = true;
+    private boolean enabled = false;
     private String loginUri = DEFAULT_LOGIN_URI;
 
     @Override
@@ -139,11 +140,16 @@ public class AuthenticationHandler implements Handler {
         return true;
     }
 
+    @Activate
+    void activate(Map<String, Object> properties) {
+        modified(properties);
+    }
+
     @Modified
-    void update(Map<String, Object> properties) {
+    void modified(Map<String, Object> properties) {
         Object authenticationEnabled = properties.get(AUTHENTICATION_ENABLED);
-        if (authenticationEnabled != null && authenticationEnabled instanceof String) {
-            this.enabled = Boolean.valueOf((String) authenticationEnabled);
+        if (authenticationEnabled != null) {
+            this.enabled = Boolean.valueOf(authenticationEnabled.toString());
         }
 
         Object loginUri = properties.get(AUTHENTICATION_ENDPOINT);
