@@ -390,7 +390,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
             commandExecutor.postOperationMode(OperationModeType.OFFLINE);
         }
     }
-    
+
     @Override
     public void onWebSocketFrame(Frame frame) {
         if (frame.getType() == Type.PONG) {
@@ -416,7 +416,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
             onWebSocketError(e);
         }
     }
-    
+
     private synchronized void closeConnection() {
         if (session != null) {
             try {
@@ -437,7 +437,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
             }
             client = null;
         }
-        
+
         commandExecutor = null;
     }
 
@@ -455,7 +455,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
                 closeConnection();
                 openConnection();
             }
-            
+
             if (missedPongsCount == MAX_MISSED_PONGS_COUNT) {
                 missedPongsCount = 0;
                 closeConnection();
@@ -466,10 +466,8 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
 
     public void refreshPresetChannel() {
         List<StateOption> stateOptions = presetContainer.getAllPresets().stream()
-                .map(e -> new StateOption(String.valueOf(e.getPresetID()),
-                        String.valueOf(e.getPresetID()) + ": " + e.getItemName()))
+                .map(e -> e.toStateOption())
                 .sorted(Comparator.comparing(StateOption::getValue)).collect(Collectors.toList());
-        
         stateOptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), CHANNEL_PRESET), stateOptions);
     }
 }

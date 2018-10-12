@@ -126,7 +126,7 @@ public class XMLResponseProcessor {
         Map<String, XMLHandlerState> contentItemMap = new HashMap<>();
         stateSwitchingMap.put(XMLHandlerState.ContentItem, contentItemMap);
         contentItemMap.put("itemName", XMLHandlerState.ContentItemItemName);
-        contentItemMap.put("containerArt", XMLHandlerState.Unprocessed);
+        contentItemMap.put("containerArt", XMLHandlerState.ContentItemContainerArt);
 
         Map<String, XMLHandlerState> presetMap = new HashMap<>();
         stateSwitchingMap.put(XMLHandlerState.Preset, presetMap);

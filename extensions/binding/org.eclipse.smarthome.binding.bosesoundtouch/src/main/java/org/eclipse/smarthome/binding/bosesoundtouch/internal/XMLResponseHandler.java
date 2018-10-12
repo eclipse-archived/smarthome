@@ -286,6 +286,7 @@ public class XMLResponseHandler extends DefaultHandler {
             case BassMax:
             case BassDefault:
             case ContentItemItemName:
+            case ContentItemContainerArt:
             case InfoName:
             case InfoType:
             case NowPlayingAlbum:
@@ -505,6 +506,9 @@ public class XMLResponseHandler extends DefaultHandler {
                 break;
             case ContentItemItemName:
                 contentItem.setItemName(new String(ch, start, length));
+                break;
+            case ContentItemContainerArt:
+                contentItem.setContainerArt(new String(ch, start, length));
                 break;
             case NowPlayingDescription:
                 updateNowPlayingDescription(new StringType(new String(ch, start, length)));
