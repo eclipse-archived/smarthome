@@ -92,7 +92,7 @@ The two parameters (negative and positive offset) are set by default to 90. Thes
 * **thing** `facade`
         * **channel**: 
             * `facingsun` (Switch) : ON if orientation - negative offset <= sun azimut <= orientation + negative offset
-            * `bearing` (Number:Dimensionless) : pourcentage of direct lightning. 100% when the sun is in front, 0% when not facing sun 
+            * `bearing` (Number:Dimensionless) : percentage of direct lightning. 100% when the sun is in front, 0% when not facing sun 
             * `side` (String) : indicates if the sun is in the left, in front or on the right of the facade
 
 ### Trigger Channels
