@@ -493,7 +493,7 @@
     <channel-type id="bearing">
         <item-type>Number:Dimensionless</item-type>
         <label>Bearing</label>
-        <description>Sun bearing pourcentage (100% when the sun is in facade orientation)</description>
+        <description>Sun bearing percentage (100% when the sun is in facade orientation)</description>
         <state readOnly="true" pattern="%.0f %unit%" />
     </channel-type>
     
