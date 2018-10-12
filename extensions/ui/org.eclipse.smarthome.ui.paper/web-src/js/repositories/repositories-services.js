@@ -44,7 +44,7 @@ angular.module('PaperUI.services.repositories')//
         });
         if ((existing && mustExist) || (!existing && !mustExist)) {
             $rootScope.$apply(function(scope) {
-                action(existing)
+                action(existing);
             });
         }
     }
@@ -54,6 +54,7 @@ angular.module('PaperUI.services.repositories')//
             existingThing.statusInfo = statusInfo;
         });
     });
+
     eventService.onEvent('smarthome/things/*/added', function(topic, thing) {
         updateInRepository(topic.split('/')[2], false, function(existingThing) {
             repository.add(thing);

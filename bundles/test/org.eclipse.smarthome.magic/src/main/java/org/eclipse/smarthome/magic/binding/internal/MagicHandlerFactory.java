@@ -35,6 +35,7 @@ import org.eclipse.smarthome.magic.binding.handler.MagicFirmwareUpdateThingHandl
 import org.eclipse.smarthome.magic.binding.handler.MagicImageHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicLocationThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicOnOffLightHandler;
+import org.eclipse.smarthome.magic.binding.handler.MagicOnlineOfflineHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicPlayerHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicRolllershutterHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicThermostatThingHandler;
@@ -55,7 +56,8 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
             THING_TYPE_ON_OFF_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_COLOR_LIGHT, THING_TYPE_CONTACT_SENSOR,
             THING_TYPE_CONFIG_THING, THING_TYPE_DELAYED_THING, THING_TYPE_LOCATION, THING_TYPE_THERMOSTAT,
             THING_TYPE_FIRMWARE_UPDATE, THING_TYPE_BRIDGE_1, THING_TYPE_BRIDGE_2, THING_TYPE_BRIDGED_THING,
-            THING_TYPE_CHATTY_THING, THING_TYPE_ROLLERSHUTTER, THING_TYPE_PLAYER, THING_TYPE_IMAGE);
+            THING_TYPE_CHATTY_THING, THING_TYPE_ROLLERSHUTTER, THING_TYPE_PLAYER, THING_TYPE_IMAGE,
+            THING_TYPE_ONLINE_OFFLINE);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -110,6 +112,9 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
         if (thingTypeUID.equals(THING_TYPE_IMAGE)) {
             return new MagicImageHandler(thing);
+        }
+        if (thingTypeUID.equals(THING_TYPE_ONLINE_OFFLINE)) {
+            return new MagicOnlineOfflineHandler(thing);
         }
 
         if (thingTypeUID.equals(THING_TYPE_BRIDGE_1) || thingTypeUID.equals(THING_TYPE_BRIDGE_2)) {

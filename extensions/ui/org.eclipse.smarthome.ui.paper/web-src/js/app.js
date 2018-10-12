@@ -52,18 +52,6 @@ angular.module('PaperUI', [//
         templateUrl : 'partials/services/configuration.multiService.html',
         controller : 'MultiServicesController',
         title : 'Configuration'
-    }).when('/configuration/things', {
-        templateUrl : 'partials/things/configuration.things.html',
-        controller : 'ThingController',
-        title : 'Configuration'
-    }).when('/configuration/things/view/:thingUID', {
-        templateUrl : 'partials/things/configuration.things.html',
-        controller : 'ThingController',
-        title : 'Configuration'
-    }).when('/configuration/things/edit/:thingUID', {
-        templateUrl : 'partials/things/configuration.things.html',
-        controller : 'ThingController',
-        title : 'Configuration'
     }).when('/configuration/system', {
         templateUrl : 'partials/system/system.configuration.html',
         controller : 'SystemController',

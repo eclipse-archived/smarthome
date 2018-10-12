@@ -1,5 +1,5 @@
 angular.module('PaperUI.things') //
-.controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService, profileTypeService) {
+.controller('ViewThingController', function($scope, $mdDialog, $location, toastService, thingTypeService, thingRepository, thingService, linkService, channelTypeRepository, configService, thingConfigService, util, itemRepository, channelTypeService, configDescriptionService, profileTypeService) {
     $scope.setSubtitle([ 'Things' ]);
 
     var thingUID = $scope.path[4];
@@ -11,6 +11,14 @@ angular.module('PaperUI.things') //
     $scope.showAdvanced = false;
     $scope.channelTypes;
     $scope.items;
+
+    $scope.navigateTo = function(path) {
+        if (path.startsWith("/")) {
+            $location.path(path);
+        } else {
+            $location.path('configuration/things/' + path);
+        }
+    }
 
     channelTypeRepository.getAll(function(channels) {
         $scope.channelTypes = channels;
