@@ -26,7 +26,7 @@ The altitude segment is optional and sharpens results provided by the Radiation 
 Optionally, a refresh `interval` (in seconds) can be defined to also calculate positional data like azimuth and elevation.
 
 Facade requires a bridge reference to the Sun and the orientation of the facade toward geographic north. By default, the facade is considered enlighted when the sun azimuth reaches orientation - 90° (negative offset) until orientation + 90° (positive offset).
-The two parameters (negative and positive offset) are set by default to 90. These can be modified to take in account natural obstacles (wall, trees) that reduces the lightning angle.
+The two parameters (negative and positive offset) are set by default to 90. These can be modified to take in account natural obstacles (wall, trees) that reduces the lighting angle.
 
 ## Channels
 
@@ -92,7 +92,7 @@ The two parameters (negative and positive offset) are set by default to 90. Thes
 * **thing** `facade`
         * **channel**: 
             * `facingsun` (Switch) : ON if orientation - negative offset <= sun azimut <= orientation + negative offset
-            * `bearing` (Number:Dimensionless) : percentage of direct lightning. 100% when the sun is in front, 0% when not facing sun 
+            * `bearing` (Number:Dimensionless) : percentage of direct lighting. 100% when the sun is in front, 0% when not facing sun 
             * `side` (String) : indicates if the sun is in the left, in front or on the right of the facade
 
 ### Trigger Channels
