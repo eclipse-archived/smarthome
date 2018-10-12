@@ -13,5 +13,4 @@ Import-Package:
  org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.framework,
  org.slf4j
-Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.io.rest.optimize
