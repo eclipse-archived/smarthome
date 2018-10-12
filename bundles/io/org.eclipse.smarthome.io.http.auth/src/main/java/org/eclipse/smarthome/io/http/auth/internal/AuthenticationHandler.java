@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
 @Component(configurationPid = "org.eclipse.smarthome.auth")
 public class AuthenticationHandler implements Handler {
 
-    private static final String AUTHENTICATION_ENABLED = "authentication.enabled";
-    private static final String AUTHENTICATION_ENDPOINT = "authentication.loginUri";
+    private static final String AUTHENTICATION_ENABLED = "enabled";
+    private static final String AUTHENTICATION_ENDPOINT = "loginUri";
     private static final String DEFAULT_LOGIN_URI = "/login";
     static final String REDIRECT_PARAM_NAME = "redirect";
 
