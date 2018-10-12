@@ -136,7 +136,6 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.http/${project.version}</bundle>
-    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.http.auth/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
     <capability>
       osgi.service;objectClass:List&lt;String&gt;=org.eclipse.smarthome.io.rest.LocaleService
@@ -260,9 +259,23 @@
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.console.karaf/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-io-http-auth" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.http.auth/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-http-auth-basic" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.http.auth.basic/${project.version}</bundle>
+
+    <feature>esh-io-http-auth</feature>
+    <config name="org.eclipse.smarthome.auth">
+      enabled = true
+    </config>
+  </feature>
+
   <feature name="esh-io-rest-auth" version="${project.version}">
     <feature>esh-base</feature>
-
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.auth/${project.version}</bundle>
   </feature>
 
@@ -305,11 +318,6 @@
 
     <requirement>esh.tp;filter:="(feature=httpclient)"</requirement>
     <feature dependency="true">esh.tp-httpclient</feature>
-  </feature>
-
-  <feature name="esh-io-transport-http-auth-basic" version="${project.version}">
-    <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.http.auth.basic/${project.version}</bundle>
   </feature>
 
   <feature name="esh-io-transport-mdns" version="${project.version}">
