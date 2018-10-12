@@ -266,8 +266,12 @@
 
   <feature name="esh-io-http-auth-basic" version="${project.version}">
     <feature>esh-base</feature>
-    <feature>esh-io-http-auth</feature>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.http.auth.basic/${project.version}</bundle>
+
+    <feature>esh-io-http-auth</feature>
+    <config name="org.eclipse.smarthome.auth">
+      enabled = true
+    </config>
   </feature>
 
   <feature name="esh-io-rest-auth" version="${project.version}">
