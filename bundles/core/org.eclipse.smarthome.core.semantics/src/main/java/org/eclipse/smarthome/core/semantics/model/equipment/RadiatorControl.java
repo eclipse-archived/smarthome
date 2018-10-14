@@ -21,6 +21,6 @@ import org.eclipse.smarthome.core.semantics.model.TagInfo;
  * @author Generated from generateTagClasses.groovy - Initial contribution
  *
  */
-@TagInfo(id = "Equipment_RadiatorControl", label = "Radiator Control", synonyms = "Radiator Controls", description = "")
+@TagInfo(id = "Equipment_RadiatorControl", label = "Radiator Control", synonyms = "Radiator Controls, Radiator, Radiators", description = "")
 public interface RadiatorControl extends Equipment {
 }

@@ -21,6 +21,6 @@ import org.eclipse.smarthome.core.semantics.model.TagInfo;
  * @author Generated from generateTagClasses.groovy - Initial contribution
  *
  */
-@TagInfo(id = "Equipment_Screen", label = "Screen", synonyms = "Screens", description = "")
+@TagInfo(id = "Equipment_Screen", label = "Screen", synonyms = "Screens, Television, Televisions, TV, TVs", description = "")
 public interface Screen extends Equipment {
 }

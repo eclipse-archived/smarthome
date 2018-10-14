@@ -20,6 +20,6 @@ import org.eclipse.smarthome.core.semantics.model.TagInfo;
  * @author Generated from generateTagClasses.groovy - Initial contribution
  *
  */
-@TagInfo(id = "Equipment_Door_FrontDoor", label = "Front Door", synonyms = "Front Doors", description = "")
+@TagInfo(id = "Equipment_Door_FrontDoor", label = "Front Door", synonyms = "Front Doors, Frontdoor, Frontdoors", description = "")
 public interface FrontDoor extends Door {
 }
