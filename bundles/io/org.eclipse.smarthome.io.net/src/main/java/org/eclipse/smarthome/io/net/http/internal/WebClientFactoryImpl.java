@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Bock - Initial contribution
  * @author Kai Kreuzer - added web socket support
  */
-@Component(service = HttpClientFactory.class, immediate = true, configurationPid = "org.eclipse.smarthome.webclient")
+@Component(immediate = true, configurationPid = "org.eclipse.smarthome.webclient")
 @NonNullByDefault
 public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory {
 
