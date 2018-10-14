@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.semantics.internal;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -96,19 +97,21 @@ public class SemanticsServiceImpl implements SemanticsService {
     @Override
     public @NonNull Set<Item> getItemsInLocation(@NonNull String labelOrSynonym, Locale locale) {
         Set<Item> items = new HashSet<>();
-        for (Class<? extends Tag> tag : SemanticTags.getByLabelOrSynonym(labelOrSynonym, locale)) {
-            if (tag != null && Location.class.isAssignableFrom(tag)) {
-                items.addAll(getItemsInLocation((Class<? extends Location>) tag));
-            } else {
-                Set<Item> locationItems = itemRegistry.stream().filter(ItemPredicates.hasLabel(labelOrSynonym)
-                        .or(hasSynonym(labelOrSynonym)).and(SemanticsPredicates.isLocation()))
-                        .collect(Collectors.toSet());
-                for (Item locationItem : locationItems) {
-                    if (locationItem instanceof GroupItem) {
-                        GroupItem gItem = (GroupItem) locationItem;
-                        items.addAll(gItem.getMembers(
-                                SemanticsPredicates.isA(Point.class).or(SemanticsPredicates.isA(Equipment.class))));
-                    }
+        List<Class<? extends Tag>> tagList = SemanticTags.getByLabelOrSynonym(labelOrSynonym, locale);
+        if (!tagList.isEmpty()) {
+            for (Class<? extends Tag> tag : tagList) {
+                if (Location.class.isAssignableFrom(tag)) {
+                    items.addAll(getItemsInLocation((Class<? extends Location>) tag));
+                }
+            }
+        } else {
+            Set<Item> locationItems = itemRegistry.stream().filter(ItemPredicates.hasLabel(labelOrSynonym)
+                    .or(hasSynonym(labelOrSynonym)).and(SemanticsPredicates.isLocation())).collect(Collectors.toSet());
+            for (Item locationItem : locationItems) {
+                if (locationItem instanceof GroupItem) {
+                    GroupItem gItem = (GroupItem) locationItem;
+                    items.addAll(gItem.getMembers(
+                            SemanticsPredicates.isA(Point.class).or(SemanticsPredicates.isA(Equipment.class))));
                 }
             }
         }
