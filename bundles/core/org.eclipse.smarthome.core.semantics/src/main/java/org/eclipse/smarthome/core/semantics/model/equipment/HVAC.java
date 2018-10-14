@@ -21,6 +21,6 @@ import org.eclipse.smarthome.core.semantics.model.TagInfo;
  * @author Generated from generateTagClasses.groovy - Initial contribution
  *
  */
-@TagInfo(id = "Equipment_HVAC", label = "HVAC", synonyms = "Air Conditioning, A/C, A/Cs", description = "")
+@TagInfo(id = "Equipment_HVAC", label = "HVAC", synonyms = "Heating, Ventilation, Air Conditioning, A/C, A/Cs, AC", description = "")
 public interface HVAC extends Equipment {
 }
