@@ -9,7 +9,6 @@ Bundle-ActivationPolicy: lazy
 Fragment-Host: org.eclipse.smarthome.binding.homematic
 Service-Component: OSGI-INF/*.xml
 Import-Package: org.eclipse.smarthome.core.thing.binding.builder,
- org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
