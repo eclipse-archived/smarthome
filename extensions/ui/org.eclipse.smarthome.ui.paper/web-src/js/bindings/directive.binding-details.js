@@ -17,12 +17,13 @@
         this.configure = configure;
         this.navigateTo = navigateTo;
 
-        activate();
+        this.$onInit = activate;
 
         function activate() {
             titleService.setTitle('Configuration');
 
             var bindingId = $routeParams.bindingId;
+
             bindingRepository.getOne(function(binding) {
                 return binding.id === bindingId;
             }, function(binding) {

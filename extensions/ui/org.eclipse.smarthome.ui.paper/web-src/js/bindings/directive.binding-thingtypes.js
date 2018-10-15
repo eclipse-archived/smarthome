@@ -2,7 +2,7 @@
 (function() {
     'use strict';
 
-    angular.module('PaperUI.bindings').directive('bindingThingtypes', {
+    angular.module('PaperUI.bindings').component('bindingThingtypes', {
         bindings : {
             binding : '='
         },
@@ -12,7 +12,6 @@
 
     function BindingThingtypesController() {
         var ctrl = this;
-        this.binding;
         this.filter = {
             text : ''
         };

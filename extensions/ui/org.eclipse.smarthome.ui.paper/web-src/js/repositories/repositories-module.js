@@ -79,15 +79,10 @@
                 getAll(null, true).then(function(res) {
                     if (callback) {
                         resolveSingleElement(callback, find(condition));
-                        return;
-                    } else {
-                        return;
                     }
                 }, function(res) {
                     callback(null);
-                    return;
                 }, function(res) {
-                    return;
                 });
             }
         }
