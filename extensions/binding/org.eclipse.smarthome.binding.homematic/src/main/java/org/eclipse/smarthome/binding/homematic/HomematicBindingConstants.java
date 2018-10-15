@@ -68,4 +68,7 @@ public class HomematicBindingConstants {
     public static final int INSTALL_MODE_NORMAL = 1;
 
     public static final int CONFIGURATION_CHANNEL_NUMBER = -1;
+
+    public static final String RX_BURST_MODE = "BURST";
+    public static final String RX_WAKEUP_MODE = "WAKEUP";
 }

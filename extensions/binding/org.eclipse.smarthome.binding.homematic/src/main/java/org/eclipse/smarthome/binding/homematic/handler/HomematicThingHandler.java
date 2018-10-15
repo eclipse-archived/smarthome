@@ -28,6 +28,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.eclipse.smarthome.binding.homematic.HomematicBindingConstants;
 import org.eclipse.smarthome.binding.homematic.internal.common.HomematicConfig;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.HomematicGateway;
 import org.eclipse.smarthome.binding.homematic.internal.converter.ConverterException;
@@ -261,7 +262,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                 dpInfo = new HmDatapointInfo(dpInfo.getAddress(), HmParamsetType.VALUES, 0,
                         VIRTUAL_DATAPOINT_NAME_RELOAD_FROM_GATEWAY);
                 dp = gateway.getDatapoint(dpInfo);
-                gateway.sendDatapoint(dp, new HmDatapointConfig(), Boolean.TRUE);
+                sendDatapoint(dp, new HmDatapointConfig(), Boolean.TRUE);
             } else {
                 Channel channel = getThing().getChannel(channelUID.getId());
                 if (channel == null) {
@@ -279,7 +280,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                         TypeConverter<?> converter = ConverterFactory.createConverter(channel.getAcceptedItemType());
                         Object newValue = converter.convertToBinding(command, dp);
                         HmDatapointConfig config = getChannelConfig(channel, dp);
-                        gateway.sendDatapoint(dp, config, newValue);
+                        sendDatapoint(dp, config, newValue);
                     }
                 }
             }
@@ -298,6 +299,22 @@ public class HomematicThingHandler extends BaseThingHandler {
         } catch (Exception ex) {
             logger.error("{}", ex.getMessage(), ex);
         }
+    }
+
+    private void sendDatapoint(HmDatapoint dp, HmDatapointConfig config, Object newValue)
+            throws IOException, HomematicClientException, GatewayNotAvailableException {
+        getHomematicGateway().sendDatapoint(dp, config, newValue, getRxMode());
+    }
+
+    /**
+     * Returns the rxMode used for transmitting values to the device. Can be overridden by sub-classes to customize the
+     * rxMode for a ThingType.
+     * 
+     * @return The rxMode ({@link HomematicBindingConstants#RX_BURST_MODE "BURST"} for burst mode,
+     *         {@link HomematicBindingConstants#RX_WAKEUP_MODE "WAKEUP"} for wakeup mode, or null for the default mode)
+     */
+    protected String getRxMode() {
+        return null;
     }
 
     /**
@@ -489,7 +506,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                                 }
                                 if (ObjectUtils.notEqual(dp.isEnumType() ? dp.getOptionValue() : dp.getValue(),
                                         newValue)) {
-                                    gateway.sendDatapoint(dp, new HmDatapointConfig(), newValue);
+                                    sendDatapoint(dp, new HmDatapointConfig(), newValue);
                                 }
                             }
                         } catch (IOException ex) {
