@@ -95,6 +95,7 @@ public class OwBindingConstants {
 
     static {
         Map<OwSensorType, ThingTypeUID> initThingTypeMap = new HashMap<OwSensorType, ThingTypeUID>();
+        initThingTypeMap.put(OwSensorType.DS1420, THING_TYPE_IBUTTON);
         initThingTypeMap.put(OwSensorType.DS18B20, THING_TYPE_TEMPERATURE);
         initThingTypeMap.put(OwSensorType.DS18S20, THING_TYPE_TEMPERATURE);
         initThingTypeMap.put(OwSensorType.DS2401, THING_TYPE_IBUTTON);

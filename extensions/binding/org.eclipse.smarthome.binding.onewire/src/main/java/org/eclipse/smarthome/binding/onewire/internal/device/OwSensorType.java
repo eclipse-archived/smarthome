@@ -19,6 +19,7 @@ package org.eclipse.smarthome.binding.onewire.internal.device;
  */
 
 public enum OwSensorType {
+    DS1420,
     DS18S20,
     DS18B20,
     DS2401,
