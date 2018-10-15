@@ -32,11 +32,18 @@ import org.junit.Test;
  */
 public class ConfigurationTest {
 
-    @SuppressWarnings("unused")
     public final static class ConfigClass {
-        private int intField;
-        private boolean booleanField;
-        private String stringField;
+        public enum MyEnum {
+            ON,
+            OFF,
+            UNKNOWN
+        };
+
+        public MyEnum enumField = MyEnum.UNKNOWN;
+        public int intField;
+        public boolean booleanField;
+        public String stringField = "somedefault";
+        @SuppressWarnings("unused")
         private static final String CONSTANT = "SOME_CONSTANT";
     }
 
@@ -46,6 +53,7 @@ public class ConfigurationTest {
         configuration.put("intField", 1);
         configuration.put("booleanField", false);
         configuration.put("stringField", "test");
+        configuration.put("enumField", "ON");
         configuration.put("notExisitingProperty", true);
 
         ConfigClass configClass = configuration.as(ConfigClass.class);
@@ -53,6 +61,17 @@ public class ConfigurationTest {
         assertThat(configClass.intField, is(equalTo(1)));
         assertThat(configClass.booleanField, is(false));
         assertThat(configClass.stringField, is("test"));
+        assertThat(configClass.enumField, is(ConfigClass.MyEnum.ON));
+    }
+
+    @Test
+    public void assertGetConfigAsEnumWrongValue() {
+        Configuration configuration = new Configuration();
+        configuration.put("enumField", "TEST");
+
+        ConfigClass configClass = configuration.as(ConfigClass.class);
+
+        assertThat(configClass.enumField, is(ConfigClass.MyEnum.UNKNOWN));
     }
 
     @Test

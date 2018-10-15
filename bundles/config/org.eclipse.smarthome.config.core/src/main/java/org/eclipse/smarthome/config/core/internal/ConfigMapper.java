@@ -159,6 +159,12 @@ public class ConfigMapper {
                 result = Integer.valueOf(bdValue);
             } else if (type.equals(Boolean.class) || typeName.equals("boolean")) {
                 result = Boolean.valueOf(bdValue);
+            } else if (type.isEnum()) {
+                @SuppressWarnings({ "rawtypes", "unchecked" })
+                final Class<? extends Enum> enumType = (Class<? extends Enum>) type;
+                @SuppressWarnings({ "unchecked" })
+                final Enum<?> enumvalue = Enum.valueOf(enumType, value.toString());
+                result = enumvalue;
             }
         }
         return result;
