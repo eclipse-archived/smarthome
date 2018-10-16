@@ -478,7 +478,7 @@ public class MqttBrokerConnection {
      *
      * @param topic The topic to subscribe to.
      * @param subscriber The callback listener for received messages for the given topic.
-     * @return Completes with true if successful. Exceptionally otherwise.
+     * @return Completes with true if successful. Completes with false if not connected yet. Exceptionally otherwise.
      */
     public CompletableFuture<Boolean> subscribe(String topic, MqttMessageSubscriber subscriber) {
         CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
@@ -487,13 +487,20 @@ public class MqttBrokerConnection {
             subscribers.put(topic, subscriberList);
             subscriberList.add(subscriber);
         }
-        MqttAsyncClient client = this.client;
-        if (client != null && client.isConnected()) {
+        final MqttAsyncClient client = this.client;
+        if (client == null) {
+            future.completeExceptionally(new Exception("No MQTT client"));
+            return future;
+        }
+        if (client.isConnected()) {
             try {
                 client.subscribe(topic, qos, future, actionCallback);
             } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                 future.completeExceptionally(e);
             }
+        } else {
+            // The subscription will be performed on connecting.
+            future.complete(false);
         }
         return future;
     }
