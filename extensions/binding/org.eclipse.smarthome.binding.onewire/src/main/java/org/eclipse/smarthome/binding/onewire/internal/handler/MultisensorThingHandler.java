@@ -82,7 +82,7 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         if (configuration.get(CONFIG_DIGITALREFRESH) != null) {
             digitalRefreshInterval = ((BigDecimal) configuration.get(CONFIG_DIGITALREFRESH)).intValue() * 1000;
         } else {
-            refreshInterval = 10 * 1000;
+            digitalRefreshInterval = 10 * 1000;
         }
         digitalLastRefresh = 0;
 
