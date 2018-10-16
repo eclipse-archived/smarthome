@@ -188,32 +188,32 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         }
 
         // light/current sensor
-        if (((thingType == THING_TYPE_AMS) || (thingType == THING_TYPE_BMS))
-                && (configuration.get(CONFIG_LIGHTSENSOR) != null)
-                && ((Boolean) configuration.get(CONFIG_LIGHTSENSOR))) {
-            sensors.get(0).enableChannel(CHANNEL_LIGHT);
-            if (thing.getChannel(CHANNEL_CURRENT) != null) {
-                thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT));
-            }
-            if (thing.getChannel(CHANNEL_LIGHT) == null) {
-                thingBuilder.withChannel(
-                        ChannelBuilder.create(new ChannelUID(getThing().getUID(), CHANNEL_LIGHT), "Number:Illuminance")
-                                .withLabel("Light").withType(new ChannelTypeUID(BINDING_ID, "light")).build());
-            }
-            if (hwRevision <= 13) {
-                ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.ElabNetV1);
+        if ((thingType == THING_TYPE_AMS) || (thingType == THING_TYPE_BMS)) {
+            if ((configuration.get(CONFIG_LIGHTSENSOR) != null) && ((Boolean) configuration.get(CONFIG_LIGHTSENSOR))) {
+                sensors.get(0).enableChannel(CHANNEL_LIGHT);
+                if (thing.getChannel(CHANNEL_CURRENT) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT));
+                }
+                if (thing.getChannel(CHANNEL_LIGHT) == null) {
+                    thingBuilder.withChannel(ChannelBuilder
+                            .create(new ChannelUID(getThing().getUID(), CHANNEL_LIGHT), "Number:Illuminance")
+                            .withLabel("Light").withType(new ChannelTypeUID(BINDING_ID, "light")).build());
+                }
+                if (hwRevision <= 13) {
+                    ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.ElabNetV1);
+                } else {
+                    ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.ElabNetV2);
+                }
             } else {
-                ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.ElabNetV2);
-            }
-        } else {
-            sensors.get(0).enableChannel(CHANNEL_CURRENT);
-            if (thing.getChannel(CHANNEL_LIGHT) != null) {
-                thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_LIGHT));
-            }
-            if (thing.getChannel(CHANNEL_CURRENT) == null) {
-                thingBuilder.withChannel(
-                        ChannelBuilder.create(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT), "Number:Current")
-                                .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
+                sensors.get(0).enableChannel(CHANNEL_CURRENT);
+                if (thing.getChannel(CHANNEL_LIGHT) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_LIGHT));
+                }
+                if (thing.getChannel(CHANNEL_CURRENT) == null) {
+                    thingBuilder.withChannel(ChannelBuilder
+                            .create(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT), "Number:Current")
+                            .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
+                }
             }
         }
 
