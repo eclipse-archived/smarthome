@@ -12,11 +12,20 @@
  */
 package org.eclipse.smarthome.binding.mqtt.internal;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.MqttBindingConstants;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryParticipant;
+import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.BrokerHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.SystemBrokerHandler;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -31,16 +40,25 @@ import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link MqttBrokerHandlerFactory} is responsible for creating things and thing
- * handlers.
+ * handlers. It keeps reference to all handlers and implements the {@link MQTTTopicDiscoveryService} service
+ * interface, so service consumers can subscribe to a topic on all available broker connections.
  *
  * @author David Graeff - Initial contribution
  */
-@Component(immediate = true, service = ThingHandlerFactory.class, configurationPid = "MqttBrokerHandlerFactory")
-public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory {
-    private MqttService mqttService;
+@NonNullByDefault
+@Component(immediate = true, service = { ThingHandlerFactory.class,
+        MQTTTopicDiscoveryService.class }, configurationPid = "MqttBrokerHandlerFactory")
+public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory implements MQTTTopicDiscoveryService {
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
             .of(MqttBindingConstants.BRIDGE_TYPE_SYSTEMBROKER, MqttBindingConstants.BRIDGE_TYPE_BROKER)
             .collect(Collectors.toSet());
+    protected final Map<MQTTTopicDiscoveryParticipant, TopicSubscribeMultiConnection> subscriber = Collections
+            .synchronizedMap(new WeakHashMap<>());
+    protected final Set<AbstractBrokerHandler> handlers = Collections
+            .synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+
+    @NonNullByDefault({})
+    private MqttService mqttService;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -56,24 +74,68 @@ public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory {
         mqttService = null;
     }
 
+    /**
+     * Remove the given broker connection from all listeners.
+     */
     @Override
-    protected ThingHandler createHandler(Thing thing) {
+    protected void removeHandler(@NonNull ThingHandler thingHandler) {
+        handlers.remove(thingHandler);
+        subscriber.forEach((receiver, multiConnection) -> multiConnection.remove((AbstractBrokerHandler) thingHandler));
+    }
+
+    /**
+     * Add the given broker connection to all listeners.
+     */
+    protected void createdHandler(AbstractBrokerHandler handler) {
+        handlers.add(handler);
+        subscriber.forEach((receiver, multiConnection) -> multiConnection.add(handler));
+    }
+
+    @Override
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         if (mqttService == null) {
             throw new IllegalStateException("MqttService must be bound, before ThingHandlers can be created");
         }
         if (!(thing instanceof Bridge)) {
             throw new IllegalStateException("A bridge type is expected");
         }
-        ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+        final ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
+        final AbstractBrokerHandler handler;
         if (thingTypeUID.equals(MqttBindingConstants.BRIDGE_TYPE_SYSTEMBROKER)) {
-            return new SystemBrokerHandler((Bridge) thing, mqttService);
+            handler = new SystemBrokerHandler((Bridge) thing, mqttService);
         } else if (thingTypeUID.equals(MqttBindingConstants.BRIDGE_TYPE_BROKER)) {
-            return new BrokerHandler((Bridge) thing);
+            handler = new BrokerHandler((Bridge) thing);
+        } else {
+            throw new IllegalStateException("Not supported " + thingTypeUID.toString());
         }
+        createdHandler(handler);
+        return handler;
+    }
 
-        throw new IllegalStateException("Not supported " + thingTypeUID.toString());
+    /**
+     * This factory also implements {@link MQTTTopicDiscoveryService} so consumers can subscribe to
+     * a MQTT topic that is registered on all available broker connections.
+     */
+    @Override
+    public void subscribe(MQTTTopicDiscoveryParticipant listener, String topic) {
+        if (subscriber.containsKey(listener)) {
+            return;
+        }
+        final TopicSubscribeMultiConnection multiSubscriber = new TopicSubscribeMultiConnection(listener, topic);
+        handlers.forEach(multiSubscriber::add);
+        subscriber.put(listener, multiSubscriber);
+    }
 
-        // return null;
+    /**
+     * Unsubscribe a listener from all available broker connections.
+     */
+    @Override
+    @SuppressWarnings("null")
+    public void unsubscribe(MQTTTopicDiscoveryParticipant listener) {
+        TopicSubscribeMultiConnection multiSubscriber = subscriber.remove(listener);
+        if (multiSubscriber != null) {
+            multiSubscriber.stop();
+        }
     }
 }
