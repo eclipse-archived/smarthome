@@ -21,7 +21,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -42,7 +41,7 @@ import org.mockito.MockitoAnnotations;
 import org.osgi.service.cm.ConfigurationException;
 
 /**
- * Tests cases for {@link BrokerHandler}.
+ * Test cases for {@link BrokerHandler}.
  *
  * @author David Graeff - Initial contribution
  */
@@ -59,24 +58,6 @@ public class BrokerHandlerTest {
     private MqttService service;
 
     private MqttBrokerConnectionEx connection;
-
-    /**
-     * Overwrite BrokerHandler to return our mocked/extended MqttBrokerConnection in
-     * {@link #createBrokerConnection()}.
-     */
-    public static class BrokerHandlerEx extends BrokerHandler {
-        final MqttBrokerConnectionEx e;
-
-        public BrokerHandlerEx(Bridge thing, MqttBrokerConnectionEx e) {
-            super(thing);
-            this.e = e;
-        }
-
-        @Override
-        protected @NonNull MqttBrokerConnection createBrokerConnection() throws IllegalArgumentException {
-            return e;
-        }
-    }
 
     private BrokerHandler handler;
 

@@ -110,12 +110,9 @@ public class BrokerHandler extends AbstractBrokerHandler implements PinnedCallba
 
     @Override
     public void dispose() {
-        final MqttBrokerConnection connection = this.connection;
-        if (connection != null) {
-            try {
-                connection.stop().get(1000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException ignore) {
-            }
+        try {
+            connection.stop().get(1000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ignore) {
         }
         super.dispose();
     }
@@ -129,11 +126,12 @@ public class BrokerHandler extends AbstractBrokerHandler implements PinnedCallba
      * @throws IllegalArgumentException Throws this exception, if provided hash values cannot be
      *             assigned to the {@link PinningSSLContextProvider}.
      */
-    protected void assignSSLContextProvider(MqttBrokerConnection connection) throws IllegalArgumentException {
+    protected void assignSSLContextProvider(BrokerHandlerConfig config, MqttBrokerConnection connection,
+            PinnedCallback callback) throws IllegalArgumentException {
         final PinTrustManager trustManager = new PinTrustManager();
 
         connection.setSSLContextProvider(new PinningSSLContextProvider(trustManager));
-        trustManager.setCallback(this);
+        trustManager.setCallback(callback);
 
         if (config.certificatepin) {
             try {
@@ -197,7 +195,6 @@ public class BrokerHandler extends AbstractBrokerHandler implements PinnedCallba
             final String msg = config.lwtMessage;
             MqttWillAndTestament will = new MqttWillAndTestament(topic, msg != null ? msg.getBytes() : null,
                     config.lwtQos, config.lwtRetain);
-            logger.debug("Setting last will: {}", will);
             connection.setLastWill(will);
         }
 
@@ -221,11 +218,8 @@ public class BrokerHandler extends AbstractBrokerHandler implements PinnedCallba
     @Override
     public void initialize() {
         config = getConfigAs(BrokerHandlerConfig.class);
-
-        final MqttBrokerConnection connection = createBrokerConnection();
-        this.connection = connection;
-
-        assignSSLContextProvider(connection);
+        connection = createBrokerConnection();
+        assignSSLContextProvider(config, connection, this);
         super.initialize();
     }
 }

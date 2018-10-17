@@ -34,4 +34,5 @@ Import-Package:
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.binding.mqtt,
+ org.eclipse.smarthome.binding.mqtt.discovery,
  org.eclipse.smarthome.binding.mqtt.handler

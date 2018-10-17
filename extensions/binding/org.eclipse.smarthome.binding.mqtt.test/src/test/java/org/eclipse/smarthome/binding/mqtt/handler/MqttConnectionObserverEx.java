@@ -25,10 +25,10 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
  * @author David Graeff - Initial contribution
  */
 public class MqttConnectionObserverEx implements MqttConnectionObserver {
-    int counter = 0;
-    Semaphore semaphore = new Semaphore(1);
+    public int counter = 0;
+    public Semaphore semaphore = new Semaphore(1);
 
-    MqttConnectionObserverEx() throws InterruptedException {
+    public MqttConnectionObserverEx() throws InterruptedException {
         semaphore.acquire();
     }
 

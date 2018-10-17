@@ -57,10 +57,6 @@ public class SystemBrokerHandler extends AbstractBrokerHandler implements MqttSe
     @Override
     public void connectionStateChanged(MqttConnectionState state, @Nullable Throwable error) {
         Map<String, String> properties = new HashMap<>();
-        final MqttBrokerConnection connection = this.connection;
-        if (connection == null) {
-            return;
-        }
 
         properties.put(PROPERTY_URL, connection.getHost() + ":" + String.valueOf(connection.getPort()));
         final String username = connection.getUser();
