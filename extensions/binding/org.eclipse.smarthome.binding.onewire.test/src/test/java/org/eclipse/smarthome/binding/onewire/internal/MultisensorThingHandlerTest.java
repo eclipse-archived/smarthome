@@ -95,7 +95,7 @@ public class MultisensorThingHandlerTest extends AbstractThingHandlerTest {
 
         try {
             inOrder.verify(bridgeHandler, times(1)).checkPresence(TEST_ID);
-            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(TEST_ID), any());
+            inOrder.verify(bridgeHandler, times(2)).readDecimalType(eq(TEST_ID), any());
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {
