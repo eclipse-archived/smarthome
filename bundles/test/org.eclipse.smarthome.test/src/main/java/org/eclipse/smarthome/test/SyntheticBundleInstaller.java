@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Utility class for creation, installation, update and uninstallation of
  * synthetic bundles for the purpose of testing. The synthetic bundles content
- * should be stored into separate sub-directories of {@value #bundlePoolPath}
+ * should be stored into separate sub-directories of {@value #BUNDLE_POOL_PATH}
  * (which itself is situated in the test bundle's source directory). The
  * synthetic bundle is packed as a JAR and installed into the test runtime.
  *
@@ -63,7 +64,7 @@ import com.google.common.collect.ImmutableSet;
 public class SyntheticBundleInstaller {
 
     private static final int WAIT_TIMOUT = 30; // [seconds]
-    private static final String bundlePoolPath = "/test-bundle-pool";
+    private static final String BUNDLE_POOL_PATH = "/test-bundle-pool";
 
     private static final String XML_THING_TYPE = "esh.xmlThingTypes";
     private static final String XML_BINDING_INFO = "esh.xmlBindingInfo";
@@ -80,7 +81,7 @@ public class SyntheticBundleInstaller {
      * ({@link #DEFAULT_EXTENSIONS}) will be included into the synthetic bundle
      *
      * @param bundleContext the bundle context of the test runtime
-     * @param testBundleName the symbolic name of the sub-directory of {@value #bundlePoolPath}, which contains the
+     * @param testBundleName the symbolic name of the sub-directory of {@value #BUNDLE_POOL_PATH}, which contains the
      *            files for the synthetic bundle
      * @return the synthetic bundle representation
      * @throws Exception thrown when error occurs while installing or starting the synthetic bundle
@@ -93,7 +94,8 @@ public class SyntheticBundleInstaller {
      * Install synthetic bundle, denoted by its name, into the test runtime (by using the given bundle context).
      *
      * @param bundleContext the bundle context of the test runtime
-     * @param testBundleNamethe symbolic name of the sub-directory of {@value #bundlePoolPath}, which contains the files
+     * @param testBundleNamethe symbolic name of the sub-directory of {@value #BUNDLE_POOL_PATH}, which contains the
+     *            files
      *            for the synthetic bundle
      * @param extensionsToInclude a list of extension to be included into the synthetic bundle. In order to use the list
      *            of default extensions ({@link #DEFAULT_EXTENSIONS})
@@ -103,7 +105,7 @@ public class SyntheticBundleInstaller {
      */
     public static Bundle install(BundleContext bundleContext, String testBundleName, Set<String> extensionsToInclude)
             throws Exception {
-        String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
+        String bundlePath = BUNDLE_POOL_PATH + "/" + testBundleName + "/";
         byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName,
                 extensionsToInclude);
 
@@ -118,7 +120,7 @@ public class SyntheticBundleInstaller {
      * Install synthetic bundle, denoted by its name, into the test runtime (by using the given bundle context).
      *
      * @param bundleContext the bundle context of the test runtime
-     * @param testBundleName the symbolic name of the sub-directory of {@value #bundlePoolPath}, which contains the
+     * @param testBundleName the symbolic name of the sub-directory of {@value #BUNDLE_POOL_PATH}, which contains the
      *            files for the synthetic bundle
      * @param extensionsToInclude a list of extension to be included into the synthetic bundle
      *
@@ -170,7 +172,7 @@ public class SyntheticBundleInstaller {
         }
 
         // New bytes are taken from the update path
-        String updatePath = bundlePoolPath + "/" + updateDirName + "/";
+        String updatePath = BUNDLE_POOL_PATH + "/" + updateDirName + "/";
         byte[] updatedBundleBytes = createSyntheticBundle(bundleContext.getBundle(), updatePath, bundleToUpdateName,
                 extensionsToInclude);
 
@@ -208,7 +210,8 @@ public class SyntheticBundleInstaller {
      * bundle fragment.
      *
      * @param bundleContext the bundle context of the test runtime
-     * @param testBundleName the name of the sub-directory of {@value #bundlePoolPath}, which contains the files for the
+     * @param testBundleName the name of the sub-directory of {@value #BUNDLE_POOL_PATH}, which contains the files for
+     *            the
      *            synthetic bundle
      * @param extensionsToInclude a list of extension to be included into the synthetic bundle fragment. In order to use
      *            the list of default extensions ({@link #DEFAULT_EXTENSIONS})
@@ -225,14 +228,15 @@ public class SyntheticBundleInstaller {
      * bundle fragment.
      *
      * @param bundleContext the bundle context of the test runtime
-     * @param testBundleName the name of the sub-directory of {@value #bundlePoolPath}, which contains the files for the
+     * @param testBundleName the name of the sub-directory of {@value #BUNDLE_POOL_PATH}, which contains the files for
+     *            the
      *            synthetic bundle
      * @return the synthetic bundle representation
      * @throws Exception thrown when error occurs while installing or starting the synthetic bundle fragment
      */
     public static Bundle installFragment(BundleContext bundleContext, String testBundleName,
             Set<String> extensionsToInclude) throws Exception {
-        String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
+        String bundlePath = BUNDLE_POOL_PATH + "/" + testBundleName + "/";
         byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName,
                 extensionsToInclude);
 
@@ -334,7 +338,7 @@ public class SyntheticBundleInstaller {
 
     private static void addFileToArchive(Bundle bundle, String bundlePath, String fileInBundle,
             JarOutputStream jarOutputStream) throws IOException {
-        String filePath = bundlePath + "/" + fileInBundle;
+        String filePath = Paths.get(bundlePath, fileInBundle).toString();
         URL resource = bundle.getResource(filePath);
         if (resource == null) {
             return;
@@ -386,7 +390,7 @@ public class SyntheticBundleInstaller {
     }
 
     private static Manifest getManifest(Bundle bundle, String bundlePath) throws IOException {
-        String filePath = bundlePath + "/" + "META-INF/MANIFEST.MF";
+        String filePath = Paths.get(bundlePath, "META-INF/MANIFEST.MF").toString();
         URL resource = bundle.getResource(filePath);
         if (resource == null) {
             return null;
