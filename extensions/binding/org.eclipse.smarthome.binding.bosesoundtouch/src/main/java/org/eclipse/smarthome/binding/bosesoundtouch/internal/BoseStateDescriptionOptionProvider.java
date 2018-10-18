@@ -46,7 +46,7 @@ public class BoseStateDescriptionOptionProvider implements DynamicStateDescripti
             @Nullable Locale locale) {
         List<StateOption> options = channelOptionsMap.get(channel.getUID());
         if (options == null) {
-            return original;
+            return null;
         }
 
         if (original != null) {
