@@ -162,6 +162,8 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     @Override
     public void dispose() {
         synchronized (initDisposeLock) {
+            super.dispose();
+
             if (initializeFuture != null) {
                 initializeFuture.cancel(true);
             }
@@ -173,7 +175,6 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
 
     private void disposeInternal() {
         logger.debug("Disposing bridge '{}'", getThing().getUID().getId());
-        super.dispose();
         if (discoveryService != null) {
             discoveryService.stopScan();
             unregisterDeviceDiscoveryService();
