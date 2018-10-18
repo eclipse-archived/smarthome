@@ -18,6 +18,7 @@ import static org.eclipse.smarthome.core.thing.Thing.*;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -62,6 +63,10 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     private static SimplePortPool portPool = new SimplePortPool();
 
     private final Object dutyCycleRatioUpdateLock = new Object();
+    private final Object initDisposeLock = new Object();
+
+    private Future<?> initializeFuture;
+    private boolean isDisposed;
 
     private HomematicConfig config;
     private HomematicGateway gateway;
@@ -85,13 +90,20 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
 
     @Override
     public void initialize() {
-        config = createHomematicConfig();
-        registerDeviceDiscoveryService();
-        final HomematicBridgeHandler instance = this;
-        scheduler.execute(() -> {
+        synchronized (initDisposeLock) {
+            isDisposed = false;
+            initializeFuture = scheduler.submit(this::initializeInternal);
+        }
+    }
+
+    private void initializeInternal() {
+        synchronized (initDisposeLock) {
+            config = createHomematicConfig();
+            registerDeviceDiscoveryService();
+
             try {
                 String id = getThing().getUID().getId();
-                gateway = HomematicGatewayFactory.createGateway(id, config, instance, httpClient);
+                gateway = HomematicGatewayFactory.createGateway(id, config, this, httpClient);
                 configureThingProperties();
                 gateway.initialize();
 
@@ -110,15 +122,16 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
                     }
                 }
                 gateway.startWatchdogs();
+
             } catch (IOException ex) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, ex.getMessage());
                 logger.debug(
                         "Homematic bridge was set to OFFLINE-COMMUNICATION_ERROR due to the following exception: {}",
                         ex.getMessage(), ex);
-                dispose();
+                disposeInternal();
                 scheduleReinitialize();
             }
-        });
+        }
     }
 
     private void configureThingProperties() {
@@ -140,15 +153,28 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
      * Schedules a reinitialization, if the Homematic gateway is not reachable at bridge startup.
      */
     private void scheduleReinitialize() {
-        scheduler.schedule(() -> {
-            initialize();
-        }, REINITIALIZE_DELAY_SECONDS, TimeUnit.SECONDS);
+        if (!isDisposed) {
+            initializeFuture = scheduler.schedule(this::initializeInternal, REINITIALIZE_DELAY_SECONDS,
+                    TimeUnit.SECONDS);
+        }
     }
 
     @Override
     public void dispose() {
+        synchronized (initDisposeLock) {
+            super.dispose();
+
+            if (initializeFuture != null) {
+                initializeFuture.cancel(true);
+            }
+
+            disposeInternal();
+            isDisposed = true;
+        }
+    }
+
+    private void disposeInternal() {
         logger.debug("Disposing bridge '{}'", getThing().getUID().getId());
-        super.dispose();
         if (discoveryService != null) {
             discoveryService.stopScan();
             unregisterDeviceDiscoveryService();
