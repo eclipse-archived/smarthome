@@ -374,7 +374,7 @@ public class DisplayTextVirtualDatapoint extends AbstractVirtualDatapointHandler
             message.add(STOP);
 
             gateway.sendDatapoint(channel.getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_SUBMIT),
-                    new HmDatapointConfig(), StringUtils.join(message, ","));
+                    new HmDatapointConfig(), StringUtils.join(message, ","), null);
         }
     }
 
