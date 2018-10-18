@@ -78,7 +78,7 @@ public class OnTimeAutomaticVirtualDatapointHandler extends AbstractVirtualDatap
             HmDatapoint dpOnTime = channel
                     .getDatapoint(HmDatapointInfo.createValuesInfo(channel, DATAPOINT_NAME_ON_TIME));
             if (dpOnTime != null) {
-                gateway.sendDatapoint(dpOnTime, new HmDatapointConfig(), getVirtualDatapointValue(channel));
+                gateway.sendDatapoint(dpOnTime, new HmDatapointConfig(), getVirtualDatapointValue(channel), null);
             } else {
                 logger.warn(
                         "Can't find ON_TIME datapoint in channel '{}' in device '{}', ignoring virtual datapoint '{}'",

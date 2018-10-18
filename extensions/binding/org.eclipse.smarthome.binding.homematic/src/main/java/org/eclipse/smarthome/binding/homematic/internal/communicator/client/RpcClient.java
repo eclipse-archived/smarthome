@@ -12,8 +12,10 @@
  */
 package org.eclipse.smarthome.binding.homematic.internal.communicator.client;
 
-import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.INSTALL_MODE_NORMAL;
 import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.CONFIGURATION_CHANNEL_NUMBER;
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.INSTALL_MODE_NORMAL;
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.RX_BURST_MODE;
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.RX_WAKEUP_MODE;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.binding.homematic.HomematicBindingConstants;
 import org.eclipse.smarthome.binding.homematic.internal.common.HomematicConfig;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.message.RpcRequest;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.parser.GetAllScriptsParser;
@@ -284,9 +287,16 @@ public abstract class RpcClient<T> {
     }
 
     /**
-     * Sets the value of the datapoint.
+     * Sets the value of the datapoint using the provided rx transmission mode.
+     *
+     * @param dp The datapoint to set
+     * @param value The new value to set on the datapoint
+     * @param rxMode The rx mode to use for the transmission of the datapoint value
+     *            ({@link HomematicBindingConstants#RX_BURST_MODE "BURST"} for burst mode,
+     *            {@link HomematicBindingConstants#RX_WAKEUP_MODE "WAKEUP"} for wakeup mode, or null for the default
+     *            mode)
      */
-    public void setDatapointValue(HmDatapoint dp, Object value) throws IOException {
+    public void setDatapointValue(HmDatapoint dp, Object value, String rxMode) throws IOException {
         if (dp.isIntegerType() && value instanceof Double) {
             value = ((Number) value).intValue();
         }
@@ -297,6 +307,7 @@ public abstract class RpcClient<T> {
             request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + getChannelSuffix(dp.getChannel()));
             request.addArg(dp.getName());
             request.addArg(value);
+            configureRxMode(request, rxMode);
         } else {
             request = createRpcRequest("putParamset");
             request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + getChannelSuffix(dp.getChannel()));
@@ -304,8 +315,17 @@ public abstract class RpcClient<T> {
             Map<String, Object> paramSet = new HashMap<String, Object>();
             paramSet.put(dp.getName(), value);
             request.addArg(paramSet);
+            configureRxMode(request, rxMode);
         }
         sendMessage(config.getRpcPort(dp.getChannel()), request);
+    }
+
+    protected void configureRxMode(RpcRequest<T> request, String rxMode) {
+        if (rxMode != null) {
+            if (RX_BURST_MODE.equals(rxMode) || RX_WAKEUP_MODE.equals(rxMode)) {
+                request.addArg(rxMode);
+            }
+        }
     }
 
     /**
