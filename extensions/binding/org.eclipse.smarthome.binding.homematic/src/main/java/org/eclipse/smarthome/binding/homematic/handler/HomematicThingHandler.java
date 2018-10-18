@@ -303,17 +303,22 @@ public class HomematicThingHandler extends BaseThingHandler {
 
     private void sendDatapoint(HmDatapoint dp, HmDatapointConfig config, Object newValue)
             throws IOException, HomematicClientException, GatewayNotAvailableException {
-        getHomematicGateway().sendDatapoint(dp, config, newValue, getRxMode());
+        String rxMode = getRxModeForDatapointTransmission(dp.getName(), dp.getValue(), newValue);
+        getHomematicGateway().sendDatapoint(dp, config, newValue, rxMode);
     }
 
     /**
-     * Returns the rxMode used for transmitting values to the device. Can be overridden by sub-classes to customize the
-     * rxMode for a ThingType.
+     * Returns the rx mode that shall be used for transmitting a new value of a datapoint to the device. The
+     * HomematicThingHandler always uses the default rx mode; custom thing handlers can override this method to
+     * adjust the rx mode.
      * 
+     * @param datapointName The datapoint that will be updated on the device
+     * @param currentValue The current value of the datapoint
+     * @param newValue The value that will be sent to the device
      * @return The rxMode ({@link HomematicBindingConstants#RX_BURST_MODE "BURST"} for burst mode,
      *         {@link HomematicBindingConstants#RX_WAKEUP_MODE "WAKEUP"} for wakeup mode, or null for the default mode)
      */
-    protected String getRxMode() {
+    protected String getRxModeForDatapointTransmission(String datapointName, Object currentValue, Object newValue) {
         return null;
     }
 
