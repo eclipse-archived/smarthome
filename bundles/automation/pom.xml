@@ -27,6 +27,7 @@
     <module>org.eclipse.smarthome.automation.module.core</module>
     <module>org.eclipse.smarthome.automation.module.core.test</module>
     <module>org.eclipse.smarthome.automation.module.media</module>
+    <module>org.eclipse.smarthome.automation.module.mqtt</module>
     <module>org.eclipse.smarthome.automation.module.timer</module>
     <module>org.eclipse.smarthome.automation.module.timer.test</module>
     <module>org.eclipse.smarthome.automation.module.script</module>
