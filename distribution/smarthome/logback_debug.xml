@@ -9,13 +9,13 @@
 	<logger name="smarthome.event" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
-    <logger name="smarthome.event.ItemStateEvent" level="DEBUG" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-    <logger name="smarthome.event.ThingStatusInfoEvent" level="DEBUG" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-    
+	<logger name="smarthome.event.ItemStateEvent" level="DEBUG" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="smarthome.event.ThingStatusInfoEvent" level="DEBUG" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
 
 	<logger name="org.eclipse.smarthome" level="DEBUG" />
 
@@ -24,8 +24,20 @@
 	<logger name="org.jupnp" level="ERROR" />
 	<logger name="javax.jmdns" level="ERROR" />
 
+	<!-- The embedded MQTT server Moquette is quite noisy -->
+	<logger name="io.moquette.spi.impl.ProtocolProcessor" level="WARN" />
+	<logger name="io.moquette.spi.impl.SessionsRepository" level="ERROR" />
+	<logger name="io.moquette.server.netty.NettyMQTTHandler" level="WARN" />
+	<logger name="io.moquette.server.netty.metrics.MQTTMessageLogger" level="WARN" />
+	<logger name="org.eclipse.smarthome.io.mqttembeddedbroker.internal.EmbeddedBrokerServiceImpl" level="DEBUG"
+		additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<!-- Bug in Moquette: https://github.com/andsel/moquette/pull/432 -->
+	<logger name="messageLogger" level="WARN" />
+
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
-	
+
 </configuration>
