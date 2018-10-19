@@ -14,6 +14,7 @@ package org.eclipse.smarthome.model.thing.test.hue;
 
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
@@ -344,6 +345,26 @@ public class GenericThingProviderTest extends JavaOSGiTest {
 
         assertThat(thingDefault.getChannel("sensor1").getAcceptedItemType(), is("Number:Temperature"));
         assertThat(thingDefault.getChannel("sensor2").getAcceptedItemType(), is("Number:Pressure"));
+    }
+
+    @Test
+    public void assertThatConfigParameterListsAreParsed() {
+        Collection<Thing> things = thingRegistry.getAll();
+        assertThat(things.size(), is(0));
+
+        String model = "hue:SENSOR:sensor_custom [config = \"value1\",\"value2\",\"value3\"]";
+
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.getBytes()));
+        Collection<Thing> actualThings = thingRegistry.getAll();
+
+        assertThat(actualThings.size(), is(1));
+
+        Thing thingDefault = actualThings.stream().filter(t -> "sensor_custom".equals(t.getUID().getId().toString()))
+                .findFirst().get();
+
+        @SuppressWarnings("unchecked")
+        Collection<String> valueCollection = (Collection<String>) thingDefault.getConfiguration().get("config");
+        assertThat(valueCollection, hasItems("value1", "value2", "value3"));
     }
 
     @Test

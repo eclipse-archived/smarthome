@@ -32,7 +32,7 @@ import org.osgi.service.component.ComponentContext;
  *
  * @author Simon Kaufmann - Initial contribution and API
  */
-public class DumbThingHandlerFactory extends BaseThingHandlerFactory {
+public class DumbThingHandlerFactory extends BaseThingHandlerFactory implements ThingHandlerFactory {
 
     public static final String BINDING_ID = "dumb";
 

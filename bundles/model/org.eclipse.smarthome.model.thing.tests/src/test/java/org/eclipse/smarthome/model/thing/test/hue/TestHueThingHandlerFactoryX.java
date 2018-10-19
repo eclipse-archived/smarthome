@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.ComponentContext;
 
 import com.google.common.collect.Sets;
@@ -29,7 +30,7 @@ import com.google.common.collect.Sets;
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
  */
-public class TestHueThingHandlerFactoryX extends BaseThingHandlerFactory {
+public class TestHueThingHandlerFactoryX extends BaseThingHandlerFactory implements ThingHandlerFactory {
 
     public static final String BINDING_ID = "Xhue";
 
