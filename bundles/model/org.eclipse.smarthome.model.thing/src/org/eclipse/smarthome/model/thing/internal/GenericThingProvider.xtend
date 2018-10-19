@@ -440,7 +440,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     def private createConfiguration(ModelPropertyContainer propertyContainer) {
         val configuration = new Configuration
         propertyContainer.properties.forEach [
-            configuration.put(key, value)
+            if (value.size === 1) {
+                configuration.put(key, value.get(0))
+            } else {
+                configuration.put(key, value)
+            }
         ]
         configuration
     }

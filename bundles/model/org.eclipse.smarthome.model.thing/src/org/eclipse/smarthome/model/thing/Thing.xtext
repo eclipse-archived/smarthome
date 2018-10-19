@@ -65,7 +65,7 @@ BaseModelItemType :
 ;
 
 ModelProperty:
-	key=ID '=' value=ValueType
+	key=ID '=' value+=ValueType (',' value+=ValueType)*
 ;
 
 CHANNEL_ID:
