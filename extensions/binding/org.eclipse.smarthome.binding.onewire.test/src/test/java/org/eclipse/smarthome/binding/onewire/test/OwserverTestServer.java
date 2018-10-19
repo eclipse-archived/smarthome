@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
@@ -47,7 +48,7 @@ public class OwserverTestServer {
         serverSocket = new ServerSocket(port);
     }
 
-    public void startServer() throws IOException {
+    public void startServer(CompletableFuture<Boolean> serverStarted) throws IOException {
         isRunning = true;
 
         new Thread() {
@@ -55,6 +56,7 @@ public class OwserverTestServer {
             public void run() {
                 OwserverPacket receivedPacket;
                 ArrayList<OwserverPacket> answerPackets;
+                serverStarted.complete(true);
                 try {
                     while (isRunning) {
                         connectionSocket = serverSocket.accept();

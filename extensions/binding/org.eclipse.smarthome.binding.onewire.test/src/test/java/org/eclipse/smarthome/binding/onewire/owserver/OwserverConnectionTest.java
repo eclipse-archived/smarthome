@@ -14,9 +14,11 @@ package org.eclipse.smarthome.binding.onewire.owserver;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.never;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
@@ -27,6 +29,7 @@ import org.eclipse.smarthome.binding.onewire.test.OwserverTestServer;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.test.TestPortUtil;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
 import org.junit.Assert;
@@ -34,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Tests cases for {@link OwserverConnection}.
@@ -44,7 +46,6 @@ import org.mockito.MockitoAnnotations;
 public class OwserverConnectionTest extends JavaTest {
 
     private final String TEST_HOST = "127.0.0.1";
-    private int TEST_PORT = 54304; // non standard port
 
     OwserverTestServer testServer;
     OwserverConnection owserverConnection;
@@ -52,28 +53,26 @@ public class OwserverConnectionTest extends JavaTest {
     @Mock
     OwserverBridgeHandler bridgeHandler;
 
-    @Before
-    public void setup() {
-        int error_counter = 0;
-        MockitoAnnotations.initMocks(this);
+    private int testPort;
 
-        while (true) {
-            try {
-                testServer = new OwserverTestServer(TEST_PORT);
-                testServer.startServer();
-                break;
-            } catch (IOException e) {
-                error_counter++;
-                TEST_PORT++;
-                if (error_counter > 3) {
-                    fail("could not start test server: " + e.getMessage());
-                }
-            }
+    @Before
+    public void setup() throws Exception {
+        initMocks(this);
+
+        CompletableFuture<Boolean> serverStarted = new CompletableFuture<>();
+        testPort = TestPortUtil.findFreePort();
+        try {
+            testServer = new OwserverTestServer(testPort);
+            testServer.startServer(serverStarted);
+        } catch (IOException e) {
+            fail("could not start test server");
         }
 
         owserverConnection = new OwserverConnection(bridgeHandler);
         owserverConnection.setHost(TEST_HOST);
-        owserverConnection.setPort(TEST_PORT);
+        owserverConnection.setPort(testPort);
+
+        serverStarted.get(); // wait for the server thread to start
     }
 
     @After
@@ -94,7 +93,7 @@ public class OwserverConnectionTest extends JavaTest {
 
     @Test
     public void failedConnectionReportedToBridgeHandler() {
-        owserverConnection.setPort(TEST_PORT + 1);
+        owserverConnection.setPort(testPort + 1);
 
         owserverConnection.start();
 
