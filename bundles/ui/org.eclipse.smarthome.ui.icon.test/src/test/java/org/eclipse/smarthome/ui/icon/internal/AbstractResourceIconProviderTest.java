@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.ui.icon.internal;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.ui.icon.AbstractResourceIconProvider;
 import org.eclipse.smarthome.ui.icon.IconProvider;
@@ -45,14 +47,21 @@ public class AbstractResourceIconProviderTest {
         provider = new AbstractResourceIconProvider() {
             @Override
             protected InputStream getResource(String iconset, String resourceName) {
-                return "x-30.png".equals(resourceName) ? new ByteArrayInputStream("".getBytes()) : null;
+                switch (resourceName) {
+                    case "x-30.png":
+                        return new ByteArrayInputStream("x-30.png".getBytes());
+                    case "x-y z.png":
+                        return new ByteArrayInputStream("x-y z.png".getBytes());
+                    default:
+                        return null;
+                }
             }
 
             @Override
             protected boolean hasResource(String iconset, String resourceName) {
                 String state = StringUtils.substringAfterLast(resourceName, "-");
                 state = StringUtils.substringBeforeLast(state, ".");
-                return Integer.valueOf(state) == 30;
+                return state.equals("30") || state.equals("y z");
             };
 
             @Override
@@ -75,6 +84,20 @@ public class AbstractResourceIconProviderTest {
 
         try (InputStream is = provider.getIcon("x", "classic", "25", Format.PNG)) {
             assertNull(is);
+        }
+    }
+
+    @Test
+    public void testWithQuantityTypeState() throws IOException {
+        try (InputStream is = provider.getIcon("x", "classic", "34 °C", Format.PNG)) {
+            assertThat(IOUtils.toString(is), is("x-30.png"));
+        }
+    }
+
+    @Test
+    public void testWithStringTypeState() throws IOException {
+        try (InputStream is = provider.getIcon("x", "classic", "y z", Format.PNG)) {
+            assertThat(IOUtils.toString(is), is("x-y z.png"));
         }
     }
 }
