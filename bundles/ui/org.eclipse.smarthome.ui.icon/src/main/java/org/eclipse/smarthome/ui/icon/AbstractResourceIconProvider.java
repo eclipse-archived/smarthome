@@ -89,7 +89,14 @@ public abstract class AbstractResourceIconProvider implements IconProvider {
 
         String iconState;
         if (state.contains(" ")) {
-            iconState = state.substring(0, state.indexOf(" "));
+            try {
+                String firstPart = state.substring(0, state.indexOf(" "));
+                Double.valueOf(firstPart);
+                iconState = firstPart;
+            } catch (NumberFormatException e) {
+                // firstPart is not a number, pass on the full state
+                iconState = state;
+            }
         } else {
             iconState = state;
         }
