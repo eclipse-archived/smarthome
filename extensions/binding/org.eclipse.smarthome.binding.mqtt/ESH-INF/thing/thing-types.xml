@@ -27,12 +27,13 @@
 				<label>Secure connection</label>
 				<description>Uses TLS/SSL to establish a secure connection to the
 					broker. Can be "OFF","ON","AUTO". The AUTO setting prefers a secure
-					connection but will fall-back to an insecure one. Default is ON.</description>
+					connection but will fall-back to an insecure one.</description>
 				<options>
 					<option value="ON">Enabled</option>
 					<option value="OFF">Disabled</option>
 					<option value="AUTO">Automatic</option>
 				</options>
+				<default>AUTO</default>
 			</parameter>
 
 			<parameter name="qos" type="integer">
