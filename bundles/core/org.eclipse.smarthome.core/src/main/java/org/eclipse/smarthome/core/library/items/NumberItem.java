@@ -211,7 +211,8 @@ public class NumberItem extends GenericItem {
         }
 
         if (dimension != null && unitProvider != null) {
-            return unitProvider.getUnit((Class<Quantity>) dimension);
+            // explicit cast to Class<? extends Quantity> as JDK compiler complains
+            return unitProvider.getUnit((Class<? extends Quantity>) dimension);
         }
 
         return null;
