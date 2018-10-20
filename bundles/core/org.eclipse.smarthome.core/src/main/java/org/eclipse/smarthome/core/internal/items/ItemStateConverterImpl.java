@@ -82,7 +82,11 @@ public class ItemStateConverterImpl implements ItemStateConverter {
                 Class<? extends Quantity<?>> dimension = numberItem.getDimension();
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 // explicit cast to Class<? extends Quantity> as JDK compiler complains
+<<<<<<< HEAD
                 Unit<? extends Quantity<?>> conversionUnit = unitProvider.getUnit((Class<? extends Quantity>) dimension);
+=======
+                Unit<? extends Quantity<?>> conversionUnit = unitProvider.getUnit((Class<? extends Quantity>>) dimension);
+>>>>>>> 1ab8b01a8e30ac3ef7e6ba34a5f6ebe2a77b6ac1
                 if (conversionUnit != null
                         && UnitUtils.isDifferentMeasurementSystem(conversionUnit, quantityState.getUnit())) {
                     return convertOrUndef(quantityState, conversionUnit);
