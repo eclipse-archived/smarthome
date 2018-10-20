@@ -245,6 +245,14 @@ The following XML snippet defines a list of predefined state options:
 The user interface can use these values to render labels for values or to provide a selection of states, when the channel is writable. 
 The option labels can also be localized.
 
+#### Dynamic State Description
+
+In situations where the static definition of a state description is not sufficient a binding may implement a `DynamicStateDescriptionProvider`.
+It allows to provide a StateDescription based on the specific `Channel`.
+Also implement this interface if you want to provide dynamic state options.
+The original `StateDescription` is available for modification and enhancement.
+The `StateDescriptionFragmentBuilder` can be used to only provide the information which is available at the time of construction.
+
 ### Channel Categories
 
 A description about channel categories as well as an overview about which categories exist can be found in out [categories overview](../../concepts/categories.html).
