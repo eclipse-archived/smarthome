@@ -219,13 +219,14 @@ public class HttpTransportImpl implements HttpTransport {
     }
 
     private String fixURI(String uri) {
-        if (!uri.startsWith("https://")) {
-            uri = "https://" + uri;
+        String fixedURI = uri;
+        if (!fixedURI.startsWith("https://")) {
+            fixedURI = "https://" + fixedURI;
         }
-        if (uri.split(":").length != 3) {
-            uri = uri + ":8080";
+        if (fixedURI.split(":").length != 3) {
+            fixedURI = fixedURI + ":8080";
         }
-        return uri;
+        return fixedURI;
     }
 
     private String fixRequest(String request) {
@@ -248,31 +249,40 @@ public class HttpTransportImpl implements HttpTransport {
         String response = null;
         HttpsURLConnection connection = null;
         try {
-            request = checkSessionToken(request);
-            connection = getConnection(request, connectTimeout, readTimeout);
+            String correctedRequest = request;
+            correctedRequest = checkSessionToken(correctedRequest);
+            connection = getConnection(correctedRequest, connectTimeout, readTimeout);
             if (connection != null) {
                 connection.connect();
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    response = IOUtils.toString(connection.getInputStream());
-                    if (!response.contains("Authentication failed")) {
-                        if (loginCounter > 0) {
-                            connectionManager.checkConnection(connection.getResponseCode());
-                        }
-                        loginCounter = 0;
+                final int responseCode = connection.getResponseCode();
+                if (responseCode != HttpURLConnection.HTTP_FORBIDDEN) {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        response = IOUtils.toString(connection.getErrorStream());
                     } else {
-                        connectionManager.checkConnection(ConnectionManager.AUTHENTIFICATION_PROBLEM);
-                        loginCounter++;
+                        response = IOUtils.toString(connection.getInputStream());
                     }
+                    if (response != null) {
+                        if (!response.contains("Authentication failed")) {
+                            if (loginCounter > 0) {
+                                connectionManager.checkConnection(responseCode);
+                            }
+                            loginCounter = 0;
+                        } else {
+                            connectionManager.checkConnection(ConnectionManager.AUTHENTIFICATION_PROBLEM);
+                            loginCounter++;
+                        }
+                    }
+
                 }
                 connection.disconnect();
                 if (response == null && connectionManager != null
                         && loginCounter <= MAY_A_NEW_SESSION_TOKEN_IS_NEEDED) {
-                    if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                        execute(addSessionToken(request, connectionManager.getNewSessionToken()), connectTimeout,
-                                readTimeout);
+                    if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+                        execute(addSessionToken(correctedRequest, connectionManager.getNewSessionToken()),
+                                connectTimeout, readTimeout);
                         loginCounter++;
                     } else {
-                        connectionManager.checkConnection(connection.getResponseCode());
+                        connectionManager.checkConnection(responseCode);
                         loginCounter++;
                         return null;
                     }
@@ -288,6 +298,7 @@ public class HttpTransportImpl implements HttpTransport {
         } catch (java.net.UnknownHostException e) {
             informConnectionManager(ConnectionManager.UNKNOWN_HOST_EXCEPTION);
         } catch (IOException e) {
+            logger.error("An IOException occurred: ", e);
             if (connectionManager != null) {
                 informConnectionManager(ConnectionManager.GENERAL_EXCEPTION);
             }
@@ -326,25 +337,26 @@ public class HttpTransportImpl implements HttpTransport {
     }
 
     private String addSessionToken(String request, String sessionToken) {
-        if (!request.contains(ParameterKeys.TOKEN)) {
-            if (request.contains("?")) {
-                request = request + "&" + ParameterKeys.TOKEN + "=" + sessionToken;
+        String correctedRequest = request;
+        if (!correctedRequest.contains(ParameterKeys.TOKEN)) {
+            if (correctedRequest.contains("?")) {
+                correctedRequest = correctedRequest + "&" + ParameterKeys.TOKEN + "=" + sessionToken;
             } else {
-                request = request + "?" + ParameterKeys.TOKEN + "=" + sessionToken;
+                correctedRequest = correctedRequest + "?" + ParameterKeys.TOKEN + "=" + sessionToken;
             }
         } else {
-            request = StringUtils.replaceOnce(request,
-                    StringUtils.substringBefore(StringUtils.substringAfter(request, ParameterKeys.TOKEN + "="), "&"),
-                    sessionToken);
+            correctedRequest = StringUtils.replaceOnce(correctedRequest, StringUtils.substringBefore(
+                    StringUtils.substringAfter(correctedRequest, ParameterKeys.TOKEN + "="), "&"), sessionToken);
 
         }
-        return request;
+        return correctedRequest;
     }
 
     private HttpsURLConnection getConnection(String request, int connectTimeout, int readTimeout) throws IOException {
-        if (StringUtils.isNotBlank(request)) {
-            request = fixRequest(request);
-            URL url = new URL(this.uri + request);
+        String correctedRequest = request;
+        if (StringUtils.isNotBlank(correctedRequest)) {
+            correctedRequest = fixRequest(correctedRequest);
+            URL url = new URL(this.uri + correctedRequest);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             if (connection != null) {
                 connection.setConnectTimeout(connectTimeout);
@@ -433,16 +445,16 @@ public class HttpTransportImpl implements HttpTransport {
 
     @Override
     public String writePEMCertFile(String path) {
-        path = StringUtils.trimToEmpty(path);
+        String correctedPath = StringUtils.trimToEmpty(path);
         File certFilePath;
-        if (StringUtils.isNotBlank(path)) {
-            certFilePath = new File(path);
+        if (StringUtils.isNotBlank(correctedPath)) {
+            certFilePath = new File(correctedPath);
             boolean pathExists = certFilePath.exists();
             if (!pathExists) {
                 pathExists = certFilePath.mkdirs();
             }
-            if (pathExists && !path.endsWith("/")) {
-                path = path + "/";
+            if (pathExists && !correctedPath.endsWith("/")) {
+                correctedPath = correctedPath + "/";
             }
         }
         InputStream certInputStream = IOUtils.toInputStream(cert);
@@ -451,7 +463,8 @@ public class HttpTransportImpl implements HttpTransport {
             trustedCert = (X509Certificate) CertificateFactory.getInstance("X.509")
                     .generateCertificate(certInputStream);
 
-            certFilePath = new File(path + trustedCert.getSubjectDN().getName().split(",")[0].substring(2) + ".crt");
+            certFilePath = new File(
+                    correctedPath + trustedCert.getSubjectDN().getName().split(",")[0].substring(2) + ".crt");
             if (!certFilePath.exists()) {
                 certFilePath.createNewFile();
                 FileWriter writer = new FileWriter(certFilePath, true);

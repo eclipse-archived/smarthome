@@ -311,6 +311,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
     @Override
     public boolean checkConnection(int code) {
         switch (code) {
+            case HttpURLConnection.HTTP_INTERNAL_ERROR:
             case HttpURLConnection.HTTP_OK:
                 if (!connectionEstablished) {
                     connectionEstablished = true;
