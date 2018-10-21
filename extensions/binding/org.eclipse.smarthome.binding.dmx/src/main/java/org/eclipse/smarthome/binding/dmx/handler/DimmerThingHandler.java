@@ -153,7 +153,7 @@ public class DimmerThingHandler extends DmxThingHandler {
             }
         }
 
-        if (configuration.get(CONFIG_DMX_ID) == null) {
+        if (!configuration.containsKey(CONFIG_DMX_ID)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "DMX channel configuration missing");
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
@@ -172,17 +172,17 @@ public class DimmerThingHandler extends DmxThingHandler {
             return;
         }
 
-        if (configuration.get(CONFIG_DIMMER_FADE_TIME) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_FADE_TIME)) {
             fadeTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_FADE_TIME)).intValue();
             logger.debug("setting fadeTime to {} ms in {}", fadeTime, this.thing.getUID());
         }
 
-        if (configuration.get(CONFIG_DIMMER_DIM_TIME) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_DIM_TIME)) {
             dimTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_DIM_TIME)).intValue();
             logger.trace("setting dimTime to {} ms in {}", fadeTime, this.thing.getUID());
         }
 
-        if (configuration.get(CONFIG_DIMMER_TURNONVALUE) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_TURNONVALUE)) {
             String turnOnValueString = String.valueOf(fadeTime) + ":"
                     + ((String) configuration.get(CONFIG_DIMMER_TURNONVALUE)) + ":-1";
             ValueSet turnOnValue = ValueSet.fromString(turnOnValueString);
@@ -197,7 +197,11 @@ public class DimmerThingHandler extends DmxThingHandler {
         }
         this.turnOnValue.setFadeTime(fadeTime);
 
-        if (configuration.get(CONFIG_DIMMER_TURNOFFVALUE) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_DYNAMICTURNONVALUE)) {
+            dynamicTurnOnValue = (Boolean) configuration.get(CONFIG_DIMMER_DYNAMICTURNONVALUE);
+        }
+
+        if (configuration.containsKey(CONFIG_DIMMER_TURNOFFVALUE)) {
             String turnOffValueString = String.valueOf(fadeTime) + ":"
                     + ((String) configuration.get(CONFIG_DIMMER_TURNOFFVALUE)) + ":-1";
             ValueSet turnOffValue = ValueSet.fromString(turnOffValueString);
