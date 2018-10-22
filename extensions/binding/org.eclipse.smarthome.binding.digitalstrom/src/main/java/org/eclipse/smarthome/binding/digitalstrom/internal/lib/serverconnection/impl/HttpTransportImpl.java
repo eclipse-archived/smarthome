@@ -249,8 +249,7 @@ public class HttpTransportImpl implements HttpTransport {
         String response = null;
         HttpsURLConnection connection = null;
         try {
-            String correctedRequest = request;
-            correctedRequest = checkSessionToken(correctedRequest);
+            String correctedRequest = checkSessionToken(request);
             connection = getConnection(correctedRequest, connectTimeout, readTimeout);
             if (connection != null) {
                 connection.connect();
