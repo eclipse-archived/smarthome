@@ -14,7 +14,6 @@ package org.eclipse.smarthome.binding.tradfri.internal;
 
 import java.net.URI;
 import java.util.LinkedList;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,19 +46,17 @@ public class TradfriCoapClient extends CoapClient {
     private void executeCommands() {
         while (true) {
             try {
-                int delayTime = 0;
                 synchronized (commandsQueue) {
                     PayloadCallbackPair payloadCallbackPair = commandsQueue.poll();
                     if (payloadCallbackPair != null) {
                         logger.debug("CoAP PUT request\nuri: {}\npayload: {}", getURI(), payloadCallbackPair.payload);
                         put(new TradfriCoapHandler(payloadCallbackPair.callback), payloadCallbackPair.payload,
                                 MediaTypeRegistry.TEXT_PLAIN);
-                        delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
                     } else {
                         return;
                     }
                 }
-                Thread.sleep(delayTime);
+                Thread.sleep(DEFAULT_DELAY_MILLIS);
             } catch (InterruptedException e) {
                 logger.debug("commandExecutorThread was interrupted", e);
             }
@@ -103,13 +100,10 @@ public class TradfriCoapClient extends CoapClient {
      *
      * @param payload the payload to send with the PUT request
      * @param callback the callback to use for the response
-     * @param delay the amount of time (in milliseconds) after which processing of the command by the bridge should be
-     *            finished.
-     *            (if not specified a default value will be used)
      * @param scheduler scheduler to be used for sending commands
      */
-    public void asyncPut(String payload, CoapCallback callback, Integer delay, ScheduledExecutorService scheduler) {
-        asyncPut(new PayloadCallbackPair(payload, callback, delay), scheduler);
+    public void asyncPut(String payload, CoapCallback callback, ScheduledExecutorService scheduler) {
+        asyncPut(new PayloadCallbackPair(payload, callback), scheduler);
     }
 
     /**
@@ -143,12 +137,10 @@ public class TradfriCoapClient extends CoapClient {
     public final class PayloadCallbackPair {
         public final String payload;
         public final CoapCallback callback;
-        public final Integer delay;
 
-        public PayloadCallbackPair(String payload, CoapCallback callback, Integer delay) {
+        public PayloadCallbackPair(String payload, CoapCallback callback) {
             this.payload = payload;
             this.callback = callback;
-            this.delay = delay;
         }
     }
 }

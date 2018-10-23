@@ -129,13 +129,9 @@ public abstract class TradfriThingHandler extends BaseThingHandler implements Co
         }
     }
 
-    protected void set(String payload, Integer delay) {
-        logger.debug("Sending payload: {}", payload);
-        coapClient.asyncPut(payload, this, delay, scheduler);
-    }
-
     protected void set(String payload) {
-        set(payload, null);
+        logger.debug("Sending payload: {}", payload);
+        coapClient.asyncPut(payload, this, scheduler);
     }
 
     protected void updateDeviceProperties(TradfriDeviceData state) {
