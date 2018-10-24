@@ -4,36 +4,35 @@ describe('module PaperUI.things', function() {
     });
 
     describe('tests for ThingController', function() {
-        var ThingController, scope, injector, deferred;
-        beforeEach(inject(function($injector, $rootScope, $controller, $mdDialog, $q) {
-            scope = $rootScope.$new();
+        var ThingEntryController, mdDialog, deferred;
+        beforeEach(inject(function($mdDialog, $q, $componentController) {
             mdDialog = $mdDialog;
-            $controller('BodyController', {
-                '$scope' : scope
-            });
-            ThingController = $controller('ThingController', {
-                '$scope' : scope
-            });
+            ThingEntryController = $componentController('thingEntry');
+
             deferred = $q.defer();
         }));
-        it('should require ThingController', function() {
-            expect(ThingController).toBeDefined();
+        it('should require ThingEntryController', function() {
+            expect(ThingEntryController).toBeDefined();
         });
         it('should open thing remove dialog', function() {
             spyOn(mdDialog, 'show').and.returnValue(deferred.promise);
-            ;
+
             var event = {
                 stopImmediatePropagation : function() {
                 }
             };
-            scope.remove(0, event);
+            ThingEntryController.remove(0, event);
             expect(mdDialog.show).toHaveBeenCalled();
         });
         it('should get thingType label', function() {
-            scope.thingTypes = [ {
+            ThingEntryController.thingTypes = {}
+            ThingEntryController.thingTypes['myThingTypeUID'] = {
                 label : '1'
-            } ]
-            var label = scope.getThingTypeLabel(0);
+            }
+            ThingEntryController.thing = {
+                thingTypeUID : 'myThingTypeUID'
+            }
+            var label = ThingEntryController.getThingTypeLabel();
             expect(label).toEqual('1');
         });
     });
