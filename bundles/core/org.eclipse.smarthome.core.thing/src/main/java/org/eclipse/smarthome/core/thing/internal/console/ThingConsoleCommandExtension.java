@@ -43,7 +43,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added localization of thing status
- * @author Stefan Triller - Added trigger channel command
+ * @author Stefan Triller - Added trigger channel and setBridgeUid command
  * @author Henning Sudbrock - Added show command
  */
 @Component(immediate = true, service = ConsoleCommandExtension.class)
@@ -55,6 +55,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
     private static final String SUBCMD_TRIGGER = "trigger";
+    private static final String SUBCMD_SET_BRIDGE_UID = "setBridgeUID";
 
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
@@ -97,11 +98,45 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         console.println("Command '" + subCommand + "' needs arguments <channelUID> [<event>]");
                     }
                     break;
+                case SUBCMD_SET_BRIDGE_UID:
+                    if (args.length == 3) {
+                        setBridgeUid(console, args[1], args[2]);
+                    } else {
+                        console.println("Command '" + subCommand + "' needs arguments <thingUID> <bridgeUID>");
+                    }
+                    break;
                 default:
                     break;
             }
         } else {
             printUsage(console);
+        }
+    }
+
+    private void setBridgeUid(Console console, String thingUID, String bridgeUID) {
+        String finalBridgeUID;
+        if ("null".equals(bridgeUID)) {
+            finalBridgeUID = null;
+        } else {
+            finalBridgeUID = bridgeUID;
+        }
+
+        Thing thing = thingRegistry.get(new ThingUID(thingUID));
+        if (thing != null) {
+            if (finalBridgeUID != null) {
+                Thing bridge = thingRegistry.get(new ThingUID(finalBridgeUID));
+                if (bridge == null) {
+                    // we do not enforce a check if the bridge exists, we just want to force storing this value on
+                    // purpose
+                    console.println("Warning: Bridge with UID " + finalBridgeUID
+                            + " does not exist (yet), but will use this UID anyway.");
+                }
+                thing.setBridgeUID(new ThingUID(finalBridgeUID));
+            } else {
+                thing.setBridgeUID(null);
+            }
+        } else {
+            console.println("Could not find thing with UID: " + thingUID);
         }
     }
 
@@ -134,7 +169,9 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 buildCommandUsage(SUBCMD_CLEAR, "removes all managed things"),
                 buildCommandUsage(SUBCMD_REMOVE + " <thingUID>", "removes a thing"),
                 buildCommandUsage(SUBCMD_TRIGGER + " <channelUID> [<event>]",
-                        "triggers the <channelUID> with <event> (if given)") });
+                        "triggers the <channelUID> with <event> (if given)"),
+                buildCommandUsage(SUBCMD_SET_BRIDGE_UID + " <thingUID> <bridgeUID>",
+                        "sets the bridge to <bridgeUID> (use \"null to unset\") for thing with <thingUID>") });
     }
 
     private void printThings(Console console, Collection<Thing> things) {
