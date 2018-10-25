@@ -151,7 +151,9 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
             availableInterfaces.put(HmInterface.RF, TransferMode.BIN_RPC);
         } else if (gatewayInfo.isCCU()) {
             // CCU
-            availableInterfaces.put(HmInterface.RF, TransferMode.BIN_RPC);
+            if (gatewayInfo.isRfInterface()) {
+                availableInterfaces.put(HmInterface.RF, TransferMode.BIN_RPC);
+            }
             if (gatewayInfo.isWiredInterface()) {
                 availableInterfaces.put(HmInterface.WIRED, TransferMode.BIN_RPC);
             }
@@ -166,7 +168,9 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
             }
         } else {
             // other
-            availableInterfaces.put(HmInterface.RF, TransferMode.XML_RPC);
+            if (gatewayInfo.isRfInterface()) {
+                availableInterfaces.put(HmInterface.RF, TransferMode.XML_RPC);
+            }
             if (gatewayInfo.isWiredInterface()) {
                 availableInterfaces.put(HmInterface.WIRED, TransferMode.XML_RPC);
             }
@@ -294,7 +298,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
      * Returns the default interface to communicate with the Homematic gateway.
      */
     protected HmInterface getDefaultInterface() {
-        return HmInterface.RF;
+        return availableInterfaces.containsKey(HmInterface.RF) ? HmInterface.RF : HmInterface.HMIP;
     }
 
     @Override
