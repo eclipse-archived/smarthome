@@ -126,6 +126,7 @@ public class ThreadPoolManager {
                     pool = new WrappedScheduledExecutorService(cfg, new NamedThreadFactory(poolName));
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
+                    ((ScheduledThreadPoolExecutor)pool).setRemoveOnCancelPolicy(true);
                     pools.put(poolName, pool);
                     LOGGER.debug("Created scheduled thread pool '{}' of size {}", new Object[] { poolName, cfg });
                 }
