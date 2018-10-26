@@ -12,10 +12,7 @@
  */
 package org.eclipse.smarthome.binding.homematic.internal.communicator.client;
 
-import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.CONFIGURATION_CHANNEL_NUMBER;
-import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.INSTALL_MODE_NORMAL;
-import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.RX_BURST_MODE;
-import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.RX_WAKEUP_MODE;
+import static org.eclipse.smarthome.binding.homematic.HomematicBindingConstants.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -230,10 +227,23 @@ public abstract class RpcClient<T> {
      * Tries to identify the gateway and returns the GatewayInfo.
      */
     public HmGatewayInfo getGatewayInfo(String id) throws IOException {
-        GetDeviceDescriptionParser ddParser = getDeviceDescription(HmInterface.RF);
-        boolean isHomegear = StringUtils.equalsIgnoreCase(ddParser.getType(), "Homegear");
+        boolean isHomegear = false;
+        GetDeviceDescriptionParser ddParser;
+        ListBidcosInterfacesParser biParser;
 
-        ListBidcosInterfacesParser biParser = listBidcosInterfaces(HmInterface.RF);
+        try {
+            ddParser = getDeviceDescription(HmInterface.RF);
+            isHomegear = StringUtils.equalsIgnoreCase(ddParser.getType(), "Homegear");
+        } catch (IOException ex) {
+            // can't load gateway infos via RF interface
+            ddParser = new GetDeviceDescriptionParser();
+        }
+
+        try {
+            biParser = listBidcosInterfaces(HmInterface.RF);
+        } catch (IOException ex) {
+            biParser = listBidcosInterfaces(HmInterface.HMIP);
+        }
 
         HmGatewayInfo gatewayInfo = new HmGatewayInfo();
         gatewayInfo.setAddress(biParser.getGatewayAddress());
@@ -242,16 +252,21 @@ public abstract class RpcClient<T> {
             gatewayInfo.setType(ddParser.getType());
             gatewayInfo.setFirmware(ddParser.getFirmware());
         } else if ((StringUtils.startsWithIgnoreCase(biParser.getType(), "CCU")
+                || StringUtils.startsWithIgnoreCase(biParser.getType(), "HMIP_CCU")
                 || StringUtils.startsWithIgnoreCase(ddParser.getType(), "HM-RCV-50") || config.isCCUType())
                 && !config.isNoCCUType()) {
             gatewayInfo.setId(HmGatewayInfo.ID_CCU);
             String type = StringUtils.isBlank(biParser.getType()) ? "CCU" : biParser.getType();
             gatewayInfo.setType(type);
-            gatewayInfo.setFirmware(ddParser.getFirmware());
+            gatewayInfo.setFirmware(ddParser.getFirmware() != null ? ddParser.getFirmware() : biParser.getFirmware());
         } else {
             gatewayInfo.setId(HmGatewayInfo.ID_DEFAULT);
             gatewayInfo.setType(biParser.getType());
             gatewayInfo.setFirmware(biParser.getFirmware());
+        }
+
+        if (gatewayInfo.isCCU() || config.hasRfPort()) {
+            gatewayInfo.setRfInterface(hasInterface(HmInterface.RF, id));
         }
 
         if (gatewayInfo.isCCU() || config.hasWiredPort()) {
@@ -330,7 +345,7 @@ public abstract class RpcClient<T> {
 
     /**
      * Retrieves the value of a single {@link HmDatapoint} from the device. Can only be used for the paramset "VALUES".
-     * 
+     *
      * @param dp The HmDatapoint that shall be loaded
      * @throws IOException If there is a problem while communicating to the gateway
      */
@@ -364,7 +379,7 @@ public abstract class RpcClient<T> {
 
     /**
      * Enables/disables the install mode for given seconds.
-     * 
+     *
      * @param hmInterface specifies the interface to enable / disable install mode on
      * @param enable if <i>true</i> it will be enabled, otherwise disabled
      * @param seconds desired duration of install mode
@@ -378,10 +393,10 @@ public abstract class RpcClient<T> {
         logger.debug("Submitting setInstallMode(on={}, time={}, mode={}) ", enable, seconds, INSTALL_MODE_NORMAL);
         sendMessage(config.getRpcPort(hmInterface), request);
     }
-    
+
     /**
      * Returns the remaining time of <i>install_mode==true</i>
-     * 
+     *
      * @param hmInterface specifies the interface on which install mode status is requested
      * @return current duration in seconds that the controller will remain in install mode,
      *         value of 0 means that the install mode is disabled
@@ -391,12 +406,15 @@ public abstract class RpcClient<T> {
         RpcRequest<T> request = createRpcRequest("getInstallMode");
         Object[] result = sendMessage(config.getRpcPort(hmInterface), request);
         if (logger.isTraceEnabled()) {
-            logger.trace("Checking InstallMode: getInstallMode() request returned {} (remaining seconds in InstallMode=true)", result);
+            logger.trace(
+                    "Checking InstallMode: getInstallMode() request returned {} (remaining seconds in InstallMode=true)",
+                    result);
         }
         try {
             return (int) result[0];
         } catch (Exception cause) {
-            IOException wrappedException = new IOException("Failed to request install mode from interface " + hmInterface);
+            IOException wrappedException = new IOException(
+                    "Failed to request install mode from interface " + hmInterface);
             wrappedException.initCause(cause);
             throw wrappedException;
         }

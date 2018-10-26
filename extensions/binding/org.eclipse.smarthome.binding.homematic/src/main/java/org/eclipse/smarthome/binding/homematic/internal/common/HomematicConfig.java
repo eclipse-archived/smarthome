@@ -195,22 +195,22 @@ public class HomematicConfig {
     public void setGatewayType(String gatewayType) {
         this.gatewayType = gatewayType;
     }
-    
+
     /**
      * Returns time in seconds that the controller will be in install mode when
      * a device discovery is initiated
-     * 
+     *
      * @return time in seconds that the controller remains in install mode
      */
     public int getInstallModeDuration() {
         return installModeDuration;
     }
-    
+
     /**
      * Sets installModeDuration
-     * 
+     *
      * @param installModeDuration time in seconds that the controller remains in
-     *        install mode
+     *            install mode
      */
     public void setInstallModeDuration(int installModeDuration) {
         this.installModeDuration = installModeDuration;
@@ -218,7 +218,7 @@ public class HomematicConfig {
 
     /**
      * Returns if devices are unpaired from the gateway when their corresponding things are removed
-     * 
+     *
      * @return <i>true</i> if devices are unpaired from the gateway when their corresponding things are removed
      */
     public boolean isUnpairOnDeletion() {
@@ -227,7 +227,7 @@ public class HomematicConfig {
 
     /**
      * Sets unpairOnDeletion
-     * 
+     *
      * @param unpairOnDeletion if set to <i>true</i>, devices are unpaired from the gateway when their corresponding
      *            things are removed
      */
@@ -237,7 +237,7 @@ public class HomematicConfig {
 
     /**
      * Returns if devices are factory reset when their corresponding things are removed
-     * 
+     *
      * @return <i>true</i> if devices are factory reset when their corresponding things are removed
      */
     public boolean isFactoryResetOnDeletion() {
@@ -246,7 +246,7 @@ public class HomematicConfig {
 
     /**
      * Sets factoryResetOnDeletion
-     * 
+     *
      * @param factoryResetOnDeletion if set to <i>true</i>, devices are factory reset when their corresponding things
      *            are removed
      */
@@ -346,6 +346,13 @@ public class HomematicConfig {
      */
     public boolean hasGroupPort() {
         return groupPort != 0;
+    }
+
+    /**
+     * Returns true, if a RF port is configured.
+     */
+    public boolean hasRfPort() {
+        return rfPort != 0;
     }
 
     /**
