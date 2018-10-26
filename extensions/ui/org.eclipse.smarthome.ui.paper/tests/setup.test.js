@@ -327,6 +327,7 @@ describe('module PaperUI.controllers.setup', function() {
             expect(scope.thingTypeUID).toEqual('A:B');
         });
         it('should get thingType', function() {
+            rootScope.$apply();
             expect(thingTypeRepository.getOne).toHaveBeenCalled();
             expect(scope.thingType.label).toEqual("LABEL");
         });
