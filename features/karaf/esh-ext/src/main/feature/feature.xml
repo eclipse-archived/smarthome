@@ -100,12 +100,12 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.mqtt/${project.version}</bundle>
   </feature>
 
-  <feature name="esh-automation-module-mqtt" version="${project.version}">
+  <feature name="esh-binding-mqtt-automation" version="${project.version}">
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
     <feature dependency="true">esh-io-transport-mqtt</feature>
     <feature dependency="true">esh-binding-mqtt</feature>
-    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.mqtt/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.mqtt.automation/${project.version}</bundle>
   </feature>
 
   <feature name="esh-binding-mqtt-generic" version="${project.version}">

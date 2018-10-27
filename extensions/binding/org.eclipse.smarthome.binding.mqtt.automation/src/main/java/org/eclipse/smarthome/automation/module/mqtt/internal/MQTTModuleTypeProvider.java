@@ -34,14 +34,14 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTBrokerConnectionDiscoveryParticipant;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTBrokerConnectionDiscoveryService;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttService;
-import org.eclipse.smarthome.io.transport.mqtt.MqttServiceObserver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -53,24 +53,24 @@ import org.osgi.service.component.annotations.Reference;
  */
 @NonNullByDefault()
 @Component(immediate = true)
-public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceObserver {
+public class MQTTModuleTypeProvider implements ModuleTypeProvider, MQTTBrokerConnectionDiscoveryParticipant {
     protected final Set<ProviderChangeListener<ModuleType>> listeners = new HashSet<>();
 
     @NonNullByDefault({})
-    private MqttService mqttService;
+    private MQTTBrokerConnectionDiscoveryService connectionDiscovery;
 
     private @Nullable ActionType actionType;
     private @Nullable Locale cachedLocale;
 
     @Reference
-    protected void setMQTTService(MqttService mqttService) {
-        this.mqttService = mqttService;
+    protected void setConnectionDiscoveryService(MQTTBrokerConnectionDiscoveryService mqttService) {
+        this.connectionDiscovery = mqttService;
         mqttService.addBrokersListener(this);
     }
 
-    protected void unsetMQTTService(MqttService mqttService) {
+    protected void unsetConnectionDiscoveryService(MQTTBrokerConnectionDiscoveryService mqttService) {
         mqttService.removeBrokersListener(this);
-        this.mqttService = null;
+        this.connectionDiscovery = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -96,7 +96,7 @@ public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceOb
     private ModuleType getActionType(Locale locale) {
         final ActionType actionType = new ActionType(PublishActionHandler.MODULE_TYPE_ID, getConfigActionDesc(locale), //
                 "Publish MQTT message", "Publishes a message to an MQTT topic", //
-                null, Visibility.VISIBLE, getInputConditionDesc(locale), getOutputTriggerDesc(locale));
+                null, Visibility.VISIBLE, getInputActionDesc(locale), getOutputTriggerDesc(locale));
         this.actionType = actionType;
         return actionType;
     }
@@ -108,25 +108,31 @@ public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceOb
     }
 
     private @Nullable List<Output> getOutputTriggerDesc(Locale locale) {
-        Output topicName = new Output(MQTTModuleConstants.INOUT_TOPIC_NAME, MQTTModuleConstants.INOUT_TOPIC_NAME, //
+        Output topicName = new Output(MQTTModuleConstants.INOUT_TOPIC_NAME, MQTTModuleConstants.TYPE_TOPIC, //
                 "Topic", "A topic that was triggered from", null, null, null);
-        Output topicValue = new Output(MQTTModuleConstants.INOUT_TOPIC_VALUE, MQTTModuleConstants.INOUT_TOPIC_VALUE, //
+        Output topicValue = new Output(MQTTModuleConstants.INOUT_TOPIC_VALUE, MQTTModuleConstants.TYPE_STRING, //
                 "Topic", "The received topic value if triggered from a topic", null, null, null);
-        return Stream.of(topicName, topicValue).collect(Collectors.toList());
+        Output brokerConnection = new Output(MQTTModuleConstants.INOUT_BROKER_CONNECTION,
+                MQTTModuleConstants.INOUT_BROKER_CONNECTION, //
+                "Broker connection", "The broker connection", null, null, null);
+        return Stream.of(topicName, topicValue, brokerConnection).collect(Collectors.toList());
     }
 
-    private @Nullable List<Input> getInputConditionDesc(Locale locale) {
-        Input topicName = new Input(MQTTModuleConstants.INOUT_TOPIC_NAME, MQTTModuleConstants.INOUT_TOPIC_NAME, //
+    private @Nullable List<Input> getInputActionDesc(Locale locale) {
+        Input topicName = new Input(MQTTModuleConstants.INOUT_TOPIC_NAME, MQTTModuleConstants.TYPE_TOPIC, //
                 "Topic", "A topic that was triggered from", null, false, null, null);
-        Input topicValue = new Input(MQTTModuleConstants.INOUT_TOPIC_VALUE, MQTTModuleConstants.INOUT_TOPIC_VALUE, //
+        Input topicValue = new Input(MQTTModuleConstants.INOUT_TOPIC_VALUE, MQTTModuleConstants.TYPE_STRING, //
                 "Topic", "The received topic value if triggered from a topic", null, false, null, null);
-        return Stream.of(topicName, topicValue).collect(Collectors.toList());
+        Input brokerConnection = new Input(MQTTModuleConstants.INOUT_BROKER_CONNECTION,
+                MQTTModuleConstants.INOUT_BROKER_CONNECTION, //
+                "Broker connection", "The broker connection", null, false, null, null);
+        return Stream.of(topicName, topicValue, brokerConnection).collect(Collectors.toList());
     }
 
     private List<ConfigDescriptionParameter> getConfigActionDesc(Locale locale) {
         ConfigDescriptionParameter paramBroker = ConfigDescriptionParameterBuilder
                 .create(MQTTModuleConstants.CFG_BROKER, Type.TEXT).withRequired(true).withLabel("Broker")
-                .withDescription("The broker to publish to").withOptions(getSystemBrokerNames())
+                .withDescription("The broker to publish to").withOptions(getBrokerConnectionIDs())
                 .withLimitToOptions(true).build();
         ConfigDescriptionParameter paramMessage = ConfigDescriptionParameterBuilder
                 .create(MQTTModuleConstants.CFG_MESSAGE, Type.TEXT).withRequired(true).withLabel("Message")
@@ -162,9 +168,9 @@ public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceOb
      *
      * @return a list of parameter options representing the connection
      */
-    private List<ParameterOption> getSystemBrokerNames() {
+    private List<ParameterOption> getBrokerConnectionIDs() {
         List<ParameterOption> options = new ArrayList<>();
-        for (Entry<String, MqttBrokerConnection> entry : mqttService.getAllBrokerConnections().entrySet()) {
+        for (Entry<String, MqttBrokerConnection> entry : connectionDiscovery.getAllBrokerConnections().entrySet()) {
             options.add(new ParameterOption(entry.getKey(), entry.getValue().getHost()));
         }
         return options;

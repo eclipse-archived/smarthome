@@ -66,7 +66,7 @@ public class PublishedMessageTriggerHandler extends BaseTriggerModuleHandler imp
         final String receivedPayload = new String(payload);
         if (config.message.isEmpty() || config.message.equals(receivedPayload)) {
             Map<String, Object> context = new TreeMap<>();
-            context.put(MQTTModuleConstants.INOUT_BROKER_ID, connection);
+            context.put(MQTTModuleConstants.INOUT_BROKER_CONNECTION, connection);
             context.put(MQTTModuleConstants.INOUT_TOPIC_NAME, topic);
             context.put(MQTTModuleConstants.INOUT_TOPIC_VALUE, receivedPayload);
             ((TriggerHandlerCallback) callback).triggered(module, context);
@@ -76,7 +76,7 @@ public class PublishedMessageTriggerHandler extends BaseTriggerModuleHandler imp
     @Override
     public void topicVanished(ThingUID thingUID, MqttBrokerConnection connection, @NonNull String topic) {
         Map<String, Object> context = new TreeMap<>();
-        context.put(MQTTModuleConstants.INOUT_BROKER_ID, connection);
+        context.put(MQTTModuleConstants.INOUT_BROKER_CONNECTION, connection);
         context.put(MQTTModuleConstants.INOUT_TOPIC_NAME, topic);
         context.put(MQTTModuleConstants.INOUT_TOPIC_VALUE, "");
         ((TriggerHandlerCallback) callback).triggered(module, context);

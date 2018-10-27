@@ -27,14 +27,15 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.mqtt.handler.PublishActionHandler;
 import org.eclipse.smarthome.automation.module.mqtt.handler.PublishedMessageTriggerHandler;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTBrokerConnectionDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
-import org.eclipse.smarthome.io.transport.mqtt.MqttService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- *
+ * Factory for this module
+ * 
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
@@ -45,7 +46,7 @@ public class MQTTModuleHandlerFactory extends BaseModuleHandlerFactory {
             asList(PublishActionHandler.MODULE_TYPE_ID, PublishedMessageTriggerHandler.MODULE_TYPE_ID));
 
     @NonNullByDefault({})
-    private MqttService mqttService;
+    private MQTTBrokerConnectionDiscoveryService connectionDiscovery;
     @NonNullByDefault({})
     protected MQTTTopicDiscoveryService mqttTopicDiscovery;
 
@@ -69,25 +70,25 @@ public class MQTTModuleHandlerFactory extends BaseModuleHandlerFactory {
         this.mqttTopicDiscovery = null;
     }
 
+    @Reference
+    protected void setConnectionDiscoveryService(MQTTBrokerConnectionDiscoveryService mqttService) {
+        this.connectionDiscovery = mqttService;
+    }
+
+    protected void unsetConnectionDiscoveryService(MQTTBrokerConnectionDiscoveryService mqttService) {
+        this.connectionDiscovery = null;
+    }
+
     @Override
     protected @Nullable ModuleHandler internalCreate(Module module, String ruleUID) {
         switch (module.getTypeUID()) {
             case PublishActionHandler.MODULE_TYPE_ID:
-                return new PublishActionHandler((Action) module, mqttService);
+                return new PublishActionHandler((Action) module, connectionDiscovery);
             case PublishedMessageTriggerHandler.MODULE_TYPE_ID:
                 return new PublishedMessageTriggerHandler((Trigger) module, mqttTopicDiscovery);
             default:
                 break;
         }
         return null;
-    }
-
-    @Reference
-    protected void setMQTTService(MqttService mqttService) {
-        this.mqttService = mqttService;
-    }
-
-    protected void unsetMQTTService(MqttService mqttService) {
-        this.mqttService = null;
     }
 }

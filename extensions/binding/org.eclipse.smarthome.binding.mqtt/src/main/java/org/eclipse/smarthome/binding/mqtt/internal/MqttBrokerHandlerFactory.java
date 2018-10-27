@@ -15,6 +15,8 @@ package org.eclipse.smarthome.binding.mqtt.internal;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,8 +25,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTBrokerConnectionDiscoveryParticipant;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTBrokerConnectionDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryParticipant;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.BrokerHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.SystemBrokerHandler;
@@ -34,6 +38,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,14 +51,19 @@ import org.osgi.service.component.annotations.Reference;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-@Component(immediate = true, service = { ThingHandlerFactory.class,
-        MQTTTopicDiscoveryService.class }, configurationPid = "MqttBrokerHandlerFactory")
-public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory implements MQTTTopicDiscoveryService {
+@Component(immediate = true, service = { ThingHandlerFactory.class, MQTTTopicDiscoveryService.class,
+        MQTTBrokerConnectionDiscoveryService.class }, configurationPid = "MqttBrokerHandlerFactory")
+public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory
+        implements MQTTTopicDiscoveryService, MQTTBrokerConnectionDiscoveryService {
+
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
             .of(MqttBindingConstants.BRIDGE_TYPE_SYSTEMBROKER, MqttBindingConstants.BRIDGE_TYPE_BROKER)
             .collect(Collectors.toSet());
+
     protected final Map<MQTTTopicDiscoveryParticipant, TopicSubscribeMultiConnection> subscriber = Collections
             .synchronizedMap(new WeakHashMap<>());
+    protected final Set<MQTTBrokerConnectionDiscoveryParticipant> connectionSubribers = Collections
+            .synchronizedSet(new TreeSet<>());
     protected final Set<AbstractBrokerHandler> handlers = Collections
             .synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
@@ -78,9 +88,14 @@ public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory implements
      * Remove the given broker connection from all listeners.
      */
     @Override
-    protected void removeHandler(@NonNull ThingHandler thingHandler) {
-        handlers.remove(thingHandler);
-        subscriber.forEach((receiver, multiConnection) -> multiConnection.remove((AbstractBrokerHandler) thingHandler));
+    protected void removeHandler(@NonNull ThingHandler handler) {
+        handlers.remove(handler);
+        subscriber.forEach((receiver, multiConnection) -> multiConnection.remove((AbstractBrokerHandler) handler));
+        MqttBrokerConnection connection = ((AbstractBrokerHandler) handler).getConnection();
+        String brokerHandlerID = handler.getThing().getUID().getId();
+        if (connection != null) {
+            connectionSubribers.forEach(c -> c.brokerRemoved(brokerHandlerID, connection));
+        }
     }
 
     /**
@@ -89,6 +104,11 @@ public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory implements
     protected void createdHandler(AbstractBrokerHandler handler) {
         handlers.add(handler);
         subscriber.forEach((receiver, multiConnection) -> multiConnection.add(handler));
+        MqttBrokerConnection connection = handler.getConnection();
+        String brokerHandlerID = handler.getThing().getUID().getId();
+        if (connection != null) {
+            connectionSubribers.forEach(c -> c.brokerAdded(brokerHandlerID, connection));
+        }
     }
 
     @Override
@@ -137,5 +157,35 @@ public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory implements
         if (multiSubscriber != null) {
             multiSubscriber.stop();
         }
+    }
+
+    @Override
+    public void addBrokersListener(MQTTBrokerConnectionDiscoveryParticipant listener) {
+        connectionSubribers.add(listener);
+        handlers.forEach(handler -> {
+            MqttBrokerConnection connection = handler.getConnection();
+            String brokerHandlerID = handler.getThing().getUID().getId();
+            if (connection != null) {
+                listener.brokerAdded(brokerHandlerID, connection);
+            }
+        });
+    }
+
+    @Override
+    public void removeBrokersListener(MQTTBrokerConnectionDiscoveryParticipant listener) {
+        connectionSubribers.remove(listener);
+    }
+
+    @Override
+    public Map<String, MqttBrokerConnection> getAllBrokerConnections() {
+        Map<String, MqttBrokerConnection> m = new TreeMap<>();
+        handlers.forEach(handler -> {
+            MqttBrokerConnection connection = handler.getConnection();
+            String brokerHandlerID = handler.getThing().getUID().getId();
+            if (connection != null) {
+                m.put(brokerHandlerID, connection);
+            }
+        });
+        return m;
     }
 }
