@@ -17,6 +17,7 @@ import java.util.TreeMap;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
@@ -35,15 +36,22 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
  */
 @NonNullByDefault
 public class PublishedMessageTriggerHandler extends BaseTriggerModuleHandler implements MQTTTopicDiscoveryParticipant {
-
     public static final String MODULE_TYPE_ID = "mqtt.topicTrigger";
-    public static final String CFG_TOPIC = "topic";
+
+    public static class Config {
+        String topic = "";
+        String message = "";
+        @Nullable
+        String mqttbroker;
+    }
 
     private final MQTTTopicDiscoveryService discoveryService;
+    private final Config config;
 
     public PublishedMessageTriggerHandler(Trigger module, MQTTTopicDiscoveryService discoveryService) {
         super(module);
         this.discoveryService = discoveryService;
+        config = module.getConfiguration().as(Config.class);
     }
 
     @Override
@@ -55,27 +63,29 @@ public class PublishedMessageTriggerHandler extends BaseTriggerModuleHandler imp
     @Override
     public void receivedMessage(ThingUID thingUID, MqttBrokerConnection connection, @NonNull String topic,
             byte @NonNull [] payload) {
-        String receivedPayload = new String(payload);
-        Map<String, Object> context = new TreeMap<>();
-        context.put(MQTTModuleConstants.BROKER_TYPE, connection);
-        context.put(MQTTModuleConstants.TOPIC_NAME_TYPE, topic);
-        context.put(MQTTModuleConstants.TOPIC_VALUE_TYPE, receivedPayload);
-        ((TriggerHandlerCallback) callback).triggered(module, context);
+        final String receivedPayload = new String(payload);
+        if (config.message.isEmpty() || config.message.equals(receivedPayload)) {
+            Map<String, Object> context = new TreeMap<>();
+            context.put(MQTTModuleConstants.INOUT_BROKER_ID, connection);
+            context.put(MQTTModuleConstants.INOUT_TOPIC_NAME, topic);
+            context.put(MQTTModuleConstants.INOUT_TOPIC_VALUE, receivedPayload);
+            ((TriggerHandlerCallback) callback).triggered(module, context);
+        }
     }
 
     @Override
     public void topicVanished(ThingUID thingUID, MqttBrokerConnection connection, @NonNull String topic) {
         Map<String, Object> context = new TreeMap<>();
-        context.put(MQTTModuleConstants.BROKER_TYPE, connection);
-        context.put(MQTTModuleConstants.TOPIC_NAME_TYPE, topic);
-        context.put(MQTTModuleConstants.TOPIC_VALUE_TYPE, "");
+        context.put(MQTTModuleConstants.INOUT_BROKER_ID, connection);
+        context.put(MQTTModuleConstants.INOUT_TOPIC_NAME, topic);
+        context.put(MQTTModuleConstants.INOUT_TOPIC_VALUE, "");
         ((TriggerHandlerCallback) callback).triggered(module, context);
     }
 
     @Override
     public synchronized void setCallback(ModuleHandlerCallback callback) {
         super.setCallback(callback);
-        final String topic = (String) module.getConfiguration().get(CFG_TOPIC);
+        final String topic = (String) module.getConfiguration().get(MQTTModuleConstants.CFG_TOPIC);
         discoveryService.subscribe(this, topic);
     }
 }

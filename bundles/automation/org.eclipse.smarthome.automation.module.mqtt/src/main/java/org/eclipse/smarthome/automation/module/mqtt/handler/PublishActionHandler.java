@@ -37,13 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class PublishActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
-
     public static final String MODULE_TYPE_ID = "mqtt.publish";
-    public static final String CFG_BROKER = "broker";
-    public static final String CFG_TOPIC = "topic";
-    public static final String CFG_MESSAGE = "message";
-    public static final String CFG_TIMEOUT = "timeout";
-    public static final String CFG_RETAINED = "retained";
 
     public static class Config {
         int timeout = 500;
@@ -75,7 +69,7 @@ public class PublishActionHandler extends BaseModuleHandler<Action> implements A
 
         // If this action was triggered by the MQTT Trigger Handler, we know a broker connection already.
         if (brokerConnection == null) {
-            brokerConnection = (MqttBrokerConnection) context.get(MQTTModuleConstants.BROKER_TYPE);
+            brokerConnection = (MqttBrokerConnection) context.get(MQTTModuleConstants.INOUT_BROKER_ID);
         }
 
         if (brokerConnection == null) {

@@ -27,10 +27,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.module.mqtt.handler.PublishActionHandler;
-import org.eclipse.smarthome.automation.module.mqtt.handler.PublishedMessageConditionHandler;
 import org.eclipse.smarthome.automation.module.mqtt.handler.PublishedMessageTriggerHandler;
 import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
@@ -81,8 +79,6 @@ public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceOb
     public ModuleType getModuleType(String UID, Locale locale) {
         if (PublishActionHandler.MODULE_TYPE_ID.equals(UID)) {
             return getActionType(locale);
-        } else if (PublishedMessageConditionHandler.MODULE_TYPE_ID.equals(UID)) {
-            return getConditionType(locale);
         } else if (PublishedMessageTriggerHandler.MODULE_TYPE_ID.equals(UID)) {
             return getTriggerType(locale);
         } else {
@@ -94,22 +90,15 @@ public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceOb
     @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
         cachedLocale = locale;
-        return Stream.of(getActionType(locale), getConditionType(locale), getTriggerType(locale))
-                .collect(Collectors.toList());
+        return Stream.of(getActionType(locale), getTriggerType(locale)).collect(Collectors.toList());
     }
 
     private ModuleType getActionType(Locale locale) {
         final ActionType actionType = new ActionType(PublishActionHandler.MODULE_TYPE_ID, getConfigActionDesc(locale), //
-                "Publish MQTT message", "Publishes a message to a MQTT topic", //
+                "Publish MQTT message", "Publishes a message to an MQTT topic", //
                 null, Visibility.VISIBLE, getInputConditionDesc(locale), getOutputTriggerDesc(locale));
         this.actionType = actionType;
         return actionType;
-    }
-
-    private ModuleType getConditionType(Locale locale) {
-        return new ConditionType(PublishedMessageConditionHandler.MODULE_TYPE_ID, getConfigConditionDesc(locale),
-                "MQTT message published", "Checks if the given MQTT topic has the configured message", //
-                null, Visibility.VISIBLE, getInputConditionDesc(locale));
     }
 
     private ModuleType getTriggerType(Locale locale) {
@@ -119,56 +108,52 @@ public class MQTTModuleTypeProvider implements ModuleTypeProvider, MqttServiceOb
     }
 
     private @Nullable List<Output> getOutputTriggerDesc(Locale locale) {
-        Output topicName = new Output(MQTTModuleConstants.TOPIC_NAME_TYPE, MQTTModuleConstants.TOPIC_NAME_TYPE, //
+        Output topicName = new Output(MQTTModuleConstants.INOUT_TOPIC_NAME, MQTTModuleConstants.INOUT_TOPIC_NAME, //
                 "Topic", "A topic that was triggered from", null, null, null);
-        Output topicValue = new Output(MQTTModuleConstants.TOPIC_VALUE_TYPE, MQTTModuleConstants.TOPIC_VALUE_TYPE, //
+        Output topicValue = new Output(MQTTModuleConstants.INOUT_TOPIC_VALUE, MQTTModuleConstants.INOUT_TOPIC_VALUE, //
                 "Topic", "The received topic value if triggered from a topic", null, null, null);
         return Stream.of(topicName, topicValue).collect(Collectors.toList());
     }
 
     private @Nullable List<Input> getInputConditionDesc(Locale locale) {
-        Input topicName = new Input(MQTTModuleConstants.TOPIC_NAME_TYPE, MQTTModuleConstants.TOPIC_NAME_TYPE, //
+        Input topicName = new Input(MQTTModuleConstants.INOUT_TOPIC_NAME, MQTTModuleConstants.INOUT_TOPIC_NAME, //
                 "Topic", "A topic that was triggered from", null, false, null, null);
-        Input topicValue = new Input(MQTTModuleConstants.TOPIC_VALUE_TYPE, MQTTModuleConstants.TOPIC_VALUE_TYPE, //
+        Input topicValue = new Input(MQTTModuleConstants.INOUT_TOPIC_VALUE, MQTTModuleConstants.INOUT_TOPIC_VALUE, //
                 "Topic", "The received topic value if triggered from a topic", null, false, null, null);
         return Stream.of(topicName, topicValue).collect(Collectors.toList());
     }
 
     private List<ConfigDescriptionParameter> getConfigActionDesc(Locale locale) {
         ConfigDescriptionParameter paramBroker = ConfigDescriptionParameterBuilder
-                .create(PublishActionHandler.CFG_BROKER, Type.TEXT).withRequired(true).withLabel("Broker")
+                .create(MQTTModuleConstants.CFG_BROKER, Type.TEXT).withRequired(true).withLabel("Broker")
                 .withDescription("The broker to publish to").withOptions(getSystemBrokerNames())
                 .withLimitToOptions(true).build();
         ConfigDescriptionParameter paramMessage = ConfigDescriptionParameterBuilder
-                .create(PublishActionHandler.CFG_MESSAGE, Type.TEXT).withRequired(true).withLabel("Message")
+                .create(MQTTModuleConstants.CFG_MESSAGE, Type.TEXT).withRequired(true).withLabel("Message")
                 .withDescription("The message to publish").build();
         ConfigDescriptionParameter paramRetained = ConfigDescriptionParameterBuilder
-                .create(PublishActionHandler.CFG_RETAINED, Type.BOOLEAN).withAdvanced(true).withDefault("true")
+                .create(MQTTModuleConstants.CFG_RETAINED, Type.BOOLEAN).withAdvanced(true).withDefault("true")
                 .withLabel("Retained").withDescription("A non-retained message disappears after being published")
                 .build();
         ConfigDescriptionParameter paramTimeout = ConfigDescriptionParameterBuilder
-                .create(PublishActionHandler.CFG_TIMEOUT, Type.INTEGER).withAdvanced(true).withDefault("500")
+                .create(MQTTModuleConstants.CFG_TIMEOUT, Type.INTEGER).withAdvanced(true).withDefault("500")
                 .withMinimum(BigDecimal.valueOf(0)).withMaximum(BigDecimal.valueOf(1000)).withLabel("Timeout")
                 .withDescription("Timeout in milliseconds").build();
         return Stream.of(paramBroker, paramMessage, paramRetained, paramTimeout, getTopicConfigDescParam(locale))
                 .collect(Collectors.toList());
     }
 
-    private List<ConfigDescriptionParameter> getConfigConditionDesc(Locale locale) {
-        ConfigDescriptionParameter param1 = ConfigDescriptionParameterBuilder
-                .create(PublishedMessageConditionHandler.CFG_PAYLOAD, Type.TEXT).withRequired(true)
-                .withLabel("Expected").withDescription("The expected message on the given topic").build();
-        return Stream.of(param1, getTopicConfigDescParam(locale)).collect(Collectors.toList());
-    }
-
     private List<ConfigDescriptionParameter> getConfigTriggerDesc(Locale locale) {
-        return Stream.of(getTopicConfigDescParam(locale)).collect(Collectors.toList());
+        ConfigDescriptionParameter param1 = ConfigDescriptionParameterBuilder
+                .create(MQTTModuleConstants.CFG_MESSAGE, Type.TEXT).withRequired(false).withLabel("Expected message")
+                .withDescription("An optional expected message on the given trigger topic").build();
+        return Stream.of(param1, getTopicConfigDescParam(locale)).collect(Collectors.toList());
     }
 
     private ConfigDescriptionParameter getTopicConfigDescParam(Locale locale) {
         ConfigDescriptionParameter param2 = ConfigDescriptionParameterBuilder
-                .create(PublishActionHandler.CFG_TOPIC, Type.TEXT).withRequired(true).withLabel("Topic")
-                .withDescription("the MQTT topic").build();
+                .create(MQTTModuleConstants.CFG_TOPIC, Type.TEXT).withRequired(true).withLabel("Topic")
+                .withDescription("The MQTT topic").build();
         return param2;
     }
 

@@ -22,7 +22,14 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 @NonNullByDefault()
 public class MQTTModuleConstants {
-    public static final String TOPIC_NAME_TYPE = "mqtt.topic.name";
-    public static final String TOPIC_VALUE_TYPE = "mqtt.topic.value";
-    public static final String BROKER_TYPE = "mqtt.broker";
+    public static final String INOUT_TOPIC_NAME = "topicName";
+    public static final String INOUT_TOPIC_VALUE = "topicValue";
+    public static final String INOUT_BROKER_ID = "brokerId";
+
+    public static final String CFG_BROKER = "broker";
+    public static final String CFG_TOPIC = "topic";
+    public static final String CFG_MESSAGE = "message";
+    public static final String CFG_TIMEOUT = "timeout";
+    public static final String CFG_RETAINED = "retained";
+
 }

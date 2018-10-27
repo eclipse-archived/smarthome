@@ -20,14 +20,12 @@ import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.mqtt.handler.PublishActionHandler;
-import org.eclipse.smarthome.automation.module.mqtt.handler.PublishedMessageConditionHandler;
 import org.eclipse.smarthome.automation.module.mqtt.handler.PublishedMessageTriggerHandler;
 import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
@@ -43,8 +41,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = ModuleHandlerFactory.class)
 public class MQTTModuleHandlerFactory extends BaseModuleHandlerFactory {
 
-    private static final Collection<String> TYPES = unmodifiableList(asList(PublishActionHandler.MODULE_TYPE_ID,
-            PublishedMessageConditionHandler.MODULE_TYPE_ID, PublishedMessageTriggerHandler.MODULE_TYPE_ID));
+    private static final Collection<String> TYPES = unmodifiableList(
+            asList(PublishActionHandler.MODULE_TYPE_ID, PublishedMessageTriggerHandler.MODULE_TYPE_ID));
 
     @NonNullByDefault({})
     private MqttService mqttService;
@@ -76,8 +74,6 @@ public class MQTTModuleHandlerFactory extends BaseModuleHandlerFactory {
         switch (module.getTypeUID()) {
             case PublishActionHandler.MODULE_TYPE_ID:
                 return new PublishActionHandler((Action) module, mqttService);
-            case PublishedMessageConditionHandler.MODULE_TYPE_ID:
-                return new PublishedMessageConditionHandler((Condition) module, mqttTopicDiscovery);
             case PublishedMessageTriggerHandler.MODULE_TYPE_ID:
                 return new PublishedMessageTriggerHandler((Trigger) module, mqttTopicDiscovery);
             default:
