@@ -170,9 +170,11 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 // the given "element" might not be the live instance but
                 // loaded from storage. operate on the real element:
                 E existingElement = get(element.getUID());
-                onRemoveElement(existingElement);
-                elements.remove(existingElement);
-                notifyListenersAboutRemovedElement(existingElement);
+                if (existingElement != null) {
+                    onRemoveElement(existingElement);
+                    elements.remove(existingElement);
+                    notifyListenersAboutRemovedElement(existingElement);
+                }
             } catch (Exception ex) {
                 logger.warn("Could not remove element: {}", ex.getMessage(), ex);
             }
@@ -192,9 +194,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 // the given "oldElement" might not be the live instance but
                 // loaded from storage. operate on the real element:
                 E existingElement = get(oldElement.getUID());
-                beforeUpdateElement(existingElement);
+                if (existingElement != null) {
+                    beforeUpdateElement(existingElement);
+                }
                 onUpdateElement(oldElement, element);
-                elements.remove(existingElement);
+                if (existingElement != null) {
+                    elements.remove(existingElement);
+                }
                 elements.add(element);
                 notifyListenersAboutUpdatedElement(oldElement, element);
             } catch (Exception ex) {
