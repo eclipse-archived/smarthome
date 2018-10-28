@@ -10,7 +10,8 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Import-Package: javax.comm,
  org.eclipse.jdt.annotation;resolution:=optional,
- org.eclipse.smarthome.io.transport.serial
+ org.eclipse.smarthome.io.transport.serial,
+ org.slf4j 
 Provide-Capability: osgi.service;objectClass:List<String>="org.eclipse
  .smarthome.io.transport.serial.SerialPortProvider"
 Service-Component: OSGI-INF/*.xml

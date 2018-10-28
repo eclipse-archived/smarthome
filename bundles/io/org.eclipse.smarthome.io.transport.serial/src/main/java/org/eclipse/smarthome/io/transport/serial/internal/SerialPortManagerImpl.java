@@ -50,6 +50,7 @@ public class SerialPortManagerImpl implements SerialPortManager {
     @Override
     public Stream<SerialPortIdentifier> getIdentifiers() {
         if (registry == null) {
+            logger.warn("SerialPortRegistry is not set; no SerialPortIdentifier found");
             return Stream.empty();
         }
         return registry.getPortCreators().stream().flatMap(element -> element.getSerialPortIdentifiers());
@@ -58,6 +59,7 @@ public class SerialPortManagerImpl implements SerialPortManager {
     @Override
     public @Nullable SerialPortIdentifier getIdentifier(String name) {
         if (registry == null) {
+            logger.warn("SerialPortRegistry is not set; no SerialPortProvider found for: {}", name);
             return null;
         }
         URI portUri = URI.create(name);
