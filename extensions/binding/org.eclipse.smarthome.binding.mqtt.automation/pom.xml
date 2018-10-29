@@ -4,15 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome.bundles</groupId>
-    <artifactId>automation</artifactId>
+    <groupId>org.eclipse.smarthome.binding</groupId>
+    <artifactId>pom</artifactId>
     <version>0.10.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.eclipse.smarthome.automation</groupId>
-  <artifactId>org.eclipse.smarthome.automation.module.mqtt</artifactId>
 
+  <artifactId>org.eclipse.smarthome.binding.mqtt.automation</artifactId>
   <packaging>eclipse-plugin</packaging>
-
-  <name>Eclipse SmartHome Automation MQTT Modules</name>
+  <name>Eclipse SmartHome MQTT Binding Automation</name>
 
 </project>

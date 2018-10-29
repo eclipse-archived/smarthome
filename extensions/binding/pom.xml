@@ -40,6 +40,7 @@
     <module>org.eclipse.smarthome.binding.mqtt.test</module>
     <module>org.eclipse.smarthome.binding.mqtt.generic</module>
     <module>org.eclipse.smarthome.binding.mqtt.generic.test</module>
+    <module>org.eclipse.smarthome.binding.mqtt.automation</module>
     <module>org.eclipse.smarthome.binding.ntp</module>
     <module>org.eclipse.smarthome.binding.ntp.test</module>
     <module>org.eclipse.smarthome.binding.onewire</module>
