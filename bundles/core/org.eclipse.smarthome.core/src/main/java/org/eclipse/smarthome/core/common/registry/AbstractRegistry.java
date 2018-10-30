@@ -174,6 +174,9 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                     onRemoveElement(existingElement);
                     elements.remove(existingElement);
                     notifyListenersAboutRemovedElement(existingElement);
+                } else {
+                    logger.debug("{} with key '{}' could not be removed from provider {} because it does not exist!",
+                            element.getClass().getSimpleName(), element.getUID(), provider.getClass().getSimpleName());
                 }
             } catch (Exception ex) {
                 logger.warn("Could not remove element: {}", ex.getMessage(), ex);
@@ -196,6 +199,9 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 E existingElement = get(oldElement.getUID());
                 if (existingElement != null) {
                     beforeUpdateElement(existingElement);
+                } else {
+                    logger.debug("{} with key '{}' could not be updated for provider {} because it does not exist!",
+                            element.getClass().getSimpleName(), element.getUID(), provider.getClass().getSimpleName());
                 }
                 onUpdateElement(oldElement, element);
                 if (existingElement != null) {
