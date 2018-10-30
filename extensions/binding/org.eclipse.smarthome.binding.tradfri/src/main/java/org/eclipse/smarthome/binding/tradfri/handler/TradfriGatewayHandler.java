@@ -314,8 +314,9 @@ public class TradfriGatewayHandler extends BaseBridgeHandler implements CoapCall
 
     private synchronized void requestGatewayInfo() {
         // we are reusing our coap client and merely temporarily set a gateway info to call
-        deviceClient.setURI(this.gatewayInfoURI);
+        deviceClient.setURI(gatewayInfoURI);
         deviceClient.asyncGet().thenAccept(data -> {
+            logger.debug("requestGatewayInfo response: {}", data);
             JsonObject json = new JsonParser().parse(data).getAsJsonObject();
             String firmwareVersion = json.get(VERSION).getAsString();
             getThing().setProperty(Thing.PROPERTY_FIRMWARE_VERSION, firmwareVersion);

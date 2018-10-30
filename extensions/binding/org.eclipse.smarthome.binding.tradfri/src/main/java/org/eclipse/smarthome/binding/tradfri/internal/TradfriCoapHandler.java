@@ -58,7 +58,7 @@ public class TradfriCoapHandler implements CoapHandler {
 
     @Override
     public void onLoad(CoapResponse response) {
-        logger.debug("CoAP response\noptions: {}\npayload: {} ", response.getOptions(), response.getResponseText());
+        logger.debug("CoAP response\noptions: {}\npayload: {}", response.getOptions(), response.getResponseText());
         if (response.isSuccess()) {
             if (callback != null) {
                 try {
