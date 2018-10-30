@@ -12,10 +12,11 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -34,8 +35,8 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
         extends AbstractRegistry<L, String, P> {
 
     private final ReentrantReadWriteLock toLinkLock = new ReentrantReadWriteLock();
-    private final TreeMap<String, Set<L>> itemNameToLink = new TreeMap<>();
-    private final TreeMap<UID, Set<L>> linkedUidToLink = new TreeMap<>();
+    private final Map<String, Set<L>> itemNameToLink = new HashMap<>();
+    private final Map<UID, Set<L>> linkedUidToLink = new HashMap<>();
 
     protected AbstractLinkRegistry(final Class<P> providerClazz) {
         super(providerClazz);
