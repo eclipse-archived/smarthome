@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Module;
@@ -188,7 +187,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     }
 
     protected void unsetManagedProvider(ManagedRuleProvider managedProvider) {
-        super.removeManagedProvider(managedProvider);
+        super.unsetManagedProvider(managedProvider);
     }
 
     /**
@@ -324,20 +323,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     public Collection<Rule> getByTag(String tag) {
         Collection<Rule> result = new LinkedList<Rule>();
-        if (tag != null) {
-            for (Collection<Rule> rules : elementMap.values()) {
-                for (Rule rule : rules) {
-                    if (rule.getTags().contains(tag)) {
-                        result.add(rule);
-                    }
-                }
-            }
+        if (tag == null) {
+            forEach(result::add);
         } else {
-            for (Collection<Rule> rules : elementMap.values()) {
-                for (Rule rule : rules) {
+            forEach(rule -> {
+                if (rule.getTags().contains(tag)) {
                     result.add(rule);
                 }
-            }
+            });
         }
         return result;
     }
@@ -347,19 +340,13 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
         Set<String> tagSet = tags != null ? new HashSet<String>(Arrays.asList(tags)) : null;
         Collection<Rule> result = new LinkedList<Rule>();
         if (tagSet == null || tagSet.isEmpty()) {
-            for (Collection<Rule> rules : elementMap.values()) {
-                for (Rule rule : rules) {
+            forEach(result::add);
+        } else {
+            forEach(rule -> {
+                if (rule.getTags().containsAll(tagSet)) {
                     result.add(rule);
                 }
-            }
-        } else {
-            for (Collection<Rule> rules : elementMap.values()) {
-                for (Rule rule : rules) {
-                    if (rule.getTags().containsAll(tagSet)) {
-                        result.add(rule);
-                    }
-                }
-            }
+            });
         }
         return result;
     }
@@ -421,8 +408,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
     @Override
     protected void addProvider(Provider<Rule> provider) {
         super.addProvider(provider);
-        Collection<Rule> rules = new LinkedList<Rule>(elementMap.get(provider));
-        for (Rule rule : rules) {
+        forEach(provider, rule -> {
             try {
                 Rule resolvedRule = resolveRuleByTemplate(rule);
                 if (rule != resolvedRule && provider instanceof ManagedRuleProvider) {
@@ -431,7 +417,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
             } catch (IllegalArgumentException e) {
                 logger.error("Added rule '{}' is invalid", rule.getUID(), e);
             }
-        }
+        });
     }
 
     @Override
@@ -680,18 +666,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String, RuleProvide
                 logger.error("Resolving the rule '{}' by template '{}' failed", rUID, templateUID, e);
             }
         }
-    }
-
-    private Provider<Rule> getProvider(String rUID) {
-        for (Entry<Provider<Rule>, Collection<Rule>> entry : elementMap.entrySet()) {
-            Provider<Rule> provider = entry.getKey();
-            for (Rule rule : entry.getValue()) {
-                if (rule.getUID().equals(rUID)) {
-                    return provider;
-                }
-            }
-        }
-        return null;
     }
 
     @Override
