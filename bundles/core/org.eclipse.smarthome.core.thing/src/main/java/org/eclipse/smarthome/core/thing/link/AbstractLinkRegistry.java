@@ -43,20 +43,17 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     }
 
     @Override
-    public void added(Provider<L> provider, L element) {
-        super.added(provider, element);
+    protected void onAddElement(final L element) {
         toLinkAdded(element);
     }
 
     @Override
-    public void removed(Provider<L> provider, L element) {
-        super.removed(provider, element);
+    protected void onRemoveElement(final L element) {
         toLinkRemoved(element);
     }
 
     @Override
-    public void updated(Provider<L> provider, L oldElement, L element) {
-        super.updated(provider, oldElement, element);
+    protected void onUpdateElement(final L oldElement, final L element) {
         toLinkRemoved(oldElement);
         toLinkAdded(element);
     }
