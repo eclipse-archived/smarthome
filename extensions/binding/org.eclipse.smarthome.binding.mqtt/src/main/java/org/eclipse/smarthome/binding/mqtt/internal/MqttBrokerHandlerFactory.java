@@ -13,10 +13,10 @@
 package org.eclipse.smarthome.binding.mqtt.internal;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,7 +63,7 @@ public class MqttBrokerHandlerFactory extends BaseThingHandlerFactory
     protected final Map<MQTTTopicDiscoveryParticipant, TopicSubscribeMultiConnection> subscriber = Collections
             .synchronizedMap(new WeakHashMap<>());
     protected final Set<MQTTBrokerConnectionDiscoveryParticipant> connectionSubribers = Collections
-            .synchronizedSet(new TreeSet<>());
+            .synchronizedSet(new HashSet<>());
     protected final Set<AbstractBrokerHandler> handlers = Collections
             .synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
