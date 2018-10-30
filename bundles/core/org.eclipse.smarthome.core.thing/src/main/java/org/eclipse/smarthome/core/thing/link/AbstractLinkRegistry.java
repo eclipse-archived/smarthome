@@ -139,6 +139,36 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
     }
 
     /**
+     * Returns if a link for the given item name exists.
+     *
+     * @param itemName item name
+     * @return true if a link exists, otherwise false
+     */
+    public boolean isLinked(final String itemName) {
+        toLinkLock.readLock().lock();
+        try {
+            return itemNameToLink.get(itemName) != null; // if present the set is not empty by definition
+        } finally {
+            toLinkLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Returns if a link for the given UID exists.
+     *
+     * @param uid UID
+     * @return true if a link exists, otherwise false
+     */
+    public boolean isLinked(final UID uid) {
+        toLinkLock.readLock().lock();
+        try {
+            return linkedUidToLink.get(uid) != null; // if present the set is not empty by definition
+        } finally {
+            toLinkLock.readLock().unlock();
+        }
+    }
+
+    /**
      * Returns the item names, which are bound to the given UID.
      *
      * @param uid UID
