@@ -51,7 +51,7 @@ public class TradfriCoapClient extends CoapClient {
                 synchronized (commandsQueue) {
                     PayloadCallbackPair payloadCallbackPair = commandsQueue.poll();
                     if (payloadCallbackPair != null) {
-                        logger.debug("Proccessing payload: {}", payloadCallbackPair.payload);
+                        logger.debug("CoAP PUT request\nuri: {}\npayload: {}", getURI(), payloadCallbackPair.payload);
                         put(new TradfriCoapHandler(payloadCallbackPair.callback), payloadCallbackPair.payload,
                                 MediaTypeRegistry.TEXT_PLAIN);
                         delayTime = Optional.ofNullable(payloadCallbackPair.delay).orElse(DEFAULT_DELAY_MILLIS);
@@ -81,6 +81,7 @@ public class TradfriCoapClient extends CoapClient {
      * @return the future that will hold the result
      */
     public CompletableFuture<String> asyncGet() {
+        logger.debug("CoAP GET request\nuri: {}", getURI());
         CompletableFuture<String> future = new CompletableFuture<>();
         get(new TradfriCoapHandler(future));
         return future;
@@ -92,6 +93,7 @@ public class TradfriCoapClient extends CoapClient {
      * @param callback the callback to use for the response
      */
     public void asyncGet(CoapCallback callback) {
+        logger.debug("CoAP GET request\nuri: {}", getURI());
         get(new TradfriCoapHandler(callback));
     }
 
@@ -107,7 +109,7 @@ public class TradfriCoapClient extends CoapClient {
      * @param scheduler scheduler to be used for sending commands
      */
     public void asyncPut(String payload, CoapCallback callback, Integer delay, ScheduledExecutorService scheduler) {
-        this.asyncPut(new PayloadCallbackPair(payload, callback, delay), scheduler);
+        asyncPut(new PayloadCallbackPair(payload, callback, delay), scheduler);
     }
 
     /**
