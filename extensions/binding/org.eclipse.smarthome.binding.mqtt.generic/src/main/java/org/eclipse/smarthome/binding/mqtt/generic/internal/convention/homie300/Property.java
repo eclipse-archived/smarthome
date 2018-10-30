@@ -14,24 +14,29 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.net.URI;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MqttAttributeClass;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MqttTopicClassMapper;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.AbstractMqttThingValue;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass.AttributeChanged;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ColorValue;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.values.EnumSwitchValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.NumberValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
+import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -45,34 +50,41 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class Property implements MqttAttributeClass {
+public class Property implements AttributeChanged {
     private final Logger logger = LoggerFactory.getLogger(Property.class);
     // Homie data
-    public final PropertyAttributes attributes = new PropertyAttributes();
+    public final PropertyAttributes attributes;
     public final Node parentNode;
     public final String propertyID;
     // Runtime state
-    private @Nullable ChannelState channelState;
+    protected @Nullable ChannelState channelState;
     // ESH
-    public final ThingUID thingUID;
     public final ChannelUID channelUID;
     public final ChannelTypeUID channelTypeUID;
-    private @Nullable ChannelType type;
+    private ChannelType type;
+    private Channel channel;
+    private final String topic;
+    private final DeviceCallback callback;
+    protected boolean initialized = false;
 
     /**
      * Creates a Homie Property.
      *
+     * @param topic The base topic for this property (e.g. "homie/device/node")
      * @param node The parent Homie Node.
      * @param propertyID The unique property ID (among all properties on this Node).
-     * @param thingUID The Thing UID
      */
-    public Property(Node node, String propertyID, ThingUID thingUID) {
+    public Property(String topic, Node node, String propertyID, DeviceCallback callback,
+            PropertyAttributes attributes) {
+        this.callback = callback;
+        this.attributes = attributes;
+        this.topic = topic + "/" + propertyID;
         this.parentNode = node;
         this.propertyID = propertyID;
-        this.thingUID = thingUID;
-        channelUID = new ChannelUID(thingUID, parentNode.nodeID, propertyID);
-        channelTypeUID = new ChannelTypeUID(MqttBindingConstants.BINDING_ID,
-                thingUID.getId() + "_" + parentNode.nodeID + "_" + propertyID);
+        channelUID = new ChannelUID(node.uid(), propertyID);
+        channelTypeUID = new ChannelTypeUID(MqttBindingConstants.BINDING_ID, this.topic.replace('/', '_'));
+        type = ChannelTypeBuilder.trigger(channelTypeUID, "dummy").build(); // Dummy value
+        channel = ChannelBuilder.create(channelUID, "dummy").build();// Dummy value
     }
 
     /**
@@ -82,10 +94,15 @@ public class Property implements MqttAttributeClass {
      * @return Returns a future that completes as soon as all attribute values have been received or requests have timed
      *         out.
      */
-    @Override
-    public CompletableFuture<Void> subscribe(MqttTopicClassMapper topicMapper, int timeout) {
-        return topicMapper.subscribe("homie/" + thingUID.getId() + "/" + parentNode.nodeID + "/" + propertyID,
-                attributes, null, timeout).thenRun(this::attributesReceived);
+    public CompletableFuture<@Nullable Void> subscribe(MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, int timeout) {
+        return attributes.subscribeAndReceive(connection, scheduler, topic, this, timeout)
+                // On success, create the channel and tell the handler about this property
+                .thenRun(this::attributesReceived)
+                // No matter if values have been received or not -> the subscriptions have been performed
+                .whenComplete((r, e) -> {
+                    initialized = true;
+                });
     }
 
     private @Nullable BigDecimal convertFromString(String value) {
@@ -100,15 +117,17 @@ public class Property implements MqttAttributeClass {
     /**
      * As soon as subscribing succeeded and corresponding MQTT values have been received, the ChannelType and
      * ChannelState are determined.
-     *
-     * Public for testing only.
      */
     public void attributesReceived() {
-        final String commandTopic = !attributes.settable ? ""
-                : "homie/" + thingUID.getId() + "/" + parentNode.nodeID + "/" + propertyID + "/set";
-        final String stateTopic = "homie/" + thingUID.getId() + "/" + parentNode.nodeID + "/" + propertyID;
+        createChannelFromAttribute();
+        callback.propertyAddedOrChanged(this);
+    }
 
-        AbstractMqttThingValue value;
+    public void createChannelFromAttribute() {
+        final String commandTopic = topic + "/set";
+        final String stateTopic = topic;
+
+        Value value;
         switch (attributes.datatype) {
             case boolean_:
                 if (attributes.settable) {
@@ -122,7 +141,11 @@ public class Property implements MqttAttributeClass {
                 break;
             case enum_:
                 String enumValues[] = attributes.format.split(",");
-                value = new TextValue(enumValues);
+                if (attributes.settable) {
+                    value = new EnumSwitchValue(enumValues, 0);
+                } else {
+                    value = new TextValue(enumValues);
+                }
                 break;
             case float_:
             case integer_:
@@ -146,30 +169,50 @@ public class Property implements MqttAttributeClass {
                 break;
         }
 
-        final ChannelState channelState = new ChannelState(stateTopic, commandTopic, channelUID, value);
+        final ChannelState channelState = new ChannelState(stateTopic, commandTopic, channelUID, value, callback);
+        channelState.setRetained(attributes.retained);
+        channelState.setReadOnly(!attributes.settable);
         this.channelState = channelState;
 
-        if (StringUtils.isBlank(stateTopic)) {
-            type = ChannelTypeBuilder.trigger(channelTypeUID, attributes.name).build();
-        } else {
+        final ChannelType type;
+        if (attributes.retained) {
             type = ChannelTypeBuilder.state(channelTypeUID, attributes.name, channelState.getItemType())
+                    .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL))
                     .withStateDescription(value.createStateDescription(attributes.unit, !attributes.settable)).build();
+        } else {
+            type = ChannelTypeBuilder.trigger(channelTypeUID, attributes.name)
+                    .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL)).build();
         }
+        this.type = type;
+
+        Map<String, Object> properties = new TreeMap<>();
+        properties.put("unit", attributes.unit);
+        properties.put("name", attributes.name);
+        properties.put("settable", attributes.settable ? "true" : "false");
+        properties.put("retained", attributes.retained ? "true" : "false");
+        properties.put("format", attributes.format);
+        properties.put("datatype", attributes.datatype.name());
+        this.channel = ChannelBuilder.create(channelUID, channelState.getItemType()).withType(channelTypeUID)
+                .withKind(type.getKind()).withLabel(attributes.name).withConfiguration(new Configuration(properties))
+                .build();
     }
 
     /**
-     * Unsubscribe from all property attributes
+     * Unsubscribe from all property attributes and the property value.
      *
-     * @param topicMapper The topic mapper object, where the subscribe has been performed before
      * @return Returns a future that completes as soon as all unsubscriptions have been performed.
      */
-    @Override
-    public CompletableFuture<Void> unsubscribe(MqttTopicClassMapper topicMapper) {
-        return topicMapper.unsubscribe(attributes);
+    public CompletableFuture<@Nullable Void> stop() {
+        final ChannelState channelState = this.channelState;
+        if (channelState != null) {
+            return channelState.stop().thenCompose(b -> attributes.unsubscribe());
+        }
+        return attributes.unsubscribe();
     }
 
     /**
-     * @return Returns the channelState. You should have called {@link Property#subscribe(MqttTopicClassMapper, int)}
+     * @return Returns the channelState. You should have called
+     *         {@link Property#subscribe(AbstractMqttAttributeClass, int)}
      *         and waited for the future to complete before calling this Getter.
      */
     public @Nullable ChannelState getChannelState() {
@@ -180,35 +223,53 @@ public class Property implements MqttAttributeClass {
      * Subscribes to the state topic on the given connection and informs about updates on the given listener.
      *
      * @param connection A broker connection
+     * @param scheduler A scheduler to realize the timeout
+     * @param timeout A timeout in milliseconds. Can be 0 to disable the timeout and let the future return earlier.
      * @param channelStateUpdateListener An update listener
      * @return A future that completes with true if the subscribing worked and false and/or exceptionally otherwise.
      */
-    public CompletableFuture<Boolean> startChannel(MqttBrokerConnection connection,
-            ChannelStateUpdateListener channelStateUpdateListener) {
+    public CompletableFuture<@Nullable Void> startChannel(MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, int timeout) {
         final ChannelState channelState = this.channelState;
-        if (channelState != null) {
-            return channelState.start(connection, channelStateUpdateListener);
+        if (channelState == null) {
+            CompletableFuture<@Nullable Void> f = new CompletableFuture<>();
+            f.completeExceptionally(new IllegalStateException("Attributes not yet received!"));
+            return f;
         }
-        return CompletableFuture.completedFuture(false);
-    }
-
-    /**
-     * Removes the subscription to the state topic.
-     *
-     * @return A future that completes with true if the unsubscribing worked and false and/or exceptionally otherwise.
-     */
-    public CompletableFuture<Boolean> stopChannel() {
-        final ChannelState channelState = this.channelState;
-        if (channelState != null) {
-            return channelState.stop();
-        }
-        return CompletableFuture.completedFuture(true);
+        return channelState.start(connection, scheduler, timeout);
     }
 
     /**
      * @return Returns the channel type of this property.
+     *         The type is a dummy only if {@link #channelState} has not been set yet.
      */
-    public @Nullable ChannelType getType() {
+    public ChannelType getType() {
         return type;
+    }
+
+    /**
+     * @return Returns the channel of this property.
+     *         The channel is a dummy only if {@link #channelState} has not been set yet.
+     */
+    public Channel getChannel() {
+        return channel;
+    }
+
+    @Override
+    public String toString() {
+        return channelUID.toString();
+    }
+
+    /**
+     * Because the remote device could change any of the property attributes in-between,
+     * whenever that happens, we re-create the channel, channel-type and channelState.
+     */
+    @Override
+    public void attributeChanged(String name, Object value, MqttBrokerConnection connection,
+            ScheduledExecutorService scheduler, boolean allMandatoryFieldsReceived) {
+        if (!initialized || !allMandatoryFieldsReceived) {
+            return;
+        }
+        attributesReceived();
     }
 }

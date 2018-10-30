@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal.handler;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

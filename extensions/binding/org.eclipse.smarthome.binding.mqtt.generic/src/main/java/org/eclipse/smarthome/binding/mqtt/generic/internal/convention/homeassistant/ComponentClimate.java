@@ -14,6 +14,8 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
@@ -25,8 +27,9 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  */
 @NonNullByDefault
 public class ComponentClimate extends AbstractComponent {
-    public ComponentClimate(ThingUID thing, String componentID, String configJSON) {
-        super(thing, componentID);
+    public ComponentClimate(ThingUID thing, HaID haID, String configJSON,
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+        super(thing, haID, configJSON);
         throw new UnsupportedOperationException("Component:Climate not supported yet");
     }
 

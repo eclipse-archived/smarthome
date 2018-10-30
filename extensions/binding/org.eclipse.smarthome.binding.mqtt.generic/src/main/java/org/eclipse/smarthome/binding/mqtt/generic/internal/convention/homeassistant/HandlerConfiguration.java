@@ -32,9 +32,4 @@ public class HandlerConfiguration {
      * The object id. This is comparable to a Homie Device.
      */
     public String objectid = "";
-    /**
-     * A device can have multiple instances of a component.
-     * The node id identifies the instance, but is optional if there's one component of a type only.
-     */
-    public String nodeid = "";
 }

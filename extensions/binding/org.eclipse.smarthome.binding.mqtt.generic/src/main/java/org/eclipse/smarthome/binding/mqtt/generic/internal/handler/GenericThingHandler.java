@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -25,7 +28,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateLis
 import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateWithTransformation;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.TransformationServiceProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.AbstractMqttThingValue;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ValueFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -64,20 +67,28 @@ public class GenericThingHandler extends AbstractMQTTThingHandler implements Cha
      * @param connection A started broker connection
      */
     @Override
-    protected CompletableFuture<Void> start(MqttBrokerConnection connection) {
-        List<CompletableFuture<Boolean>> futures = channelStateByChannelUID.values().stream()
-                .map(c -> c.start(connection, this)).collect(Collectors.toList());
+    protected CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection) {
+        List<CompletableFuture<@Nullable Void>> futures = channelStateByChannelUID.values().stream()
+                .map(c -> c.start(connection, scheduler, 0)).collect(Collectors.toList());
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).thenRun(() -> {
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
         });
     }
 
     @Override
+    protected void stop() {
+        channelStateByChannelUID.values().forEach(c -> c.getValue().resetState());
+    }
+
+    @Override
     public void dispose() {
-        if (connection != null) {
-            channelStateByChannelUID.values().forEach(ChannelState::stop);
-            connection = null;
+        try {
+            channelStateByChannelUID.values().stream().map(e -> e.stop())
+                    .reduce(CompletableFuture.completedFuture(null), (a, v) -> a.thenCompose(b -> v))
+                    .get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ignore) {
         }
+        connection = null;
         channelStateByChannelUID.clear();
         super.dispose();
     }
@@ -93,13 +104,13 @@ public class GenericThingHandler extends AbstractMQTTThingHandler implements Cha
      * @return
      */
     protected ChannelState createChannelState(GenericChannelConfig channelConfig, ChannelUID channelUID,
-            AbstractMqttThingValue valueState) {
+            Value valueState) {
         TransformationServiceProvider transformationServiceProvider = this.transformationServiceProvider;
         if (transformationServiceProvider != null) {
             return new ChannelStateWithTransformation(channelConfig.stateTopic, channelConfig.commandTopic,
-                    channelConfig.transformationPattern, channelUID, valueState, transformationServiceProvider);
+                    channelConfig.transformationPattern, channelUID, valueState, this, transformationServiceProvider);
         } else {
-            return new ChannelState(channelConfig.stateTopic, channelConfig.commandTopic, channelUID, valueState);
+            return new ChannelState(channelConfig.stateTopic, channelConfig.commandTopic, channelUID, valueState, this);
         }
     }
 

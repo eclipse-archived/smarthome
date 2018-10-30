@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.EnumSwitchValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -68,29 +69,30 @@ public class ComponentAlarmControlPanel extends AbstractComponent {
 
     protected Config config = new Config();
 
-    public ComponentAlarmControlPanel(ThingUID thing, String componentID, String configJSON) {
-        super(thing, componentID);
+    public ComponentAlarmControlPanel(ThingUID thing, HaID haID, String configJSON,
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+        super(thing, haID, configJSON);
         config = new Gson().fromJson(configJSON, Config.class);
 
         final String[] state_enum = { config.state_disarmed, config.state_armed_home, config.state_armed_away,
                 config.state_pending, config.state_triggered };
-        channels.put(stateChannelID, new CChannel(thing, componentID, stateChannelID, new TextValue(state_enum),
-                config.state_topic, null, config.name, ""));
+        channels.put(stateChannelID, new CChannel(this, stateChannelID, new TextValue(state_enum), config.state_topic,
+                null, config.name, "", channelStateUpdateListener));
 
         channels.put(switchDisarmChannelID,
-                new CChannel(thing, componentID, switchDisarmChannelID,
+                new CChannel(this, switchDisarmChannelID,
                         new EnumSwitchValue(new String[] { config.payload_disarm }, 0), config.state_topic, null,
-                        config.name, ""));
+                        config.name, "", channelStateUpdateListener));
 
         channels.put(switchArmHomeChannelID,
-                new CChannel(thing, componentID, switchArmHomeChannelID,
+                new CChannel(this, switchArmHomeChannelID,
                         new EnumSwitchValue(new String[] { config.payload_arm_home }, 0), config.state_topic, null,
-                        config.name, ""));
+                        config.name, "", channelStateUpdateListener));
 
         channels.put(switchArmAwayChannelID,
-                new CChannel(thing, componentID, switchArmAwayChannelID,
+                new CChannel(this, switchArmAwayChannelID,
                         new EnumSwitchValue(new String[] { config.payload_arm_away }, 0), config.state_topic, null,
-                        config.name, ""));
+                        config.name, "", channelStateUpdateListener));
     }
 
     @Override

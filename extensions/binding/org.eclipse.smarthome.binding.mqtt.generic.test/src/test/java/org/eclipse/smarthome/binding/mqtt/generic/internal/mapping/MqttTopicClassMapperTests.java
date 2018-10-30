@@ -25,21 +25,21 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass.AttributeChanged;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.invocation.InvocationOnMock;
 
 /**
- * Tests cases for {@link MqttTopicClassMapper}.
+ * Tests cases for {@link AbstractMqttAttributeClass}.
  *
  * @author David Graeff - Initial contribution
  */
@@ -51,10 +51,8 @@ public class MqttTopicClassMapperTests {
     }
 
     @TopicPrefix
-    private static class Bean {
-        @SuppressWarnings("unused")
+    public static class Attributes extends AbstractMqttAttributeClass {
         public transient String ignoreTransient = "";
-        @SuppressWarnings("unused")
         public final String ignoreFinal = "";
 
         public @TestValue("string") String aString;
@@ -65,7 +63,7 @@ public class MqttTopicClassMapperTests {
 
         public @TestValue("10") @TopicPrefix("a") int Int = 24;
         public @TestValue("false") boolean aBool = true;
-        public @TestValue("abc,def") @MapToField(splitCharacter = ",") String[] properties;
+        public @TestValue("abc,def") @MQTTvalueTransform(splitCharacter = ",") String[] properties;
 
         public enum ReadyState {
             unknown,
@@ -81,10 +79,13 @@ public class MqttTopicClassMapperTests {
             float_,
         }
 
-        public @TestValue("integer") @MapToField(suffix = "_") DataTypeEnum datatype = DataTypeEnum.unknown;
-    };
+        public @TestValue("integer") @MQTTvalueTransform(suffix = "_") DataTypeEnum datatype = DataTypeEnum.unknown;
 
-    Bean bean = new Bean();
+        @Override
+        public @NonNull Object getFieldsOf() {
+            return this;
+        }
+    };
 
     @Mock
     MqttBrokerConnection connection;
@@ -93,70 +94,104 @@ public class MqttTopicClassMapperTests {
     ScheduledExecutorService executor;
 
     @Mock
-    FieldMqttMessageSubscriber fieldSubscriber;
+    AttributeChanged fieldChangedObserver;
+
+    @Spy
+    Object countInjectedFields = new Object();
+    int injectedFields = 0;
+
+    // A completed future is returned for a subscribe call to the attributes
+    final CompletableFuture<Boolean> future = CompletableFuture.completedFuture(true);
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         doReturn(CompletableFuture.completedFuture(true)).when(connection).subscribe(any(), any());
+        doReturn(CompletableFuture.completedFuture(true)).when(connection).unsubscribe(any(), any());
+        injectedFields = (int) Stream.of(countInjectedFields.getClass().getDeclaredFields())
+                .filter(AbstractMqttAttributeClass::filterField).count();
+    }
+
+    public Object createSubscriberAnswer(InvocationOnMock invocation) {
+        final AbstractMqttAttributeClass attributes = (AbstractMqttAttributeClass) invocation.getMock();
+        final ScheduledExecutorService scheduler = (ScheduledExecutorService) invocation.getArguments()[0];
+        final Field field = (Field) invocation.getArguments()[1];
+        final String topic = (String) invocation.getArguments()[2];
+        final boolean mandatory = (boolean) invocation.getArguments()[3];
+        final SubscribeFieldToMQTTtopic s = spy(
+                new SubscribeFieldToMQTTtopic(scheduler, field, attributes, topic, mandatory));
+        doReturn(CompletableFuture.completedFuture(true)).when(s).subscribeAndReceive(any(), anyInt());
+        return s;
     }
 
     @Test
-    public void subscribeToCorrectFields() throws MqttException {
-        MqttTopicClassMapper m = spy(new MqttTopicClassMapper(connection, executor));
-        doReturn(CompletableFuture.completedFuture(true)).when(fieldSubscriber).start(any(), anyInt());
-        doReturn(fieldSubscriber).when(m).createSubscriber(any(), any(), any(), any());
+    public void subscribeToCorrectFields() {
+        Attributes attributes = spy(new Attributes());
+
+        doAnswer(this::createSubscriberAnswer).when(attributes).createSubscriber(any(), any(), anyString(),
+                anyBoolean());
 
         // Subscribe now to all fields
-        CompletableFuture<@NonNull Void> future = m.subscribe("homie/device123", bean, null, 10);
+        CompletableFuture<Void> future = attributes.subscribeAndReceive(connection, executor, "homie/device123", null,
+                10);
         assertThat(future.isDone(), is(true));
-        assertThat(m.subscriptions.size(), is(10));
+        assertThat(attributes.subscriptions.size(), is(10 + injectedFields));
     }
 
+    // TODO timeout
+
+    @SuppressWarnings({ "null", "unused" })
     @Test
-    public void subscribeAndReceive() throws MqttException, IllegalArgumentException, IllegalAccessException {
-        MqttTopicClassMapper m = spy(new MqttTopicClassMapper(connection, executor));
+    public void subscribeAndReceive() throws IllegalArgumentException, IllegalAccessException {
+        final Attributes attributes = spy(new Attributes());
+
+        doAnswer(this::createSubscriberAnswer).when(attributes).createSubscriber(any(), any(), anyString(),
+                anyBoolean());
+
+        verify(connection, times(0)).subscribe(anyString(), any());
 
         // Subscribe now to all fields
-        CompletableFuture<@NonNull Void> future = m.subscribe("homie/device123", bean, null, 10);
-        assertThat(future.isDone(), is(false));
+        CompletableFuture<Void> future = attributes.subscribeAndReceive(connection, executor, "homie/device123",
+                fieldChangedObserver, 10);
+        assertThat(future.isDone(), is(true));
+
+        // We expect 10 subscriptions now
+        assertThat(attributes.subscriptions.size(), is(10 + injectedFields));
+
+        int loopCounter = 0;
 
         // Assign each field the value of the test annotation via the processMessage method
-        for (FieldMqttMessageSubscriber f : m.subscriptions) {
+        for (SubscribeFieldToMQTTtopic f : attributes.subscriptions) {
+            @Nullable
             TestValue annotation = f.field.getAnnotation(TestValue.class);
+            // A non-annotated field means a Mockito injected field.
+            // Ignore that and complete the corresponding future.
+            if (annotation == null) {
+                f.future.complete(null);
+                continue;
+            }
+
+            verify(f).subscribeAndReceive(any(), anyInt());
+
+            // Simulate a received MQTT value and use the annotation data as input.
             f.processMessage(f.topic, annotation.value().getBytes());
+            verify(fieldChangedObserver, times(++loopCounter)).attributeChanged(any(), any(), any(), any(),
+                    anyBoolean());
+
             // Check each value if the assignment worked
             if (!f.field.getType().isArray()) {
-                assertNotNull(f.field.getName() + " is null", f.field.get(bean));
+                assertNotNull(f.field.getName() + " is null", f.field.get(attributes));
                 // Consider if a mapToField was used that would manipulate the received value
-                MapToField mapToField = f.field.getAnnotation(MapToField.class);
-                @SuppressWarnings("null")
+                MQTTvalueTransform mapToField = f.field.getAnnotation(MQTTvalueTransform.class);
                 String prefix = mapToField != null ? mapToField.prefix() : "";
-                @SuppressWarnings("null")
                 String suffix = mapToField != null ? mapToField.suffix() : "";
-                assertThat(f.field.get(bean).toString(), is(prefix + annotation.value() + suffix));
+                assertThat(f.field.get(attributes).toString(), is(prefix + annotation.value() + suffix));
             } else {
-                assertThat(Stream.of((String[]) f.field.get(bean)).reduce((v, i) -> v + "," + i).orElse(""),
+                assertThat(Stream.of((String[]) f.field.get(attributes)).reduce((v, i) -> v + "," + i).orElse(""),
                         is(annotation.value()));
             }
         }
 
         assertThat(future.isDone(), is(true));
     }
-
-    @Test
-    public void TimeoutIfNoMessageReceive()
-            throws InterruptedException, NoSuchFieldException, SecurityException, MqttException {
-        Semaphore s = new Semaphore(1);
-        s.acquire();
-        final FieldChanged changed = (field, name, value) -> s.release();
-        final Field field = Bean.class.getField("Int");
-        ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
-
-        FieldMqttMessageSubscriber subscriber = new FieldMqttMessageSubscriber(scheduler, field, bean,
-                "homie/device123", changed);
-        subscriber.start(connection, 10);
-        s.tryAcquire(50, TimeUnit.MILLISECONDS);
-    }
-
 }

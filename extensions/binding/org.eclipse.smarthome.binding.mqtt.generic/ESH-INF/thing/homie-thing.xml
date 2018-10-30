@@ -9,10 +9,21 @@
 			<bridge-type-ref id="broker" />
 			<bridge-type-ref id="systemBroker" />
 		</supported-bridge-type-refs>
-		<label>A Homie (version 3.x) device</label>
-		<description>This thing represents a MQTT Homie device</description>
+		<label>Homie MQTT device</label>
+		<description>You need a configured Broker first. This thing represents a device, that follows the "MQTT Homie Convention" (Version 3.x).</description>
 		<properties>
 			<property name="homieversion" />
 		</properties>
+		<config-description>
+			<parameter name="deviceid" type="text" required="true">
+				<label>Device ID</label>
+				<description>Homie Device ID. This is part of the MQTT topic, e.g. "homie/deviceid/$homie".</description>
+			</parameter>
+			<parameter name="basetopic" type="text" required="true">
+				<label>MQTT base prefix</label>
+				<description>MQTT base prefix</description>
+				<default>homie</default>
+			</parameter>
+		</config-description>
 	</thing-type>
 </thing:thing-descriptions>

@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * MQTT topics are not inherently typed. Users are able to map topic values to framework types, for example
@@ -30,7 +31,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public interface AbstractMqttThingValue {
+public interface Value {
     /**
      * Returns the channelType ID.
      * The channel type id is always also an item-type of {@link CoreItemFactory}.
@@ -59,6 +60,13 @@ public interface AbstractMqttThingValue {
      * @exception IllegalArgumentException Thrown if for example a text is assigned to a number type.
      */
     State update(String updatedValue) throws IllegalArgumentException;
+
+    /**
+     * If the MQTT connection is not yet initialised or no values have
+     * been received yet, the default value is {@link UnDefType#UNDEF}. To restore to the
+     * default value after a connection got lost etc, this method will be called.
+     */
+    void resetState();
 
     StateDescription createStateDescription(String unit, boolean readOnly);
 }

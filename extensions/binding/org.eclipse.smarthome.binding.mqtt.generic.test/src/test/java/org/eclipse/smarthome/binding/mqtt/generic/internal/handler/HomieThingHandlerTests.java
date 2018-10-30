@@ -18,42 +18,53 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import javax.naming.ConfigurationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateHelper;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Node;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.NodeAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MqttTopicClassMapper;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.SubscribeFieldToMQTTtopic;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.DelayedBatchProcessing;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.eclipse.smarthome.io.transport.mqtt.MqttException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mockito.invocation.InvocationOnMock;
 
 /**
  * Tests cases for {@link HomieThingHandler}.
@@ -64,7 +75,6 @@ public class HomieThingHandlerTests {
     @Mock
     private ThingHandlerCallback callback;
 
-    @Mock
     private Thing thing;
 
     @Mock
@@ -74,130 +84,136 @@ public class HomieThingHandlerTests {
     private MqttBrokerConnection connection;
 
     @Mock
-    private MqttTopicClassMapper topicMapper;
+    private ScheduledExecutorService scheduler;
+
+    @Mock
+    private ScheduledFuture<?> scheduledFuture;
 
     private HomieThingHandler thingHandler;
 
     private final MqttChannelTypeProvider channelTypeProvider = new MqttChannelTypeProvider();
 
+    private final String deviceID = ThingChannelConstants.testHomieThing.getId();
+    private final String deviceTopic = "homie/" + deviceID;
+
+    // A completed future is returned for a subscribe call to the attributes
+    CompletableFuture<@Nullable Void> future = CompletableFuture.completedFuture(null);
+
     @Before
-    public void setUp() throws ConfigurationException, MqttException {
-        ThingStatusInfo thingStatus = new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
+    public void setUp() {
+        final ThingStatusInfo thingStatus = new ThingStatusInfo(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
 
         MockitoAnnotations.initMocks(this);
-        // Mock the thing: We need the thingUID and the bridgeUID
-        when(thing.getUID()).thenReturn(testHomieThing);
-        when(thing.getStatusInfo()).thenReturn(thingStatus);
-        when(thing.getConfiguration()).thenReturn(new Configuration());
+
+        final Configuration config = new Configuration();
+        config.put("basetopic", "homie");
+        config.put("deviceid", deviceID);
+
+        thing = ThingBuilder.create(MqttBindingConstants.HOMIE300_MQTT_THING, testHomieThing.getId())
+                .withConfiguration(config).build();
+        thing.setStatusInfo(thingStatus);
 
         // Return the mocked connection object if the bridge handler is asked for it
-        when(bridgeHandler.getConnection()).thenReturn(connection);
+        when(bridgeHandler.getConnectionAsync()).thenReturn(CompletableFuture.completedFuture(connection));
 
         doReturn(CompletableFuture.completedFuture(true)).when(connection).subscribe(any(), any());
-        doReturn(CompletableFuture.completedFuture(true)).when(connection).publish(any(), any());
+        doReturn(CompletableFuture.completedFuture(true)).when(connection).publish(any(), any(), anyInt(),
+                anyBoolean());
 
-        thingHandler = spy(new HomieThingHandler(thing, channelTypeProvider, 50, 10));
+        doReturn(false).when(scheduledFuture).isDone();
+        doReturn(scheduledFuture).when(scheduler).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
+
+        final HomieThingHandler handler = new HomieThingHandler(thing, channelTypeProvider, 30, 5);
+        thingHandler = spy(handler);
         thingHandler.setCallback(callback);
+        final Device device = new Device(thing.getUID(), thingHandler, spy(new DeviceAttributes()),
+                spy(new DeviceStatsAttributes()), new ChildMap<>(),
+                Device.createDeviceStatisticsListener(thingHandler));
+        thingHandler.setInternalObjects(spy(device),
+                spy(new DelayedBatchProcessing<Object>(500, thingHandler, scheduler)));
+
         // Return the bridge handler if the thing handler asks for it
         doReturn(bridgeHandler).when(thingHandler).getBridgeHandler();
 
         // We are by default online
         doReturn(thingStatus).when(thingHandler).getBridgeStatus();
+
     }
 
     @Test
-    public void initialize() throws MqttException {
-        CompletableFuture<Boolean> future = CompletableFuture.completedFuture(true);
-
-        assertThat(thingHandler.device.isInitializing(), is(true));
-        doReturn(topicMapper).when(thingHandler).createTopicMapper(any());
-        // A completed future is returned for a subscribe call to the topic mapper
-        doReturn(future).when(topicMapper).subscribe(any(), any(), any(), anyInt());
-        doReturn(future).when(topicMapper).unsubscribe(any());
-        doReturn(future).when(topicMapper).unsubscribeAll();
-        // Prevent a call to propertiesChanged, that would update our thing.
-        doNothing().when(thingHandler).propertiesChanged();
+    public void initialize() {
+        assertThat(thingHandler.device.isInitialized(), is(false));
+        // // A completed future is returned for a subscribe call to the attributes
+        doReturn(future).when(thingHandler.device.attributes).subscribeAndReceive(any(), any(), anyString(), any(),
+                anyInt());
+        doReturn(future).when(thingHandler.device.attributes).unsubscribe();
+        // Prevent a call to accept, that would update our thing.
+        doNothing().when(thingHandler).accept(any());
         // Pretend that a device state change arrived.
         thingHandler.device.attributes.state = ReadyState.ready;
 
-        {
-            ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-            verify(callback, times(0)).statusUpdated(eq(thing), statusInfoCaptor.capture());
-        }
+        verify(callback, times(0)).statusUpdated(eq(thing), any());
 
-        final Logger logger = LoggerFactory.getLogger(HomieThingHandlerTests.class);
         thingHandler.initialize();
 
-        // Expect a call to the bridge status changed, the start, the propertiesChanged method and to the topic mapper
-        // subscribe
+        // Expect a call to the bridge status changed, the start, the propertiesChanged method
         verify(thingHandler).bridgeStatusChanged(any());
         verify(thingHandler).start(any());
         verify(thingHandler).readyStateChanged(any());
-        verify(thingHandler).propertiesChanged();
+        verify(thingHandler.device.attributes).subscribeAndReceive(any(), any(),
+                argThat(arg -> deviceTopic.equals(arg)), any(), anyInt());
 
-        ArgumentCaptor<String> baseTopicCaptor = ArgumentCaptor.forClass(String.class);
-        verify(topicMapper).subscribe(baseTopicCaptor.capture(), eq(thingHandler.device.attributes), any(), anyInt());
-        assertThat(baseTopicCaptor.getValue(), is("homie/device123"));
+        assertThat(thingHandler.device.isInitialized(), is(true));
 
-        // Because the mocked topic mapper future is completed, initializing should be set to false now
-        assertThat(thingHandler.device.isInitializing(), is(false));
-
-        ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
-        assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.ONLINE));
-        assertThat(statusInfoCaptor.getValue().getStatusDetail(), is(ThingStatusDetail.NONE));
+        verify(callback).statusUpdated(eq(thing), argThat((arg) -> arg.getStatus().equals(ThingStatus.ONLINE)
+                && arg.getStatusDetail().equals(ThingStatusDetail.NONE)));
     }
 
     @Test
-    public void initializeGeneralTimeout() throws MqttException, InterruptedException {
-        CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
-        doReturn(topicMapper).when(thingHandler).createTopicMapper(any());
-        // A non completed future is returned for a subscribe call to the topic mapper
-        doReturn(future).when(topicMapper).subscribe(any(), any(), any(), anyInt());
-        doReturn(future).when(topicMapper).unsubscribe(any());
-        doReturn(future).when(topicMapper).unsubscribeAll();
+    public void initializeGeneralTimeout() throws InterruptedException {
+        // A non completed future is returned for a subscribe call to the attributes
+        doReturn(future).when(thingHandler.device.attributes).subscribeAndReceive(any(), any(), anyString(), any(),
+                anyInt());
+        doReturn(future).when(thingHandler.device.attributes).unsubscribe();
 
-        // Prevent a call to propertiesChanged, that would update our thing.
-        doNothing().when(thingHandler).propertiesChanged();
+        // Prevent a call to accept, that would update our thing.
+        doNothing().when(thingHandler).accept(any());
 
         thingHandler.initialize();
 
-        Thread.sleep(100);
-
-        ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
-        assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.OFFLINE));
-        assertThat(statusInfoCaptor.getValue().getStatusDetail(), is(ThingStatusDetail.COMMUNICATION_ERROR));
+        verify(callback).statusUpdated(eq(thing), argThat((arg) -> arg.getStatus().equals(ThingStatus.OFFLINE)
+                && arg.getStatusDetail().equals(ThingStatusDetail.COMMUNICATION_ERROR)));
     }
 
     @Test
-    public void initializeNoStateReceived() throws MqttException, InterruptedException {
-        CompletableFuture<Boolean> future = CompletableFuture.completedFuture(true);
-        doReturn(topicMapper).when(thingHandler).createTopicMapper(any());
-        // A completed future is returned for a subscribe call to the topic mapper
-        doReturn(future).when(topicMapper).subscribe(any(), any(), any(), anyInt());
-        doReturn(future).when(topicMapper).unsubscribe(any());
-        doReturn(future).when(topicMapper).unsubscribeAll();
+    public void initializeNoStateReceived() throws InterruptedException {
+        // A completed future is returned for a subscribe call to the attributes
+        doReturn(future).when(thingHandler.device.attributes).subscribeAndReceive(any(), any(), anyString(), any(),
+                anyInt());
+        doReturn(future).when(thingHandler.device.attributes).unsubscribe();
 
-        // Prevent a call to propertiesChanged, that would update our thing.
-        doNothing().when(thingHandler).propertiesChanged();
+        // Prevent a call to accept, that would update our thing.
+        doNothing().when(thingHandler).accept(any());
 
         thingHandler.initialize();
-        assertThat(thingHandler.device.isInitializing(), is(false));
+        assertThat(thingHandler.device.isInitialized(), is(true));
 
-        ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback).statusUpdated(eq(thing), statusInfoCaptor.capture());
-        assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.OFFLINE));
-        assertThat(statusInfoCaptor.getValue().getStatusDetail(), is(ThingStatusDetail.COMMUNICATION_ERROR));
+        verify(callback).statusUpdated(eq(thing), argThat((arg) -> arg.getStatus().equals(ThingStatus.OFFLINE)
+                && arg.getStatusDetail().equals(ThingStatusDetail.GONE)));
     }
 
     @SuppressWarnings("null")
     @Test
     public void handleCommandRefresh() {
         // Create mocked homie device tree with one node and one read-only property
-        Node node = new Node("node", thing.getUID(), thingHandler);
+        Node node = thingHandler.device.createNode("node", spy(new NodeAttributes()));
+        doReturn(future).when(node.attributes).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+        doReturn(future).when(node.attributes).unsubscribe();
         node.attributes.name = "testnode";
-        Property property = new Property(node, "property", thing.getUID());
+
+        Property property = node.createProperty("property", spy(new PropertyAttributes()));
+        doReturn(future).when(property.attributes).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+        doReturn(future).when(property.attributes).unsubscribe();
         property.attributes.name = "testprop";
         property.attributes.datatype = DataTypeEnum.string_;
         property.attributes.settable = false;
@@ -208,20 +224,22 @@ public class HomieThingHandlerTests {
         thingHandler.connection = connection;
         thingHandler.handleCommand(property.channelUID, RefreshType.REFRESH);
 
-        ArgumentCaptor<ChannelUID> channelUIDCaptor = ArgumentCaptor.forClass(ChannelUID.class);
-        ArgumentCaptor<State> stateCaptor = ArgumentCaptor.forClass(State.class);
-        verify(callback).stateUpdated(channelUIDCaptor.capture(), stateCaptor.capture());
-        assertThat(channelUIDCaptor.getValue(), is(property.channelUID));
-        assertThat(stateCaptor.getValue(), is(property.getChannelState().getValue().getValue()));
+        verify(callback).stateUpdated(argThat(arg -> property.channelUID.equals(arg)),
+                argThat(arg -> property.getChannelState().getValue().getValue().equals(arg)));
     }
 
     @SuppressWarnings("null")
     @Test
-    public void handleCommandUpdate() throws MqttException {
+    public void handleCommandUpdate() {
         // Create mocked homie device tree with one node and one writable property
-        Node node = new Node("node", thing.getUID(), thingHandler);
+        Node node = thingHandler.device.createNode("node", spy(new NodeAttributes()));
+        doReturn(future).when(node.attributes).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+        doReturn(future).when(node.attributes).unsubscribe();
         node.attributes.name = "testnode";
-        Property property = new Property(node, "property", thing.getUID());
+
+        Property property = node.createProperty("property", spy(new PropertyAttributes()));
+        doReturn(future).when(property.attributes).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+        doReturn(future).when(property.attributes).unsubscribe();
         property.attributes.name = "testprop";
         property.attributes.datatype = DataTypeEnum.string_;
         property.attributes.settable = true;
@@ -230,7 +248,7 @@ public class HomieThingHandlerTests {
         thingHandler.device.nodes.put(node.nodeID, node);
 
         ChannelState channelState = property.getChannelState();
-        assertTrue(channelState != null);
+        assertNotNull(channelState);
         ChannelStateHelper.setConnection(channelState, connection);// Pretend we called start()
         thingHandler.connection = connection;
 
@@ -238,7 +256,7 @@ public class HomieThingHandlerTests {
         thingHandler.handleCommand(property.channelUID, updateValue);
 
         assertThat(property.getChannelState().getValue().getValue().toString(), is("UPDATE"));
-        verify(connection, times(1)).publish(any(), any());
+        verify(connection, times(1)).publish(any(), any(), anyInt(), anyBoolean());
 
         // Check non writable property
         property.attributes.settable = false;
@@ -250,36 +268,98 @@ public class HomieThingHandlerTests {
         thingHandler.handleCommand(property.channelUID, updateValue);
         // Expect old value and no MQTT publish
         assertThat(property.getChannelState().getValue().getValue().toString(), is("OLDVALUE"));
-        verify(connection, times(1)).publish(any(), any());
+        verify(connection, times(1)).publish(any(), any(), anyInt(), anyBoolean());
+    }
+
+    public Object createSubscriberAnswer(InvocationOnMock invocation) {
+        final AbstractMqttAttributeClass attributes = (AbstractMqttAttributeClass) invocation.getMock();
+        final ScheduledExecutorService scheduler = (ScheduledExecutorService) invocation.getArguments()[0];
+        final Field field = (Field) invocation.getArguments()[1];
+        final String topic = (String) invocation.getArguments()[2];
+        final boolean mandatory = (boolean) invocation.getArguments()[3];
+        final SubscribeFieldToMQTTtopic s = spy(
+                new SubscribeFieldToMQTTtopic(scheduler, field, attributes, topic, mandatory));
+        doReturn(CompletableFuture.completedFuture(true)).when(s).subscribeAndReceive(any(), anyInt());
+        return s;
+    }
+
+    public Property createSpyProperty(String propertyID, Node node) {
+        // Create a property with the same ID and insert it instead
+        Property property = spy(node.createProperty(propertyID, spy(new PropertyAttributes())));
+        doAnswer(this::createSubscriberAnswer).when(property.attributes).createSubscriber(any(), any(), any(),
+                anyBoolean());
+        property.attributes.name = "testprop";
+        property.attributes.datatype = DataTypeEnum.string_;
+
+        return property;
+    }
+
+    public Node createSpyNode(String propertyID, Device device) {
+        // Create the node
+        Node node = spy(device.createNode("node", spy(new NodeAttributes())));
+        doReturn(future).when(node.attributes).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+        doReturn(future).when(node.attributes).unsubscribe();
+        node.attributes.name = "testnode";
+        node.attributes.properties = new String[] { "property" };
+        doAnswer(this::createSubscriberAnswer).when(node.attributes).createSubscriber(any(), any(), any(),
+                anyBoolean());
+
+        // Intercept creating a property in the next call and inject a spy'ed property.
+        doAnswer(i -> createSpyProperty("property", node)).when(node).createProperty(any());
+
+        return node;
     }
 
     @Test
-    public void propertiesChanged() throws MqttException {
-        // Create mocked homie device tree with one node and one property
-        Node node = new Node("node", thing.getUID(), thingHandler);
-        node.attributes.name = "testnode";
-        Property property = new Property(node, "property", thing.getUID());
-        property.attributes.name = "testprop";
-        property.attributes.datatype = DataTypeEnum.string_;
-        property.attributesReceived();
-        node.properties.put(property.propertyID, property);
-        thingHandler.device.nodes.put(node.nodeID, node);
-
-        CompletableFuture<Boolean> future = CompletableFuture.completedFuture(true);
-        doReturn(topicMapper).when(thingHandler).createTopicMapper(any());
-        doReturn(future).when(topicMapper).subscribe(any(), any(), any(), anyInt());
-        doReturn(future).when(topicMapper).unsubscribe(any());
-        doReturn(future).when(topicMapper).unsubscribeAll();
-
+    public void propertiesChanged() throws InterruptedException, ExecutionException {
+        thingHandler.device.initialize("homie", "device", new ArrayList<Channel>());
         thingHandler.connection = connection;
+
+        // Create mocked homie device tree with one node and one property
+        doReturn(future).when(thingHandler.device.attributes).subscribeAndReceive(any(), any(), anyString(), any(),
+                anyInt());
+        doReturn(future).when(thingHandler.device.attributes).unsubscribe();
+        thingHandler.device.attributes.state = ReadyState.ready;
+        thingHandler.device.attributes.name = "device";
+        thingHandler.device.attributes.homie = "3.0";
+        thingHandler.device.attributes.nodes = new String[] { "node" };
+        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.attributes).createSubscriber(any(), any(),
+                any(), anyBoolean());
+
+        // Intercept creating a node in initialize()->start() and inject a spy'ed node.
+        doAnswer(i -> createSpyNode("node", thingHandler.device)).when(thingHandler.device).createNode(any());
+
+        verify(thingHandler, times(0)).nodeAddedOrChanged(any());
+        verify(thingHandler, times(0)).propertyAddedOrChanged(any());
+
         thingHandler.initialize();
 
-        verify(thingHandler).propertiesChanged();
+        assertThat(thingHandler.device.isInitialized(), is(true));
 
-        List<@NonNull Channel> channels = thingHandler.getThing().getChannels();
+        verify(thingHandler).propertyAddedOrChanged(any());
+        verify(thingHandler).nodeAddedOrChanged(any());
+
+        assertNotNull(thingHandler.device.nodes.get("node").properties.get("property"));
+
+        assertTrue(thingHandler.delayedProcessing.isArmed());
+
+        verify(thingHandler).heartbeatIntervalChanged(anyInt());
+        verify(callback, times(1)).thingUpdated(any());
+
+        // Simulate waiting for the delayed processor
+        thingHandler.delayedProcessing.forceProcessNow();
+
+        // Called for the updated property + for the new channels + for the heartbeat interval update
+        verify(callback, times(3)).thingUpdated(any());
+
+        final List<@NonNull Channel> channels = thingHandler.getThing().getChannels();
         assertThat(channels.size(), is(1));
-        assertThat(channels.get(0).getChannelTypeUID(), is(property.channelTypeUID));
-        assertThat(channels.get(0).getLabel(), is(property.attributes.name));
+        assertThat(channels.get(0).getLabel(), is("testprop"));
         assertThat(channels.get(0).getKind(), is(ChannelKind.STATE));
+
+        final Map<@NonNull String, @NonNull String> properties = thingHandler.getThing().getProperties();
+        assertThat(properties.get(MqttBindingConstants.HOMIE_PROPERTY_VERSION), is("3.0"));
+        assertThat(properties.get(MqttBindingConstants.HOMIE_PROPERTY_HEARTBEAT_INTERVAL), is("60"));
+        assertThat(properties.size(), is(2));
     }
 }

@@ -45,7 +45,8 @@ import org.osgi.service.component.annotations.Reference;
 public class MqttThingHandlerFactory extends BaseThingHandlerFactory implements TransformationServiceProvider {
     private @Nullable MqttChannelTypeProvider provider;
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
-            .of(MqttBindingConstants.GENERIC_MQTT_THING, MqttBindingConstants.HOMIE300_MQTT_THING)
+            .of(MqttBindingConstants.GENERIC_MQTT_THING, MqttBindingConstants.HOMIE300_MQTT_THING,
+                    MqttBindingConstants.HOMEASSISTANT_MQTT_THING)
             .collect(Collectors.toSet());
 
     @Override

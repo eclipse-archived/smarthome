@@ -12,7 +12,10 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MapToField;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MQTTvalueTransform;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MandatoryField;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.TopicPrefix;
 
 /**
@@ -21,9 +24,14 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.TopicPrefix;
  * @author David Graeff - Initial contribution
  */
 @TopicPrefix
-public class NodeAttributes {
-    public String name;
+public class NodeAttributes extends AbstractMqttAttributeClass {
+    public @MandatoryField String name;
+    public @MandatoryField @MQTTvalueTransform(splitCharacter = ",") String[] properties;
+    // Type has no meaning for ESH yet and is currently purely of textual, descriptive nature
     public String type;
-    public @MapToField(splitCharacter = ",") String[] properties;
-    public String array;
+
+    @Override
+    public @NonNull Object getFieldsOf() {
+        return this;
+    }
 }

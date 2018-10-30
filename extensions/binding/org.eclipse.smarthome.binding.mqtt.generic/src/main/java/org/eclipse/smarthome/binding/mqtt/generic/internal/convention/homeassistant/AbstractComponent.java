@@ -12,15 +12,23 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
+import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 
@@ -32,25 +40,77 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
  */
 @NonNullByDefault
 public abstract class AbstractComponent {
+    // Component location fields
     protected final ChannelGroupTypeUID channelGroupTypeUID;
-    protected final Map<String, CChannel> channels = new TreeMap<>();
+    protected final ChannelGroupUID channelGroupUID;
+    protected final HaID haID;
 
-    public AbstractComponent(ThingUID thing, String componentID) {
+    // Channels and configuration
+    protected final Map<String, CChannel> channels = new TreeMap<>();
+    // The hash code ({@link String#hashCode()}) of the configuration string
+    // Used to determine if a component has changed.
+    protected final int configHash;
+    protected final String configJson;
+
+    /**
+     * Provide a thingUID and HomeAssistant topic ID to determine the ESH channel group UID and type.
+     *
+     * @param thing A ThingUID
+     * @param haID A HomeAssistant topic ID
+     * @param configJson The configuration string
+     */
+    public AbstractComponent(ThingUID thing, HaID haID, String configJson) {
         this.channelGroupTypeUID = new ChannelGroupTypeUID(MqttBindingConstants.BINDING_ID,
-                thing.getId() + "_" + componentID);
+                haID.getChannelGroupTypeID());
+        this.channelGroupUID = new ChannelGroupUID(thing, haID.getChannelGroupID());
+        this.haID = haID;
+
+        this.configJson = configJson;
+        this.configHash = configJson.hashCode();
     }
 
     /**
-     * Subscribes to all state channels of the component.
+     * Subscribes to all state channels of the component and adds all channels to the provided channel type provider.
      *
      * @param connection The connection
      * @param channelStateUpdateListener A listener
-     * @return A future that completes as soon as all subscriptions have been performed
+     * @return A future that completes as soon as all subscriptions have been performed. Completes exceptionally on
+     *         errors.
      */
-    public CompletableFuture<Boolean> start(MqttBrokerConnection connection,
-            ChannelStateUpdateListener channelStateUpdateListener) {
-        return channels.values().stream().map(v -> v.channelState.start(connection, channelStateUpdateListener))
-                .reduce(CompletableFuture.completedFuture(true), (f, v) -> f.thenCompose(b -> v));
+    public CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection, ScheduledExecutorService scheduler,
+            int timeout) {
+        return channels.values().stream().map(v -> v.channelState.start(connection, scheduler, timeout))
+                .reduce(CompletableFuture.completedFuture(null), (f, v) -> f.thenCompose(b -> v));
+    }
+
+    /**
+     * Unsubscribe from all state channels of the component.
+     *
+     * @return A future that completes as soon as all subscriptions removals have been performed. Completes
+     *         exceptionally on errors.
+     */
+    public CompletableFuture<@Nullable Void> stop() {
+        return channels.values().stream().map(v -> v.channelState.stop())
+                .reduce(CompletableFuture.completedFuture(null), (f, v) -> f.thenCompose(b -> v));
+    }
+
+    /**
+     * Add all channel types to the channel type provider.
+     *
+     * @param channelTypeProvider The channel type provider
+     */
+    public void addChannelTypes(MqttChannelTypeProvider channelTypeProvider) {
+        channels.values().forEach(v -> channelTypeProvider.setChannelType(v.channelTypeUID, v.type));
+    }
+
+    /**
+     * Removes all channels from the channel type provider.
+     * Call this if the corresponding Thing handler gets disposed.
+     *
+     * @param channelTypeProvider The channel type provider
+     */
+    public void removeChannelTypes(MqttChannelTypeProvider channelTypeProvider) {
+        channels.values().forEach(v -> channelTypeProvider.removeChannelType(v.channelTypeUID));
     }
 
     /**
@@ -58,6 +118,13 @@ public abstract class AbstractComponent {
      */
     public ChannelGroupTypeUID groupTypeUID() {
         return channelGroupTypeUID;
+    }
+
+    /**
+     * The unique id of this component within the ESH framework.
+     */
+    public ChannelGroupUID uid() {
+        return channelGroupUID;
     }
 
     /**
@@ -82,6 +149,32 @@ public abstract class AbstractComponent {
      */
     public @Nullable CChannel channel(String channelID) {
         return channels.get(channelID);
+    }
+
+    /**
+     * @return Returns the configuration hash value for easy comparison.
+     */
+    public int getConfigHash() {
+        return configHash;
+    }
+
+    /**
+     * Return the channel group type.
+     */
+    public ChannelGroupType type() {
+        final List<ChannelDefinition> channelDefinitions = channels.values().stream()
+                .map(c -> new ChannelDefinitionBuilder(c.channelID, c.channelTypeUID).build())
+                .collect(Collectors.toList());
+        return ChannelGroupTypeBuilder.instance(channelGroupTypeUID, name()).withChannelDefinitions(channelDefinitions)
+                .build();
+    }
+
+    /**
+     * Resets all channel states to state UNDEF. Call this method after the connection
+     * to the MQTT broker got lost.
+     */
+    public void resetState() {
+        channels.values().forEach(c -> c.channelState.getValue().resetState());
     }
 
 }

@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * Implements a switch with multiple possible states.
@@ -34,13 +34,14 @@ import org.eclipse.smarthome.core.types.StateOption;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class EnumSwitchValue implements AbstractMqttThingValue {
+public class EnumSwitchValue implements Value {
+    private State state = UnDefType.UNDEF;
     private StringType strValue;
     private final Set<String> states;
 
     public EnumSwitchValue(String[] states, int initialStateIndex) {
         if (states.length == 0) {
-            throw new IllegalArgumentException("At least one state need to be set");
+            throw new IllegalArgumentException("At least one state need to be known!");
         }
         strValue = new StringType(states[initialStateIndex]);
         this.states = Stream.of(states).collect(Collectors.toSet());
@@ -48,7 +49,7 @@ public class EnumSwitchValue implements AbstractMqttThingValue {
 
     @Override
     public State getValue() {
-        return strValue;
+        return state;
     }
 
     @Override
@@ -58,6 +59,7 @@ public class EnumSwitchValue implements AbstractMqttThingValue {
             throw new IllegalArgumentException("Value " + value + " not within range");
         }
         strValue = new StringType(value);
+        state = strValue;
         return strValue.toString();
     }
 
@@ -67,18 +69,19 @@ public class EnumSwitchValue implements AbstractMqttThingValue {
             throw new IllegalArgumentException("Value " + value + " not within range");
         }
         strValue = new StringType(value);
+        state = strValue;
         return strValue;
     }
 
     @Override
     public String channelTypeID() {
-        return CoreItemFactory.SWITCH;
+        return CoreItemFactory.STRING;
     }
 
     /**
-     * @return valid states. Can be null.
+     * @return Valid states
      */
-    public @Nullable Set<String> getStates() {
+    public Set<String> getStates() {
         return states;
     }
 
@@ -89,5 +92,10 @@ public class EnumSwitchValue implements AbstractMqttThingValue {
             stateOptions.add(new StateOption(state, state));
         }
         return new StateDescription(null, null, null, "%s " + unit, readOnly, stateOptions);
+    }
+
+    @Override
+    public void resetState() {
+        state = UnDefType.UNDEF;
     }
 }

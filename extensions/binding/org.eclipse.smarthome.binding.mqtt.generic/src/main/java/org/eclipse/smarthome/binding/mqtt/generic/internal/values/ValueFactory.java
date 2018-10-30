@@ -27,11 +27,11 @@ public class ValueFactory {
     /**
      * Creates a new channel state value.
      *
-     * @param config The channel configuration
+     * @param config        The channel configuration
      * @param channelTypeID The channel type, for instance TEXT_CHANNEL.
      */
-    public static AbstractMqttThingValue createValueState(GenericChannelConfig config, String channelTypeID) {
-        AbstractMqttThingValue value;
+    public static Value createValueState(GenericChannelConfig config, String channelTypeID) {
+        Value value;
         switch (channelTypeID) {
             case MqttBindingConstants.STRING:
                 value = StringUtils.isBlank(config.allowedStates) ? new TextValue()
@@ -47,11 +47,10 @@ public class ValueFactory {
                 value = new ColorValue(config.isRGB, null, null);
                 break;
             case MqttBindingConstants.SWITCH:
-                if (StringUtils.isBlank(config.allowedStates)) {
-                    value = new OnOffValue(config.on, config.off, config.inverse);
-                } else {
-                    value = new OnOffValue(config.on, config.off, config.inverse);
-                }
+                value = new OnOffValue(config.on, config.off, config.inverse);
+                break;
+            case MqttBindingConstants.ENUM:
+                value = new EnumSwitchValue(config.allowedStates.split(","), 0);
                 break;
             case MqttBindingConstants.CONTACT:
                 value = OnOffValue.createReceiveOnly(config.on, config.off, config.inverse);

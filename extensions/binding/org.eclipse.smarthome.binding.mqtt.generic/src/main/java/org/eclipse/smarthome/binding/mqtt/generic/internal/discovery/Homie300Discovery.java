@@ -12,19 +12,20 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.discovery;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.discovery.MqttTopicDiscovery.TopicDiscovered;
-import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.WaitForTopicValue;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.osgi.service.component.annotations.Component;
@@ -40,50 +41,32 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true, service = DiscoveryService.class, configurationPid = "discovery.mqtthomie")
 @NonNullByDefault
-public class Homie300Discovery extends AbstractDiscoveryService implements TopicDiscovered {
+public class Homie300Discovery extends AbstractMQTTDiscovery {
     private final Logger logger = LoggerFactory.getLogger(Homie300Discovery.class);
-    protected @Nullable MqttTopicDiscovery mqttTopicDiscovery;
+
+    final static String baseTopic = "homie";
 
     public Homie300Discovery() {
-        super(Stream.of(MqttBindingConstants.HOMIE300_MQTT_THING).collect(Collectors.toSet()), 500, true);
+        super(Stream.of(MqttBindingConstants.HOMIE300_MQTT_THING).collect(Collectors.toSet()), 3, true,
+                baseTopic + "/+/$homie");
     }
+
+    @NonNullByDefault({})
+    protected MQTTTopicDiscoveryService mqttTopicDiscovery;
 
     @Reference
-    public void setThingRegistry(ThingRegistry service) {
-        mqttTopicDiscovery = new MqttTopicDiscovery(service, this, "homie/+/$homie");
+    public void setMQTTTopicDiscoveryService(MQTTTopicDiscoveryService service) {
+        mqttTopicDiscovery = service;
     }
 
-    public void unsetThingRegistry(@Nullable ThingRegistry service) {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.stopBackgroundDiscovery();
-            this.mqttTopicDiscovery = null;
-        }
+    public void unsetMQTTTopicDiscoveryService(@Nullable MQTTTopicDiscoveryService service) {
+        mqttTopicDiscovery.unsubscribe(this);
+        this.mqttTopicDiscovery = null;
     }
 
     @Override
-    protected void startScan() {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.startScan();
-        }
-        stopScan();
-    }
-
-    @Override
-    protected void startBackgroundDiscovery() {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.startBackgroundDiscovery();
-        }
-    }
-
-    @Override
-    protected void stopBackgroundDiscovery() {
-        final MqttTopicDiscovery mqttTopicDiscovery = this.mqttTopicDiscovery;
-        if (mqttTopicDiscovery != null) {
-            mqttTopicDiscovery.stopBackgroundDiscovery();
-        }
+    protected MQTTTopicDiscoveryService getDiscoveryService() {
+        return mqttTopicDiscovery;
     }
 
     /**
@@ -102,36 +85,51 @@ public class Homie300Discovery extends AbstractDiscoveryService implements Topic
      * Returns true if the version is something like "3.x". We accept
      * version 3 up to but not including version 4 of the homie spec.
      */
-    public static boolean checkVersion(String versionString) {
-        String[] strings = versionString.split("\\.");
-        if (strings.length < 2) {
-            return false;
-        }
-        return strings[0].equals("3");
+    public static boolean checkVersion(byte[] payload) {
+        return payload.length > 0 && payload[0] == '3';
     }
 
     @Override
-    public void topicDiscovered(ThingUID connectionBridge, MqttBrokerConnection connection, String topic,
-            String topicValue) {
-        if (!checkVersion(topicValue)) {
-            logger.trace("Found homie device. But version {} is out of range.", topicValue);
+    public void receivedMessage(ThingUID connectionBridge, MqttBrokerConnection connection, String topic,
+            byte[] payload) {
+        if (!checkVersion(payload)) {
+            logger.trace("Found homie device. But version {} is out of range.",
+                    new String(payload, StandardCharsets.UTF_8));
             return;
         }
-        String deviceID = extractDeviceID(topic);
+        final String deviceID = extractDeviceID(topic);
         if (deviceID == null) {
             logger.trace("Found homie device. But deviceID {} is invalid.", deviceID);
             return;
         }
+
+        publishDevice(connectionBridge, connection, deviceID, deviceID);
+
+        // Retrieve name and update found discovery
+        try {
+            WaitForTopicValue w = new WaitForTopicValue(connection, topic.replace("$homie", "$name"));
+            w.waitForTopicValueAsync(scheduler, 700).thenAccept(name -> {
+                publishDevice(connectionBridge, connection, deviceID, name);
+            });
+        } catch (InterruptedException | ExecutionException ignored) {
+            // The name is nice to have, but not required
+        }
+
+    }
+
+    void publishDevice(ThingUID connectionBridge, MqttBrokerConnection connection, String deviceID, String name) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("deviceid", deviceID);
+        properties.put("basetopic", baseTopic);
+
         thingDiscovered(DiscoveryResultBuilder
                 .create(new ThingUID(MqttBindingConstants.HOMIE300_MQTT_THING, connectionBridge, deviceID))
-                .withProperties(properties).withRepresentationProperty("deviceid").withLabel("Homie device").build());
+                .withBridge(connectionBridge).withProperties(properties).withRepresentationProperty("deviceid")
+                .withLabel(name).build());
     }
 
     @Override
-    public void topicVanished(ThingUID connectionBridge, MqttBrokerConnection connection, String topic,
-            String topicValue) {
+    public void topicVanished(ThingUID connectionBridge, MqttBrokerConnection connection, String topic) {
         String deviceID = extractDeviceID(topic);
         if (deviceID == null) {
             return;

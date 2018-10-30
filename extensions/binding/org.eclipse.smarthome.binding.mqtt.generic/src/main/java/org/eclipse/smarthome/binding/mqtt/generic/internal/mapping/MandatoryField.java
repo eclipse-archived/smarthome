@@ -19,35 +19,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotate a class field if the MQTT topic value needs to be translated first before assigned to that field.
+ * Annotate an attribute class field to mark it as required. If a required topic value cannot be received
+ * within a given timeframe, the entire attribute classes
+ * {@link AbstractMqttAttributeClass#subscribeAndReceive(org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection, java.util.concurrent.ScheduledExecutorService, String, org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass.AttributeChanged, int)}
+ * call will fail.
  *
  * <p>
- * Example: The MQTT topic is my-example/testname with value "abc" and my-example/values with value "abc,def". The
- * corresponding bean class looks like this:
+ * Example: The MQTT topic is "my-example/name". The corresponding attribute class looks like this:
  * </p>
  *
  * <pre>
- * class MyExample {
- *     enum Testnames {
- *         abc_
- *     };
- *
- *     &#64;MapToField(suffix = "_")
- *     Testnames testname;
- *
- *     &#64;MapToField(splitCharacter = ",")
- *     String[] values;
+
+ * class MyExample extends AbstractMqttAttributeClass {
+ * * &#64;MandatoryField
+ *     String name;
  * }
  * </pre>
  *
  * @author David Graeff - Initial contribution
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(FIELD)
-public @interface MapToField {
-    String suffix() default "";
-
-    String prefix() default "";
-
-    String splitCharacter() default "";
+@Target({ FIELD })
+public @interface MandatoryField {
+    boolean value() default true;
 }

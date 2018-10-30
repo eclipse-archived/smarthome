@@ -19,16 +19,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotate a MQTT bean class or class fields if the MQTT topic differs compared to the field name by a prefix.
+ * Annotate an attribute class or class fields if the MQTT topic differs compared to the field name by a prefix.
  * The default prefix if annotated without an argument is "$".
  *
  * <p>
- * Example: The MQTT topic is my-example/$testname. The corresponding bean class looks like this:
+ * Example: The MQTT topic is "my-example/$testname". The corresponding attribute class looks like this:
  * </p>
  *
  * <pre>
  * &#64;TopicPrefix
- * class MyExample {
+ * class MyExample extends AbstractMqttAttributeClass {
  *     String testname;
  * }
  * </pre>

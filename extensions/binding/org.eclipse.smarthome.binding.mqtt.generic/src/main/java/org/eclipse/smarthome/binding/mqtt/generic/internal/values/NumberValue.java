@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * Implements a percentage value. Minimum and maximum are definable.
@@ -33,7 +34,8 @@ import org.eclipse.smarthome.core.types.StateDescription;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class NumberValue implements AbstractMqttThingValue {
+public class NumberValue implements Value {
+    private State state = UnDefType.UNDEF;
     private final double min;
     private final double max;
     private final double step;
@@ -57,7 +59,7 @@ public class NumberValue implements AbstractMqttThingValue {
 
     @Override
     public State getValue() {
-        return numberValue;
+        return state;
     }
 
     @Override
@@ -95,8 +97,10 @@ public class NumberValue implements AbstractMqttThingValue {
             }
 
             if (isFloat) {
+                state = numberValue;
                 return numberValue.toString();
             } else {
+                state = numberValue;
                 return String.valueOf(numberValue.intValue());
             }
         } else {
@@ -128,8 +132,10 @@ public class NumberValue implements AbstractMqttThingValue {
             }
 
             if (isFloat) {
+                state = numberValue;
                 return numberValue.toString();
             } else {
+                state = numberValue;
                 return String.valueOf(numberValue.intValue());
             }
         }
@@ -138,6 +144,7 @@ public class NumberValue implements AbstractMqttThingValue {
     @Override
     public State update(String updatedValue) throws IllegalArgumentException {
         numberValue = DecimalType.valueOf(updatedValue);
+        state = numberValue;
         return numberValue;
     }
 
@@ -150,5 +157,10 @@ public class NumberValue implements AbstractMqttThingValue {
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(new BigDecimal(min), new BigDecimal(max), new BigDecimal(step), "%s " + unit,
                 readOnly, Collections.emptyList());
+    }
+
+    @Override
+    public void resetState() {
+        state = UnDefType.UNDEF;
     }
 }

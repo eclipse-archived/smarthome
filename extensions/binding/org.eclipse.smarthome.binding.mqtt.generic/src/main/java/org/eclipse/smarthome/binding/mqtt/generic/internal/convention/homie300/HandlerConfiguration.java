@@ -13,18 +13,23 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomieThingHandler;
 
 /**
- * TODO Homie specification needs a revised documentation and handling of instances.
- * Therefore Instances are not implemented yet.
+ * The {@link HomieThingHandler} manages Things that are responsible for
+ * Homie MQTT devices.
+ * This class contains the necessary configuration for such a Thing handler.
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class NodeInstance {
-    public final Node parentNode;
-
-    NodeInstance(Node parentNode) {
-        this.parentNode = parentNode;
-    }
+public class HandlerConfiguration {
+    /**
+     * The MQTT prefix topic
+     */
+    public String basetopic = "homie";
+    /**
+     * The device id.
+     */
+    public String deviceid = "";
 }
