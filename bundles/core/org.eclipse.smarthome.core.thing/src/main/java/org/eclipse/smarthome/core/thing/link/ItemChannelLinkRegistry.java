@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
@@ -56,12 +57,10 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
      * @return set of bound channels for the given item name
      */
     public Set<ChannelUID> getBoundChannels(String itemName) {
-        Set<ChannelUID> channelUIDs = new HashSet<>();
+        final Set<ChannelUID> channelUIDs = new HashSet<>();
 
-        for (ItemChannelLink itemChannelLink : getAll()) {
-            if (itemChannelLink.getItemName().equals(itemName)) {
-                channelUIDs.add(itemChannelLink.getLinkedUID());
-            }
+        for (ItemChannelLink itemChannelLink : getLinks(itemName)) {
+            channelUIDs.add(itemChannelLink.getLinkedUID());
         }
 
         return channelUIDs;
@@ -69,22 +68,15 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
 
     @Override
     public Set<String> getLinkedItemNames(UID uid) {
-        final Set<String> linkedItems = new LinkedHashSet<>();
-        for (final AbstractLink link : getAll()) {
-            final String itemName = link.getItemName();
-            if (link.getLinkedUID().equals(uid) && itemRegistry.get(itemName) != null) {
-                linkedItems.add(itemName);
-            }
-        }
-        return linkedItems;
+        return super.getLinkedItemNames(uid).stream().filter(itemName -> itemRegistry.get(itemName) != null)
+                .collect(Collectors.toSet());
     }
 
     public Set<Item> getLinkedItems(UID uid) {
         final Set<Item> linkedItems = new LinkedHashSet<>();
-        for (final AbstractLink link : getAll()) {
-            final String itemName = link.getItemName();
-            Item item = itemRegistry.get(itemName);
-            if (link.getLinkedUID().equals(uid) && item != null) {
+        for (final String itemName : super.getLinkedItemNames(uid)) {
+            final Item item = itemRegistry.get(itemName);
+            if (item != null) {
                 linkedItems.add(item);
             }
         }
