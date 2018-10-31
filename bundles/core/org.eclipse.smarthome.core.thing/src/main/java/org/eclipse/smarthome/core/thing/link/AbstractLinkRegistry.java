@@ -46,16 +46,19 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
 
     @Override
     protected void onAddElement(final L element) {
+        super.onAddElement(element);
         toLinkAdded(element);
     }
 
     @Override
     protected void onRemoveElement(final L element) {
+        super.onRemoveElement(element);
         toLinkRemoved(element);
     }
 
     @Override
     protected void onUpdateElement(final L oldElement, final L element) {
+        super.onUpdateElement(oldElement, element);
         toLinkRemoved(oldElement);
         toLinkAdded(element);
     }

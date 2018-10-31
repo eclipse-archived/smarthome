@@ -331,6 +331,9 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * validity of the element.
      *
      * <p>
+     * To keep custom logic on the inheritance chain, you must call always the super implementation first.
+     *
+     * <p>
      * If the method throws an {@link IllegalArgumentException} the element will not be added.
      * <p>
      *
@@ -344,6 +347,9 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     /**
      * This method is called before an element is removed. The implementing
      * class can override this method to perform specific logic.
+     *
+     * <p>
+     * To keep custom logic on the inheritance chain, you must call always the super implementation first.
      *
      * @param element element to be removed
      */
@@ -365,6 +371,9 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * This method is called before an element is updated. The implementing
      * class can override this method to perform specific logic or check the
      * validity of the updated element.
+     *
+     * <p>
+     * To keep custom logic on the inheritance chain, you must call always the super implementation first.
      *
      * @param oldElement old element (before update, as given by the provider)
      * @param element updated element (after update)
