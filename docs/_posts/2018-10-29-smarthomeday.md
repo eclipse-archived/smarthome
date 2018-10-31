@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Smart Home Day @ EclipseCon Europe 2018"
-date:   2017-10-29
+date:   2018-10-29
 image: "2018-10-29_smarthomeday.jpg"
 published: true
 ---
