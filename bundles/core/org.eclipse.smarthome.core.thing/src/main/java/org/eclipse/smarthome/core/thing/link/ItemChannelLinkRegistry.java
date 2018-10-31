@@ -12,9 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,53 +52,33 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
      * Returns a set of bound channels for the given item name.
      *
      * @param itemName item name
-     * @return set of bound channels for the given item name
+     * @return an unmodifiable set of bound channels for the given item name
      */
     public Set<ChannelUID> getBoundChannels(String itemName) {
-        final Set<ChannelUID> channelUIDs = new HashSet<>();
-
-        for (ItemChannelLink itemChannelLink : getLinks(itemName)) {
-            channelUIDs.add(itemChannelLink.getLinkedUID());
-        }
-
-        return channelUIDs;
+        return getLinks(itemName).parallelStream().map(link -> link.getLinkedUID()).collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> getLinkedItemNames(UID uid) {
-        return super.getLinkedItemNames(uid).stream().filter(itemName -> itemRegistry.get(itemName) != null)
+        return super.getLinkedItemNames(uid).parallelStream().filter(itemName -> itemRegistry.get(itemName) != null)
                 .collect(Collectors.toSet());
     }
 
     public Set<Item> getLinkedItems(UID uid) {
-        final Set<Item> linkedItems = new LinkedHashSet<>();
-        for (final String itemName : super.getLinkedItemNames(uid)) {
-            final Item item = itemRegistry.get(itemName);
-            if (item != null) {
-                linkedItems.add(item);
-            }
-        }
-        return linkedItems;
+        return super.getLinkedItemNames(uid).parallelStream().map(itemName -> itemRegistry.get(itemName))
+                .filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     /**
      * Returns a set of bound things for the given item name.
      *
      * @param itemName item name
-     * @return set of bound things for the given item name
+     * @return an unmodifiable set of bound things for the given item name
      */
     public Set<Thing> getBoundThings(String itemName) {
-        Set<Thing> things = new HashSet<>();
-        Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
-
-        for (ChannelUID channelUID : boundChannels) {
-            Thing thing = thingRegistry.get(channelUID.getThingUID());
-            if (thing != null) {
-                things.add(thing);
-            }
-        }
-
-        return things;
+        return getBoundChannels(itemName).parallelStream()
+                .map(channelUID -> thingRegistry.get(channelUID.getThingUID())).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @Reference

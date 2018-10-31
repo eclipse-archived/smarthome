@@ -12,12 +12,14 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
@@ -169,60 +171,51 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * Returns the item names, which are bound to the given UID.
      *
      * @param uid UID
-     * @return a non-null collection of item names that are linked to the given UID.
+     * @return a non-null unmodifiable collection of item names that are linked to the given UID.
      */
     public Set<String> getLinkedItemNames(UID uid) {
-        final Set<String> linkedItems = new LinkedHashSet<>();
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = linkedUidToLink.get(uid);
-            if (forLinkedUID != null) {
-                forLinkedUID.forEach(link -> linkedItems.add(link.getItemName()));
+            if (forLinkedUID == null) {
+                return Collections.emptySet();
             }
+            return forLinkedUID.parallelStream().map(link -> link.getItemName()).collect(Collectors.toSet());
         } finally {
             toLinkLock.readLock().unlock();
         }
-        return linkedItems;
     }
 
     /**
      * Returns all links for a given UID.
      *
      * @param uid a channel UID
-     * @return a set of links for the given UID
+     * @return an unmodifiable set of links for the given UID
      */
     public Set<L> getLinks(UID uid) {
-        final Set<L> links = new LinkedHashSet<>();
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = linkedUidToLink.get(uid);
-            if (forLinkedUID != null) {
-                links.addAll(forLinkedUID);
-            }
+            return forLinkedUID != null ? new LinkedHashSet<>(forLinkedUID) : Collections.emptySet();
         } finally {
             toLinkLock.readLock().unlock();
         }
-        return links;
     }
 
     /**
      * Returns all links for a given item name.
      *
      * @param itemName the name of the item
-     * @return a set of links for the given item name
+     * @return an unmodifiable set of links for the given item name
      */
     public Set<L> getLinks(final String itemName) {
-        final Set<L> links = new LinkedHashSet<>();
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = itemNameToLink.get(itemName);
-            if (forLinkedUID != null) {
-                links.addAll(forLinkedUID);
-            }
+            return forLinkedUID != null ? new LinkedHashSet<>(forLinkedUID) : Collections.emptySet();
         } finally {
             toLinkLock.readLock().unlock();
         }
-        return links;
     }
 
 }
