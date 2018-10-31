@@ -122,7 +122,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * @param uid UID
      * @return true if linked, false otherwise
      */
-    public boolean isLinked(String itemName, UID uid) {
+    public boolean isLinked(final String itemName, final UID uid) {
         toLinkLock.readLock().lock();
         try {
             final Set<L> forItemName = itemNameToLink.get(itemName);
@@ -173,7 +173,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * @param uid UID
      * @return a non-null unmodifiable collection of item names that are linked to the given UID.
      */
-    public Set<String> getLinkedItemNames(UID uid) {
+    public Set<String> getLinkedItemNames(final UID uid) {
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = linkedUidToLink.get(uid);
@@ -192,7 +192,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
      * @param uid a channel UID
      * @return an unmodifiable set of links for the given UID
      */
-    public Set<L> getLinks(UID uid) {
+    public Set<L> getLinks(final UID uid) {
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = linkedUidToLink.get(uid);
