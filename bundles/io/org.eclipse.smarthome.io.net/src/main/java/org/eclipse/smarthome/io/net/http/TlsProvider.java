@@ -12,24 +12,22 @@
  */
 package org.eclipse.smarthome.io.net.http;
 
-import javax.net.ssl.X509ExtendedTrustManager;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * Provides a trust manager for the given host name
+ * Provides some TLS validation implementation for the given host name
  *
- * Implement this interface to request the framework to use a specific trust manager for the given host
+ * Normally you would implement one of children of this interface, in order to request the framework to use a specific
+ * implementation for the given host.
  *
  * @author Martin van Wingerden - Initial Contribution
  */
 @NonNullByDefault
-public interface TlsTrustManagerProvider extends TlsProvider {
-
+public interface TlsProvider {
     /**
-     * A X509ExtendedTrustManager for the specified host name
+     * Host name for which this tls-provider is intended
      *
-     * @return this can for example be a trustManager extracted after importing a jks trust-store
+     * @return a host name in string format, eg: www.eclipse.org
      */
-    X509ExtendedTrustManager getTrustManager();
+    String getHostName();
 }

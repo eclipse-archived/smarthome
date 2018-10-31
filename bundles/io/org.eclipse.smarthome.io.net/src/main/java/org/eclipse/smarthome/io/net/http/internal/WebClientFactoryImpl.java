@@ -391,10 +391,12 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     }
 
     @Reference
+    @Deprecated
     protected void setExtensibleTrustManager(ExtensibleTrustManager extensibleTrustManager) {
         this.extensibleTrustManager = extensibleTrustManager;
     }
 
+    @Deprecated
     protected void unsetExtensibleTrustManager(ExtensibleTrustManager extensibleTrustManager) {
         if (this.extensibleTrustManager == extensibleTrustManager) {
             this.extensibleTrustManager = null;

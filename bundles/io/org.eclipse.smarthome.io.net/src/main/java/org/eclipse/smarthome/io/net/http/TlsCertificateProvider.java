@@ -17,25 +17,19 @@ import java.net.URL;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * Provides a certificate for the given hostname
+ * Provides a certificate for the given host name
  *
  * Implement this interface to request the framework to use a specific certificate for the given host
  *
  * @author Martin van Wingerden - Initial Contribution
  */
 @NonNullByDefault
-public interface TlsCertificateProvider {
-    /**
-     * Host name for which this certificate is intended
-     *
-     * @return
-     */
-    String getHostName();
+public interface TlsCertificateProvider extends TlsProvider {
 
     /**
      * A resources pointing to a X509 certificate for the specified host name
      *
-     * @return
+     * @return this should refer to a file containing a base64 encoded X.509 certificate
      */
     URL getCertificate();
 }
