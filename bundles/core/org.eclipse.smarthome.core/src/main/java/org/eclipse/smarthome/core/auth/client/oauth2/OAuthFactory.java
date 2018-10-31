@@ -20,6 +20,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @author Michael Bock - Initial Contribution
  * @author Gary Tse - ESH Adaptation
+ * @author Hilbrand Bouwkamp - Change create to have a handle as parameter.
  */
 @NonNullByDefault
 public interface OAuthFactory {
@@ -28,6 +29,7 @@ public interface OAuthFactory {
      * Creates a new oauth service. Use this method only once to obtain a handle and store
      * this handle for further in a persistent storage container.
      *
+     * @param handle the handle to the oauth service
      * @param tokenUrl the token url of the oauth provider. This is used for getting access token.
      * @param authorizationUrl the authorization url of the oauth provider. This is used purely for generating
      *            authorization code/ url.
@@ -37,19 +39,20 @@ public interface OAuthFactory {
      * @param supportsBasicAuth whether the OAuth provider supports basic authorization or the client id and client
      *            secret should be passed as form params. true - use http basic authentication, false - do not use http
      *            basic authentication, null - unknown (default to do not use)
-     * @return a handle to the oauth service
+     * @return the oauth service
      */
-    String createOAuthClientService(String tokenUrl, @Nullable String authorizationUrl, String clientId,
-            @Nullable String clientSecret, @Nullable String scope, @Nullable Boolean supportsBasicAuth);
+    OAuthClientService createOAuthClientService(String handle, String tokenUrl, @Nullable String authorizationUrl,
+            String clientId, @Nullable String clientSecret, @Nullable String scope,
+            @Nullable Boolean supportsBasicAuth);
 
     /**
      * Gets the oauth service for a given handle
      *
      * @param handle the handle to the oauth service
-     * @return the oauth service
-     * @throws OAuthException if the handle does not exist
+     * @return the oauth service or null if it doesn't exist
      */
-    OAuthClientService getOAuthClientService(String handle) throws OAuthException;
+    @Nullable
+    OAuthClientService getOAuthClientService(String handle);
 
     /**
      * Unget an oauth service, this unget/unregister the service, and frees the resources.
