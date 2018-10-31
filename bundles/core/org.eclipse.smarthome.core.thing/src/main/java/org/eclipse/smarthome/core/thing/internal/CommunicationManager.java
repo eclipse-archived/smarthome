@@ -305,10 +305,7 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             return;
         }
 
-        itemChannelLinkRegistry.stream().filter(link -> {
-            // all links for the item
-            return link.getItemName().equals(itemName);
-        }).filter(link -> {
+        itemChannelLinkRegistry.getLinks(itemName).stream().filter(link -> {
             // make sure the command event is not sent back to its source
             return !link.getLinkedUID().toString().equals(source);
         }).forEach(link -> {
@@ -460,13 +457,10 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     }
 
     void handleCallFromHandler(ChannelUID channelUID, @Nullable Thing thing, Consumer<Profile> action) {
-        itemChannelLinkRegistry.stream().filter(link -> {
-            // all links for the channel
-            return link.getLinkedUID().equals(channelUID);
-        }).forEach(link -> {
-            Item item = getItem(link.getItemName());
+        itemChannelLinkRegistry.getLinks(channelUID).forEach(link -> {
+            final Item item = getItem(link.getItemName());
             if (item != null) {
-                Profile profile = getProfile(link, item, thing);
+                final Profile profile = getProfile(link, item, thing);
                 action.accept(profile);
             }
         });
