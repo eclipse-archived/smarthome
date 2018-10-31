@@ -114,7 +114,7 @@ public class TradfriLightHandler extends TradfriThingHandler {
     private void setColor(HSBType hsb) {
         TradfriLightData data = new TradfriLightData();
         data.setColor(hsb).setTransitionTime(DEFAULT_DIMMER_TRANSITION_TIME);
-        set(data.getJsonString(), 1000);
+        set(data.getJsonString());
     }
 
     @Override
