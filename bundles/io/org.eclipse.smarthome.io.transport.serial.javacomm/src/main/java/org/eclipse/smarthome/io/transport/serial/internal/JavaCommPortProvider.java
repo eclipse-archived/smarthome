@@ -29,6 +29,8 @@ import org.eclipse.smarthome.io.transport.serial.ProtocolType.PathType;
 import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
 import org.eclipse.smarthome.io.transport.serial.SerialPortProvider;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,12 +41,15 @@ import org.osgi.service.component.annotations.Component;
 @Component(service = SerialPortProvider.class)
 public class JavaCommPortProvider implements SerialPortProvider {
 
+    private final Logger logger = LoggerFactory.getLogger(JavaCommPortProvider.class);
+
     @Override
     public @Nullable SerialPortIdentifier getPortIdentifier(URI port) {
         CommPortIdentifier ident = null;
         try {
             ident = CommPortIdentifier.getPortIdentifier(port.getPath());
         } catch (javax.comm.NoSuchPortException e) {
+            logger.debug("No SerialPortIdentifier found for: {}", port.getPath());
             return null;
         }
         return new SerialPortIdentifierImpl(ident);
