@@ -120,7 +120,7 @@ The `fadetime` option allows a smooth transition from the current to the new val
 The time unit is ms and the interval is for a fade from 0-100%.
 If the current value is 25% and the new value is 75% the time needed for this change is half of `fadetime`.
 `fadetime`is used for absolute values or ON/OFF commands send to the `brightness` channel. 
-Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimming (`INCREASE`/`DECREASE`) is the thingused.
+Related is the `dimtime` option: it defines the time in ms from 0-100% if incremental dimming (`INCREASE`/`DECREASE`) is used.
 For convenient use `dimtime` usually is set to a larger value than `fadetime`.
 Typical values are 500-1000 ms for `fadetime` and 2000-5000 ms for `dimtime`. 
 
