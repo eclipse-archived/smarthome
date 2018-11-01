@@ -62,7 +62,7 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String,
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ModuleType> T get(String moduleTypeUID, Locale locale) {
-        Entry<Provider<ModuleType>, ModuleType> mType = getBoth(moduleTypeUID);
+        Entry<Provider<ModuleType>, ModuleType> mType = getValueAndProvider(moduleTypeUID);
         if (mType == null) {
             return null;
         } else {

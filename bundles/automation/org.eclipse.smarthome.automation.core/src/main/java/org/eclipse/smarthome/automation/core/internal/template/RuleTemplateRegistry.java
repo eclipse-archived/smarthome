@@ -58,7 +58,7 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
 
     @Override
     public RuleTemplate get(String templateUID, Locale locale) {
-        Entry<Provider<RuleTemplate>, RuleTemplate> prt = getBoth(templateUID);
+        Entry<Provider<RuleTemplate>, RuleTemplate> prt = getValueAndProvider(templateUID);
         if (prt == null) {
             return null;
         } else {

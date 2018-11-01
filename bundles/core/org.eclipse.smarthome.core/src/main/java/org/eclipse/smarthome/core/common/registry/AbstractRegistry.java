@@ -231,7 +231,13 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         return null;
     }
 
-    public Entry<Provider<E>, E> getBoth(K key) {
+    /**
+     * This method retrieves an Entry with the provider and the element for the key from the registry.
+     *
+     * @param key key of the element
+     * @return provider and element entry or null if no element was found
+     */
+    public Entry<Provider<E>, E> getValueAndProvider(K key) {
         for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             for (final E element : entry.getValue()) {
                 if (key.equals(element.getUID())) {
@@ -314,10 +320,22 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         }
     }
 
+    /**
+     * This method retrieves the provider of an element from the registry.
+     *
+     * @param key key of the element
+     * @return provider or null if no provider was found
+     */
     public Provider<E> getProvider(K key) {
         return getProvider(get(key));
     }
 
+    /**
+     * This method retrieves the provider of an element from the registry.
+     *
+     * @param element the element
+     * @return provider or null if no provider was found
+     */
     public Provider<E> getProvider(E element) {
         for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             if (entry.getValue().contains(element)) {
@@ -327,16 +345,33 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         return null;
     }
 
+    /**
+     * This method traverses over all elements of a provider in the registry and calls the consumer with each element.
+     *
+     * @param provider provider to traverse elements of
+     * @param consumer function to call with element
+     */
     public void forEach(Provider<E> provider, Consumer<E> consumer) {
         elementMap.get(provider).forEach(consumer);
     }
 
+    /**
+     * This method traverses over all elements in the registry and calls the consumer with each element.
+     *
+     * @param consumer function to call with element
+     */
     public void forEach(Consumer<E> consumer) {
         for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             entry.getValue().forEach(consumer);
         }
     }
 
+    /**
+     * This method traverses over all elements in the registry and calls the consumer with the provider of the
+     * element as the first parameter and the element as the second argument.
+     *
+     * @param consumer function to call with the provider and element
+     */
     public void forEach(BiConsumer<Provider<E>, E> consumer) {
         for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             entry.getValue().forEach(e -> consumer.accept(entry.getKey(), e));
