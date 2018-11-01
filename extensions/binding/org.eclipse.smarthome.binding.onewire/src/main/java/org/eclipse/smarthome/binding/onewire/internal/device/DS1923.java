@@ -35,17 +35,17 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link DS1923} class defines an DS1923 device
  *
- * @author Jan N. Klug - Initial contribution
+ * @author Michał Wójcik - Initial contribution
  */
 @NonNullByDefault
 public class DS1923 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS1923.class);
-    private static final OwDeviceParameter TEMPERATURE_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap TEMPERATURE_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
         }
     };
-    private static final OwDeviceParameter HUMIDITY_PARAMETER = new OwDeviceParameter() {
+    private static final OwDeviceParameterMap HUMIDITY_PARAMETER = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/humidity"));
         }

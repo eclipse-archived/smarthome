@@ -89,7 +89,8 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         digitalLastRefresh = 0;
 
         // add sensors
-        if (sensorIds.get(0).startsWith("41") || properties.get(PROPERTY_MODELID).equals(OwSensorType.DS1923.name())) {
+        if (sensorIds.get(0).startsWith("41") || (properties.get(PROPERTY_MODELID) != null
+                && properties.get(PROPERTY_MODELID).equals(OwSensorType.DS1923.name()))) {
             // first condition is workaround for
             // https://github.com/eclipse/smarthome/pull/6326#issuecomment-435109640
             sensors.add(new DS1923(sensorIds.get(0), this));
@@ -237,6 +238,12 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
             } else {
                 // default 10ms
                 digitalRefreshInterval = 10 * 1000;
+            }
+        }
+
+        if (sensors.get(0) instanceof DS1923) {
+            if (thing.getChannel(CHANNEL_SUPPLYVOLTAGE) != null) {
+                thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_SUPPLYVOLTAGE));
             }
         }
 
