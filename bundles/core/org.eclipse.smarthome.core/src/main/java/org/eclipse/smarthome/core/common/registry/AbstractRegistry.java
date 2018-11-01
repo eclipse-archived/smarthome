@@ -237,7 +237,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @param key key of the element
      * @return provider and element entry or null if no element was found
      */
-    public Entry<Provider<E>, E> getValueAndProvider(K key) {
+    protected Entry<Provider<E>, E> getValueAndProvider(K key) {
         for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             for (final E element : entry.getValue()) {
                 if (key.equals(element.getUID())) {
@@ -246,7 +246,6 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             }
         }
         return null;
-
     }
 
     @Override
@@ -326,7 +325,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @param key key of the element
      * @return provider or null if no provider was found
      */
-    public Provider<E> getProvider(K key) {
+    protected Provider<E> getProvider(K key) {
         return getProvider(get(key));
     }
 
@@ -351,7 +350,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @param provider provider to traverse elements of
      * @param consumer function to call with element
      */
-    public void forEach(Provider<E> provider, Consumer<E> consumer) {
+    protected void forEach(Provider<E> provider, Consumer<E> consumer) {
         elementMap.get(provider).forEach(consumer);
     }
 
@@ -360,7 +359,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      *
      * @param consumer function to call with element
      */
-    public void forEach(Consumer<E> consumer) {
+    protected void forEach(Consumer<E> consumer) {
         for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             entry.getValue().forEach(consumer);
         }
@@ -372,7 +371,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      *
      * @param consumer function to call with the provider and element
      */
-    public void forEach(BiConsumer<Provider<E>, E> consumer) {
+    protected void forEach(BiConsumer<Provider<E>, E> consumer) {
         for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             entry.getValue().forEach(e -> consumer.accept(entry.getKey(), e));
         }
