@@ -161,7 +161,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
         SimpleUnitFormat.getInstance().label(KILOWATT_HOUR, "kWh");
         SimpleUnitFormat.getInstance().label(MILLIMETRE_OF_MERCURY, MILLIMETRE_OF_MERCURY.getSymbol());
         SimpleUnitFormat.getInstance().label(BAR, BAR.getSymbol());
-        SimpleUnitFormat.getInstance().label(MILLIBAR, MILLIBAR.getSymbol());
+        SimpleUnitFormat.getInstance().label(MILLIBAR, "mbar");
         SimpleUnitFormat.getInstance().label(KNOT, KNOT.getSymbol());
         SimpleUnitFormat.getInstance().label(DOBSON_UNIT, "DU");
     }
