@@ -49,7 +49,7 @@ public class JavaCommPortProvider implements SerialPortProvider {
         try {
             ident = CommPortIdentifier.getPortIdentifier(port.getPath());
         } catch (javax.comm.NoSuchPortException e) {
-            logger.info("No SerialPortIdentifier found for: {}", port.getPath());
+            logger.debug("No SerialPortIdentifier found for: {}", port.getPath());
             return null;
         }
         return new SerialPortIdentifierImpl(ident);
