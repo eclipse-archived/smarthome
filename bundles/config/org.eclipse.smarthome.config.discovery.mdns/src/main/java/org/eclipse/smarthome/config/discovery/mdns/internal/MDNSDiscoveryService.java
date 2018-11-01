@@ -120,6 +120,12 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
         startScan(false);
     }
 
+    @Override
+    protected synchronized void stopScan() {
+        removeOlderResults(getTimestampOfLastScan());
+        super.stopScan();
+    }
+
     private void startScan(boolean isBackground) {
         scheduler.schedule(new Runnable() {
             @Override
