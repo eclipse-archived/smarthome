@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.thing.link;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -199,7 +198,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = linkedUidToLink.get(uid);
-            return forLinkedUID != null ? new LinkedHashSet<>(forLinkedUID) : Collections.emptySet();
+            return forLinkedUID != null ? new HashSet<>(forLinkedUID) : Collections.emptySet();
         } finally {
             toLinkLock.readLock().unlock();
         }
@@ -215,7 +214,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink, P extends Pro
         toLinkLock.readLock().lock();
         try {
             final Set<L> forLinkedUID = itemNameToLink.get(itemName);
-            return forLinkedUID != null ? new LinkedHashSet<>(forLinkedUID) : Collections.emptySet();
+            return forLinkedUID != null ? new HashSet<>(forLinkedUID) : Collections.emptySet();
         } finally {
             toLinkLock.readLock().unlock();
         }
