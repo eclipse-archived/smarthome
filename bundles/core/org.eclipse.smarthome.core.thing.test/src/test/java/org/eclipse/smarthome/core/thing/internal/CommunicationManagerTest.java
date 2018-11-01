@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 import javax.measure.quantity.Temperature;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
@@ -191,16 +190,15 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         ItemChannelLinkRegistryAdvanced iclRegistry = new ItemChannelLinkRegistryAdvanced();
         iclRegistry.addProvider(new ItemChannelLinkProvider() {
             @Override
-            public void addProviderChangeListener(@NonNull ProviderChangeListener<@NonNull ItemChannelLink> listener) {
+            public void addProviderChangeListener(ProviderChangeListener<ItemChannelLink> listener) {
             }
 
             @Override
-            public void removeProviderChangeListener(
-                    @NonNull ProviderChangeListener<@NonNull ItemChannelLink> listener) {
+            public void removeProviderChangeListener(ProviderChangeListener<ItemChannelLink> listener) {
             }
 
             @Override
-            public @NonNull Collection<@NonNull ItemChannelLink> getAll() {
+            public Collection<ItemChannelLink> getAll() {
                 return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2, LINK_3_S3);
             }
         });
