@@ -76,15 +76,14 @@ public class MetadataRegistryImpl extends AbstractRegistry<Metadata, MetadataKey
     }
 
     protected void unsetManagedProvider(ManagedMetadataProvider managedProvider) {
-        super.removeManagedProvider(managedProvider);
+        super.unsetManagedProvider(managedProvider);
     }
 
     @Override
     public void removeItemMetadata(String itemName) {
-        if (managedProvider != null) {
-            // remove our metadata for that item
-            ((ManagedMetadataProvider) managedProvider).removeItemMetadata(itemName);
-        }
+        // remove our metadata for that item
+        getManagedProvider()
+                .ifPresent(managedProvider -> ((ManagedMetadataProvider) managedProvider).removeItemMetadata(itemName));
     }
 
 }

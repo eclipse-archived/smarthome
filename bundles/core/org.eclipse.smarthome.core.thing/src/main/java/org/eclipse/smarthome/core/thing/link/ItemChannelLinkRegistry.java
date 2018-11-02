@@ -105,7 +105,7 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     }
 
     protected void unsetManagedProvider(final ManagedItemChannelLinkProvider provider) {
-        super.removeManagedProvider(provider);
+        super.unsetManagedProvider(provider);
     }
 
     @Override
@@ -120,11 +120,9 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     }
 
     public void removeLinksForThing(final ThingUID thingUID) {
-        if (this.managedProvider != null) {
-            ((ManagedItemChannelLinkProvider) this.managedProvider).removeLinksForThing(thingUID);
-        } else {
-            throw new IllegalStateException("ManagedProvider is not available");
-        }
+        ((ManagedItemChannelLinkProvider) getManagedProvider()
+                .orElseThrow(() -> new IllegalStateException("ManagedProvider is not available")))
+                        .removeLinksForThing(thingUID);
     }
 
     @Override

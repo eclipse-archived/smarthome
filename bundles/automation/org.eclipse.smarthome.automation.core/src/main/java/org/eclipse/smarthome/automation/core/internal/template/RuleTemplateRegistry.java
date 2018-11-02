@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.template.RuleTemplate;
@@ -57,16 +58,14 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
 
     @Override
     public RuleTemplate get(String templateUID, Locale locale) {
-        for (Provider<RuleTemplate> provider : elementMap.keySet()) {
-            for (RuleTemplate resultTemplate : elementMap.get(provider)) {
-                if (resultTemplate.getUID().equals(templateUID)) {
-                    RuleTemplate t = locale == null ? resultTemplate
-                            : ((RuleTemplateProvider) provider).getTemplate(templateUID, locale);
-                    return createCopy(t);
-                }
-            }
+        Entry<Provider<RuleTemplate>, RuleTemplate> prt = getValueAndProvider(templateUID);
+        if (prt == null) {
+            return null;
+        } else {
+            RuleTemplate t = locale == null ? prt.getValue()
+                    : ((RuleTemplateProvider) prt.getKey()).getTemplate(templateUID, locale);
+            return createCopy(t);
         }
-        return null;
     }
 
     private RuleTemplate createCopy(RuleTemplate template) {
@@ -85,16 +84,14 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
     @Override
     public Collection<RuleTemplate> getByTag(String tag, Locale locale) {
         Collection<RuleTemplate> result = new ArrayList<>();
-        for (Provider<RuleTemplate> provider : elementMap.keySet()) {
-            for (RuleTemplate resultTemplate : elementMap.get(provider)) {
-                Collection<String> tags = resultTemplate.getTags();
-                RuleTemplate t = locale == null ? resultTemplate
-                        : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
-                if (tag == null || tags.contains(tag)) {
-                    result.add(t);
-                }
+        forEach((provider, resultTemplate) -> {
+            Collection<String> tags = resultTemplate.getTags();
+            RuleTemplate t = locale == null ? resultTemplate
+                    : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
+            if (tag == null || tags.contains(tag)) {
+                result.add(t);
             }
-        }
+        });
         return result;
     }
 
@@ -107,16 +104,14 @@ public class RuleTemplateRegistry extends AbstractRegistry<RuleTemplate, String,
     public Collection<RuleTemplate> getByTags(Locale locale, String... tags) {
         Set<String> tagSet = tags != null ? new HashSet<>(Arrays.asList(tags)) : null;
         Collection<RuleTemplate> result = new ArrayList<>();
-        for (Provider<RuleTemplate> provider : elementMap.keySet()) {
-            for (RuleTemplate resultTemplate : elementMap.get(provider)) {
-                Collection<String> tTags = resultTemplate.getTags();
-                RuleTemplate t = locale == null ? resultTemplate
-                        : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
-                if (tTags.containsAll(tagSet)) {
-                    result.add(t);
-                }
+        forEach((provider, resultTemplate) -> {
+            Collection<String> tTags = resultTemplate.getTags();
+            RuleTemplate t = locale == null ? resultTemplate
+                    : ((RuleTemplateProvider) provider).getTemplate(resultTemplate.getUID(), locale);
+            if (tTags.containsAll(tagSet)) {
+                result.add(t);
             }
-        }
+        });
         return result;
     }
 

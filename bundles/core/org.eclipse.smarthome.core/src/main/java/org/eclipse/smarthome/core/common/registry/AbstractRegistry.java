@@ -12,11 +12,15 @@
  */
 package org.eclipse.smarthome.core.common.registry;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author Stefan Bußweiler - Migration to new event mechanism
  * @author Victor Toni - provide elements as {@link Stream}
  * @author Kai Kreuzer - switched to parameterized logging
+ * @author Hilbrand Bouwkamp - Made protected fields private and added new methods to give access.
  *
  * @param <E>
  *            type of the element
@@ -55,13 +60,12 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     private final Class<P> providerClazz;
     private ServiceTracker<P, P> providerTracker;
 
-    protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<Provider<E>, Collection<E>>();
+    private final Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<Provider<E>, Collection<E>>();
+    private final Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<RegistryChangeListener<E>>();
 
-    protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<RegistryChangeListener<E>>();
+    private Optional<ManagedProvider<E, K>> managedProvider = Optional.empty();
 
-    protected ManagedProvider<E, K> managedProvider;
-
-    protected EventPublisher eventPublisher;
+    private EventPublisher eventPublisher;
 
     /**
      * Constructor.
@@ -227,32 +231,39 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         return null;
     }
 
+    /**
+     * This method retrieves an Entry with the provider and the element for the key from the registry.
+     *
+     * @param key key of the element
+     * @return provider and element entry or null if no element was found
+     */
+    protected Entry<Provider<E>, E> getValueAndProvider(K key) {
+        for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            for (final E element : entry.getValue()) {
+                if (key.equals(element.getUID())) {
+                    return new SimpleEntry<Provider<E>, E>(entry.getKey(), element);
+                }
+            }
+        }
+        return null;
+    }
+
     @Override
     public E add(E element) {
-        if (this.managedProvider != null) {
-            this.managedProvider.add(element);
-            return element;
-        } else {
-            throw new IllegalStateException("ManagedProvider is not available");
-        }
+        managedProvider.orElseThrow(() -> new IllegalStateException("ManagedProvider is not available")).add(element);
+        return element;
     }
 
     @Override
     public E update(E element) {
-        if (this.managedProvider != null) {
-            return this.managedProvider.update(element);
-        } else {
-            throw new IllegalStateException("ManagedProvider is not available");
-        }
+        return managedProvider.orElseThrow(() -> new IllegalStateException("ManagedProvider is not available"))
+                .update(element);
     }
 
     @Override
     public E remove(K key) {
-        if (this.managedProvider != null) {
-            return this.managedProvider.remove(key);
-        } else {
-            throw new IllegalStateException("ManagedProvider is not available");
-        }
+        return managedProvider.orElseThrow(() -> new IllegalStateException("ManagedProvider is not available"))
+                .remove(key);
     }
 
     protected void notifyListeners(E oldElement, E element, EventType eventType) {
@@ -308,6 +319,22 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         }
     }
 
+    /**
+     * This method retrieves the provider of an element from the registry.
+     *
+     * @param key key of the element
+     * @return provider or null if no provider was found
+     */
+    protected Provider<E> getProvider(K key) {
+        return getProvider(get(key));
+    }
+
+    /**
+     * This method retrieves the provider of an element from the registry.
+     *
+     * @param element the element
+     * @return provider or null if no provider was found
+     */
     public Provider<E> getProvider(E element) {
         for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
             if (entry.getValue().contains(element)) {
@@ -317,12 +344,49 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         return null;
     }
 
+    /**
+     * This method traverses over all elements of a provider in the registry and calls the consumer with each element.
+     *
+     * @param provider provider to traverse elements of
+     * @param consumer function to call with element
+     */
+    protected void forEach(Provider<E> provider, Consumer<E> consumer) {
+        elementMap.get(provider).forEach(consumer);
+    }
+
+    /**
+     * This method traverses over all elements in the registry and calls the consumer with each element.
+     *
+     * @param consumer function to call with element
+     */
+    protected void forEach(Consumer<E> consumer) {
+        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            entry.getValue().forEach(consumer);
+        }
+    }
+
+    /**
+     * This method traverses over all elements in the registry and calls the consumer with the provider of the
+     * element as the first parameter and the element as the second argument.
+     *
+     * @param consumer function to call with the provider and element
+     */
+    protected void forEach(BiConsumer<Provider<E>, E> consumer) {
+        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
+            entry.getValue().forEach(e -> consumer.accept(entry.getKey(), e));
+        }
+    }
+
+    protected Optional<ManagedProvider<E, K>> getManagedProvider() {
+        return managedProvider;
+    }
+
     protected void setManagedProvider(ManagedProvider<E, K> provider) {
-        managedProvider = provider;
+        managedProvider = Optional.ofNullable(provider);
     }
 
     protected void unsetManagedProvider(ManagedProvider<E, K> provider) {
-        managedProvider = null;
+        managedProvider = Optional.empty();
     }
 
     /**
@@ -405,8 +469,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         }
     }
 
-    protected void removeManagedProvider(ManagedProvider<E, K> managedProvider) {
-        this.managedProvider = null;
+    protected EventPublisher getEventPublisher() {
+        return this.eventPublisher;
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {

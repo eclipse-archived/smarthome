@@ -195,7 +195,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private void injectServices(Item item) {
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
-            genericItem.setEventPublisher(eventPublisher);
+            genericItem.setEventPublisher(getEventPublisher());
             genericItem.setStateDescriptionService(stateDescriptionService);
             genericItem.setUnitProvider(unitProvider);
             genericItem.setItemStateConverter(itemStateConverter);
@@ -355,11 +355,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     @Override
     public Item remove(String itemName, boolean recursive) {
-        if (this.managedProvider != null) {
-            return ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
-        } else {
-            throw new IllegalStateException("ManagedProvider is not available");
-        }
+        return ((ManagedItemProvider) getManagedProvider()
+                .orElseThrow(() -> new IllegalStateException("ManagedProvider is not available"))).remove(itemName,
+                        recursive);
     }
 
     @Override
