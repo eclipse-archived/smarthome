@@ -248,8 +248,14 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
-                thing.setLabel(label);
-                return thing;
+                if (thing == null) {
+                    logger.warn(
+                            "Cannot create thing of type '{}'. Binding '{}' says it supports it, but it could not be created.",
+                            thingTypeUID, thingHandlerFactory.getClass().getName());
+                } else {
+                    thing.setLabel(label);
+                    return thing;
+                }
             }
         }
         logger.warn("Cannot create thing. No binding found that supports creating a thing of type '{}'.", thingTypeUID);
