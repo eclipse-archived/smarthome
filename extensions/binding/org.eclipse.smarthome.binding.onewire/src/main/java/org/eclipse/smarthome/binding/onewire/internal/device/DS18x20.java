@@ -55,7 +55,7 @@ public class DS18x20 extends AbstractOwDevice {
 
         if (temperatureChannel != null) {
             Configuration channelConfiguration = temperatureChannel.getConfiguration();
-            if (channelConfiguration.get(CONFIG_RESOLUTION) != null) {
+            if (channelConfiguration.containsKey(CONFIG_RESOLUTION)) {
                 TEMPERATURE_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter(
                         "/temperature" + (String) channelConfiguration.get(CONFIG_RESOLUTION)));
             } else {

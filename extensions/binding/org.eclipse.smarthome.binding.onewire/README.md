@@ -149,12 +149,16 @@ Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for H
 
 ### Temperature (`temperature`)
 
-The `temperature` channel has one parameter: `resolution`.
+The `temperature` channel has two types: `temperature` and `temperature-hires`.
+If the channel-type is `temperature`, there is nothing else to configure.
 
+A channel of type `temperature-hires` has one parameter: `resolution`.
 OneWire temperature sensors are capable of different resolutions: `9`, `10`, `11` and `12` bits.
 This corresponds to 0.5 °C, 0.25 °C, 0.125 °C, 0.0625 °C respectively.
 The conversion time is inverse to that and ranges from 95 ms to 750 ms.
 For best performance it is recommended to set the resolution only as high as needed. 
+ 
+The channel-type is selected automatically by the thing depending on the sensor type.
  
 ## Full Example
 
