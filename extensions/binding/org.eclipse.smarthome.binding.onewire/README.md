@@ -15,7 +15,7 @@ The `owserver` is the bridge that connects to an existing OWFS installation.
 
 ### Things
 
-There are three types of things: the generic ones (`digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature`), multisensors built around the DS2438 chip (`ms-th`, `ms-tv`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`). 
+There are three types of things: the generic ones (`counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature`), multisensors built around the DS2438 chip (`ms-th`, `ms-tv`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`). 
 
 ## Discovery
 
@@ -43,6 +43,14 @@ It supports both, a hostname or an IP address.
 The `port` parameter is used to adjust non-standard OWFS installations.
 It defaults to `4304`, which is the default of each OWFS installation.  
   
+### Counter (`counter2`)
+
+The counter thing supports the DS2423 chip, a dual counter.
+Two `counterX` channels are supported. 
+
+It has two parameters: sensor id `id` and refresh time `refresh`.
+ 
+
 ### Digital I/O (`digitalio`, `digitalio2`, `digitalio8`) 
 
 The digital I/O things support the DS2405, DS2406, DS2408 and DS2413 chips.
@@ -75,7 +83,7 @@ It has two parameters: sensor id `id` and refresh time `refresh`.
 
 ### Temperature sensor (`temperature`)
 
-The temperature thing supports DS18S20 and DS18B20 sensors.
+The temperature thing supports DS18S20, DS18B20 and DS1822 sensors.
 It provides only the `temperature` channel.
 
 It has two parameters: sensor id `id` and refresh time `refresh`. 
@@ -112,6 +120,7 @@ The correct formula for the ambient light is automatically determined from the s
 | Type-ID         | Thing                       | Item    | readonly   | Description                                        |
 |-----------------|-----------------------------|---------|------------|----------------------------------------------------|
 | current         | multisensors                | Number  | yes        | current (if light option not installed)            |
+| counter         | counter2                    | Number  | yes        | countervalue                                       |
 | digital         | digitalX, AMS               | Switch  | no         | digital, can be configured as input or output      |
 | humidity        | multisensors (except ms-tv) | Number  | yes        | relative humidity                                  |
 | light           | ams, bms                    | Number  | yes        | lightness (if installed)                           |

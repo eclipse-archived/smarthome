@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
-import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameter;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameterMap;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -126,7 +126,16 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @param parameter device parameters needed for this request
      * @return a DecimalType
      */
-    public abstract State readDecimalType(String sensorId, OwDeviceParameter parameter) throws OwException;
+    public abstract State readDecimalType(String sensorId, OwDeviceParameterMap parameter) throws OwException;
+
+    /**
+     * read an array of decimal values from a sensor
+     *
+     * @param sensorId sensorId the sensor's full ID
+     * @param parameter device parameters needed for this request
+     * @return a list of DecimalType values
+     */
+    public abstract List<State> readDecimalTypeArray(String sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
      * read a string from a sensor
@@ -135,7 +144,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @param parameter device parameters needed for this request
      * @return a String
      */
-    public abstract String readString(String sensorId, OwDeviceParameter parameter) throws OwException;
+    public abstract String readString(String sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
      * writes a DecimalType to the sensor
@@ -143,7 +152,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @param sensorId sensorId the sensor's full ID
      * @param parameter device parameters needed for this request
      */
-    public abstract void writeDecimalType(String sensorId, OwDeviceParameter parameter, DecimalType value)
+    public abstract void writeDecimalType(String sensorId, OwDeviceParameterMap parameter, DecimalType value)
             throws OwException;
 
     /**

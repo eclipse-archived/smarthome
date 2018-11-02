@@ -170,15 +170,13 @@ public class DS2438Test extends AbstractDeviceTest {
             testDevice.refresh(mockBridgeHandler, true);
 
             inOrder.verify(mockBridgeHandler).readDecimalType(eq(testSensorId), any());
-            inOrder.verify(mockThingHandler).postUpdate(eq(CHANNEL_LIGHT),
-                    eq(new QuantityType<>("134.17128354799115 lx")));
+            inOrder.verify(mockThingHandler).postUpdate(eq(CHANNEL_LIGHT), eq(new QuantityType<>("97442 lx")));
 
             ((DS2438) testDevice).setLightSensorType(LightSensorType.ElabNetV2);
             testDevice.refresh(mockBridgeHandler, true);
 
             inOrder.verify(mockBridgeHandler).readDecimalType(eq(testSensorId), any());
-            inOrder.verify(mockThingHandler).postUpdate(eq(CHANNEL_LIGHT),
-                    eq(new QuantityType<>("97441.92637939929 lx")));
+            inOrder.verify(mockThingHandler).postUpdate(eq(CHANNEL_LIGHT), eq(new QuantityType<>("134 lx")));
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {

@@ -77,8 +77,6 @@
 			<property name="modelId">BMS</property>
 			<property name="vendor">Elaborated Networks</property>
 			<property name="sensorCount">2</property>
-			<property name="prodDate"></property>
-			<property name="hwRevision"></property>
 		</properties>
 		<config-description>
 			<parameter name="id" type="text">
@@ -141,8 +139,6 @@
 			<property name="modelId">AMS</property>
 			<property name="vendor">Elaborated Networks</property>
 			<property name="sensorCount">4</property>
-			<property name="prodDate"></property>
-			<property name="hwRevision"></property>
 		</properties>
 		<config-description>
 			<parameter name="id" type="text">
