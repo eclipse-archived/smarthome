@@ -18,12 +18,15 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.common.SafeCaller;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.Item;
@@ -52,6 +55,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.profiles.SystemProfileFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.profiles.ProfileAdvisor;
 import org.eclipse.smarthome.core.thing.profiles.ProfileCallback;
@@ -76,6 +80,13 @@ import org.mockito.Mock;
  *
  */
 public class CommunicationManagerTest extends JavaOSGiTest {
+
+    private class ItemChannelLinkRegistryAdvanced extends ItemChannelLinkRegistry {
+        @Override
+        protected void addProvider(Provider<ItemChannelLink> provider) {
+            super.addProvider(provider);
+        }
+    }
 
     private static final String EVENT = "event";
     private static final String ITEM_NAME_1 = "testItem1";
@@ -176,13 +187,21 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         manager.addProfileFactory(mockProfileFactory);
         manager.addProfileAdvisor(mockProfileAdvisor);
 
-        ItemChannelLinkRegistry iclRegistry = new ItemChannelLinkRegistry() {
+        ItemChannelLinkRegistryAdvanced iclRegistry = new ItemChannelLinkRegistryAdvanced();
+        iclRegistry.addProvider(new ItemChannelLinkProvider() {
             @Override
-            public Stream<ItemChannelLink> stream() {
-                return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2, LINK_3_S3)
-                        .stream();
+            public void addProviderChangeListener(ProviderChangeListener<ItemChannelLink> listener) {
             }
-        };
+
+            @Override
+            public void removeProviderChangeListener(ProviderChangeListener<ItemChannelLink> listener) {
+            }
+
+            @Override
+            public Collection<ItemChannelLink> getAll() {
+                return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2, LINK_3_S3);
+            }
+        });
         manager.setItemChannelLinkRegistry(iclRegistry);
 
         when(itemRegistry.get(eq(ITEM_NAME_1))).thenReturn(ITEM_1);

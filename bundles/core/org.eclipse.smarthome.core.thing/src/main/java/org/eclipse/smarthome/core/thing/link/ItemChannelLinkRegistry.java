@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
@@ -53,70 +52,41 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
      * Returns a set of bound channels for the given item name.
      *
      * @param itemName item name
-     * @return set of bound channels for the given item name
+     * @return an unmodifiable set of bound channels for the given item name
      */
-    public Set<ChannelUID> getBoundChannels(String itemName) {
-        Set<ChannelUID> channelUIDs = new HashSet<>();
-
-        for (ItemChannelLink itemChannelLink : getAll()) {
-            if (itemChannelLink.getItemName().equals(itemName)) {
-                channelUIDs.add(itemChannelLink.getLinkedUID());
-            }
-        }
-
-        return channelUIDs;
+    public Set<ChannelUID> getBoundChannels(final String itemName) {
+        return getLinks(itemName).parallelStream().map(link -> link.getLinkedUID()).collect(Collectors.toSet());
     }
 
     @Override
-    public Set<String> getLinkedItemNames(UID uid) {
-        final Set<String> linkedItems = new LinkedHashSet<>();
-        for (final AbstractLink link : getAll()) {
-            final String itemName = link.getItemName();
-            if (link.getLinkedUID().equals(uid) && itemRegistry.get(itemName) != null) {
-                linkedItems.add(itemName);
-            }
-        }
-        return linkedItems;
+    public Set<String> getLinkedItemNames(final UID uid) {
+        return super.getLinkedItemNames(uid).parallelStream().filter(itemName -> itemRegistry.get(itemName) != null)
+                .collect(Collectors.toSet());
     }
 
-    public Set<Item> getLinkedItems(UID uid) {
-        final Set<Item> linkedItems = new LinkedHashSet<>();
-        for (final AbstractLink link : getAll()) {
-            final String itemName = link.getItemName();
-            Item item = itemRegistry.get(itemName);
-            if (link.getLinkedUID().equals(uid) && item != null) {
-                linkedItems.add(item);
-            }
-        }
-        return linkedItems;
+    public Set<Item> getLinkedItems(final UID uid) {
+        return super.getLinkedItemNames(uid).parallelStream().map(itemName -> itemRegistry.get(itemName))
+                .filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     /**
      * Returns a set of bound things for the given item name.
      *
      * @param itemName item name
-     * @return set of bound things for the given item name
+     * @return an unmodifiable set of bound things for the given item name
      */
-    public Set<Thing> getBoundThings(String itemName) {
-        Set<Thing> things = new HashSet<>();
-        Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
-
-        for (ChannelUID channelUID : boundChannels) {
-            Thing thing = thingRegistry.get(channelUID.getThingUID());
-            if (thing != null) {
-                things.add(thing);
-            }
-        }
-
-        return things;
+    public Set<Thing> getBoundThings(final String itemName) {
+        return getBoundChannels(itemName).parallelStream()
+                .map(channelUID -> thingRegistry.get(channelUID.getThingUID())).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @Reference
-    protected void setThingRegistry(ThingRegistry thingRegistry) {
+    protected void setThingRegistry(final ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
 
-    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+    protected void unsetThingRegistry(final ThingRegistry thingRegistry) {
         this.thingRegistry = null;
     }
 
@@ -130,26 +100,26 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     }
 
     @Reference
-    protected void setManagedProvider(ManagedItemChannelLinkProvider provider) {
+    protected void setManagedProvider(final ManagedItemChannelLinkProvider provider) {
         super.setManagedProvider(provider);
     }
 
-    protected void unsetManagedProvider(ManagedItemChannelLinkProvider provider) {
+    protected void unsetManagedProvider(final ManagedItemChannelLinkProvider provider) {
         super.removeManagedProvider(provider);
     }
 
     @Override
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setEventPublisher(EventPublisher eventPublisher) {
+    protected void setEventPublisher(final EventPublisher eventPublisher) {
         super.setEventPublisher(eventPublisher);
     }
 
     @Override
-    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+    protected void unsetEventPublisher(final EventPublisher eventPublisher) {
         super.unsetEventPublisher(eventPublisher);
     }
 
-    public void removeLinksForThing(ThingUID thingUID) {
+    public void removeLinksForThing(final ThingUID thingUID) {
         if (this.managedProvider != null) {
             ((ManagedItemChannelLinkProvider) this.managedProvider).removeLinksForThing(thingUID);
         } else {
@@ -158,19 +128,19 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     }
 
     @Override
-    protected void notifyListenersAboutAddedElement(ItemChannelLink element) {
+    protected void notifyListenersAboutAddedElement(final ItemChannelLink element) {
         super.notifyListenersAboutAddedElement(element);
         postEvent(LinkEventFactory.createItemChannelLinkAddedEvent(element));
     }
 
     @Override
-    protected void notifyListenersAboutRemovedElement(ItemChannelLink element) {
+    protected void notifyListenersAboutRemovedElement(final ItemChannelLink element) {
         super.notifyListenersAboutRemovedElement(element);
         postEvent(LinkEventFactory.createItemChannelLinkRemovedEvent(element));
     }
 
     @Override
-    protected void notifyListenersAboutUpdatedElement(ItemChannelLink oldElement, ItemChannelLink element) {
+    protected void notifyListenersAboutUpdatedElement(final ItemChannelLink oldElement, final ItemChannelLink element) {
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         // it is not needed to send an event, because links can not be updated
     }

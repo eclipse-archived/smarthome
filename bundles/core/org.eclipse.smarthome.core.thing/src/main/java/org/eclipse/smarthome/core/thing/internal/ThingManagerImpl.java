@@ -334,7 +334,7 @@ public class ThingManagerImpl
 
         @Override
         public boolean isChannelLinked(ChannelUID channelUID) {
-            return !itemChannelLinkRegistry.getLinks(channelUID).isEmpty();
+            return itemChannelLinkRegistry.isLinked(channelUID);
         }
     };
 
@@ -637,7 +637,7 @@ public class ThingManagerImpl
         if (storage != null && storage.containsKey(thing.getUID().getAsString())
                 && !storage.get(thing.getUID().getAsString())) {
             logger.debug("Thing '{}' will not be initialized. It is marked as disabled.", thing.getUID());
-            
+
             return;
         }
         if (!isHandlerRegistered(thing)) {
@@ -673,7 +673,7 @@ public class ThingManagerImpl
                 doInitializeHandler(thing.getHandler());
             } else {
                 logger.debug("Thing '{}' not initializable, check required configuration parameters.", thing.getUID());
-                setThingStatus(thing, 
+                setThingStatus(thing,
                         buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING));
             }
         } finally {
