@@ -14,14 +14,17 @@ package org.eclipse.smarthome.core.common.registry;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -60,7 +63,14 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     private final Class<P> providerClazz;
     private ServiceTracker<P, P> providerTracker;
 
-    private final Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<Provider<E>, Collection<E>>();
+    private final ReentrantReadWriteLock elementLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock.ReadLock elementReadLock = elementLock.readLock();
+    private final ReentrantReadWriteLock.WriteLock elementWriteLock = elementLock.writeLock();
+    private final Map<Provider<E>, Collection<E>> providerToElements = new HashMap<>();
+    private final Map<E, Provider<E>> elementToProvider = new HashMap<>();
+    private final Map<K, E> identifierToElement = new HashMap<>();
+    private final Set<E> elements = new HashSet<>();
+
     private final Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<RegistryChangeListener<E>>();
 
     private Optional<ManagedProvider<E, K>> managedProvider = Optional.empty();
@@ -127,26 +137,54 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     @Override
     public void added(Provider<E> provider, E element) {
-        Collection<E> elements = elementMap.get(provider);
-        if (elements != null) {
-            try {
-                K uid = element.getUID();
-                E existingElement = get(uid);
-                if (uid != null && existingElement != null) {
-                    logger.warn(
-                            "{} with key '{}' already exists from provider {}! Failed to add a second with the same UID from provider {}!",
-                            element.getClass().getSimpleName(), uid,
-                            getProvider(existingElement).getClass().getSimpleName(),
-                            provider.getClass().getSimpleName());
-                    return;
-                }
-                onAddElement(element);
-                elements.add(element);
-                notifyListenersAboutAddedElement(element);
-            } catch (Exception ex) {
-                logger.warn("Could not add element: {}", ex.getMessage(), ex);
+        elementWriteLock.lock();
+        try {
+            final Collection<E> providerElements = providerToElements.get(provider);
+            if (providerElements == null) {
+                logger.warn("Cannot add an element should added for an unknown provider.");
+                return;
             }
+            if (!added(provider, element, providerElements)) {
+                return;
+            }
+        } finally {
+            elementWriteLock.unlock();
         }
+        notifyListenersAboutAddedElement(element);
+    }
+
+    /**
+     * Handle an element that has been added for a provider.
+     *
+     * <p>
+     * This method must only be called if the write lock for elements has been locked!
+     *
+     * @param provider the provider that provides the element
+     * @param element the element that has been added
+     * @param providerElements the collection that holds the elements of the provider
+     * @return indication if the element has been added
+     */
+    private boolean added(Provider<E> provider, E element, Collection<E> providerElements) {
+        final K uid = element.getUID();
+        if (identifierToElement.containsKey(uid)) {
+            logger.warn(
+                    "{} with key '{}' already exists from provider {}! Failed to add a second with the same UID from provider {}!",
+                    element.getClass().getSimpleName(), uid,
+                    elementToProvider.get(identifierToElement.get(uid)).getClass().getSimpleName(),
+                    provider.getClass().getSimpleName());
+            return false;
+        }
+        try {
+            onAddElement(element);
+        } catch (final RuntimeException ex) {
+            logger.warn("Could not add element: {}", ex.getMessage(), ex);
+            return false;
+        }
+        identifierToElement.put(element.getUID(), element);
+        elementToProvider.put(element, provider);
+        providerElements.add(element);
+        elements.add(element);
+        return true;
     }
 
     @Override
@@ -156,36 +194,47 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     @Override
     public Collection<@NonNull E> getAll() {
-        return stream().collect(Collectors.toList());
+        elementReadLock.lock();
+        try {
+            return new HashSet<>(elements);
+        } finally {
+            elementReadLock.unlock();
+        }
     }
 
     @Override
     public Stream<E> stream() {
-        return elementMap.values() // gets a Collection<Collection<E>>
-                .stream() // creates a Stream<Collection<E>>
-                .flatMap(collection -> collection.stream()); // flattens the stream to Stream<E>
+        return getAll().stream();
     }
 
     @Override
     public void removed(Provider<E> provider, E element) {
-        Collection<E> elements = elementMap.get(provider);
-        if (elements != null) {
-            try {
-                // the given "element" might not be the live instance but
-                // loaded from storage. operate on the real element:
-                E existingElement = get(element.getUID());
-                if (existingElement != null) {
-                    onRemoveElement(existingElement);
-                    elements.remove(existingElement);
-                    notifyListenersAboutRemovedElement(existingElement);
-                } else {
-                    logger.debug("{} with key '{}' could not be removed from provider {} because it does not exist!",
-                            element.getClass().getSimpleName(), element.getUID(), provider.getClass().getSimpleName());
-                }
-            } catch (Exception ex) {
-                logger.warn("Could not remove element: {}", ex.getMessage(), ex);
+        final E existingElement;
+        elementWriteLock.lock();
+        try {
+            // The given "element" might not be the live instance but loaded from storage.
+            // Use the identifier to operate on the "real" element.
+            final K uid = element.getUID();
+            existingElement = identifierToElement.get(uid);
+            if (existingElement == null) {
+                logger.debug("{} with key '{}' could not be removed from provider {} because it does not exist!",
+                        element.getClass().getSimpleName(), uid, provider.getClass().getSimpleName());
+                return;
             }
+            try {
+                onRemoveElement(existingElement);
+            } catch (final RuntimeException ex) {
+                logger.warn("Could not remove element: {}", ex.getMessage(), ex);
+                return;
+            }
+            identifierToElement.remove(uid);
+            elementToProvider.remove(existingElement);
+            providerToElements.get(provider).remove(existingElement);
+            elements.remove(existingElement);
+        } finally {
+            elementWriteLock.unlock();
         }
+        notifyListenersAboutRemovedElement(existingElement);
     }
 
     @Override
@@ -195,40 +244,54 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
 
     @Override
     public void updated(Provider<E> provider, E oldElement, E element) {
-        Collection<E> elements = elementMap.get(provider);
-        if (elements != null && elements.contains(oldElement) && oldElement.getUID().equals(element.getUID())) {
-            try {
-                // the given "oldElement" might not be the live instance but
-                // loaded from storage. operate on the real element:
-                E existingElement = get(oldElement.getUID());
-                if (existingElement != null) {
-                    beforeUpdateElement(existingElement);
-                } else {
-                    logger.debug("{} with key '{}' could not be updated for provider {} because it does not exist!",
-                            element.getClass().getSimpleName(), element.getUID(), provider.getClass().getSimpleName());
-                }
-                onUpdateElement(oldElement, element);
-                if (existingElement != null) {
-                    elements.remove(existingElement);
-                }
-                elements.add(element);
-                notifyListenersAboutUpdatedElement(oldElement, element);
-            } catch (Exception ex) {
-                logger.warn("Could not update element: {}", ex.getMessage(), ex);
-            }
+        final K uidOld = oldElement.getUID();
+        final K uid = element.getUID();
+        if (!uidOld.equals(uid)) {
+            logger.warn("Received update event for elements that UID differ (old: {}, new: {}). Ignore event.", uidOld,
+                    uid);
+            return;
         }
+
+        final E existingElement;
+        elementWriteLock.lock();
+        try {
+            // The given "element" might not be the live instance but loaded from storage.
+            // Use the identifier to operate on the "real" element.
+            existingElement = identifierToElement.get(uid);
+            if (existingElement == null) {
+                logger.debug("{} with key '{}' could not be updated for provider {} because it does not exist!",
+                        element.getClass().getSimpleName(), uid, provider.getClass().getSimpleName());
+                return;
+            }
+            try {
+                beforeUpdateElement(existingElement);
+                onUpdateElement(oldElement, element);
+            } catch (final RuntimeException ex) {
+                logger.warn("Could not update element: {}", ex.getMessage(), ex);
+                return;
+            }
+            identifierToElement.put(uid, element);
+            elementToProvider.remove(existingElement);
+            elementToProvider.put(element, provider);
+            final Collection<E> providerElements = providerToElements.get(provider);
+            providerElements.remove(existingElement);
+            providerElements.add(element);
+            elements.remove(existingElement);
+            elements.add(element);
+        } finally {
+            elementWriteLock.unlock();
+        }
+        notifyListenersAboutUpdatedElement(oldElement, element);
     }
 
     @Override
     public E get(K key) {
-        for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
-            for (final E element : entry.getValue()) {
-                if (key.equals(element.getUID())) {
-                    return element;
-                }
-            }
+        elementReadLock.lock();
+        try {
+            return identifierToElement.get(key);
+        } finally {
+            elementReadLock.unlock();
         }
-        return null;
     }
 
     /**
@@ -238,14 +301,16 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @return provider and element entry or null if no element was found
      */
     protected Entry<Provider<E>, E> getValueAndProvider(K key) {
-        for (final Map.Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
-            for (final E element : entry.getValue()) {
-                if (key.equals(element.getUID())) {
-                    return new SimpleEntry<Provider<E>, E>(entry.getKey(), element);
-                }
+        elementReadLock.lock();
+        try {
+            final E element = identifierToElement.get(key);
+            if (element == null) {
+                return null;
             }
+            return new SimpleEntry<Provider<E>, E>(elementToProvider.get(element), element);
+        } finally {
+            elementReadLock.unlock();
         }
-        return null;
     }
 
     @Override
@@ -306,17 +371,27 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     }
 
     protected void addProvider(Provider<E> provider) {
-        // only add this provider if it does not already exist
-        if (!elementMap.containsKey(provider)) {
-            Collection<E> elementsOfProvider = provider.getAll();
-            Collection<E> elements = new CopyOnWriteArraySet<E>();
-            provider.addProviderChangeListener(this);
-            elementMap.put(provider, elements);
-            for (E element : elementsOfProvider) {
-                added(provider, element);
+        final Collection<E> elementsOfAddedProvider = provider.getAll();
+        final Collection<E> elementsAdded = new HashSet<>(elementsOfAddedProvider.size());
+        elementWriteLock.lock();
+        try {
+            if (providerToElements.get(provider) != null) {
+                logger.warn("Cannot add provider because it already exists.");
+                return;
             }
-            logger.debug("Provider '{}' has been added.", provider.getClass().getName());
+            provider.addProviderChangeListener(this);
+            final HashSet<E> providerElements = new HashSet<>();
+            providerToElements.put(provider, providerElements);
+            for (E element : elementsOfAddedProvider) {
+                if (added(provider, element, providerElements)) {
+                    elementsAdded.add(element);
+                }
+            }
+        } finally {
+            elementWriteLock.unlock();
         }
+        elementsAdded.forEach(this::notifyListenersAboutAddedElement);
+        logger.debug("Provider '{}' has been added.", provider.getClass().getName());
     }
 
     /**
@@ -326,7 +401,16 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @return provider or null if no provider was found
      */
     protected Provider<E> getProvider(K key) {
-        return getProvider(get(key));
+        elementReadLock.lock();
+        try {
+            final E element = identifierToElement.get(key);
+            if (element == null) {
+                return null;
+            }
+            return elementToProvider.get(element);
+        } finally {
+            elementReadLock.unlock();
+        }
     }
 
     /**
@@ -336,12 +420,12 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @return provider or null if no provider was found
      */
     public Provider<E> getProvider(E element) {
-        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
-            if (entry.getValue().contains(element)) {
-                return entry.getKey();
-            }
+        elementReadLock.lock();
+        try {
+            return elementToProvider.get(element);
+        } finally {
+            elementReadLock.unlock();
         }
-        return null;
     }
 
     /**
@@ -351,7 +435,15 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @param consumer function to call with element
      */
     protected void forEach(Provider<E> provider, Consumer<E> consumer) {
-        elementMap.get(provider).forEach(consumer);
+        elementReadLock.lock();
+        try {
+            final Collection<E> providerElements = providerToElements.get(provider);
+            if (providerElements != null) {
+                providerElements.forEach(consumer);
+            }
+        } finally {
+            elementReadLock.unlock();
+        }
     }
 
     /**
@@ -360,8 +452,11 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @param consumer function to call with element
      */
     protected void forEach(Consumer<E> consumer) {
-        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
-            entry.getValue().forEach(consumer);
+        elementReadLock.lock();
+        try {
+            elements.forEach(consumer);
+        } finally {
+            elementReadLock.unlock();
         }
     }
 
@@ -372,8 +467,14 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * @param consumer function to call with the provider and element
      */
     protected void forEach(BiConsumer<Provider<E>, E> consumer) {
-        for (Entry<Provider<E>, Collection<E>> entry : elementMap.entrySet()) {
-            entry.getValue().forEach(e -> consumer.accept(entry.getKey(), e));
+        elementReadLock.lock();
+        try {
+            for (final Entry<Provider<E>, Collection<E>> providerEntries : providerToElements.entrySet()) {
+                final Provider<E> provider = providerEntries.getKey();
+                providerEntries.getValue().forEach(element -> consumer.accept(provider, element));
+            }
+        } finally {
+            elementReadLock.unlock();
         }
     }
 
@@ -451,22 +552,33 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     }
 
     protected void removeProvider(Provider<E> provider) {
-        if (elementMap.containsKey(provider)) {
-            for (E element : elementMap.get(provider)) {
+        final Collection<E> removedElements = new LinkedList<>();
+        elementWriteLock.lock();
+        try {
+            final Collection<E> providerElements = providerToElements.remove(provider);
+            if (providerElements == null) {
+                logger.warn("Cannot remove provider because it is unknown.");
+                return;
+            }
+            for (final E element : providerElements) {
                 try {
                     onRemoveElement(element);
-                    notifyListenersAboutRemovedElement(element);
-                } catch (Exception ex) {
-                    logger.warn("Could not remove element: {}", ex.getMessage(), ex);
+                } catch (final RuntimeException ex) {
+                    logger.warn(
+                            "Removal should be prevented but we need to remove the element as the provider is gone: {}",
+                            ex.getMessage(), ex);
                 }
+                removedElements.add(element);
+                elements.remove(element);
+                elementToProvider.remove(element);
+                identifierToElement.remove(element.getUID());
             }
-
-            elementMap.remove(provider);
-
-            provider.removeProviderChangeListener(this);
-
-            logger.debug("Provider '{}' has been removed.", provider.getClass().getSimpleName());
+        } finally {
+            elementWriteLock.unlock();
         }
+        removedElements.forEach(this::notifyListenersAboutRemovedElement);
+        provider.removeProviderChangeListener(this);
+        logger.debug("Provider '{}' has been removed.", provider.getClass().getSimpleName());
     }
 
     protected EventPublisher getEventPublisher() {
@@ -491,7 +603,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         if (eventPublisher != null) {
             try {
                 eventPublisher.post(event);
-            } catch (Exception ex) {
+            } catch (RuntimeException ex) {
                 logger.error("Could not post event of type '{}'.", event.getType(), ex);
             }
         }
