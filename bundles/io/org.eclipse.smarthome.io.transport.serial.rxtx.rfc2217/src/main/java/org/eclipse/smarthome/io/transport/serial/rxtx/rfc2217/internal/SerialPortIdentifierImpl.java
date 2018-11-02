@@ -32,7 +32,7 @@ import gnu.io.rfc2217.TelnetSerialPort;
 public class SerialPortIdentifierImpl implements SerialPortIdentifier {
 
     final TelnetSerialPort id;
-    private URI uri;
+    private final URI uri;
 
     /**
      * Constructor.
@@ -53,7 +53,7 @@ public class SerialPortIdentifierImpl implements SerialPortIdentifier {
     @Override
     public SerialPort open(String owner, int timeout) throws PortInUseException {
         try {
-            id.getTelnetClient().setDefaultTimeout(timeout);
+            id.getTelnetClient().setConnectTimeout(timeout);
             id.getTelnetClient().connect(uri.getHost(), uri.getPort());
             return new RxTxSerialPort(id);
         } catch (Exception e) {
