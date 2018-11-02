@@ -21,16 +21,14 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * The {@link TemperatureSensorThingHandler} is responsible for handling temperature sensors
@@ -80,14 +78,10 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             ThingBuilder thingBuilder = editThing();
             if (properties.get(PROPERTY_MODELID).equals("DS18B20")
                     || properties.get(PROPERTY_MODELID).equals("DS1822")) {
-                thingBuilder.withChannel(ChannelBuilder
-                        .create(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), "Number:Temperature")
-                        .withLabel("Temperature").withType(new ChannelTypeUID(BINDING_ID, "temperature-hires"))
-                        .build());
+                thingBuilder
+                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_HIRES));
             } else {
-                thingBuilder.withChannel(ChannelBuilder
-                        .create(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), "Number:Temperature")
-                        .withLabel("Temperature").withType(new ChannelTypeUID(BINDING_ID, "temperature")).build());
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE));
             }
             updateThing(thingBuilder.build());
         }
