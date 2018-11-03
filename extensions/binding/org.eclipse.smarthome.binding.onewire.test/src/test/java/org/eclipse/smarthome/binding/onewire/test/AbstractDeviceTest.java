@@ -23,6 +23,7 @@ import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.device.AbstractOwDevice;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -67,6 +68,12 @@ public abstract class AbstractDeviceTest {
 
     public void addChannel(String channelId, String itemType) {
         Channel channel = ChannelBuilder.create(new ChannelUID(mockThing.getUID(), channelId), itemType).build();
+        Mockito.when(mockThing.getChannel(channelId)).thenReturn(channel);
+    }
+
+    public void addChannel(String channelId, String itemType, Configuration channelConfiguration) {
+        Channel channel = ChannelBuilder.create(new ChannelUID(mockThing.getUID(), channelId), itemType)
+                .withConfiguration(channelConfiguration).build();
         Mockito.when(mockThing.getChannel(channelId)).thenReturn(channel);
     }
 

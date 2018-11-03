@@ -78,10 +78,11 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             ThingBuilder thingBuilder = editThing();
             if (properties.get(PROPERTY_MODELID).equals("DS18B20")
                     || properties.get(PROPERTY_MODELID).equals("DS1822")) {
-                thingBuilder
-                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_HIRES));
+                thingBuilder.withChannel(
+                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
             } else {
-                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE));
+                thingBuilder
+                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR));
             }
             updateThing(thingBuilder.build());
         }

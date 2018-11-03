@@ -44,6 +44,8 @@ public class DS18x20 extends AbstractOwDevice {
         }
     };
 
+    private boolean ignorePOR = false;
+
     public DS18x20(String sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);
     }
@@ -61,6 +63,11 @@ public class DS18x20 extends AbstractOwDevice {
             } else {
                 TEMPERATURE_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
             }
+            if (channelConfiguration.containsKey(CONFIG_IGNORE_POR)) {
+                ignorePOR = (Boolean) channelConfiguration.get(CONFIG_IGNORE_POR);
+            } else {
+                ignorePOR = false;
+            }
         } else {
             throw new OwException(CHANNEL_TEMPERATURE + " not found");
         }
@@ -74,7 +81,11 @@ public class DS18x20 extends AbstractOwDevice {
             QuantityType<Temperature> temperature = new QuantityType<Temperature>(
                     (DecimalType) bridgeHandler.readDecimalType(sensorId, TEMPERATURE_PARAMETER), SIUnits.CELSIUS);
             logger.trace("read temperature {} from {}", temperature, sensorId);
-            callback.postUpdate(CHANNEL_TEMPERATURE, temperature);
+            if (ignorePOR && (Double.compare(temperature.doubleValue(), 85.0) == 0)) {
+                logger.trace("ignored POR value from sensor {}", sensorId);
+            } else {
+                callback.postUpdate(CHANNEL_TEMPERATURE, temperature);
+            }
         }
     }
 }

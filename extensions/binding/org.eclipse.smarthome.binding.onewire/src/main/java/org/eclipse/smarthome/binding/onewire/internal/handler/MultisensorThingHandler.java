@@ -173,12 +173,12 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
                 && configuration.get(CONFIG_TEMPERATURESENSOR).equals("DS18B20") && sensorCount > 1) {
             sensors.get(1).enableChannel(CHANNEL_TEMPERATURE);
             if (temperatureChannel == null) {
-                thingBuilder
-                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_HIRES));
-            } else if (!CHANNEL_TYPE_UID_TEMPERATURE_HIRES.equals(temperatureChannel.getChannelTypeUID())) {
+                thingBuilder.withChannel(
+                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
+            } else if (!CHANNEL_TYPE_UID_TEMPERATURE_POR_RES.equals(temperatureChannel.getChannelTypeUID())) {
                 thingBuilder.withoutChannel(temperatureChannel.getUID());
-                thingBuilder
-                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_HIRES));
+                thingBuilder.withChannel(
+                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
             }
         } else {
             sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
