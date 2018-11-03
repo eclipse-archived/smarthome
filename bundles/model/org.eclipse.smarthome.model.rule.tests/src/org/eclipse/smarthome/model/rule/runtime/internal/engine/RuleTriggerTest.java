@@ -53,8 +53,7 @@ public class RuleTriggerTest extends JavaOSGiTest {
                 "    logInfo(\"test says\", \"Boo!\") " + //
                 "end ";
 
-        assertTriggerWith(model, TriggerTypes.CHANGE, ChangedEventTrigger.class,
-                trigger -> trigger.getNewState().getValue());
+        assertTriggerWith(model, TriggerTypes.CHANGE, ChangedEventTrigger.class, trigger -> trigger.getNewState());
     }
 
     @Test
@@ -66,8 +65,7 @@ public class RuleTriggerTest extends JavaOSGiTest {
                 "    logInfo(\"test says\", \"Boo!\") " + //
                 "end ";
 
-        assertTriggerWith(model, TriggerTypes.CHANGE, ChangedEventTrigger.class,
-                trigger -> trigger.getNewState().getValue());
+        assertTriggerWith(model, TriggerTypes.CHANGE, ChangedEventTrigger.class, trigger -> trigger.getNewState());
     }
 
     @Test
@@ -79,8 +77,7 @@ public class RuleTriggerTest extends JavaOSGiTest {
                 "    logInfo(\"test says\", \"Boo!\") " + //
                 "end ";
 
-        assertTriggerWith(model, TriggerTypes.COMMAND, CommandEventTrigger.class,
-                trigger -> trigger.getCommand().getValue());
+        assertTriggerWith(model, TriggerTypes.COMMAND, CommandEventTrigger.class, trigger -> trigger.getCommand());
     }
 
     @Test
@@ -92,8 +89,7 @@ public class RuleTriggerTest extends JavaOSGiTest {
                 "    logInfo(\"test says\", \"Boo!\") " + //
                 "end ";
 
-        assertTriggerWith(model, TriggerTypes.COMMAND, CommandEventTrigger.class,
-                trigger -> trigger.getCommand().getValue());
+        assertTriggerWith(model, TriggerTypes.COMMAND, CommandEventTrigger.class, trigger -> trigger.getCommand());
     }
 
     @Test
@@ -105,8 +101,7 @@ public class RuleTriggerTest extends JavaOSGiTest {
                 "    logInfo(\"test says\", \"Boo!\") " + //
                 "end ";
 
-        assertTriggerWith(model, TriggerTypes.TRIGGER, EventEmittedTrigger.class,
-                trigger -> trigger.getTrigger().getValue());
+        assertTriggerWith(model, TriggerTypes.TRIGGER, EventEmittedTrigger.class, trigger -> trigger.getTrigger());
     }
 
     @Test
@@ -118,8 +113,7 @@ public class RuleTriggerTest extends JavaOSGiTest {
                 "    logInfo(\"test says\", \"Boo!\") " + //
                 "end ";
 
-        assertTriggerWith(model, TriggerTypes.TRIGGER, EventEmittedTrigger.class,
-                trigger -> trigger.getTrigger().getValue());
+        assertTriggerWith(model, TriggerTypes.TRIGGER, EventEmittedTrigger.class, trigger -> trigger.getTrigger());
     }
 
     private <T> void assertTriggerWith(String model, TriggerTypes triggerType, Class<T> triggerClass,

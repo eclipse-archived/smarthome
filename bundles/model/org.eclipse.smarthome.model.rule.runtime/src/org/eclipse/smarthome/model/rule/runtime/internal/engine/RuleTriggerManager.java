@@ -232,7 +232,7 @@ public class RuleTriggerManager {
                             EventEmittedTrigger et = (EventEmittedTrigger) t;
 
                             if (et.getChannel().equals(channel)
-                                    && (et.getTrigger() == null || et.getTrigger().getValue().equals(event))) {
+                                    && (et.getTrigger() == null || et.getTrigger().equals(event))) {
                                 // if the rule does not have a specific event , execute it on any event
                                 result.add(rule);
                             }
@@ -298,14 +298,14 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof UpdateEventTrigger)) {
                     final UpdateEventTrigger ut = (UpdateEventTrigger) t;
                     if (ut.getItem().equals(name)) {
-                        triggerStateString = ut.getState() != null ? ut.getState().getValue() : null;
+                        triggerStateString = ut.getState() != null ? ut.getState() : null;
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberUpdateEventTrigger)) {
                     final GroupMemberUpdateEventTrigger gmut = (GroupMemberUpdateEventTrigger) t;
                     if (gmut.getGroup().equals(name)) {
-                        triggerStateString = gmut.getState() != null ? gmut.getState().getValue() : null;
+                        triggerStateString = gmut.getState() != null ? gmut.getState() : null;
                     } else {
                         continue;
                     }
@@ -333,16 +333,16 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof ChangedEventTrigger)) {
                     final ChangedEventTrigger ct = (ChangedEventTrigger) t;
                     if (ct.getItem().equals(name)) {
-                        triggerOldStateString = ct.getOldState() != null ? ct.getOldState().getValue() : null;
-                        triggerNewStateString = ct.getNewState() != null ? ct.getNewState().getValue() : null;
+                        triggerOldStateString = ct.getOldState() != null ? ct.getOldState() : null;
+                        triggerNewStateString = ct.getNewState() != null ? ct.getNewState() : null;
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberChangedEventTrigger)) {
                     final GroupMemberChangedEventTrigger gmct = (GroupMemberChangedEventTrigger) t;
                     if (gmct.getGroup().equals(name)) {
-                        triggerOldStateString = gmct.getOldState() != null ? gmct.getOldState().getValue() : null;
-                        triggerNewStateString = gmct.getNewState() != null ? gmct.getNewState().getValue() : null;
+                        triggerOldStateString = gmct.getOldState() != null ? gmct.getOldState() : null;
+                        triggerNewStateString = gmct.getNewState() != null ? gmct.getNewState() : null;
                     } else {
                         continue;
                     }
@@ -375,14 +375,14 @@ public class RuleTriggerManager {
                 if ((!isGroup) && (t instanceof CommandEventTrigger)) {
                     final CommandEventTrigger ct = (CommandEventTrigger) t;
                     if (ct.getItem().equals(name)) {
-                        triggerCommandString = ct.getCommand()!=null?ct.getCommand().getValue() : null;
+                        triggerCommandString = ct.getCommand() != null ? ct.getCommand() : null;
                     } else {
                         continue;
                     }
                 } else if ((isGroup) && (t instanceof GroupMemberCommandEventTrigger)) {
                     final GroupMemberCommandEventTrigger gmct = (GroupMemberCommandEventTrigger) t;
                     if (gmct.getGroup().equals(name)) {
-                        triggerCommandString = gmct.getCommand() != null ? gmct.getCommand().getValue() : null;
+                        triggerCommandString = gmct.getCommand() != null ? gmct.getCommand() : null;
                     } else {
                         continue;
                     }
