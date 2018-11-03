@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomeAssistantThingHandler;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomieThingHandler;

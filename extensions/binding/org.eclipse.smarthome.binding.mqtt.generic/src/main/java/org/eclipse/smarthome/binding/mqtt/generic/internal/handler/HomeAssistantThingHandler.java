@@ -24,13 +24,13 @@ import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.AbstractComponent;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.CChannel;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.CFactory;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents.ComponentDiscovered;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HaID;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HandlerConfiguration;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.DelayedBatchProcessing;
@@ -175,7 +175,7 @@ public class HomeAssistantThingHandler extends AbstractMQTTThingHandler
 
     @SuppressWarnings({ "null", "unused" })
     @Override
-    protected @Nullable ChannelState getChannelState(ChannelUID channelUID) {
+    public @Nullable ChannelState getChannelState(ChannelUID channelUID) {
         String groupID = channelUID.getGroupId();
         if (groupID == null) {
             return null;

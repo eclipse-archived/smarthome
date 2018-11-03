@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceCallback;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.HandlerConfiguration;
@@ -124,7 +124,7 @@ public class HomieThingHandler extends AbstractMQTTThingHandler implements Devic
     }
 
     @Override
-    protected @Nullable ChannelState getChannelState(ChannelUID channelUID) {
+    public @Nullable ChannelState getChannelState(ChannelUID channelUID) {
         Property property = device.getProperty(channelUID);
         return property != null ? property.getChannelState() : null;
     }

@@ -32,12 +32,12 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.AbstractComponent;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.ComponentSwitch;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents.ComponentDiscovered;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HaID;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.ThingChannelConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;

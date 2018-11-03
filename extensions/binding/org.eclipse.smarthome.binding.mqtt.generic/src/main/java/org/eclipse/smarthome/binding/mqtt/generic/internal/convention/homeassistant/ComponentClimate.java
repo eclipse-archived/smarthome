@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**

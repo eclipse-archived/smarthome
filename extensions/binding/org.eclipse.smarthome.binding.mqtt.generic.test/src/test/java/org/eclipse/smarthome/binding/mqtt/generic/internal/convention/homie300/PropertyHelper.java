@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
 
 /**
  * Helper to access {@link Property} internals.

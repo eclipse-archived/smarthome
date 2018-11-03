@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericChannelConfig;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfig;
 
 /**
  * A factory t
@@ -27,10 +27,10 @@ public class ValueFactory {
     /**
      * Creates a new channel state value.
      *
-     * @param config        The channel configuration
+     * @param config The channel configuration
      * @param channelTypeID The channel type, for instance TEXT_CHANNEL.
      */
-    public static Value createValueState(GenericChannelConfig config, String channelTypeID) {
+    public static Value createValueState(ChannelConfig config, String channelTypeID) {
         Value value;
         switch (channelTypeID) {
             case MqttBindingConstants.STRING:
@@ -43,17 +43,17 @@ public class ValueFactory {
             case MqttBindingConstants.DIMMER:
                 value = new NumberValue(config.isFloat, config.min, config.max, config.step, true);
                 break;
-            case MqttBindingConstants.COLOR:
-                value = new ColorValue(config.isRGB, null, null);
+            case MqttBindingConstants.COLOR_RGB:
+                value = new ColorValue(true, config.on, config.off);
+                break;
+            case MqttBindingConstants.COLOR_HSB:
+                value = new ColorValue(false, config.on, config.off);
                 break;
             case MqttBindingConstants.SWITCH:
-                value = new OnOffValue(config.on, config.off, config.inverse);
-                break;
-            case MqttBindingConstants.ENUM:
-                value = new EnumSwitchValue(config.allowedStates.split(","), 0);
+                value = new OnOffValue(config.on, config.off);
                 break;
             case MqttBindingConstants.CONTACT:
-                value = OnOffValue.createReceiveOnly(config.on, config.off, config.inverse);
+                value = OnOffValue.createReceiveOnly(config.on, config.off);
                 break;
             default:
                 throw new IllegalArgumentException("ChannelTypeUID not recognised: " + channelTypeID);

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.generic;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -84,7 +85,9 @@ public class ChannelStateTests extends JavaOSGiTest {
 
     @Test
     public void noInteractionTimeoutTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ChannelState c = spy(new ChannelState("state", "command", channelUID, textValue, channelStateUpdateListener));
+
+        ChannelState c = spy(new ChannelState(ChannelConfigBuilder.create("state", "command").build(), channelUID,
+                textValue, channelStateUpdateListener));
         c.start(connection, scheduler, 50).get(100, TimeUnit.MILLISECONDS);
         verify(connection).subscribe(eq("state"), eq(c));
         c.stop().get();
@@ -93,17 +96,30 @@ public class ChannelStateTests extends JavaOSGiTest {
 
     @Test
     public void publishTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ChannelState c = spy(new ChannelState("state", "command", channelUID, textValue, channelStateUpdateListener));
+        ChannelState c = spy(new ChannelState(ChannelConfigBuilder.create("state", "command").build(), channelUID,
+                textValue, channelStateUpdateListener));
 
         c.start(connection, scheduler, 0).get(50, TimeUnit.MILLISECONDS);
         verify(connection).subscribe(eq("state"), eq(c));
 
         c.setValue(new StringType("UPDATE")).get();
-        verify(connection).publish(eq("command"), any(), anyInt(), eq(true));
+        verify(connection).publish(eq("command"), argThat(p -> Arrays.equals(p, "UPDATE".getBytes())), anyInt(),
+                eq(false));
 
-        c.setRetained(false);
+        c.config.formatBeforePublish = "prefix%s";
         c.setValue(new StringType("UPDATE")).get();
-        verify(connection).publish(eq("command"), any(), anyInt(), eq(false));
+        verify(connection).publish(eq("command"), argThat(p -> Arrays.equals(p, "prefixUPDATE".getBytes())), anyInt(),
+                eq(false));
+
+        c.config.formatBeforePublish = "%1$s-%1$s";
+        c.setValue(new StringType("UPDATE")).get();
+        verify(connection).publish(eq("command"), argThat(p -> Arrays.equals(p, "UPDATE-UPDATE".getBytes())), anyInt(),
+                eq(false));
+
+        c.config.formatBeforePublish = "%s";
+        c.config.retained = true;
+        c.setValue(new StringType("UPDATE")).get();
+        verify(connection).publish(eq("command"), any(), anyInt(), eq(true));
 
         c.stop().get();
         verify(connection).unsubscribe(eq("state"), eq(c));
@@ -111,7 +127,8 @@ public class ChannelStateTests extends JavaOSGiTest {
 
     @Test
     public void receiveTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ChannelState c = spy(new ChannelState("state", "command", channelUID, textValue, channelStateUpdateListener));
+        ChannelState c = spy(new ChannelState(ChannelConfigBuilder.create("state", "command").build(), channelUID,
+                textValue, channelStateUpdateListener));
 
         CompletableFuture<@Nullable Void> future = c.start(connection, scheduler, 100);
         c.processMessage("state", "A TEST".getBytes());
@@ -123,8 +140,8 @@ public class ChannelStateTests extends JavaOSGiTest {
 
     @Test
     public void receiveWildcardTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ChannelState c = spy(
-                new ChannelState("state/+/topic", "command", channelUID, textValue, channelStateUpdateListener));
+        ChannelState c = spy(new ChannelState(ChannelConfigBuilder.create("state/+/topic", "command").build(),
+                channelUID, textValue, channelStateUpdateListener));
 
         CompletableFuture<@Nullable Void> future = c.start(connection, scheduler, 100);
         c.processMessage("state/bla/topic", "A TEST".getBytes());
@@ -136,7 +153,8 @@ public class ChannelStateTests extends JavaOSGiTest {
 
     @Test
     public void receiveWrongTopicTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ChannelState c = spy(new ChannelState("state", "command", channelUID, textValue, channelStateUpdateListener));
+        ChannelState c = spy(new ChannelState(ChannelConfigBuilder.create("state", "command").build(), channelUID,
+                textValue, channelStateUpdateListener));
 
         CompletableFuture<@Nullable Void> future = c.start(connection, scheduler, 50);
         c.processMessage("state2", "A TEST".getBytes());

@@ -17,9 +17,10 @@ import java.net.URI;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfigBuilder;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -69,8 +70,8 @@ public class CChannel {
         this.channelID = channelID;
         final ChannelUID channelUID = new ChannelUID(component.channelGroupUID, channelID);
         channelTypeUID = component.haID.getChannelTypeID(channelID);
-
-        channelState = new ChannelState(state_topic, command_topic, channelUID, valueState, channelStateUpdateListener);
+        channelState = new ChannelState(ChannelConfigBuilder.create().withRetain(true).withStateTopic(state_topic)
+                .withCommandTopic(command_topic).build(), channelUID, valueState, channelStateUpdateListener);
 
         if (StringUtils.isBlank(state_topic)) {
             type = ChannelTypeBuilder.trigger(channelTypeUID, label)

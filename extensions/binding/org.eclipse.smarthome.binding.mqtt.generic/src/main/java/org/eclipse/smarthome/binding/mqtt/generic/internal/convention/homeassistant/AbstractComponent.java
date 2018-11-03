@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;

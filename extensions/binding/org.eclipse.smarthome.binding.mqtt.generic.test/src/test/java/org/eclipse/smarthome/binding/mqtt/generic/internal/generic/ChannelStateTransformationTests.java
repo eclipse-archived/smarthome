@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal.handler;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.generic;
 
 import static org.eclipse.smarthome.binding.mqtt.generic.internal.handler.ThingChannelConstants.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -23,9 +23,11 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.naming.ConfigurationException;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateWithTransformation;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.TransformationServiceProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateTransformation;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -46,7 +48,7 @@ import org.mockito.Mock;
  *
  * @author David Graeff - Initial contribution
  */
-public class ThingHandlerTransformationPatternTests {
+public class ChannelStateTransformationTests {
 
     @Mock
     private TransformationService jsonPathService;
@@ -101,27 +103,29 @@ public class ThingHandlerTransformationPatternTests {
         doReturn(thingStatus).when(thingHandler).getBridgeStatus();
     }
 
+    @SuppressWarnings("null")
     @Test
     public void initialize() throws MqttException {
         when(thing.getChannels()).thenReturn(thingChannelListWithJson);
 
         thingHandler.initialize();
-        ChannelStateWithTransformation channelConfig = (ChannelStateWithTransformation) thingHandler.channelStateByChannelUID
-                .get(textChannelUID);
-        assertThat(channelConfig.transformationPattern, is(jsonPathPattern));
+        ChannelState channelConfig = thingHandler.getChannelState(textChannelUID);
+        assertThat(channelConfig.transformations.get(0).pattern, is(jsonPathPattern));
     }
 
+    @SuppressWarnings("null")
     @Test
     public void processMessageWithJSONPath() throws Exception {
         when(jsonPathService.transform(jsonPathPattern, jsonPathJSON)).thenReturn("23.2");
 
         thingHandler.initialize();
-        ChannelStateWithTransformation channelConfig = (ChannelStateWithTransformation) thingHandler.channelStateByChannelUID
-                .get(textChannelUID);
+        ChannelState channelConfig = thingHandler.getChannelState(textChannelUID);
         channelConfig.setChannelStateUpdateListener(thingHandler);
 
+        ChannelStateTransformation transformation = channelConfig.transformations.get(0);
+
         byte payload[] = jsonPathJSON.getBytes();
-        assertThat(channelConfig.transformationPattern, is(jsonPathPattern));
+        assertThat(transformation.pattern, is(jsonPathPattern));
         // Test process message
         channelConfig.processMessage(channelConfig.getStateTopic(), payload);
 

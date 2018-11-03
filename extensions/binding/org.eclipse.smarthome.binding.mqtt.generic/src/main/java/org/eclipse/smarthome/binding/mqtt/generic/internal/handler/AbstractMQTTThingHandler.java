@@ -19,10 +19,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.TransformationServiceProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -84,7 +84,7 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
      * @param channelUID The channelUID
      * @return A channel state. May be null.
      */
-    abstract protected @Nullable ChannelState getChannelState(ChannelUID channelUID);
+    abstract public @Nullable ChannelState getChannelState(ChannelUID channelUID);
 
     /**
      * Start the topic discovery and subscribe to all channel state topics on all {@link ChannelState}s.

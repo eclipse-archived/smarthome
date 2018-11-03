@@ -30,10 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateHelper;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
@@ -43,6 +40,9 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.N
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateHelper;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.SubscribeFieldToMQTTtopic;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
