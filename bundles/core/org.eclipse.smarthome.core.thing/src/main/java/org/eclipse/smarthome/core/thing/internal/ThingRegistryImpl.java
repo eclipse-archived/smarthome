@@ -228,15 +228,15 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     private void notifyTrackerAboutAllThingsAdded(ThingTracker thingTracker) {
-        forEach(thing -> {
+        for (Thing thing : getAll()) {
             thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
-        });
+        }
     }
 
     private void notifyTrackerAboutAllThingsRemoved(ThingTracker thingTracker) {
-        forEach(thing -> {
+        for (Thing thing : getAll()) {
             thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
-        });
+        }
     }
 
     @Override
