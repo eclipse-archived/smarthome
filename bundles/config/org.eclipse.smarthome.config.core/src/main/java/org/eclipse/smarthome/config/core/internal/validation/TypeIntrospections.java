@@ -13,11 +13,14 @@
 package org.eclipse.smarthome.config.core.internal.validation;
 
 import java.math.BigDecimal;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link TypeIntrospections} provides a corresponding {@link TypeIntrospection} for each config description
@@ -27,9 +30,12 @@ import com.google.common.collect.ImmutableMap;
  */
 final class TypeIntrospections {
 
-    private static final Map<Type, TypeIntrospection> INTROSPECTIONS = new ImmutableMap.Builder<Type, TypeIntrospection>()
-            .put(Type.BOOLEAN, new BooleanIntrospection()).put(Type.TEXT, new StringIntrospection())
-            .put(Type.INTEGER, new IntegerIntrospection()).put(Type.DECIMAL, new FloatIntrospection()).build();
+    private static final Map<Type, TypeIntrospection> INTROSPECTIONS = Collections.unmodifiableMap(Stream
+            .of(new SimpleEntry<>(Type.BOOLEAN, new BooleanIntrospection()),
+                    new SimpleEntry<>(Type.TEXT, new StringIntrospection()),
+                    new SimpleEntry<>(Type.INTEGER, new IntegerIntrospection()),
+                    new SimpleEntry<>(Type.DECIMAL, new FloatIntrospection()))
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
     private TypeIntrospections() {
         super();
