@@ -12,7 +12,6 @@ Export-Package:
  org.eclipse.smarthome.magic.binding.handler,
  org.eclipse.smarthome.magic.service
 Import-Package: 
- com.google.common.collect,
  javax.measure.quantity,
  javax.servlet.http,
  org.eclipse.jdt.annotation;resolution:=optional,
