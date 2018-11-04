@@ -12,12 +12,13 @@
  */
 package org.eclipse.smarthome.binding.bosesoundtouch;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-
-import com.google.common.collect.Sets;
 
 /**
  * The {@link BoseSoundTouchBindinConstantsg} class defines common constants, which are
@@ -42,12 +43,12 @@ public class BoseSoundTouchBindingConstants {
             "waveSoundTouchMusicSystemIV");
     public final static ThingTypeUID BST_SA5A_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "sa5Amplifier");
 
-    public static final Set<ThingTypeUID> SUPPORTED_KNOWN_THING_TYPES_UIDS = Sets.newHashSet(BST_UNKNOWN_THING_TYPE_UID,
-            BST_10_THING_TYPE_UID, BST_20_THING_TYPE_UID, BST_30_THING_TYPE_UID, BST_300_THING_TYPE_UID,
-            BST_WLA_THING_TYPE_UID, BST_WSMS_THING_TYPE_UID, BST_SA5A_THING_TYPE_UID);
+    public static final Set<ThingTypeUID> SUPPORTED_KNOWN_THING_TYPES_UIDS = Collections.unmodifiableSet(Stream
+            .of(BST_UNKNOWN_THING_TYPE_UID, BST_10_THING_TYPE_UID, BST_20_THING_TYPE_UID, BST_30_THING_TYPE_UID,
+                    BST_300_THING_TYPE_UID, BST_WLA_THING_TYPE_UID, BST_WSMS_THING_TYPE_UID, BST_SA5A_THING_TYPE_UID)
+            .collect(Collectors.toSet()));
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>(
-            SUPPORTED_KNOWN_THING_TYPES_UIDS);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>(SUPPORTED_KNOWN_THING_TYPES_UIDS);
 
     // List of all Channel IDs
     public static final String CHANNEL_POWER = "power";
