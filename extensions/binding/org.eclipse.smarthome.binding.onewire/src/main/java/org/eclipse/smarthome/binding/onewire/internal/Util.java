@@ -59,7 +59,7 @@ public class Util {
     /**
      * calculate absolute humidity in g/m³ from measured values
      *
-     * @param temperature      the measured temperature
+     * @param temperature the measured temperature
      * @param relativeHumidity the measured relative humidity
      * @return the corresponding absolute humidity
      */
