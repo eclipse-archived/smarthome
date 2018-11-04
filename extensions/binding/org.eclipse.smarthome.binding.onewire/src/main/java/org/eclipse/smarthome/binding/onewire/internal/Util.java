@@ -99,7 +99,7 @@ public class Util {
     /**
      * build a temperature channel for things
      *
-     * @param thingUID       the UID of the thing
+     * @param thingUID the UID of the thing
      * @param channelTypeUID the channelTypeUID of the channel
      * @return the channel itself
      */
