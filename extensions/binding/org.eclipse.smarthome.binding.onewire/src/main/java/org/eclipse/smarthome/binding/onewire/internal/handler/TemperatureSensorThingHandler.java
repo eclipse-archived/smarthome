@@ -21,11 +21,14 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 
 /**
  * The {@link TemperatureSensorThingHandler} is responsible for handling temperature sensors
@@ -53,13 +56,34 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             return;
         }
 
+        sensors.add(new DS18x20(sensorIds.get(0), this));
+
         if (!properties.containsKey(PROPERTY_MODELID)) {
             scheduler.execute(() -> {
                 updateSensorProperties();
             });
+        } else {
+            scheduler.execute(() -> {
+                configureThingChannels();
+            });
         }
+    }
 
-        sensors.add(new DS18x20(sensorIds.get(0), this));
+    private void configureThingChannels() {
+        Channel tempChannel = thing.getChannel(CHANNEL_TEMPERATURE);
+        if (tempChannel == null) {
+            Map<String, String> properties = editProperties();
+            ThingBuilder thingBuilder = editThing();
+            if (properties.get(PROPERTY_MODELID).equals("DS18B20")
+                    || properties.get(PROPERTY_MODELID).equals("DS1822")) {
+                thingBuilder.withChannel(
+                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
+            } else {
+                thingBuilder
+                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR));
+            }
+            updateThing(thingBuilder.build());
+        }
 
         try {
             sensors.get(0).configureChannels();

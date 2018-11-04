@@ -27,8 +27,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link CounterSensorThingHandler} is responsible for handling counter sensors
@@ -38,7 +36,6 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class CounterSensorThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_COUNTER2);
-    private final Logger logger = LoggerFactory.getLogger(CounterSensorThingHandler.class);
 
     public CounterSensorThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
         super(thing, dynamicStateDescriptionProvider);
@@ -80,13 +77,5 @@ public class CounterSensorThingHandler extends OwBaseThingHandler {
         }
 
         updateStatus(ThingStatus.UNKNOWN, ThingStatusDetail.NONE);
-    }
-
-    // TODO: remove
-    @Override
-    public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
-        logger.debug("called CounterSensorThingHandler refresh now={}, lastRefresh={}, refreshInterval={} l+I={}", now,
-                lastRefresh, refreshInterval, lastRefresh + refreshInterval);
-        super.refresh(bridgeHandler, now);
     }
 }

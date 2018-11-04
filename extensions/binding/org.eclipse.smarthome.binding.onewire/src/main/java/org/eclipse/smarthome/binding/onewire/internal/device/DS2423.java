@@ -50,7 +50,6 @@ public class DS2423 extends AbstractOwDevice {
 
     @Override
     public void refresh(OwBaseBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException {
-        logger.trace("called refresh with bridge {}, configured {}", bridgeHandler, isConfigured);
         if (isConfigured) {
             List<State> states = bridgeHandler.readDecimalTypeArray(sensorId, COUNTER_PARAMETER);
             logger.trace("read array {} from {}", states, sensorId);

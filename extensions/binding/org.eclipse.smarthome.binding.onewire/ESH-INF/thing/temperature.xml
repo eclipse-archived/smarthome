@@ -6,9 +6,6 @@
 		</supported-bridge-type-refs>
 		<label>Temperature sensor</label>
 		<description>A 1-wire temperature sensor (DS18x20)</description>
-		<channels>
-			<channel id="temperature" typeId="temperature" />
-		</channels>
 		<properties>
 			<property name="sensorCount">1</property>
 		</properties>

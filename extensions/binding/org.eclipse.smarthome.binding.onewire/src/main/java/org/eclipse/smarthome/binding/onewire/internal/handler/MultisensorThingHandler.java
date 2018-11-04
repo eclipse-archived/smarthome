@@ -25,12 +25,14 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2406_DS2413;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.LightSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -166,11 +168,26 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         }
 
         // temperature channel
+        Channel temperatureChannel = thing.getChannel(CHANNEL_TEMPERATURE);
         if (configuration.containsKey(CONFIG_TEMPERATURESENSOR)
                 && configuration.get(CONFIG_TEMPERATURESENSOR).equals("DS18B20") && sensorCount > 1) {
             sensors.get(1).enableChannel(CHANNEL_TEMPERATURE);
+            if (temperatureChannel == null) {
+                thingBuilder.withChannel(
+                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
+            } else if (!CHANNEL_TYPE_UID_TEMPERATURE_POR_RES.equals(temperatureChannel.getChannelTypeUID())) {
+                thingBuilder.withoutChannel(temperatureChannel.getUID());
+                thingBuilder.withChannel(
+                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
+            }
         } else {
             sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
+            if (temperatureChannel == null) {
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE));
+            } else if (!CHANNEL_TYPE_UID_TEMPERATURE.equals(temperatureChannel.getChannelTypeUID())) {
+                thingBuilder.withoutChannel(temperatureChannel.getUID());
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE));
+            }
         }
 
         // first AI channel

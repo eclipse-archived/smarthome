@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * The {@link OneWireBinding} class defines common constants, which are
@@ -61,6 +62,7 @@ public class OwBindingConstants {
 
     public static final String CONFIG_ID = "id";
     public static final String CONFIG_RESOLUTION = "resolution";
+    public static final String CONFIG_IGNORE_POR = "ignorepor";
     public static final String CONFIG_REFRESH = "refresh";
     public static final String CONFIG_DIGITALREFRESH = "digitalrefresh";
     public static final String CONFIG_OFFSET = "offset";
@@ -133,4 +135,10 @@ public class OwBindingConstants {
     }
 
     public static final Pattern SENSOR_ID_PATTERN = Pattern.compile("^\\/?([0-9A-Fa-f]{2}\\.[0-9A-Fa-f]{12})$");
+
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE = new ChannelTypeUID(BINDING_ID, "temperature");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE_POR = new ChannelTypeUID(BINDING_ID,
+            "temperature-por");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE_POR_RES = new ChannelTypeUID(BINDING_ID,
+            "temperature-por-res");
 }
