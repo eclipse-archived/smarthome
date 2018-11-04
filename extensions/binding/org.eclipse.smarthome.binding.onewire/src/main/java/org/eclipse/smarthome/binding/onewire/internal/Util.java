@@ -81,7 +81,7 @@ public class Util {
     /**
      * calculates the dewpoint in °C from measured values
      *
-     * @param temperature      the measured temperature
+     * @param temperature the measured temperature
      * @param relativeHumidity the measured relative humidity
      * @return the corresponding dewpoint
      */
