@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.events.Event;
@@ -25,8 +26,6 @@ import org.eclipse.smarthome.core.thing.binding.firmware.ProgressStep;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 /**
  *
@@ -97,7 +96,7 @@ public class FirmwareEventFactoryTest extends JavaTest {
     public void testSerializationAndDeserializationFirmwareUpdateProgressInfo() throws Exception {
         FirmwareUpdateProgressInfo firmwareUpdateProgressInfo = FirmwareUpdateProgressInfo
                 .createFirmwareUpdateProgressInfo(thingUID, "1.2.3", ProgressStep.UPDATING,
-                        Lists.newArrayList(ProgressStep.WAITING, ProgressStep.UPDATING), false, 10);
+                        Arrays.asList(ProgressStep.WAITING, ProgressStep.UPDATING), false, 10);
         FirmwareUpdateProgressInfoEvent progressInfoEvent = FirmwareEventFactory
                 .createFirmwareUpdateProgressInfoEvent(firmwareUpdateProgressInfo);
 
