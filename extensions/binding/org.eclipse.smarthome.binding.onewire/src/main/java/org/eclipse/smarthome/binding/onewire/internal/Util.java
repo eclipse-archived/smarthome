@@ -78,6 +78,13 @@ public class Util {
         }
     }
 
+    /**
+     * calculates the dewpoint in °C from measured values
+     *
+     * @param temperature      the measured temperature
+     * @param relativeHumidity the measured relative humidity
+     * @return the corresponding dewpoint
+     */
     public static State calculateDewpoint(QuantityType<Temperature> temperature,
             QuantityType<Dimensionless> relativeHumidity) {
         Double theta = temperature.toUnit(SIUnits.CELSIUS).doubleValue();
@@ -89,6 +96,13 @@ public class Util {
         return dewPoint;
     }
 
+    /**
+     * build a temperature channel for things
+     *
+     * @param thingUID       the UID of the thing
+     * @param channelTypeUID the channelTypeUID of the channel
+     * @return the channel itself
+     */
     public static Channel buildTemperatureChannel(ThingUID thingUID, ChannelTypeUID channelTypeUID) {
         return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_TEMPERATURE), "Number:Temperature")
                 .withLabel("Temperature").withType(channelTypeUID).build();

@@ -21,8 +21,8 @@
         <state readOnly="true" pattern="%.1f %unit%" />
         <config-description>
             <parameter name="ignorepor" type="boolean">
-                <label>Ignore 85°C</label>
-                <description> ignores 85°C readings (POR-value), may suppress valid readings if enabled</description>
+                <label>Ignore POR-value</label>
+                <description>filters all  85°C readings (POR-value), may suppress valid readings if enabled</description>
                 <default>false</default>
                 <required>false</required>   
             </parameter>
@@ -35,8 +35,8 @@
 		<state readOnly="true" pattern="%.1f %unit%" />
 		<config-description>
             <parameter name="ignorepor" type="boolean">
-                <label>Ignore 85°C</label>
-                <description> ignores 85°C readings (POR-value), may suppress valid readings if enabled</description>
+                <label>Ignore POR-value</label>
+                <description>filters all 85°C readings (POR-value), may suppress valid readings if enabled</description>
                 <default>false</default>
                 <required>false</required>   
             </parameter>

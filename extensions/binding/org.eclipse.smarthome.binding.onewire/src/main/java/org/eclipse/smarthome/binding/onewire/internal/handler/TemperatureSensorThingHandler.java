@@ -62,12 +62,10 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             scheduler.execute(() -> {
                 updateSensorProperties();
             });
-            return;
         } else {
             scheduler.execute(() -> {
                 configureThingChannels();
             });
-            return;
         }
     }
 

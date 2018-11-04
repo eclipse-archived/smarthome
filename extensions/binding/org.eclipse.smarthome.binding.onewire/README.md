@@ -149,7 +149,7 @@ Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for H
 
 ### Temperature (`temperature`)
 
-The `temperature` channel has two types: `temperature`, `temperature-por`and `temperature-por-res`.
+The `temperature` channel has three types: `temperature`, `temperature-por`and `temperature-por-res`.
 If the channel-type is `temperature`, there is nothing else to configure.
 
 Some sensors (e.g. DS18x20) report 85 °C as Power-On-Reset value.
@@ -163,7 +163,7 @@ This corresponds to 0.5 °C, 0.25 °C, 0.125 °C, 0.0625 °C respectively.
 The conversion time is inverse to that and ranges from 95 ms to 750 ms.
 For best performance it is recommended to set the resolution only as high as needed. 
  
-The correct channel-type is selected automatically by the thing depending on the sensor type.
+The correct channel-type is selected automatically by the thing handler depending on the sensor type.
  
 ## Full Example
 
