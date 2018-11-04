@@ -36,6 +36,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Markus Rathgeb - Linked items returns only existing items
+ * @author Markus Rathgeb - Rewrite collection handling to improve performance
  *
  */
 @Component(immediate = true, service = ItemChannelLinkRegistry.class)

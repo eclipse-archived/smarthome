@@ -45,9 +45,9 @@ import org.slf4j.LoggerFactory;
  * @author Victor Toni - provide elements as {@link Stream}
  * @author Kai Kreuzer - switched to parameterized logging
  * @author Hilbrand Bouwkamp - Made protected fields private and added new methods to give access.
+ * @author Markus Rathgeb - Use separate collections to improve performance
  *
- * @param <E>
- *            type of the element
+ * @param <E> type of the element
  */
 public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends Provider<E>>
         implements ProviderChangeListener<E>, Registry<E, K> {
@@ -141,7 +141,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         try {
             final Collection<E> providerElements = providerToElements.get(provider);
             if (providerElements == null) {
-                logger.warn("Cannot add an element should added for an unknown provider.");
+                logger.warn("Cannot add \"{}\" with key \"{}\". Provider \"{}\" unknown.",
+                        element.getClass().getSimpleName(), element.getUID(), provider.getClass().getSimpleName());
                 return;
             }
             if (!added(provider, element, providerElements)) {
@@ -168,7 +169,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         final K uid = element.getUID();
         if (identifierToElement.containsKey(uid)) {
             logger.warn(
-                    "{} with key '{}' already exists from provider {}! Failed to add a second with the same UID from provider {}!",
+                    "Cannod add \"{}\" with key \"{}\". It exists already from provider \"{}\"! Failed to add a second with the same UID from provider \"{}\"!",
                     element.getClass().getSimpleName(), uid,
                     elementToProvider.get(identifierToElement.get(uid)).getClass().getSimpleName(),
                     provider.getClass().getSimpleName());
@@ -177,7 +178,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         try {
             onAddElement(element);
         } catch (final RuntimeException ex) {
-            logger.warn("Could not add element: {}", ex.getMessage(), ex);
+            logger.warn("Cannot add \"{}\" with key \"{}\": {}", element.getClass().getSimpleName(), uid,
+                    ex.getMessage(), ex);
             return false;
         }
         identifierToElement.put(element.getUID(), element);
@@ -217,14 +219,15 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             final K uid = element.getUID();
             existingElement = identifierToElement.get(uid);
             if (existingElement == null) {
-                logger.debug("{} with key '{}' could not be removed from provider {} because it does not exist!",
+                logger.debug("Cannot remove \"{}\" with key \"{}\" from provider \"{}\" because it does not exist!",
                         element.getClass().getSimpleName(), uid, provider.getClass().getSimpleName());
                 return;
             }
             try {
                 onRemoveElement(existingElement);
             } catch (final RuntimeException ex) {
-                logger.warn("Could not remove element: {}", ex.getMessage(), ex);
+                logger.warn("Cannot remove \"{}\" with key \"{}\": {}", element.getClass().getSimpleName(), uid,
+                        ex.getMessage(), ex);
                 return;
             }
             identifierToElement.remove(uid);
@@ -247,8 +250,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         final K uidOld = oldElement.getUID();
         final K uid = element.getUID();
         if (!uidOld.equals(uid)) {
-            logger.warn("Received update event for elements that UID differ (old: {}, new: {}). Ignore event.", uidOld,
-                    uid);
+            logger.warn("Received update event for elements that UID differ (old: \"{}\", new: \"{}\"). Ignore event.",
+                    uidOld, uid);
             return;
         }
 
@@ -259,7 +262,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             // Use the identifier to operate on the "real" element.
             existingElement = identifierToElement.get(uid);
             if (existingElement == null) {
-                logger.debug("{} with key '{}' could not be updated for provider {} because it does not exist!",
+                logger.debug("Cannot update \"{}\" with key \"{}\" for provider \"{}\" because it does not exist!",
                         element.getClass().getSimpleName(), uid, provider.getClass().getSimpleName());
                 return;
             }
@@ -267,7 +270,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                 beforeUpdateElement(existingElement);
                 onUpdateElement(oldElement, element);
             } catch (final RuntimeException ex) {
-                logger.warn("Could not update element: {}", ex.getMessage(), ex);
+                logger.warn("Cannot update \"{}\" with key \"{}\": {}", element.getClass().getSimpleName(), uid,
+                        ex.getMessage(), ex);
                 return;
             }
             identifierToElement.put(uid, element);
@@ -348,7 +352,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                         break;
                 }
             } catch (Throwable throwable) {
-                logger.error("Could not inform the listener '{}' about the '{}' event: {}", listener, eventType.name(),
+                logger.error("Cannot inform the listener \"{}\" about the \"{}\" event: {}", listener, eventType.name(),
                         throwable.getMessage(), throwable);
             }
         }
@@ -376,7 +380,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         elementWriteLock.lock();
         try {
             if (providerToElements.get(provider) != null) {
-                logger.warn("Cannot add provider because it already exists.");
+                logger.warn("Cannot add provider \"{}\" because it already exists.",
+                        provider.getClass().getSimpleName());
                 return;
             }
             provider.addProviderChangeListener(this);
@@ -391,7 +396,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             elementWriteLock.unlock();
         }
         elementsAdded.forEach(this::notifyListenersAboutAddedElement);
-        logger.debug("Provider '{}' has been added.", provider.getClass().getName());
+        logger.debug("Provider \"{}\" has been added.", provider.getClass().getName());
     }
 
     /**
@@ -557,7 +562,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         try {
             final Collection<E> providerElements = providerToElements.remove(provider);
             if (providerElements == null) {
-                logger.warn("Cannot remove provider because it is unknown.");
+                logger.warn("Cannot remove provider \"{}\" because it is unknown.",
+                        provider.getClass().getSimpleName());
                 return;
             }
             for (final E element : providerElements) {
@@ -565,7 +571,8 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
                     onRemoveElement(element);
                 } catch (final RuntimeException ex) {
                     logger.warn(
-                            "Removal should be prevented but we need to remove the element as the provider is gone: {}",
+                            "Removal of \"{}\" with key \"{}\" should be prevented but we need to remove the element as the provider \"{}\" is gone: {}",
+                            element.getClass().getSimpleName(), element.getUID(), provider.getClass().getSimpleName(),
                             ex.getMessage(), ex);
                 }
                 removedElements.add(element);
@@ -578,7 +585,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         }
         removedElements.forEach(this::notifyListenersAboutRemovedElement);
         provider.removeProviderChangeListener(this);
-        logger.debug("Provider '{}' has been removed.", provider.getClass().getSimpleName());
+        logger.debug("Provider \"{}\" has been removed.", provider.getClass().getSimpleName());
     }
 
     protected EventPublisher getEventPublisher() {
@@ -604,7 +611,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
             try {
                 eventPublisher.post(event);
             } catch (RuntimeException ex) {
-                logger.error("Could not post event of type '{}'.", event.getType(), ex);
+                logger.error("Cannot post event of type \"{}\".", event.getType(), ex);
             }
         }
     }

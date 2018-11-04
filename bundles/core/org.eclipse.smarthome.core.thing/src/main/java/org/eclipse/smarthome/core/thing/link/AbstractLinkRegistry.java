@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.thing.UID;
  * which handle {@link AbstractLink}s.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Markus Rathgeb - Use separate collections to improve performance
  *
  * @param <L> Concrete type of the abstract link
  */
