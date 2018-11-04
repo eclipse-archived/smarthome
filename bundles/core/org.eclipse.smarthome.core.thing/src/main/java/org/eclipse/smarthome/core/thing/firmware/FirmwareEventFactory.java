@@ -12,12 +12,13 @@
  */
 package org.eclipse.smarthome.core.thing.firmware;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link FirmwareEventFactory} is registered as an OSGi service and is responsible to create firmware events. It
@@ -44,8 +45,8 @@ public final class FirmwareEventFactory extends AbstractEventFactory {
      * Creates a new firmware event factory.
      */
     public FirmwareEventFactory() {
-        super(ImmutableSet.of(FirmwareStatusInfoEvent.TYPE, FirmwareUpdateProgressInfoEvent.TYPE,
-                FirmwareUpdateResultInfoEvent.TYPE));
+        super(Stream.of(FirmwareStatusInfoEvent.TYPE, FirmwareUpdateProgressInfoEvent.TYPE,
+                FirmwareUpdateResultInfoEvent.TYPE).collect(Collectors.toSet()));
     }
 
     @Override

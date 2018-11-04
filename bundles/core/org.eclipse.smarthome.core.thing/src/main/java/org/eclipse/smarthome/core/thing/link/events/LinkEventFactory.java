@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.core.thing.link.events;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
@@ -19,8 +22,6 @@ import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.Sets;
 
 /**
  * This is an {@link EventFactory} for creating link events. The following event types are supported by this
@@ -42,7 +43,7 @@ public class LinkEventFactory extends AbstractEventFactory {
      * Constructs a new LinkEventFactory.
      */
     public LinkEventFactory() {
-        super(Sets.newHashSet(ItemChannelLinkAddedEvent.TYPE, ItemChannelLinkRemovedEvent.TYPE));
+        super(Stream.of(ItemChannelLinkAddedEvent.TYPE, ItemChannelLinkRemovedEvent.TYPE).collect(Collectors.toSet()));
     }
 
     @Override
