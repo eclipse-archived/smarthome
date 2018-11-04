@@ -6,6 +6,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: ThingTypesTest.bundle;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Import-Package: 
- com.google.common.collect,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.framework
