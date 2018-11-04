@@ -61,8 +61,8 @@ public class SerialPortManagerImpl implements SerialPortManager {
             } catch (final UnsatisfiedLinkError error) {
                 /*
                  * At the time of writing every serial implementation needs some native code.
-                 * In that case missing some native code for a specific platform is a potential error and we should not
-                 * break the whole handling just because on of the provider miss some of that code.
+                 * So missing some native code for a specific platform is a potential error and we should not
+                 * break the whole handling just because one of the provider miss some of that code.
                  */
                 logger.warn("The provider \"{}\" miss some native code support.", provider.getClass().getSimpleName(),
                         error);
@@ -88,8 +88,8 @@ public class SerialPortManagerImpl implements SerialPortManager {
             } catch (final UnsatisfiedLinkError error) {
                 /*
                  * At the time of writing every serial implementation needs some native code.
-                 * In that case missing some native code for a specific platform is a potential error and we should not
-                 * break the whole handling just because on of the provider miss some of that code.
+                 * So missing some native code for a specific platform is a potential error and we should not
+                 * break the whole handling just because one of the provider miss some of that code.
                  */
                 logger.warn("The provider \"{}\" miss some native code support.", provider.getClass().getSimpleName(),
                         error);
