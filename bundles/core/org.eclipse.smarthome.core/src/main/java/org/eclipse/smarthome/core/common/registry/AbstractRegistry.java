@@ -169,7 +169,7 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
         final K uid = element.getUID();
         if (identifierToElement.containsKey(uid)) {
             logger.warn(
-                    "Cannod add \"{}\" with key \"{}\". It exists already from provider \"{}\"! Failed to add a second with the same UID from provider \"{}\"!",
+                    "Cannot add \"{}\" with key \"{}\". It exists already from provider \"{}\"! Failed to add a second with the same UID from provider \"{}\"!",
                     element.getClass().getSimpleName(), uid,
                     elementToProvider.get(identifierToElement.get(uid)).getClass().getSimpleName(),
                     provider.getClass().getSimpleName());
