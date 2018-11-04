@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -182,15 +181,14 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     private void addThingsToBridge(Bridge bridge) {
-        Collection<Thing> things = getAll();
-        for (Thing thing : things) {
+        forEach(thing -> {
             ThingUID bridgeUID = thing.getBridgeUID();
             if (bridgeUID != null && bridgeUID.equals(bridge.getUID())) {
                 if (bridge instanceof BridgeImpl && !bridge.getThings().contains(thing)) {
                     ((BridgeImpl) bridge).addThing(thing);
                 }
             }
-        }
+        });
     }
 
     private void addThingToBridge(Thing thing) {
@@ -230,15 +228,15 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     }
 
     private void notifyTrackerAboutAllThingsAdded(ThingTracker thingTracker) {
-        for (Thing thing : getAll()) {
+        forEach(thing -> {
             thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
-        }
+        });
     }
 
     private void notifyTrackerAboutAllThingsRemoved(ThingTracker thingTracker) {
-        for (Thing thing : getAll()) {
+        forEach(thing -> {
             thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
-        }
+        });
     }
 
     @Override
