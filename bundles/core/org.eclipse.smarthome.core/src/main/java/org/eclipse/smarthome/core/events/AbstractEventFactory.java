@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.core.events;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -37,7 +38,7 @@ public abstract class AbstractEventFactory implements EventFactory {
      * @param supportedEventTypes the supported event types
      */
     public AbstractEventFactory(Set<String> supportedEventTypes) {
-        this.supportedEventTypes = Collections.unmodifiableSet(supportedEventTypes);
+        this.supportedEventTypes = Collections.unmodifiableSet(new HashSet<>(supportedEventTypes));
     }
 
     @Override
