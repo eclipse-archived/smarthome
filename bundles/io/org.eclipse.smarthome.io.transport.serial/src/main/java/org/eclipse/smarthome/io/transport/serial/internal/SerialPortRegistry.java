@@ -16,7 +16,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.io.transport.serial.ProtocolType.PathType;
@@ -31,13 +32,14 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * Registers all {@link SerialPortProvider}s which can be accessed here.
  *
  * @author Matthias Steigenberger - Initial Contribution
+ * @author Markus Rathgeb - Respect the possible failure of port identifier creation
  *
  */
 @Component(service = SerialPortRegistry.class)
 @NonNullByDefault
 public class SerialPortRegistry {
 
-    private @NonNullByDefault({}) Collection<SerialPortProvider> portCreators;
+    private @NonNullByDefault({}) final Collection<SerialPortProvider> portCreators;
 
     public SerialPortRegistry() {
         this.portCreators = new HashSet<>();
@@ -65,31 +67,24 @@ public class SerialPortRegistry {
      * Gets the best applicable {@link SerialPortProvider} for the given <code>portName</code>
      *
      * @param portName The port's name.
-     * @return A found {@link SerialPortProvider} or null if none could be found.
+     * @return all possible {@link SerialPortProvider}. If no provider is available an empty collection is returned
      */
-    public @NonNullByDefault({}) SerialPortProvider getPortProviderForPortName(URI portName) {
-        PathType pathType = PathType.fromURI(portName);
+    public Collection<SerialPortProvider> getPortProvidersForPortName(URI portName) {
+        final String scheme = portName.getScheme();
+        final PathType pathType = PathType.fromURI(portName);
 
-        synchronized (this.portCreators) {
-            String scheme = portName.getScheme();
-            Optional<SerialPortProvider> first = scheme != null
-                    ? portCreators.stream()
-                            .filter(provider -> provider.getAcceptedProtocols()
-                                    .filter(prot -> prot.getScheme().equals(scheme)).count() > 0)
-                            .findFirst()
-                    : Optional.empty();
-            // get a PortProvider which accepts exactly the port with its scheme. If there is none, just try a port with
-            // same type (local, net)
-            if (!first.isPresent() && scheme != null) {
-                return null;
-            }
-
-            return first
-                    .orElse(portCreators.stream()
-                            .filter(provider -> provider.getAcceptedProtocols()
-                                    .filter(prot -> prot.getPathType().equals(pathType)).count() > 0)
-                            .findFirst().orElse(null));
+        final Predicate<SerialPortProvider> filter;
+        if (scheme != null) {
+            // Get port providers which accept exactly the port with its scheme.
+            filter = provider -> provider.getAcceptedProtocols().filter(prot -> prot.getScheme().equals(scheme))
+                    .count() > 0;
+        } else {
+            // Get port providers which accept the same type (local, net)
+            filter = provider -> provider.getAcceptedProtocols().filter(prot -> prot.getPathType().equals(pathType))
+                    .count() > 0;
         }
+
+        return portCreators.stream().filter(filter).collect(Collectors.toList());
     }
 
     public Collection<SerialPortProvider> getPortCreators() {
