@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.common.SafeCaller;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -70,6 +71,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
     private ExpressionThreadPoolExecutor scheduler;
 
     private ItemRegistry itemRegistry;
+    private SafeCaller safeCaller;
     private volatile boolean started = false;
 
     final Map<String, PersistenceService> persistenceServices = new HashMap<>();
@@ -101,6 +103,15 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    @Reference
+    protected void setSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = safeCaller;
+    }
+
+    protected void unsetSafeCaller(SafeCaller safeCaller) {
+        this.safeCaller = null;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -252,6 +263,7 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
      *
      * @param item the item to restore the state for
      */
+    @SuppressWarnings("null")
     private void initialize(Item item) {
         // get the last persisted state from the persistence service if no state is yet set
         if (item.getState().equals(UnDefType.NULL) && item instanceof GenericItem) {
@@ -265,20 +277,30 @@ public class PersistenceManagerImpl implements PersistenceManager, ItemRegistryC
                             if (service instanceof QueryablePersistenceService) {
                                 QueryablePersistenceService queryService = (QueryablePersistenceService) service;
                                 FilterCriteria filter = new FilterCriteria().setItemName(item.getName()).setPageSize(1);
-                                Iterable<HistoricItem> result = queryService.query(filter);
-                                Iterator<HistoricItem> it = result.iterator();
-                                if (it.hasNext()) {
-                                    HistoricItem historicItem = it.next();
-                                    GenericItem genericItem = (GenericItem) item;
-                                    genericItem.removeStateChangeListener(this);
-                                    genericItem.setState(historicItem.getState());
-                                    genericItem.addStateChangeListener(this);
-                                    logger.debug("Restored item state from '{}' for item '{}' -> '{}'",
-                                            new Object[] {
-                                                    DateFormat.getDateTimeInstance()
-                                                            .format(historicItem.getTimestamp()),
-                                                    item.getName(), historicItem.getState().toString() });
-                                    return;
+                                Iterable<HistoricItem> result = safeCaller
+                                        .create(queryService, QueryablePersistenceService.class).onTimeout(() -> {
+                                            logger.warn("Querying persistence service '{}' takes more than {}ms.",
+                                                    queryService.getId(), SafeCaller.DEFAULT_TIMEOUT);
+                                        }).onException(e -> {
+                                            logger.error(
+                                                    "Exception occurred while querying persistence service '{}': {}",
+                                                    queryService.getId(), e.getMessage(), e);
+                                        }).build().query(filter);
+                                if (result != null) {
+                                    Iterator<HistoricItem> it = result.iterator();
+                                    if (it.hasNext()) {
+                                        HistoricItem historicItem = it.next();
+                                        GenericItem genericItem = (GenericItem) item;
+                                        genericItem.removeStateChangeListener(this);
+                                        genericItem.setState(historicItem.getState());
+                                        genericItem.addStateChangeListener(this);
+                                        logger.debug("Restored item state from '{}' for item '{}' -> '{}'",
+                                                new Object[] {
+                                                        DateFormat.getDateTimeInstance()
+                                                                .format(historicItem.getTimestamp()),
+                                                        item.getName(), historicItem.getState().toString() });
+                                        return;
+                                    }
                                 }
                             } else if (service != null) {
                                 logger.warn(
