@@ -34,6 +34,7 @@ public class BoseSoundTouchBindingConstants {
     // List of all Thing Type UIDs
     public final static ThingTypeUID BST_UNKNOWN_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "device");
 
+    public final static ThingTypeUID BST_GROUP_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "group");
     public final static ThingTypeUID BST_10_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "10");
     public final static ThingTypeUID BST_20_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "20");
     public final static ThingTypeUID BST_30_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "30");
@@ -45,7 +46,8 @@ public class BoseSoundTouchBindingConstants {
 
     public static final Set<ThingTypeUID> SUPPORTED_KNOWN_THING_TYPES_UIDS = Collections.unmodifiableSet(Stream
             .of(BST_UNKNOWN_THING_TYPE_UID, BST_10_THING_TYPE_UID, BST_20_THING_TYPE_UID, BST_30_THING_TYPE_UID,
-                    BST_300_THING_TYPE_UID, BST_WLA_THING_TYPE_UID, BST_WSMS_THING_TYPE_UID, BST_SA5A_THING_TYPE_UID)
+                    BST_300_THING_TYPE_UID, BST_WLA_THING_TYPE_UID, BST_WSMS_THING_TYPE_UID, BST_SA5A_THING_TYPE_UID,
+                    BST_GROUP_THING_TYPE_UID)
             .collect(Collectors.toSet()));
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<>(SUPPORTED_KNOWN_THING_TYPES_UIDS);

@@ -89,6 +89,7 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
     private PresetContainer presetContainer;
     private BoseStateDescriptionOptionProvider stateOptionProvider;
     private int missedPongsCount = 0;
+    private BoseSoundTouchHandler groupMasterHandler;
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
@@ -108,6 +109,8 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
 
     @Override
     public void initialize() {
+        // reset group master handler
+        groupMasterHandler = null;
         connectionChecker = scheduler.scheduleWithFixedDelay(() -> checkConnection(), 0, RETRY_INTERVAL_IN_SECS,
                 TimeUnit.SECONDS);
     }
@@ -135,6 +138,15 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
+        if (groupMasterHandler != null) {
+            logger.debug("{}: Delegating command ({}) to ({});", getDeviceName(), command, groupMasterHandler.getDeviceName());
+            groupMasterHandler.handleCommandInternal(channelUID, command);
+        } else {
+            handleCommandInternal(channelUID, command);
+        }
+    }
+
+    protected void handleCommandInternal(ChannelUID channelUID, Command command) {
         if (commandExecutor == null) {
             logger.debug("Can't handle command '{}' for channel '{}' because of not initialized connection.", command, channelUID);
             return;
@@ -442,7 +454,8 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
     }
 
     private void checkConnection() {
-        if (getThing().getStatus() != ThingStatus.ONLINE) {
+        if (getThing().getStatus() != ThingStatus.ONLINE
+                && getThing().getStatusInfo().getStatusDetail() != ThingStatusDetail.CONFIGURATION_ERROR) {
             openConnection(); // try to reconnect....
         }
 
@@ -469,5 +482,66 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
                 .map(e -> e.toStateOption())
                 .sorted(Comparator.comparing(StateOption::getValue)).collect(Collectors.toList());
         stateOptionProvider.setStateOptions(new ChannelUID(getThing().getUID(), CHANNEL_PRESET), stateOptions);
+    }
+
+    public void handleGroupUpdated(BoseSoundTouchConfiguration masterPlayerConfiguration) {
+        String deviceId = getMacAddress();
+
+        if (masterPlayerConfiguration != null) {
+            // Stereo pair
+            if (Objects.equals(masterPlayerConfiguration.macAddress, deviceId)) {
+                groupMasterHandler = this;
+
+                if (getThing().getThingTypeUID().equals(BST_10_THING_TYPE_UID)) {
+                    // change thing type to Stereo Pair
+                    logger.debug("{}: Stereo Pair was created and this is the master device. Changing ThingType to: {}",
+                            getDeviceName(), BST_GROUP_THING_TYPE_UID);
+                    changeThingType(BST_GROUP_THING_TYPE_UID, getConfig());
+                } else if (getThing().getThingTypeUID().equals(BST_GROUP_THING_TYPE_UID)) {
+                    // updated group, this is master device, thing type is correct - nothing more to do
+                } else {
+                    // unsupported thing type - LOG
+                    logger.debug("{}: Unsupported operation for player of type: {}", getDeviceName(),
+                            getThing().getThingTypeUID());
+                }
+            } else {
+
+                thingRegistry.stream().filter(t -> {
+                    String playerMac = (String) t.getConfiguration().get(BoseSoundTouchConfiguration.MAC_ADDRESS);
+                    if (playerMac != null && playerMac.replaceAll(":", "").equals(masterPlayerConfiguration.macAddress)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }).findAny().ifPresent(t -> {
+                    BoseSoundTouchHandler.this.groupMasterHandler = (BoseSoundTouchHandler) t.getHandler();
+                });
+
+                if (getThing().getThingTypeUID().equals(BST_10_THING_TYPE_UID)) {
+                    // Stereo Pair was created and this is NOT the master device
+                    logger.debug("{}: Stereo Pair was created and this is NOT the master device.", getDeviceName());
+                    changeThingType(BST_GROUP_THING_TYPE_UID, getConfig());
+                } else if (getThing().getThingTypeUID().equals(BST_GROUP_THING_TYPE_UID)) {
+                    // updated group, this is NOT master device, thing type is correct - nothing more to do
+                } else {
+                    // unsupported thing type - LOG
+                    logger.debug("{}: Unsupported operation for player of type: {}", getDeviceName(),
+                            getThing().getThingTypeUID());
+                }
+            }
+        } else {
+            // NO Stereo Pair
+            groupMasterHandler = this;
+            if (getThing().getThingTypeUID().equals(BST_10_THING_TYPE_UID)) {
+                // nothing to do
+            } else if (getThing().getThingTypeUID().equals(BST_GROUP_THING_TYPE_UID)) {
+                logger.debug("{}: Stereo Pair was disbounded. Changing ThingType to: {}", getDeviceName(),
+                        BST_10_THING_TYPE_UID);
+                changeThingType(BST_10_THING_TYPE_UID, getConfig());
+            } else {
+                logger.debug("{}: Unsupported operation for player of type: {}", getDeviceName(),
+                        getThing().getThingTypeUID());
+            }
+        }
     }
 }

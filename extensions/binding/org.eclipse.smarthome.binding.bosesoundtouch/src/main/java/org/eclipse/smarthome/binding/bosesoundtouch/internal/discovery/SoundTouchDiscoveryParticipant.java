@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.jmdns.ServiceInfo;
@@ -57,15 +58,26 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
         ThingUID uid = getThingUID(info);
         if (uid != null) {
 
+            // remove the domain from the name
+            InetAddress[] addrs = info.getInetAddresses();
+
             Map<String, Object> properties = new HashMap<>(2);
             String label = "Bose SoundTouch";
             try {
-                label = info.getName();
+                if (BST_GROUP_THING_TYPE_UID.equals(uid.getThingTypeUID())) {
+                    try {
+                        String group = DiscoveryUtil
+                                .executeUrl("http://" + addrs[0].getHostAddress() + ":8090/getGroup");
+                        label = DiscoveryUtil.getContentOfFirstElement(group, "name");
+                    } catch (Exception e) {
+                        logger.debug("Can't obtain label for group. Will use the default one");
+                    }
+                } else {
+                    label = info.getName();
+                }
             } catch (Exception e) {
                 // ignore and use default label
             }
-            // remove the domain from the name
-            InetAddress[] addrs = info.getInetAddresses();
 
             // we expect only one address per device..
             if (addrs.length > 1) {
@@ -77,7 +89,7 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
             if (getMacAddress(info) != null) {
                 properties.put(BoseSoundTouchConfiguration.MAC_ADDRESS, new String(getMacAddress(info)));
             }
-            return DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label).build();
+            return DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label).withTTL(600).build();
         }
         return result;
     }
@@ -111,7 +123,11 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
         InetAddress[] addrs = info.getInetAddresses();
         if (addrs.length > 0) {
             String ip = addrs[0].getHostAddress();
-
+            String deviceId = null;
+            byte[] mac = getMacAddress(info);
+            if (mac != null) {
+                deviceId = new String(mac);
+            }
             String deviceType;
             try {
                 String content = DiscoveryUtil.executeUrl("http://" + ip + ":8090/info");
@@ -121,7 +137,24 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
             }
 
             if (deviceType.toLowerCase().contains("soundtouch 10")) {
-                return BST_10_THING_TYPE_UID;
+                // Check if it's a Stereo Pair
+                try {
+                    String group = DiscoveryUtil.executeUrl("http://" + ip + ":8090/getGroup");
+                    String masterDevice = DiscoveryUtil.getContentOfFirstElement(group, "masterDeviceId");
+
+                    if (Objects.equals(deviceId, masterDevice)) {
+                        // Stereo Pair - Master Device
+                        return BST_GROUP_THING_TYPE_UID;
+                    } else if (!masterDevice.isEmpty()) {
+                        // Stereo Pair - Secondary Device - should not be paired
+                        return null;
+                    } else {
+                        // Single player
+                        return BST_10_THING_TYPE_UID;
+                    }
+                } catch (IOException e) {
+                    return null;
+                }
             }
             if (deviceType.toLowerCase().contains("soundtouch 20")) {
                 return BST_20_THING_TYPE_UID;
