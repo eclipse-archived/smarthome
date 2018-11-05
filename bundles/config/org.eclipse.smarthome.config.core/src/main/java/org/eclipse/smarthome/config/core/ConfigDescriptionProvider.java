@@ -21,8 +21,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The {@link ConfigDescriptionProvider} can be implemented and registered as an <i>OSGi</i>
- * service to provide {@link ConfigDescription}s. The {@link ConfigDescriptionRegistry} tracks
- * each {@link ConfigDescriptionProvider} and registers a {@link ConfigDescriptionsChangeListener} on each provider.
+ * service to provide {@link ConfigDescription}s.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Initial contribution
