@@ -10,7 +10,7 @@ Export-Package:
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
  org.eclipse.smarthome.test;uses:="org.osgi.framework"
-Import-Package: com.google.common.collect,
+Import-Package: 
  groovy.lang,
  javax.servlet,
  javax.servlet.http,

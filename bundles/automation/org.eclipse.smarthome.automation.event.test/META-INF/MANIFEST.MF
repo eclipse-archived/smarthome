@@ -7,7 +7,6 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.event.test;singlet
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Import-Package: 
- com.google.common.collect,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.events,

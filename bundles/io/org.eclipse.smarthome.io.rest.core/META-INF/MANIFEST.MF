@@ -14,7 +14,6 @@ Export-Package:
  org.eclipse.smarthome.io.rest.core.service,
  org.eclipse.smarthome.io.rest.core.thing
 Import-Package: 
- com.google.common.collect,
  com.google.gson,
  io.swagger.annotations;resolution:=optional,
  javax.annotation.security;resolution:=optional,

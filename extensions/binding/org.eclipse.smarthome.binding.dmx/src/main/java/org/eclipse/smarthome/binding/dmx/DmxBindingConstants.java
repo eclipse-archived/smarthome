@@ -12,12 +12,13 @@
  */
 package org.eclipse.smarthome.binding.dmx;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link DmxBindingConstants} class defines common constants, which are
@@ -38,9 +39,9 @@ public class DmxBindingConstants {
     public static final ThingTypeUID THING_TYPE_LIB485_BRIDGE = new ThingTypeUID(BINDING_ID, "lib485-bridge");
     public static final ThingTypeUID THING_TYPE_SACN_BRIDGE = new ThingTypeUID(BINDING_ID, "sacn-bridge");
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = ImmutableSet.of(THING_TYPE_ARTNET_BRIDGE,
-            THING_TYPE_LIB485_BRIDGE, THING_TYPE_SACN_BRIDGE, THING_TYPE_CHASER, THING_TYPE_COLOR, THING_TYPE_DIMMER,
-            THING_TYPE_TUNABLEWHITE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(
+            Stream.of(THING_TYPE_ARTNET_BRIDGE, THING_TYPE_LIB485_BRIDGE, THING_TYPE_SACN_BRIDGE, THING_TYPE_CHASER,
+                    THING_TYPE_COLOR, THING_TYPE_DIMMER, THING_TYPE_TUNABLEWHITE).collect(Collectors.toSet()));
 
     // List of all config options
     public static final String CONFIG_UNIVERSE = "universe";

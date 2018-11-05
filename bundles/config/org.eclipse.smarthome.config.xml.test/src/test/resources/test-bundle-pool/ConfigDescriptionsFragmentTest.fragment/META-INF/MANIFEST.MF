@@ -8,6 +8,5 @@ Bundle-SymbolicName: ConfigDescriptionsFragmentTest.fragment;singleton:=
 Bundle-Version: 0.0.1.qualifier
 Fragment-Host: ConfigDescriptionsFragmentTest.host
 Import-Package: 
- com.google.common.collect,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.osgi.framework

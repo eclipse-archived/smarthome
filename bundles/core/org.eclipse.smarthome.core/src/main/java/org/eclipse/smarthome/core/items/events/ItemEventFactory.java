@@ -16,6 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.events.AbstractEventFactory;
@@ -30,8 +32,6 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.Sets;
 
 /**
  * An {@link ItemEventFactory} is responsible for creating item event instances, e.g. {@link ItemCommandEvent}s and
@@ -66,9 +66,9 @@ public class ItemEventFactory extends AbstractEventFactory {
      * Constructs a new ItemEventFactory.
      */
     public ItemEventFactory() {
-        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStatePredictedEvent.TYPE,
+        super(Stream.of(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStatePredictedEvent.TYPE,
                 ItemStateChangedEvent.TYPE, ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE,
-                GroupItemStateChangedEvent.TYPE));
+                GroupItemStateChangedEvent.TYPE).collect(Collectors.toSet()));
     }
 
     @Override

@@ -16,10 +16,14 @@ import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -28,8 +32,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests for {@link InboxPredicates}.
@@ -58,10 +60,10 @@ public class InboxPredicatesTest {
     private final static ThingTypeUID THING_TYPE_UID12 = new ThingTypeUID(BINDING_ID1, THING_TYPE_ID2);
     private final static ThingTypeUID THING_TYPE_UID21 = new ThingTypeUID(BINDING_ID2, THING_TYPE_ID1);
 
-    private final static Map<String, Object> PROPS1 = new ImmutableMap.Builder<String, Object>().put(PROP1, PROP_VAL1)
-            .put(PROP2, PROP_VAL2).build();
-    private final static Map<String, Object> PROPS2 = new ImmutableMap.Builder<String, Object>().put(PROP2, PROP_VAL2)
-            .build();
+    private final static Map<String, Object> PROPS1 = Collections
+            .unmodifiableMap(Stream.of(new SimpleEntry<>(PROP1, PROP_VAL1), new SimpleEntry<>(PROP2, PROP_VAL2))
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+    private final static Map<String, Object> PROPS2 = Collections.singletonMap(PROP2, PROP_VAL2);
 
     private final static List<DiscoveryResultImpl> results = Arrays.asList(
             new DiscoveryResultImpl(THING_TYPE_UID11, THING_UID11, null, PROPS1, PROP1, "label",
