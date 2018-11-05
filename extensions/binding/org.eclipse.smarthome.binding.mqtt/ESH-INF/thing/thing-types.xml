@@ -4,7 +4,7 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<bridge-type id="broker">
+	<bridge-type id="broker" extensible="publishTrigger">
 		<label>MQTT Broker</label>
 		<description>A connection to a MQTT broker</description>
 
@@ -156,7 +156,7 @@
 		</config-description>
 	</bridge-type>
 
-	<bridge-type id="systemBroker">
+	<bridge-type id="systemBroker" extensible="publishTrigger">
 		<label>System MQTT Broker</label>
 		<description>A system configured and therefore read-only broker
 			connection. Properties are reflecting the configuration and internal
@@ -173,4 +173,21 @@
 			<property name="keep_alive_time_ms" />
 		</properties>
 	</bridge-type>
+	
+    <channel-type id="publishTrigger">
+        <kind>trigger</kind>
+        <label>Publish trigger</label>
+        <description>This channel is triggered when a value is published to the configured MQTT topic on this broker connection. The event payload will be the received MQTT topic value.</description>
+        <event></event>
+        <config-description>
+            <parameter name="stateTopic" type="text" required="true">
+                <label>MQTT Topic</label>
+                <description>This channel will trigger on this MQTT topic. This topic can contain wildcards like + and # for example "all/in/#" or "sensors/+/config".</description>
+            </parameter>
+            <parameter name="payload" type="text" required="false">
+                <label>Payload condition</label>
+                <description>An optional condition on the value of the MQTT topic that must match before this channel is triggered</description>
+            </parameter>
+        </config-description>
+    </channel-type>
 </thing:thing-descriptions>
