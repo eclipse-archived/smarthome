@@ -152,16 +152,16 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         } else if (gatewayInfo.isCCU()) {
             // CCU
             if (gatewayInfo.isRfInterface()) {
-                availableInterfaces.put(HmInterface.RF, TransferMode.BIN_RPC);
+                availableInterfaces.put(HmInterface.RF, TransferMode.XML_RPC);
             }
             if (gatewayInfo.isWiredInterface()) {
-                availableInterfaces.put(HmInterface.WIRED, TransferMode.BIN_RPC);
+                availableInterfaces.put(HmInterface.WIRED, TransferMode.XML_RPC);
             }
             if (gatewayInfo.isHmipInterface()) {
                 availableInterfaces.put(HmInterface.HMIP, TransferMode.XML_RPC);
             }
             if (gatewayInfo.isCuxdInterface()) {
-                availableInterfaces.put(HmInterface.CUXD, TransferMode.BIN_RPC);
+                availableInterfaces.put(HmInterface.CUXD, TransferMode.XML_RPC);
             }
             if (gatewayInfo.isGroupInterface()) {
                 availableInterfaces.put(HmInterface.GROUP, TransferMode.XML_RPC);
