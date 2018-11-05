@@ -21,10 +21,11 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.discovery.OwDiscoveryService;
+import org.eclipse.smarthome.binding.onewire.internal.handler.AdvancedMultisensorThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.CounterSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.DigitalIOThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.IButtonThingHandler;
-import org.eclipse.smarthome.binding.onewire.internal.handler.MultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.TemperatureSensorThingHandler;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -74,8 +75,10 @@ public class OwHandlerFactory extends BaseThingHandlerFactory {
             return new IButtonThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (DigitalIOThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new DigitalIOThingHandler(thing, dynamicStateDescriptionProvider);
-        } else if (MultisensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            return new MultisensorThingHandler(thing, dynamicStateDescriptionProvider);
+        } else if (BasicMultisensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new BasicMultisensorThingHandler(thing, dynamicStateDescriptionProvider);
+        } else if (AdvancedMultisensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new AdvancedMultisensorThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (CounterSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new CounterSensorThingHandler(thing, dynamicStateDescriptionProvider);
         }

@@ -68,12 +68,6 @@ public class OwDiscoveryItem {
                 break;
             default:
         }
-
-        if (THING_TYPE_MAP.containsKey(sensorType)) {
-            thingTypeUID = THING_TYPE_MAP.get(sensorType);
-        } else {
-            throw new OwException(sensorType + " cannot be mapped to thing type");
-        }
     }
 
     /**
@@ -144,8 +138,13 @@ public class OwDiscoveryItem {
      *
      * @return ThingTypeUID if mapping successful
      */
-    public ThingTypeUID getThingTypeUID() {
-        return thingTypeUID;
+    public ThingTypeUID getThingTypeUID() throws OwException {
+        if (THING_TYPE_MAP.containsKey(sensorType)) {
+            thingTypeUID = THING_TYPE_MAP.get(sensorType);
+            return thingTypeUID;
+        } else {
+            throw new OwException(sensorType + " cannot be mapped to thing type");
+        }
     }
 
     /**
@@ -245,20 +244,11 @@ public class OwDiscoveryItem {
         logger.debug("checkSensorType: {} with {}", this, associatedSensors);
 
         switch (sensorType) {
-            case AMS:
-            case AMS_S:
-            case BMS:
-            case BMS_S:
             case MS_TH:
             case MS_TH_S:
-            case MS_TV:
                 sensorType = DS2438Configuration.getMultisensorType(sensorType, associatedSensorTypes);
                 break;
             default:
-        }
-
-        if (THING_TYPE_MAP.containsKey(sensorType)) {
-            thingTypeUID = THING_TYPE_MAP.get(sensorType);
         }
     }
 

@@ -15,7 +15,10 @@ The `owserver` is the bridge that connects to an existing OWFS installation.
 
 ### Things
 
-There are three types of things: the generic ones (`counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature`), multisensors built around the DS2438 chip (`ms-th`, `ms-tv`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`). 
+There are three types of things: the generic ones (`counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature`), multisensors built around the DS1923/DS2438 chip (`ms-tx`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`). 
+
+The thing types `ms-th`and `ms-tv` have been marked deprecated and will be updated to `ms-tx`automatically. 
+Manually (via textual configuration) defined things should be changed to `ms-tx`. 
 
 ## Discovery
 
@@ -66,21 +69,13 @@ It's value is `ON` if the device is detected on the bus and `OFF` otherwise.
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
-### Multisensor with Humidity (`ms-th`)
+### Multisensor (`ms-tx`)
 
-The multisensor with humidity is build  around the DS2438 chipset. 
-It provides a `temperature`, a `humidity` and a `supplyvoltage` channel.
-The voltage input of the DS2438 is connected to a humidity sensor, several common types are supported (see below).
+The multisensor is build around the DS2438 or DS1923 chipset. 
+It always provides a `temperature` channel.
 
-The generic sensor with humidity and temperature using DS1923 chipset. 
-It provides a `temperature` and `humidity` channels.
-
-It has two parameters: sensor id `id` and refresh time `refresh`.
-
-### Multisensor with Voltage (`ms-tv`)
-
-The multisensor with voltage is build  around the DS2438 chipset. 
-It provides a `temperature`, a `voltage` and a `supplyvoltage` channel.
+Depnding on the actual sensor, additional channels (`current`, `humidity`, `light`, `voltage`, `supplyvoltage`) are added.
+If the voltage input of the DS2438 is connected to a humidity sensor, several common types are supported (see below).
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
@@ -122,15 +117,15 @@ The correct formula for the ambient light is automatically determined from the s
 
 | Type-ID         | Thing                       | Item    | readonly   | Description                                        |
 |-----------------|-----------------------------|---------|------------|----------------------------------------------------|
-| current         | multisensors                | Number  | yes        | current (if light option not installed)            |
+| current         | ms-tx                       | Number  | yes        | current                                            |
 | counter         | counter2                    | Number  | yes        | countervalue                                       |
-| digital         | digitalX, AMS               | Switch  | no         | digital, can be configured as input or output      |
-| humidity        | multisensors (except ms-tv) | Number  | yes        | relative humidity                                  |
-| light           | ams, bms                    | Number  | yes        | lightness (if installed)                           |
+| digital         | digitalX, ams               | Switch  | no         | digital, can be configured as input or output      |
+| humidity        | ms-tx, ams, bms             | Number  | yes        | relative humidity                                  |
+| light           | ams, bms                    | Number  | yes        | lightness                                          |
 | present         | all                         | Switch  | yes        | sensor found on bus                                |
-| supplyvoltage   | multisensors                | Number  | yes        | sensor supplyvoltage                               |
+| supplyvoltage   | ms-tx                       | Number  | yes        | sensor supplyvoltage                               |
 | temperature     | not digitalX, ibutton       | Number  | yes        | environmental temperature                          |
-| voltage         | ms-tv, ams                  | Number  | yes        | voltage input                                      |
+| voltage         | ms-tx, ams                  | Number  | yes        | voltage input                                      |
 
 ### Digital I/O (`digitalX`)
 
@@ -145,7 +140,7 @@ In `inverted` mode `ON` is logic low and `OFF` is logic high.
 ### Humidity (`humidity`)
 
 Depending on the sensor, the `humidity` channel may have the `humiditytype` parameter.
-This is only needed for the `ms-th` sensors.
+This is only needed for the `ms-tx` sensors.
 `ams` and `bms` sensors select the correct sensor type automatically.
 
 Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for HIH-4000 sensors, `/HTM1735/humidity` for HTM-1735 sensors and `/DATANAB/humidity` for sensors from Datanab.
