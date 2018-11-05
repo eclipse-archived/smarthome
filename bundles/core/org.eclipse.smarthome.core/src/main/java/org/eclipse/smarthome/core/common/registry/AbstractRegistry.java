@@ -436,6 +436,14 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     /**
      * This method traverses over all elements of a provider in the registry and calls the consumer with each element.
      *
+     * <p>
+     * The traversal over the elements is done while holding a lock for the respective internal collections.
+     * If you use this method, please ensure not execution time consuming stuff as it will block any other usage of that
+     * collections.
+     * You should also not call third party code that could e.g. access the registry itself again. This could lead to a
+     * dead lock and hard finding bugs.
+     * The {@link #getAll()} and {@link #stream()} method will operate on a copy and so no lock is hold.
+     *
      * @param provider provider to traverse elements of
      * @param consumer function to call with element
      */
@@ -454,6 +462,14 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
     /**
      * This method traverses over all elements in the registry and calls the consumer with each element.
      *
+     * <p>
+     * The traversal over the elements is done while holding a lock for the respective internal collections.
+     * If you use this method, please ensure not execution time consuming stuff as it will block any other usage of that
+     * collections.
+     * You should also not call third party code that could e.g. access the registry itself again. This could lead to a
+     * dead lock and hard finding bugs.
+     * The {@link #getAll()} and {@link #stream()} method will operate on a copy and so no lock is hold.
+     * 
      * @param consumer function to call with element
      */
     protected void forEach(Consumer<E> consumer) {
@@ -469,6 +485,14 @@ public abstract class AbstractRegistry<E extends Identifiable<K>, K, P extends P
      * This method traverses over all elements in the registry and calls the consumer with the provider of the
      * element as the first parameter and the element as the second argument.
      *
+     * <p>
+     * The traversal over the elements is done while holding a lock for the respective internal collections.
+     * If you use this method, please ensure not execution time consuming stuff as it will block any other usage of that
+     * collections.
+     * You should also not call third party code that could e.g. access the registry itself again. This could lead to a
+     * dead lock and hard finding bugs.
+     * The {@link #getAll()} and {@link #stream()} method will operate on a copy and so no lock is hold.
+     * 
      * @param consumer function to call with the provider and element
      */
     protected void forEach(BiConsumer<Provider<E>, E> consumer) {
