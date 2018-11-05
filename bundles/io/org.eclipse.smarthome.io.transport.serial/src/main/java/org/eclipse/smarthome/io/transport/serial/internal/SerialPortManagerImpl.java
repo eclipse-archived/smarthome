@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * Specific serial port manager implementation.
  *
  * @author Markus Rathgeb - Initial contribution
+ * @author Markus Rathgeb - Respect the possible failure of port identifier creation
  */
 @NonNullByDefault
 @Component
@@ -53,7 +54,25 @@ public class SerialPortManagerImpl implements SerialPortManager {
             logger.warn("SerialPortRegistry is not set; no SerialPortIdentifier found");
             return Stream.empty();
         }
-        return registry.getPortCreators().stream().flatMap(element -> element.getSerialPortIdentifiers());
+
+        return registry.getPortCreators().stream().flatMap(provider -> {
+            try {
+                return provider.getSerialPortIdentifiers();
+            } catch (final UnsatisfiedLinkError error) {
+                /*
+                 * At the time of writing every serial implementation needs some native code.
+                 * So missing some native code for a specific platform is a potential error and we should not
+                 * break the whole handling just because one of the provider miss some of that code.
+                 */
+                logger.warn("The provider \"{}\" miss some native code support.", provider.getClass().getSimpleName(),
+                        error);
+                return Stream.empty();
+            } catch (final RuntimeException ex) {
+                logger.warn("The provider \"{}\" cannot provide its serial port identifiers.",
+                        provider.getClass().getSimpleName(), ex);
+                return Stream.empty();
+            }
+        });
     }
 
     @Override
@@ -62,12 +81,24 @@ public class SerialPortManagerImpl implements SerialPortManager {
             logger.warn("SerialPortRegistry is not set; no SerialPortProvider found for: {}", name);
             return null;
         }
-        URI portUri = URI.create(name);
-        SerialPortProvider portCreator = registry.getPortProviderForPortName(portUri);
-        if (portCreator == null) {
-            logger.warn("No SerialPortProvider found for: {}", name);
-            return null;
+        final URI portUri = URI.create(name);
+        for (final SerialPortProvider provider : registry.getPortProvidersForPortName(portUri)) {
+            try {
+                return provider.getPortIdentifier(portUri);
+            } catch (final UnsatisfiedLinkError error) {
+                /*
+                 * At the time of writing every serial implementation needs some native code.
+                 * So missing some native code for a specific platform is a potential error and we should not
+                 * break the whole handling just because one of the provider miss some of that code.
+                 */
+                logger.warn("The provider \"{}\" miss some native code support.", provider.getClass().getSimpleName(),
+                        error);
+            } catch (final RuntimeException ex) {
+                logger.warn("The provider \"{}\" cannot provide a serial port itendifier for \"{}\".",
+                        provider.getClass().getSimpleName(), name, ex);
+            }
         }
-        return portCreator.getPortIdentifier(portUri);
+        logger.warn("No SerialPortProvider found for: {}", name);
+        return null;
     }
 }
