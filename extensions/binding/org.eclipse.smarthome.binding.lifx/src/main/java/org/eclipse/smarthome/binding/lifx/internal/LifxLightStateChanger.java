@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.PACKET_INTERVAL;
+import static org.eclipse.smarthome.binding.lifx.internal.protocol.Product.Feature.MULTIZONE;
 import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.*;
 
 import java.time.Duration;
@@ -38,7 +39,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightPowerRequest
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetColorRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetColorZonesRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SetLightInfraredRequest;
@@ -72,7 +73,7 @@ public class LifxLightStateChanger implements LifxLightStateListener {
     private final Logger logger = LoggerFactory.getLogger(LifxLightStateChanger.class);
 
     private final String logId;
-    private final Products product;
+    private final Product product;
     private final Duration fadeTime;
     private final LifxLightState pendingLightState;
     private final ScheduledExecutorService scheduler;
@@ -367,7 +368,7 @@ public class LifxLightStateChanger implements LifxLightStateListener {
     }
 
     private void getZonesIfZonesAreSet() {
-        if (product.isMultiZone()) {
+        if (product.hasFeature(MULTIZONE)) {
             List<PendingPacket> pending = pendingPacketsMap.get(SetColorZonesRequest.TYPE);
             if (pending == null || pending.isEmpty()) {
                 GetColorZonesRequest zoneColorPacket = new GetColorZonesRequest();

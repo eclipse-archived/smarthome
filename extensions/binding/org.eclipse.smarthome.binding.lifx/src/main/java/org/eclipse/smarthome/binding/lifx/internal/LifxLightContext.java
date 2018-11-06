@@ -17,7 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler;
 import org.eclipse.smarthome.binding.lifx.handler.LifxLightHandler.CurrentLightState;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
 
 /**
  * The {@link LifxLightContext} shares the context of a light with {@link LifxLightHandler} helper objects.
@@ -31,10 +31,10 @@ public class LifxLightContext {
     private final LifxLightConfig configuration;
     private final CurrentLightState currentLightState;
     private final LifxLightState pendingLightState;
-    private final Products product;
+    private final Product product;
     private final ScheduledExecutorService scheduler;
 
-    public LifxLightContext(String logId, Products product, LifxLightConfig configuration,
+    public LifxLightContext(String logId, Product product, LifxLightConfig configuration,
             CurrentLightState currentLightState, LifxLightState pendingLightState, ScheduledExecutorService scheduler) {
         this.logId = logId;
         this.configuration = configuration;
@@ -52,7 +52,7 @@ public class LifxLightContext {
         return configuration;
     }
 
-    public Products getProduct() {
+    public Product getProduct() {
         return product;
     }
 

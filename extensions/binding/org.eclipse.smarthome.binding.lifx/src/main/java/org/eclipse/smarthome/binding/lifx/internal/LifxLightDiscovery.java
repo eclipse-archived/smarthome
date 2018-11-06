@@ -34,7 +34,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLabelRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetServiceRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetVersionRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLabelResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateServiceResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse;
@@ -87,7 +87,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
         private InetSocketAddress socketAddress;
         private String logId;
         private @Nullable String label;
-        private @Nullable Products product;
+        private @Nullable Product product;
         private long productVersion;
         private boolean supportedProduct = true;
         private LifxSelectorContext selectorContext;
@@ -302,7 +302,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
                     light.label = ((StateLabelResponse) packet).getLabel().trim();
                 } else if (packet instanceof StateVersionResponse) {
                     try {
-                        light.product = Products.getProductFromProductID(((StateVersionResponse) packet).getProduct());
+                        light.product = Product.getProductFromProductID(((StateVersionResponse) packet).getProduct());
                         light.productVersion = ((StateVersionResponse) packet).getVersion();
                     } catch (IllegalArgumentException e) {
                         logger.debug("Discovered an unsupported light ({}): {}", light.macAddress.getAsLabel(),
@@ -324,7 +324,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
     }
 
     private DiscoveryResult createDiscoveryResult(DiscoveredLight light) throws IllegalArgumentException {
-        Products product = light.product;
+        Product product = light.product;
         if (product == null) {
             throw new IllegalArgumentException("Product of discovered light is null");
         }
@@ -345,11 +345,11 @@ public class LifxLightDiscovery extends AbstractDiscoveryService {
 
         builder.withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, macAsLabel);
         builder.withProperty(LifxBindingConstants.PROPERTY_MAC_ADDRESS, macAsLabel);
-        builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, product.getProduct());
+        builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_ID, product.getID());
         builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_NAME, product.getName());
         builder.withProperty(LifxBindingConstants.PROPERTY_PRODUCT_VERSION, light.productVersion);
-        builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_ID, product.getVendor());
-        builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_NAME, product.getVendorName());
+        builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_ID, product.getVendor().getID());
+        builder.withProperty(LifxBindingConstants.PROPERTY_VENDOR_NAME, product.getVendor().getName());
 
         return builder.build();
     }

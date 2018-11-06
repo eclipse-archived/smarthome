@@ -35,7 +35,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.GetHostFirmwareReque
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetVersionRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiFirmwareRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateHostFirmwareResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateVersionResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateWifiFirmwareResponse;
@@ -151,14 +151,14 @@ public class LifxLightPropertiesUpdater {
         }
 
         if (packet instanceof StateVersionResponse) {
-            Products products = Products.getProductFromProductID(((StateVersionResponse) packet).getProduct());
+            Product product = Product.getProductFromProductID(((StateVersionResponse) packet).getProduct());
             long productVersion = ((StateVersionResponse) packet).getVersion();
 
-            properties.put(LifxBindingConstants.PROPERTY_PRODUCT_ID, Long.toString(products.getProduct()));
-            properties.put(LifxBindingConstants.PROPERTY_PRODUCT_NAME, products.getName());
+            properties.put(LifxBindingConstants.PROPERTY_PRODUCT_ID, Long.toString(product.getID()));
+            properties.put(LifxBindingConstants.PROPERTY_PRODUCT_NAME, product.getName());
             properties.put(LifxBindingConstants.PROPERTY_PRODUCT_VERSION, Long.toString(productVersion));
-            properties.put(LifxBindingConstants.PROPERTY_VENDOR_ID, Long.toString(products.getVendor()));
-            properties.put(LifxBindingConstants.PROPERTY_VENDOR_NAME, products.getVendorName());
+            properties.put(LifxBindingConstants.PROPERTY_VENDOR_ID, Long.toString(product.getVendor().getID()));
+            properties.put(LifxBindingConstants.PROPERTY_VENDOR_NAME, product.getVendor().getName());
 
             receivedPacketTypes.add(packet.getPacketType());
         } else if (packet instanceof StateHostFirmwareResponse) {
