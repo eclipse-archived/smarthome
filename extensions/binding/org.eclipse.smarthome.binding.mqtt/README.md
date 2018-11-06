@@ -53,6 +53,17 @@ For more security, the following optional parameters can be altered:
 * __certificate__: The certificate hash. If **certificatepin** is set this hash is used to verify the connection. Clear to allow a new certificate pinning on the next connection attempt. If empty will be filled automatically by the next successful connection. An example input would be `SHA-256:83F9171E06A313118889F7D79302BD1B7A2042EE0CFD029ABF8DD06FFA6CD9D3`.
 * __publickey__: The public key hash. If **publickeypin** is set this hash is used to verify the connection. Clear to allow a new public key pinning on the next connection attempt. If empty will be filled automatically by the next successful connection. An example input would be `SHA-256:83F9171E06A313118889F7D79302BD1B7A2042EE0CFD029ABF8DD06FFA6CD9D3`.
 
+## Supported Channels
+
+You can extend your broker connection bridges with a channel:
+
+* __publishTrigger__: This channel is triggered when a value is published to the configured MQTT topic on this broker connection. The event payload will be the received MQTT topic value.
+
+Configuration parameters are:
+
+* __stateTopic__: This channel will trigger on this MQTT topic. This topic can contain wildcards like + and # for example "all/in/#" or "sensors/+/config".
+* __payload__: An optional condition on the value of the MQTT topic that must match before this channel is triggered.
+
 ## Full Example
 
 In a first example a very secure connection to a broker is defined. It pins the returned certificate and public key.
