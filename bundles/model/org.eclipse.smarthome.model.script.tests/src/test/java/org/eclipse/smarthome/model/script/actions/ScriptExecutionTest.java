@@ -67,6 +67,44 @@ public class ScriptExecutionTest {
     }
 
     /**
+     * Tests that a Timer can be rescheduled after it has terminated
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testRescheduleTimerAfterExecution() throws InterruptedException {
+        MockClosure0 closure = new MockClosure0();
+
+        // Create a Timer to run after 10ms
+        Timer t = ScriptExecution.createTimer(now().plus(10), closure);
+        closure.setTimer(t);
+
+        assertThat(t.isRunning(), is(equalTo(false)));
+        assertThat(t.hasTerminated(), is(equalTo(false)));
+        assertThat(closure.getApplyCount(), is(equalTo(0)));
+
+        // Wait enough time for the Timer to run
+        Thread.sleep(30);
+
+        // Check that the Timer ran
+        assertThat(closure.getApplyCount(), is(equalTo(1)));
+        assertThat(t.isRunning(), is(equalTo(false)));
+        assertThat(t.hasTerminated(), is(equalTo(true)));
+
+        // Now try to reschedule the Timer to run again after 10ms
+        t.reschedule(now().plus(10));
+        assertThat(t.hasTerminated(), is(equalTo(false)));
+
+        // Wait enough time for the Timer to run
+        Thread.sleep(30);
+
+        // Check that the Timer ran again
+        assertThat(closure.getApplyCount(), is(equalTo(2)));
+        assertThat(t.isRunning(), is(equalTo(false)));
+        assertThat(t.hasTerminated(), is(equalTo(true)));
+    }
+
+    /**
      * A mock Closure class that we can use to verify how many times apply() has been called,
      * and optionally schedule timer restarts from within the apply() method.
      *
