@@ -186,7 +186,7 @@
             </parameter>
             <parameter name="payload" type="text" required="false">
                 <label>Payload condition</label>
-                <description>An optional condition on the value of the MQTT topic that must match before this channel is triggered</description>
+                <description>An optional condition on the value of the MQTT topic that must match before this channel is triggered.</description>
             </parameter>
         </config-description>
     </channel-type>
