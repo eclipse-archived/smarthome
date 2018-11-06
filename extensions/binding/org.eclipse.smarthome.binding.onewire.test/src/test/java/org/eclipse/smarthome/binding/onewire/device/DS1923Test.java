@@ -30,7 +30,8 @@ import org.mockito.Mockito;
 /**
  * Tests cases for {@link DS1923}.
  *
- * @author Michał Wójcik - Initial contribution
+ * @author Jan N. Klug - Initial contribution
+ * @author Michał Wójcik - Adapted to DS1923
  */
 public class DS1923Test extends AbstractDeviceTest {
 
@@ -43,7 +44,6 @@ public class DS1923Test extends AbstractDeviceTest {
         addChannel(CHANNEL_HUMIDITY, "Number:Dimensionless");
         addChannel(CHANNEL_ABSOLUTE_HUMIDITY, "Number:Density");
         addChannel(CHANNEL_DEWPOINT, "Number:Temperature");
-        addChannel(CHANNEL_SUPPLYVOLTAGE, "Number:Voltage");
     }
 
     @Test
@@ -99,25 +99,6 @@ public class DS1923Test extends AbstractDeviceTest {
                     eq(new QuantityType<>("0.9381970824113001000 g/m³")));
             inOrder.verify(mockThingHandler).postUpdate(eq(CHANNEL_DEWPOINT),
                     eq(new QuantityType<>("-20.31395053870025 °C")));
-
-            inOrder.verifyNoMoreInteractions();
-        } catch (OwException e) {
-            Assert.fail("caught unexpected OwException");
-        }
-    }
-
-    @Test
-    public void supplyVoltageChannel() {
-        instantiateDevice();
-
-        try {
-            Mockito.when(mockBridgeHandler.checkPresence(testSensorId)).thenReturn(OnOffType.ON);
-            Mockito.when(mockBridgeHandler.readDecimalType(eq(testSensorId), any())).thenReturn(new DecimalType(2.0));
-
-            testDevice.enableChannel(CHANNEL_SUPPLYVOLTAGE);
-            testDevice.configureChannels();
-            inOrder.verify(mockThingHandler).getThing();
-            testDevice.refresh(mockBridgeHandler, true);
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {
