@@ -825,9 +825,11 @@ public class ThingManagerImpl
             thingHandlers.remove(thing.getUID());
             synchronized (thingHandlersByFactory) {
                 final Set<ThingHandler> thingHandlers = thingHandlersByFactory.get(thingHandlerFactory);
-                thingHandlers.remove(thingHandler);
-                if (thingHandlers.isEmpty()) {
-                    thingHandlersByFactory.remove(thingHandlerFactory);
+                if (thingHandlers != null) {
+                    thingHandlers.remove(thingHandler);
+                    if (thingHandlers.isEmpty()) {
+                        thingHandlersByFactory.remove(thingHandlerFactory);
+                    }
                 }
             }
         }, Runnable.class).build().run();
