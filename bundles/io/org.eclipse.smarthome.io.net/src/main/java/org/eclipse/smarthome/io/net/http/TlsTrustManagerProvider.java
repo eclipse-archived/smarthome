@@ -29,6 +29,9 @@ public interface TlsTrustManagerProvider extends TlsProvider {
     /**
      * A X509ExtendedTrustManager for the specified host name
      *
+     * Note that the implementation might call this method multiple times make sure to return the same instance in that
+     * case
+     *
      * @return this can for example be a trustManager extracted after importing a jks trust-store
      */
     X509ExtendedTrustManager getTrustManager();

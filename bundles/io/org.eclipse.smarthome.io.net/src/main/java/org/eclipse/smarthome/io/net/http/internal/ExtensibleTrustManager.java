@@ -18,7 +18,9 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedTrustManager;
@@ -47,8 +49,11 @@ import org.slf4j.LoggerFactory;
 public class ExtensibleTrustManager extends X509ExtendedTrustManager {
     private final Logger logger = LoggerFactory.getLogger(ExtensibleTrustManager.class);
 
+    private static final Queue<X509ExtendedTrustManager> EMPTY_QUEUE = new ConcurrentLinkedQueue<>();
+
     private final X509ExtendedTrustManager defaultTrustManager = TrustManagerUtil.keyStoreToTrustManager(null);
-    private final Map<String, X509ExtendedTrustManager> linkedTrustManager = new ConcurrentHashMap<>();
+    private final Map<String, Queue<X509ExtendedTrustManager>> linkedTrustManager = new ConcurrentHashMap<>();
+    private final Map<TlsCertificateProvider, X509ExtendedTrustManager> mappingFromTlsCertificateProvider = new ConcurrentHashMap<>();
 
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
@@ -117,7 +122,7 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
         try {
             String commonName = getCommonName(chain[0]);
 
-            X509ExtendedTrustManager trustManager = linkedTrustManager.get(commonName);
+            X509ExtendedTrustManager trustManager = linkedTrustManager.getOrDefault(commonName, EMPTY_QUEUE).peek();
 
             if (trustManager != null) {
                 logger.trace("Found trustManager by common name: {}", commonName);
@@ -131,6 +136,8 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
                     .map(e -> e.get(1))
                     .map(Object::toString)
                     .map(linkedTrustManager::get)
+                    .filter(Objects::nonNull)
+                    .map(Queue::peek)
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(null);
@@ -152,48 +159,31 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addTlsCertificateProvider(TlsCertificateProvider tlsCertificateProvider) {
-        String hostName = tlsCertificateProvider.getHostName();
-        if (!linkedTrustManager.containsKey(hostName)) {
-            synchronized (linkedTrustManager) {
-                if (!linkedTrustManager.containsKey(hostName)) {
-                    logger.trace("adding implementation of TlsCertificateProvider for {} to ExtensibleTrustManager",
-                            hostName);
-                    linkedTrustManager.put(hostName,
-                            new TlsCertificateTrustManagerAdapter(tlsCertificateProvider).getTrustManager());
-                    return;
-                }
-            }
-        }
-        logger.error("Ignoring implementation of TlsCertificateProvider for {} because of a duplicate", hostName);
+        X509ExtendedTrustManager trustManager = new TlsCertificateTrustManagerAdapter(tlsCertificateProvider)
+                .getTrustManager();
+        mappingFromTlsCertificateProvider.put(tlsCertificateProvider, trustManager);
+        addLinkedTrustManager(tlsCertificateProvider.getHostName(), trustManager);
     }
 
     protected void removeTlsCertificateProvider(TlsCertificateProvider tlsCertificateProvider) {
-        // TODO this might remove the wrong one, should we do a better check here?
-        synchronized (linkedTrustManager) {
-            linkedTrustManager.remove(tlsCertificateProvider.getHostName());
-        }
+        removeLinkedTrustManager(tlsCertificateProvider.getHostName(),
+                mappingFromTlsCertificateProvider.get(tlsCertificateProvider));
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addTlsTrustManagerProvider(TlsTrustManagerProvider tlsTrustManagerProvider) {
-        String hostName = tlsTrustManagerProvider.getHostName();
-        if (!linkedTrustManager.containsKey(hostName)) {
-            synchronized (linkedTrustManager) {
-                if (!linkedTrustManager.containsKey(hostName)) {
-                    logger.trace("Adding implementation or TlsTrustManagerProvider for {} to ExtensibleTrustManager",
-                            tlsTrustManagerProvider.getHostName());
-                    linkedTrustManager.put(tlsTrustManagerProvider.getHostName(),
-                            tlsTrustManagerProvider.getTrustManager());
-                    return;
-                }
-            }
-        }
-        logger.error("Ignoring implementation of TlsTrustManagerProvider for {} because of a duplicate", hostName);
+        addLinkedTrustManager(tlsTrustManagerProvider.getHostName(), tlsTrustManagerProvider.getTrustManager());
     }
 
     protected void removeTlsTrustManagerProvider(TlsTrustManagerProvider tlsTrustManagerProvider) {
-        synchronized (linkedTrustManager) {
-            linkedTrustManager.remove(tlsTrustManagerProvider.getHostName(), tlsTrustManagerProvider.getTrustManager());
-        }
+        removeLinkedTrustManager(tlsTrustManagerProvider.getHostName(), tlsTrustManagerProvider.getTrustManager());
+    }
+
+    private void addLinkedTrustManager(String hostName, X509ExtendedTrustManager trustManager) {
+        linkedTrustManager.computeIfAbsent(hostName, h -> new ConcurrentLinkedQueue<>()).add(trustManager);
+    }
+
+    private void removeLinkedTrustManager(String hostName, X509ExtendedTrustManager trustManager) {
+        linkedTrustManager.computeIfAbsent(hostName, h -> new ConcurrentLinkedQueue<>()).remove(trustManager);
     }
 }
