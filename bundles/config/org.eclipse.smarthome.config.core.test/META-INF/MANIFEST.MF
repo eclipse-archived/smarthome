@@ -14,6 +14,7 @@ Import-Package:
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
+ org.hamcrest.core,
  org.junit;version="4.0.0",
  org.mockito,
  org.mockito.invocation,
