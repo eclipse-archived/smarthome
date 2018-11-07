@@ -167,7 +167,7 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
 
     protected void removeTlsCertificateProvider(TlsCertificateProvider tlsCertificateProvider) {
         removeLinkedTrustManager(tlsCertificateProvider.getHostName(),
-                mappingFromTlsCertificateProvider.get(tlsCertificateProvider));
+                mappingFromTlsCertificateProvider.remove(tlsCertificateProvider));
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
