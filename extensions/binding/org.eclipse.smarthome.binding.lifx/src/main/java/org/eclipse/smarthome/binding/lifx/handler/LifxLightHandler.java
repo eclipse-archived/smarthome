@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.lifx.handler;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
+import static org.eclipse.smarthome.binding.lifx.internal.protocol.Product.Feature.*;
 import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.increaseDecreasePercentType;
 
 import java.net.InetSocketAddress;
@@ -45,7 +46,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiInfoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.PowerState;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.SignalStrength;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -86,7 +87,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private static final Duration MAX_STATE_CHANGE_DURATION = Duration.ofSeconds(4);
 
     private final LifxChannelFactory channelFactory;
-    private @NonNullByDefault({}) Products product;
+    private @NonNullByDefault({}) Product product;
 
     private @Nullable PercentType powerOnBrightness;
     private @Nullable HSBType powerOnColor;
@@ -197,7 +198,7 @@ public class LifxLightHandler extends BaseThingHandler {
         }
 
         private void updateZoneChannels(@Nullable PowerState powerState, HSBK[] colors) {
-            if (!product.isMultiZone() || colors.length == 0) {
+            if (!product.hasFeature(MULTIZONE) || colors.length == 0) {
                 return;
             }
 
@@ -318,7 +319,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private @Nullable PercentType getPowerOnBrightness() {
         Channel channel = null;
 
-        if (product.isColor()) {
+        if (product.hasFeature(COLOR)) {
             ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_COLOR);
             channel = getThing().getChannel(channelUID.getId());
         } else {
@@ -338,7 +339,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private @Nullable HSBType getPowerOnColor() {
         Channel channel = null;
 
-        if (product.isColor()) {
+        if (product.hasFeature(COLOR)) {
             ChannelUID channelUID = new ChannelUID(getThing().getUID(), LifxBindingConstants.CHANNEL_COLOR);
             channel = getThing().getChannel(channelUID.getId());
         }
@@ -368,13 +369,13 @@ public class LifxLightHandler extends BaseThingHandler {
         return null;
     }
 
-    private Products getProduct() {
+    private Product getProduct() {
         String propertyValue = getThing().getProperties().get(LifxBindingConstants.PROPERTY_PRODUCT_ID);
         try {
             long productID = Long.parseLong(propertyValue);
-            return Products.getProductFromProductID(productID);
+            return Product.getProductFromProductID(productID);
         } catch (IllegalArgumentException e) {
-            return Products.getLikelyProduct(getThing().getThingTypeUID());
+            return Product.getLikelyProduct(getThing().getThingTypeUID());
         }
     }
 

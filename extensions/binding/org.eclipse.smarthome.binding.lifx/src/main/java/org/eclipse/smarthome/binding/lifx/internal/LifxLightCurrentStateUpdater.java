@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.lifx.internal;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.MIN_ZONE_INDEX;
+import static org.eclipse.smarthome.binding.lifx.internal.protocol.Product.Feature.*;
 import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.infraredToPercentType;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,7 +30,7 @@ import org.eclipse.smarthome.binding.lifx.internal.protocol.GetLightInfraredRequ
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.GetWifiInfoRequest;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.Packet;
-import org.eclipse.smarthome.binding.lifx.internal.protocol.Products;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLightInfraredResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateLightPowerResponse;
 import org.eclipse.smarthome.binding.lifx.internal.protocol.StateMultiZoneResponse;
@@ -54,7 +55,7 @@ public class LifxLightCurrentStateUpdater {
     private final Logger logger = LoggerFactory.getLogger(LifxLightCurrentStateUpdater.class);
 
     private final String logId;
-    private final Products product;
+    private final Product product;
     private final CurrentLightState currentLightState;
     private final ScheduledExecutorService scheduler;
     private final LifxLightCommunicationHandler communicationHandler;
@@ -130,10 +131,10 @@ public class LifxLightCurrentStateUpdater {
     private void sendLightStateRequests() {
         communicationHandler.sendPacket(new GetRequest());
 
-        if (product.isInfrared()) {
+        if (product.hasFeature(INFRARED)) {
             communicationHandler.sendPacket(new GetLightInfraredRequest());
         }
-        if (product.isMultiZone()) {
+        if (product.hasFeature(MULTIZONE)) {
             communicationHandler.sendPacket(new GetColorZonesRequest());
         }
         if (updateSignalStrength) {
