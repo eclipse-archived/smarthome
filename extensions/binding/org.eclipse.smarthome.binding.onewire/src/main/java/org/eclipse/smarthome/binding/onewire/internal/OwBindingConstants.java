@@ -104,6 +104,7 @@ public class OwBindingConstants {
         initThingTypeMap.put(OwSensorType.DS18B20, THING_TYPE_TEMPERATURE);
         initThingTypeMap.put(OwSensorType.DS18S20, THING_TYPE_TEMPERATURE);
         initThingTypeMap.put(OwSensorType.DS1822, THING_TYPE_TEMPERATURE);
+        initThingTypeMap.put(OwSensorType.DS1923, THING_TYPE_MS_TH);
         initThingTypeMap.put(OwSensorType.DS2401, THING_TYPE_IBUTTON);
         initThingTypeMap.put(OwSensorType.DS2405, THING_TYPE_DIGITALIO);
         initThingTypeMap.put(OwSensorType.DS2406, THING_TYPE_DIGITALIO2);

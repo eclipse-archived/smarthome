@@ -72,6 +72,9 @@ The multisensor with humidity is build  around the DS2438 chipset.
 It provides a `temperature`, a `humidity` and a `supplyvoltage` channel.
 The voltage input of the DS2438 is connected to a humidity sensor, several common types are supported (see below).
 
+The generic sensor with humidity and temperature using DS1923 chipset. 
+It provides a `temperature` and `humidity` channels.
+
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
 ### Multisensor with Voltage (`ms-tv`)

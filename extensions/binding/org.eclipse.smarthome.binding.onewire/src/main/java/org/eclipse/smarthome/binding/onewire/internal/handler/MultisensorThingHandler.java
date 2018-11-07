@@ -27,9 +27,11 @@ import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
 import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
+import org.eclipse.smarthome.binding.onewire.internal.device.DS1923;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2406_DS2413;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.LightSensorType;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -89,7 +91,14 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
         digitalLastRefresh = 0;
 
         // add sensors
-        sensors.add(new DS2438(sensorIds.get(0), this));
+        if (sensorIds.get(0).startsWith("41") || (properties.get(PROPERTY_MODELID) != null
+                && properties.get(PROPERTY_MODELID).equals(OwSensorType.DS1923.name()))) {
+            // first condition is workaround for
+            // https://github.com/eclipse/smarthome/pull/6326#issuecomment-435109640
+            sensors.add(new DS1923(sensorIds.get(0), this));
+        } else {
+            sensors.add(new DS2438(sensorIds.get(0), this));
+        }
         if (THING_TYPE_BMS.equals(thingType)) {
             sensors.add(new DS18x20(sensorIds.get(1), this));
         } else if (THING_TYPE_AMS.equals(thingType)) {
@@ -246,6 +255,12 @@ public class MultisensorThingHandler extends OwBaseThingHandler {
             } else {
                 // default 10ms
                 digitalRefreshInterval = 10 * 1000;
+            }
+        }
+
+        if (sensors.get(0) instanceof DS1923) {
+            if (thing.getChannel(CHANNEL_SUPPLYVOLTAGE) != null) {
+                thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_SUPPLYVOLTAGE));
             }
         }
 
