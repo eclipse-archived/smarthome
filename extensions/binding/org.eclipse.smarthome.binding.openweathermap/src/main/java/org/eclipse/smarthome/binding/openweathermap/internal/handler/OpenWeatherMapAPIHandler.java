@@ -71,7 +71,7 @@ public class OpenWeatherMapAPIHandler extends BaseBridgeHandler {
 
     @Override
     public void initialize() {
-        logger.debug("Initialize OpenWeatherMap API handler.");
+        logger.debug("Initialize OpenWeatherMap API handler '{}'.", getThing().getUID());
         config = getConfigAs(OpenWeatherMapAPIConfiguration.class);
 
         boolean configValid = true;
@@ -119,7 +119,7 @@ public class OpenWeatherMapAPIHandler extends BaseBridgeHandler {
 
     @Override
     public void dispose() {
-        logger.debug("Dispose OpenWeatherMap API handler.");
+        logger.debug("Dispose OpenWeatherMap API handler '{}'.", getThing().getUID());
         if (refreshJob != null && !refreshJob.isCancelled()) {
             logger.debug("Stop refresh job.");
             if (refreshJob.cancel(true)) {

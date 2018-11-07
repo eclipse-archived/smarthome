@@ -44,7 +44,7 @@ public class OpenWeatherMapDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(OpenWeatherMapDiscoveryService.class);
 
-    private static final int DISCOVERY_TIMEOUT_SECONDS = 30;
+    private static final int DISCOVERY_TIMEOUT_SECONDS = 2;
     private static final int DISCOVERY_INTERVAL_SECONDS = 60;
     private @Nullable ScheduledFuture<?> discoveryJob;
     private final LocationProvider locationProvider;
@@ -55,8 +55,8 @@ public class OpenWeatherMapDiscoveryService extends AbstractDiscoveryService {
     /**
      * Creates an OpenWeatherMapLocationDiscoveryService.
      */
-    public OpenWeatherMapDiscoveryService(OpenWeatherMapAPIHandler bridgeHandler,
-            LocationProvider locationProvider, LocaleProvider localeProvider, TranslationProvider i18nProvider) {
+    public OpenWeatherMapDiscoveryService(OpenWeatherMapAPIHandler bridgeHandler, LocationProvider locationProvider,
+            LocaleProvider localeProvider, TranslationProvider i18nProvider) {
         super(AbstractOpenWeatherMapHandler.SUPPORTED_THING_TYPES, DISCOVERY_TIMEOUT_SECONDS);
         this.bridgeHandler = bridgeHandler;
         this.locationProvider = locationProvider;

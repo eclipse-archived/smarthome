@@ -35,15 +35,11 @@ import org.eclipse.smarthome.binding.openweathermap.internal.model.OpenWeatherMa
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
@@ -84,7 +80,7 @@ public class OpenWeatherMapWeatherAndForecastHandler extends AbstractOpenWeather
     @Override
     public void initialize() {
         super.initialize();
-        logger.debug("Initialize OpenWeatherMapWeatherAndForecastHandler handler {}.", getThing().getUID());
+        logger.debug("Initialize OpenWeatherMapWeatherAndForecastHandler handler '{}'.", getThing().getUID());
         OpenWeatherMapWeatherAndForecastConfiguration config = getConfigAs(
                 OpenWeatherMapWeatherAndForecastConfiguration.class);
 
@@ -157,8 +153,6 @@ public class OpenWeatherMapWeatherAndForecastHandler extends AbstractOpenWeather
                 builder.withChannel(channel);
             }
             updateThing(builder.build());
-
-            updateStatus(ThingStatus.UNKNOWN);
         }
     }
 
@@ -176,13 +170,15 @@ public class OpenWeatherMapWeatherAndForecastHandler extends AbstractOpenWeather
                     dailyForecastData = connection.getDailyForecastData(location, forecastDays);
                 } catch (OpenWeatherMapConfigurationException e) {
                     if (e.getCause() instanceof HttpResponseException) {
+                        logger.warn(e.getLocalizedMessage());
                         forecastDays = 0;
                         Configuration editConfig = editConfiguration();
                         editConfig.put(CONFIG_FORECAST_DAYS, 0);
                         updateConfiguration(editConfig);
+                        logger.debug("Removing daily forecast channel groups.");
                         List<Channel> channels = getThing().getChannels().stream()
-                                .filter(c -> c.getUID().getGroupId().startsWith(CHANNEL_GROUP_FORECAST_TODAY)
-                                        || c.getUID().getGroupId().startsWith(CHANNEL_GROUP_FORECAST_TOMORROW)
+                                .filter(c -> CHANNEL_GROUP_FORECAST_TODAY.equals(c.getUID().getGroupId())
+                                        || CHANNEL_GROUP_FORECAST_TOMORROW.equals(c.getUID().getGroupId())
                                         || c.getUID().getGroupId().startsWith(CHANNEL_GROUP_DAILY_FORECAST_PREFIX))
                                 .collect(Collectors.toList());
                         updateThing(editThing().withoutChannels(channels).build());
@@ -437,23 +433,5 @@ public class OpenWeatherMapWeatherAndForecastHandler extends AbstractOpenWeather
         } else {
             logger.debug("No weather data available to update channel '{}' of group '{}'.", channelId, channelGroupId);
         }
-    }
-
-    private List<Channel> createChannelsForGroup(String channelGroupId, ChannelGroupTypeUID channelGroupTypeUID) {
-        logger.debug("Building channel group '{}' for thing '{}'.", channelGroupId, getThing().getUID());
-        List<Channel> channels = new ArrayList<>();
-        ThingHandlerCallback callback = getCallback();
-        if (callback != null) {
-            for (ChannelBuilder channelBuilder : callback.createChannelBuilders(
-                    new ChannelGroupUID(getThing().getUID(), channelGroupId), channelGroupTypeUID)) {
-                channels.add(channelBuilder.build());
-            }
-        }
-        return channels;
-    }
-
-    private List<Channel> removeChannelsOfGroup(String channelGroupId) {
-        logger.debug("Removing channel group '{}' from thing '{}'.", channelGroupId, getThing().getUID());
-        return getThing().getChannelsOfGroup(channelGroupId);
     }
 }

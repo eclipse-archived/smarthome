@@ -64,21 +64,21 @@ Once the parameters `forecastHours` or `forecastDays` will be changed, the avail
 
 ### Current Weather
 
-| Channel Group ID | Channel ID      | Item Type            | Description                                       |
-|------------------|-----------------|----------------------|---------------------------------------------------|
-| current          | time-stamp      | DateTime             | Time of data observation.                         |
-| current          | condition       | String               | Current weather condition.                        |
-| current          | condition-id    | String               | Id of the current weather condition. **Advanced** |
-| current          | icon            | Image                | Icon representing the current weather condition.  |
-| current          | temperature     | Number:Temperature   | Current temperature.                              |
-| current          | pressure        | Number:Pressure      | Current barometric pressure.                      |
-| current          | humidity        | Number:Dimensionless | Current atmospheric humidity.                     |
-| current          | wind-speed      | Number:Speed         | Current wind speed.                               |
-| current          | wind-direction  | Number:Angle         | Current wind direction.                           |
-| current          | gust-speed      | Number:Speed         | Current gust speed. **Advanced**                  |
-| current          | cloudiness      | Number:Dimensionless | Current cloudiness.                               |
-| current          | rain            | Number:Length        | Rain volume for the last three hours.             |
-| current          | snow            | Number:Length        | Snow volume for the last three hours.             |
+| Channel Group ID | Channel ID     | Item Type            | Description                                       |
+|------------------|----------------|----------------------|---------------------------------------------------|
+| current          | time-stamp     | DateTime             | Time of data observation.                         |
+| current          | condition      | String               | Current weather condition.                        |
+| current          | condition-id   | String               | Id of the current weather condition. **Advanced** |
+| current          | icon           | Image                | Icon representing the current weather condition.  |
+| current          | temperature    | Number:Temperature   | Current temperature.                              |
+| current          | pressure       | Number:Pressure      | Current barometric pressure.                      |
+| current          | humidity       | Number:Dimensionless | Current atmospheric humidity.                     |
+| current          | wind-speed     | Number:Speed         | Current wind speed.                               |
+| current          | wind-direction | Number:Angle         | Current wind direction.                           |
+| current          | gust-speed     | Number:Speed         | Current gust speed. **Advanced**                  |
+| current          | cloudiness     | Number:Dimensionless | Current cloudiness.                               |
+| current          | rain           | Number:Length        | Rain volume for the last three hours.             |
+| current          | snow           | Number:Length        | Snow volume for the last three hours.             |
 
 ### 3 Hour Forecast
 

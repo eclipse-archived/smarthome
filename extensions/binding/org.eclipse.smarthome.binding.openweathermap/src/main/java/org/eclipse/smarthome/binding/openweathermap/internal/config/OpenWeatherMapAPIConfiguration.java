@@ -19,9 +19,11 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.openweathermap.internal.handler.OpenWeatherMapAPIHandler;
 
 /**
- * The {@link OpenWeatherMapAPIConfiguration} is the class used to match the bridge configuration.
+ * The {@link OpenWeatherMapAPIConfiguration} is the class used to match the {@link OpenWeatherMapAPIHandler}s
+ * configuration.
  *
  * @author Christoph Weitkamp - Initial contribution
  */

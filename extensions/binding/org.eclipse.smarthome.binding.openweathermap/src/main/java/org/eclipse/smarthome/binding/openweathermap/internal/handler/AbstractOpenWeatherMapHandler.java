@@ -17,7 +17,9 @@ import static org.eclipse.smarthome.binding.openweathermap.internal.OpenWeatherM
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.measure.Unit;
@@ -36,6 +38,7 @@ import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelGroupUID;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -43,6 +46,10 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -73,7 +80,6 @@ public abstract class AbstractOpenWeatherMapHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        logger.debug("Initialize OpenWeatherMap handler {}.", getThing().getUID());
         OpenWeatherMapLocationConfiguration config = getConfigAs(OpenWeatherMapLocationConfiguration.class);
 
         boolean configValid = true;
@@ -152,7 +158,8 @@ public abstract class AbstractOpenWeatherMapHandler extends BaseThingHandler {
     private void updateChannels() {
         for (Channel channel : getThing().getChannels()) {
             ChannelUID channelUID = channel.getUID();
-            if (isLinked(channelUID.getId()) && channelUID.isInGroup() && channelUID.getGroupId() != null) {
+            if (ChannelKind.STATE.equals(channel.getKind()) && channelUID.isInGroup() && channelUID.getGroupId() != null
+                    && isLinked(channelUID)) {
                 updateChannel(channelUID);
             }
         }
@@ -186,5 +193,23 @@ public abstract class AbstractOpenWeatherMapHandler extends BaseThingHandler {
 
     protected State getQuantityTypeState(@Nullable Number value, Unit<?> unit) {
         return (value == null) ? UnDefType.UNDEF : new QuantityType<>(value, unit);
+    }
+
+    protected List<Channel> createChannelsForGroup(String channelGroupId, ChannelGroupTypeUID channelGroupTypeUID) {
+        logger.debug("Building channel group '{}' for thing '{}'.", channelGroupId, getThing().getUID());
+        List<Channel> channels = new ArrayList<>();
+        ThingHandlerCallback callback = getCallback();
+        if (callback != null) {
+            for (ChannelBuilder channelBuilder : callback.createChannelBuilders(
+                    new ChannelGroupUID(getThing().getUID(), channelGroupId), channelGroupTypeUID)) {
+                channels.add(channelBuilder.build());
+            }
+        }
+        return channels;
+    }
+
+    protected List<Channel> removeChannelsOfGroup(String channelGroupId) {
+        logger.debug("Removing channel group '{}' from thing '{}'.", channelGroupId, getThing().getUID());
+        return getThing().getChannelsOfGroup(channelGroupId);
     }
 }
