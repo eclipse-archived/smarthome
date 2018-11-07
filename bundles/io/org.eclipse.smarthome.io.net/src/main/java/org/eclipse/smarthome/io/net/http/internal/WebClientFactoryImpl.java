@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Bock - Initial contribution
  * @author Kai Kreuzer - added web socket support
+ * @author Martin van Wingerden - Add support for ESHTrustManager
  */
 @Component(immediate = true, configurationPid = "org.eclipse.smarthome.webclient")
 @NonNullByDefault
@@ -69,6 +70,7 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     private static final Pattern CONSUMER_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_\\-]*");
 
     private volatile @Nullable TrustManagerProvider trustmanagerProvider;
+    private @NonNullByDefault({}) ExtensibleTrustManager extensibleTrustManager;
 
     private @NonNullByDefault({}) QueuedThreadPool threadPool;
     private @NonNullByDefault({}) HttpClient commonHttpClient;
@@ -122,6 +124,7 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     }
 
     @Override
+    @Deprecated
     public HttpClient createHttpClient(String consumerName, String endpoint) {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("http client for endpoint {} requested", endpoint);
@@ -130,11 +133,26 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     }
 
     @Override
+    public HttpClient createHttpClient(String consumerName) {
+        logger.debug("http client for consumer {} requested", consumerName);
+        checkConsumerName(consumerName);
+        return createHttpClientInternal(consumerName, null, false);
+    }
+
+    @Override
+    @Deprecated
     public WebSocketClient createWebSocketClient(String consumerName, String endpoint) {
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("web socket client for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
         return createWebSocketClientInternal(consumerName, endpoint, false);
+    }
+
+    @Override
+    public WebSocketClient createWebSocketClient(String consumerName) {
+        logger.debug("web socket client for consumer {} requested", consumerName);
+        checkConsumerName(consumerName);
+        return createWebSocketClientInternal(consumerName, null, false);
     }
 
     @Override
@@ -160,6 +178,7 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
         keepAliveTimeoutCustom = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_CUSTOM, 60);
     }
 
+    @SuppressWarnings({ "null", "unused" })
     private int getConfigParameter(Map<String, Object> parameters, String parameter, int defaultValue) {
         if (parameters == null) {
             return defaultValue;
@@ -225,10 +244,9 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
                 public HttpClient run() {
-                    logger.debug("creating http client for endpoint {}", endpoint);
-                    SslContextFactory sslContextFactory = createSslContextFactory(endpoint);
+                    logger.debug("creating http client for consumer {}, endpoint {}", consumerName, endpoint);
 
-                    HttpClient httpClient = new HttpClient(sslContextFactory);
+                    HttpClient httpClient = new HttpClient(createSslContextFactory(endpoint));
                     final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
                             maxThreadsCustom, keepAliveTimeoutCustom);
 
@@ -264,10 +282,9 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
             return AccessController.doPrivileged(new PrivilegedExceptionAction<WebSocketClient>() {
                 @Override
                 public WebSocketClient run() {
-                    logger.debug("creating web socket client for endpoint {}", endpoint);
-                    SslContextFactory sslContextFactory = createSslContextFactory(endpoint);
+                    logger.debug("creating web socket client for consumer {}, endpoint {}", consumerName, endpoint);
 
-                    WebSocketClient webSocketClient = new WebSocketClient(sslContextFactory);
+                    WebSocketClient webSocketClient = new WebSocketClient(createSslContextFactory(endpoint));
                     final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
                             maxThreadsCustom, keepAliveTimeoutCustom);
 
@@ -320,18 +337,35 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
         }
     }
 
-    @Reference(service = TrustManagerProvider.class, cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-    protected void setTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
-        this.trustmanagerProvider = trustmanagerProvider;
-    }
-
-    protected void unsetTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
-        if (this.trustmanagerProvider == trustmanagerProvider) {
-            this.trustmanagerProvider = null;
+    private SslContextFactory createSslContextFactory(@Nullable String endpoint) {
+        if (endpoint == null) {
+            return createSslContextFactoryFromExtensibleTrustManager();
+        } else {
+            return createSslContextFactoryFromTrustManagerProvider(endpoint);
         }
     }
 
-    private SslContextFactory createSslContextFactory(@Nullable String endpoint) {
+    private SslContextFactory createSslContextFactoryFromExtensibleTrustManager() {
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
+        if (extensibleTrustManager != null) {
+            try {
+                logger.debug("Setting up SSLContext for {}", extensibleTrustManager);
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, new TrustManager[] { extensibleTrustManager }, null);
+                sslContextFactory.setSslContext(sslContext);
+            } catch (NoSuchAlgorithmException | KeyManagementException ex) {
+                throw new HttpClientInitializationException("Cannot create an TLS context!", ex);
+            }
+        }
+
+        String excludeCipherSuites[] = { "^.*_(MD5)$" };
+        sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
+        return sslContextFactory;
+    }
+
+    @Deprecated
+    private SslContextFactory createSslContextFactoryFromTrustManagerProvider(@Nullable String endpoint) {
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
         if (endpoint != null && trustmanagerProvider != null) {
@@ -350,8 +384,34 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
                 }
             }
         }
+
         String excludeCipherSuites[] = { "^.*_(MD5)$" };
         sslContextFactory.setExcludeCipherSuites(excludeCipherSuites);
         return sslContextFactory;
     }
+
+    @Reference
+    @Deprecated
+    protected void setExtensibleTrustManager(ExtensibleTrustManager extensibleTrustManager) {
+        this.extensibleTrustManager = extensibleTrustManager;
+    }
+
+    @Deprecated
+    protected void unsetExtensibleTrustManager(ExtensibleTrustManager extensibleTrustManager) {
+        if (this.extensibleTrustManager == extensibleTrustManager) {
+            this.extensibleTrustManager = null;
+        }
+    }
+
+    @Reference(service = TrustManagerProvider.class, cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    protected void setTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
+        this.trustmanagerProvider = trustmanagerProvider;
+    }
+
+    protected void unsetTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
+        if (this.trustmanagerProvider == trustmanagerProvider) {
+            this.trustmanagerProvider = null;
+        }
+    }
+
 }
