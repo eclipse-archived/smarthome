@@ -1,0 +1,42 @@
+{  
+   "conditions":[  
+    {  
+     "uid":"core.TimeOfDayCondition",
+     "label":"it is a certain time of day",
+     "description":"Compares the item state with the given value",
+     "configDescriptions":[
+      {  
+         "name":"operator",
+         "type":"TEXT",
+         "label":"Operator",
+         "description":"the compare operator (one of equals, later than, or earlier than)",
+         "required":true,
+         "limitToOptions":true,
+         "options":[
+            {
+            "label": "Time equals",
+            "value": "EQUALS"
+            },
+            {
+            "label": "later than",
+            "value": "LATER"
+            },
+            {
+            "label": "earlier than",
+            "value": "EARLIER"
+            }
+          ],
+          "default":"LATER"
+      },
+      {  
+         "name":"time",
+         "context":"time",
+         "type":"TEXT",
+         "label":"Time",
+         "description":"the time (in hh:mm)",
+         "required":true
+      }
+     ]
+    }
+   ]
+}
