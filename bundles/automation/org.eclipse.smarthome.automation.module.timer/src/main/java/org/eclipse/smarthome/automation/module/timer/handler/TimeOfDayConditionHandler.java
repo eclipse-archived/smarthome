@@ -38,8 +38,8 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
      * Constants for Config-Parameters corresponding to Definition in
      * TimeOfDayConditionHandler.json
      */
-    private static final String OPERATOR = "operator";
-    private static final String TIME = "time";
+    private static final String START_TIME = "startTime";
+    private static final String END_TIME = "endTime";
 
     public TimeOfDayConditionHandler(Condition condition) {
         super(condition);
@@ -47,25 +47,42 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
 
     @Override
     public boolean isSatisfied(Map<String, Object> inputs) {
-        String state = (String) module.getConfiguration().get(TIME);
-        String operator = (String) module.getConfiguration().get(OPERATOR);
-        if (operator == null || state == null) {
-            logger.error("Module is not well configured: operator={}  state = {}", operator, state);
+        String startTimeConfig = (String) module.getConfiguration().get(START_TIME);
+        String endTimeConfig = (String) module.getConfiguration().get(END_TIME);
+        if (startTimeConfig == null || endTimeConfig == null) {
+            logger.error("Module is not well configured: startTime={}  endTime = {}", startTimeConfig, endTimeConfig);
             return false;
         }
         LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalTime comparedTime = LocalTime.parse(state).truncatedTo(ChronoUnit.MINUTES);
-        logger.debug("Comparing time values --> {} {} {}", currentTime, operator, comparedTime);
-        switch (operator) {
-            case "EQUALS":
-                return currentTime.equals(comparedTime);
-            case "EARLIER":
-                return currentTime.isBefore(comparedTime);
-            case "LATER":
-                return currentTime.isAfter(comparedTime);
-            default:
-                logger.debug("Invalid operator in time comparison.");
+        LocalTime startTime = LocalTime.parse(startTimeConfig).truncatedTo(ChronoUnit.MINUTES);
+        LocalTime endTime = LocalTime.parse(endTimeConfig).truncatedTo(ChronoUnit.MINUTES);
+
+        // If the current time equals the start time or the end time the condition is always true.
+        if (currentTime.equals(startTime) || currentTime.equals(endTime)) {
+            logger.debug("Time condition with id {} evaluated, that {} is equals to {} or {}.", module.getId(),
+                    currentTime, startTime, endTime);
+            return true;
         }
+        // If the start time is before the end time, the condition will evaluate as true,
+        // if the current time is between the start time and the end time.
+        if (startTime.isBefore(endTime)) {
+            if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+                logger.debug("Time condition with id {} evaluated, that {} is between {} and {}.", module.getId(),
+                        currentTime, startTime, endTime);
+                return true;
+            }
+        }
+        // If the start time is set after the end time, the time values wrap around the midnight mark.
+        // So if the start time is 19:00 and the end time is 07:00, the condition will be true from
+        // 19:00 to 23:59 and 00:00 to 07:00.
+        else if (currentTime.isAfter(LocalTime.MIDNIGHT) && currentTime.isBefore(endTime)
+                || currentTime.isAfter(startTime) && currentTime.isBefore(LocalTime.MAX)) {
+            logger.debug("Time condition with id {} evaluated, that {} is between {} and {}, or between {} and {}.",
+                    module.getId(), currentTime, LocalTime.MIDNIGHT, endTime, startTime,
+                    LocalTime.MAX.truncatedTo(ChronoUnit.MINUTES));
+            return true;
+        }
+        // If none of these conditions apply false is returned.
         return false;
     }
 
