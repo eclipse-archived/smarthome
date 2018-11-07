@@ -65,7 +65,7 @@ If for some reason continuous transmission is needed, the `refreshmode` can be s
 
 ### Lib485 Bridge (`lib485-bridge`)
 
-The Lib385 bridge has one mandatory configuration value: network address (`address`).
+The Lib485 bridge has one mandatory configuration value: network address (`address`).
 This is the host/port where lib485 is running.
 This can be an IP address but it is also allowed to use a FQDN if DNS resolution is available.
 If necessary the default port 9020 can be changed by adding `:<port>` to the address.
