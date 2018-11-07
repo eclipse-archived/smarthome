@@ -65,7 +65,7 @@ public class Configuration {
     /**
      * Create a new configuration.
      *
-     * @param properties the properties to initialize (my by null)
+     * @param properties the properties to initialize (may by null)
      * @param alreadyNormalized flag if the properties are already normalized
      */
     private Configuration(final @Nullable Map<String, Object> properties, final boolean alreadyNormalized) {
