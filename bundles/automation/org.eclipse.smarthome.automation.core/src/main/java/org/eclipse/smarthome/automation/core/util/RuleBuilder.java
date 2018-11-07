@@ -57,7 +57,7 @@ public class RuleBuilder {
         this.triggers = new LinkedList<>(rule.getTriggers());
         this.conditions = new LinkedList<>(rule.getConditions());
         this.actions = new LinkedList<>(rule.getActions());
-        this.configuration = rule.getConfiguration();
+        this.configuration = new Configuration(rule.getConfiguration());
         this.configDescriptions = new LinkedList<>(rule.getConfigurationDescriptions());
         this.templateUID = rule.getTemplateUID();
         this.uid = rule.getUID();
@@ -157,7 +157,7 @@ public class RuleBuilder {
     }
 
     public RuleBuilder withConfiguration(@Nullable Configuration ruleConfiguration) {
-        this.configuration = ruleConfiguration;
+        this.configuration = new Configuration(ruleConfiguration);
         return this;
     }
 
