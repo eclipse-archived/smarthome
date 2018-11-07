@@ -21,7 +21,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -46,7 +45,6 @@ public class ChannelState implements MqttMessageSubscriber {
     private final Logger logger = LoggerFactory.getLogger(ChannelState.class);
 
     protected @Nullable MqttBrokerConnection connection;
-    private final String regexStateTopic;
     private final boolean readOnly;
     protected final ChannelUID channelUID;
     protected final Value value;
@@ -71,8 +69,6 @@ public class ChannelState implements MqttMessageSubscriber {
             @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
         this.config = config;
         this.channelStateUpdateListener = channelStateUpdateListener;
-        this.regexStateTopic = StringUtils
-                .replace(StringUtils.replace(Matcher.quoteReplacement(config.stateTopic), "+", "[^/]*"), "#", ".*");
         this.channelUID = channelUID;
         this.value = value;
         this.readOnly = StringUtils.isBlank(config.commandTopic);
@@ -123,18 +119,9 @@ public class ChannelState implements MqttMessageSubscriber {
      */
     @Override
     public void processMessage(String topic, byte[] payload) {
-        final ChannelStateUpdateListener channelStateUpdateListener = this.getChannelStateUpdateListener();
+        final ChannelStateUpdateListener channelStateUpdateListener = this.channelStateUpdateListener;
         if (channelStateUpdateListener == null) {
             logger.warn("MQTT message received, but MessageSubscriber object hasn't been started!", topic);
-            return;
-        }
-        if (!topic.matches(regexStateTopic)) {
-            logger.warn("Received MQTT data on {}. This does not match the computed regex: {}", topic, regexStateTopic);
-            return;
-        }
-
-        if (readOnly) {
-            logger.warn("Received MQTT data on {}. This channel is read only!", topic);
             return;
         }
 
@@ -274,7 +261,7 @@ public class ChannelState implements MqttMessageSubscriber {
 
         final MqttBrokerConnection connection = this.connection;
 
-        if (!config.commandTopic.isEmpty() && connection != null) {
+        if (!readOnly && connection != null) {
             // Formatter: Applied before the channel state value is published to the MQTT broker.
             if (config.formatBeforePublish.length() > 0) {
                 try (Formatter formatter = new Formatter()) {
@@ -290,7 +277,7 @@ public class ChannelState implements MqttMessageSubscriber {
                     });
         } else {
             CompletableFuture<@Nullable Void> f = new CompletableFuture<>();
-            f.completeExceptionally(new IllegalStateException("No connection or no command topic!"));
+            f.completeExceptionally(new IllegalStateException("No connection or readOnly channel!"));
             return f;
         }
     }

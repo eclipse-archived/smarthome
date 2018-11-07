@@ -40,8 +40,8 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.N
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateHelper;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateHelper;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.SubscribeFieldToMQTTtopic;
@@ -117,6 +117,8 @@ public class HomieThingHandlerTests {
         when(bridgeHandler.getConnectionAsync()).thenReturn(CompletableFuture.completedFuture(connection));
 
         doReturn(CompletableFuture.completedFuture(true)).when(connection).subscribe(any(), any());
+        doReturn(CompletableFuture.completedFuture(true)).when(connection).unsubscribe(any(), any());
+        doReturn(CompletableFuture.completedFuture(true)).when(connection).unsubscribeAll();
         doReturn(CompletableFuture.completedFuture(true)).when(connection).publish(any(), any(), anyInt(),
                 anyBoolean());
 
@@ -316,15 +318,13 @@ public class HomieThingHandlerTests {
         thingHandler.connection = connection;
 
         // Create mocked homie device tree with one node and one property
-        doReturn(future).when(thingHandler.device.attributes).subscribeAndReceive(any(), any(), anyString(), any(),
-                anyInt());
-        doReturn(future).when(thingHandler.device.attributes).unsubscribe();
+        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.attributes).createSubscriber(any(), any(),
+                any(), anyBoolean());
+
         thingHandler.device.attributes.state = ReadyState.ready;
         thingHandler.device.attributes.name = "device";
         thingHandler.device.attributes.homie = "3.0";
         thingHandler.device.attributes.nodes = new String[] { "node" };
-        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.attributes).createSubscriber(any(), any(),
-                any(), anyBoolean());
 
         // Intercept creating a node in initialize()->start() and inject a spy'ed node.
         doAnswer(i -> createSpyNode("node", thingHandler.device)).when(thingHandler.device).createNode(any());
@@ -339,18 +339,18 @@ public class HomieThingHandlerTests {
         verify(thingHandler).propertyAddedOrChanged(any());
         verify(thingHandler).nodeAddedOrChanged(any());
 
+        verify(thingHandler.device).subscribe(any(), any(), anyInt());
+        verify(thingHandler.device).attributesReceived(any(), any(), anyInt());
+
         assertNotNull(thingHandler.device.nodes.get("node").properties.get("property"));
 
         assertTrue(thingHandler.delayedProcessing.isArmed());
 
-        verify(thingHandler).heartbeatIntervalChanged(anyInt());
-        verify(callback, times(1)).thingUpdated(any());
-
         // Simulate waiting for the delayed processor
         thingHandler.delayedProcessing.forceProcessNow();
 
-        // Called for the updated property + for the new channels + for the heartbeat interval update
-        verify(callback, times(3)).thingUpdated(any());
+        // Called for the updated property + for the new channels
+        verify(callback, atLeast(2)).thingUpdated(any());
 
         final List<@NonNull Channel> channels = thingHandler.getThing().getChannels();
         assertThat(channels.size(), is(1));
@@ -359,7 +359,36 @@ public class HomieThingHandlerTests {
 
         final Map<@NonNull String, @NonNull String> properties = thingHandler.getThing().getProperties();
         assertThat(properties.get(MqttBindingConstants.HOMIE_PROPERTY_VERSION), is("3.0"));
-        assertThat(properties.get(MqttBindingConstants.HOMIE_PROPERTY_HEARTBEAT_INTERVAL), is("60"));
-        assertThat(properties.size(), is(2));
+        assertThat(properties.size(), is(1));
+    }
+
+    @Test
+    public void heartBeatInterval()
+            throws InterruptedException, ExecutionException, NoSuchFieldException, SecurityException {
+        thingHandler.device.initialize("homie", "device", new ArrayList<Channel>());
+        thingHandler.connection = connection;
+
+        // Inject spy'ed subscriber object
+        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.stats).createSubscriber(any(), any(), any(),
+                anyBoolean());
+
+        thingHandler.device.attributes.state = ReadyState.ready;
+        thingHandler.device.attributes.name = "device";
+        thingHandler.device.attributes.homie = "3.0";
+        thingHandler.device.attributes.nodes = new String[] {};
+
+        thingHandler.initialize();
+
+        assertThat(thingHandler.device.isInitialized(), is(true));
+
+        verify(thingHandler.device).attributesReceived(any(), any(), anyInt());
+        verify(thingHandler.device.stats).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
+
+        // Emulate a received value for the "interval" topic
+        thingHandler.device.stats.fieldChanged(DeviceStatsAttributes.class.getDeclaredField("interval"), 60);
+
+        verify(thingHandler).heartbeatIntervalChanged(anyInt());
+        verify(callback).thingUpdated(any());
+
     }
 }

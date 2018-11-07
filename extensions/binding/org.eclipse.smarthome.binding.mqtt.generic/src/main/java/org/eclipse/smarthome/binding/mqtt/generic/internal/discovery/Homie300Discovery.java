@@ -82,11 +82,10 @@ public class Homie300Discovery extends AbstractMQTTDiscovery {
     }
 
     /**
-     * Returns true if the version is something like "3.x". We accept
-     * version 3 up to but not including version 4 of the homie spec.
+     * Returns true if the version is something like "3.x" or "4.x".
      */
     public static boolean checkVersion(byte[] payload) {
-        return payload.length > 0 && payload[0] == '3';
+        return payload.length > 0 && (payload[0] == '3' || payload[0] == '4');
     }
 
     @Override

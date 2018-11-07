@@ -14,7 +14,6 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MandatoryField;
 
 /**
  * Homie 3.x Device statistic attributes
@@ -23,20 +22,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MandatoryFiel
  */
 @NonNullByDefault
 public class DeviceStatsAttributes extends AbstractMqttAttributeClass {
-    // The following attributes are part of the specification.
-    // They serve limited use though and their location within the device tree is questionable.
-    // We do not require those from the peer device, for now.
-
-    // public int uptime = 0;
-    // public float signal = 0;
-    // public float cputemp = 0;
-    // public float cpuload = 0;
-    // public float battery = 0;
-    // public int freeheap = 0;
-    // public float supply = 0;
-
-    // The interval time is like a heart-beat/keep-alive timer
-    public @MandatoryField int interval = 60; // In seconds
+    public int interval = 0; // In seconds
 
     @Override
     public Object getFieldsOf() {

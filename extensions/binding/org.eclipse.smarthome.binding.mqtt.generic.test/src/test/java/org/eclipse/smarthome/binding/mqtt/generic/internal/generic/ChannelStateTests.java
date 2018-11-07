@@ -31,7 +31,6 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassist
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.After;
@@ -149,18 +148,5 @@ public class ChannelStateTests extends JavaOSGiTest {
 
         assertThat(textValue.getValue().toString(), is("A TEST"));
         verify(channelStateUpdateListener).updateChannelState(eq(channelUID), any());
-    }
-
-    @Test
-    public void receiveWrongTopicTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ChannelState c = spy(new ChannelState(ChannelConfigBuilder.create("state", "command").build(), channelUID,
-                textValue, channelStateUpdateListener));
-
-        CompletableFuture<@Nullable Void> future = c.start(connection, scheduler, 50);
-        c.processMessage("state2", "A TEST".getBytes());
-        future.get(100, TimeUnit.MILLISECONDS);
-
-        assertThat(textValue.getValue(), is(UnDefType.UNDEF));
-        verify(channelStateUpdateListener, times(0)).updateChannelState(any(), any());
     }
 }

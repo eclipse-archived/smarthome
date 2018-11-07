@@ -189,20 +189,4 @@ public class GenericThingHandlerTests {
         verify(callback).stateUpdated(eq(textChannelUID), argThat(arg -> "UPDATE".equals(arg.toString())));
         assertThat(textValue.getValue().toString(), is("UPDATE"));
     }
-
-    @Test
-    public void processMessageNotMatching() {
-        thingHandler.initialize();
-        byte payload[] = "UPDATE".getBytes();
-        ChannelState channelConfig = spy(thingHandler.channelStateByChannelUID.get(textChannelUID));
-        TextValue textValue = new TextValue();
-        textValue.update("TEST");
-        doReturn(textValue).when(channelConfig).getValue();
-        assertThat(channelConfig.getStateTopic(), is("test/state"));
-        // Test process message
-        channelConfig.processMessage("test/state2", payload);
-
-        verify(callback, times(0)).stateUpdated(eq(textChannelUID), any());
-        assertThat(channelConfig.getValue().getValue().toString(), is("TEST"));
-    }
 }
