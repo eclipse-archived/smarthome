@@ -137,6 +137,12 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.sonos/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-sonyaudio" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.sonyaudio/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-tradfri" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-coap</feature>
