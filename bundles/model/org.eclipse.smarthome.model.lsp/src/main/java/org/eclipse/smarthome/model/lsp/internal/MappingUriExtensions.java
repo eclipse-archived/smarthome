@@ -102,6 +102,26 @@ public class MappingUriExtensions extends UriExtensions {
         return URI.createURI(toPathAsInXtext212(javaNetUri));
     }
 
+    @Override
+    public String toUriString(URI uri) {
+        if (clientLocation == null) {
+            return uri.toString();
+        }
+        return mapToClientPath(uri.toString());
+    }
+
+    @Override
+    public String toUriString(java.net.URI uri) {
+        return toUriString(URI.createURI(uri.toString()));
+    }
+
+    private String mapToClientPath(String pathWithScheme) {
+        String clientPath = toPathAsInXtext212(
+                java.net.URI.create(pathWithScheme.replace(serverLocation, clientLocation)));
+        logger.trace("Mapping server path {} to client path {}", pathWithScheme, clientPath);
+        return clientPath;
+    }
+
     protected final String removeTrailingSlash(String path) {
         if (path.endsWith("/")) {
             return path.substring(0, path.length() - 1);
