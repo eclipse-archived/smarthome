@@ -20,10 +20,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.eclipse.smarthome.config.core.internal.ConfigMapper;
-
 import java.util.Set;
+
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.config.core.internal.ConfigMapper;
 
 /**
  * This class is a wrapper for configuration settings of {@link Thing}s.
@@ -32,12 +32,25 @@ import java.util.Set;
  * @author Kai Kreuzer - added constructors and normalization
  * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
  * @author Chris Jackson - fix concurrent modification exception when removing properties
+ * @author Markus Rathgeb - add copy constructor
  */
 public class Configuration {
     private final Map<String, Object> properties;
 
     public Configuration() {
-        this(null);
+        this(null, true);
+    }
+
+    /**
+     * Create a new configuration.
+     *
+     * <p>
+     * The new configuration is initialized with the values of the given configuration.
+     *
+     * @param configuration the configuration that should be cloned (may be null)
+     */
+    public Configuration(final @Nullable Configuration configuration) {
+        this(configuration != null ? configuration.properties : null, true);
     }
 
     /**
@@ -46,7 +59,25 @@ public class Configuration {
      * @param properties the properties the configuration should be filled. If null, an empty configuration is created.
      */
     public Configuration(Map<String, Object> properties) {
-        this.properties = properties == null ? new HashMap<String, Object>() : ConfigUtil.normalizeTypes(properties);
+        this(properties, false);
+    }
+
+    /**
+     * Create a new configuration.
+     *
+     * @param properties the properties to initialize (may be null)
+     * @param alreadyNormalized flag if the properties are already normalized
+     */
+    private Configuration(final @Nullable Map<String, Object> properties, final boolean alreadyNormalized) {
+        if (properties == null) {
+            this.properties = new HashMap<>();
+        } else {
+            if (alreadyNormalized) {
+                this.properties = new HashMap<>(properties);
+            } else {
+                this.properties = ConfigUtil.normalizeTypes(properties);
+            }
+        }
     }
 
     public <T> T as(Class<T> configurationClass) {

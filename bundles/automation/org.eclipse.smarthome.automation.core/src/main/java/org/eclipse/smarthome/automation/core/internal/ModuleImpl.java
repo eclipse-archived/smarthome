@@ -80,7 +80,7 @@ public abstract class ModuleImpl implements Module {
             @Nullable String description) {
         this.id = id;
         this.type = typeUID;
-        this.configuration = configuration == null ? new Configuration() : configuration;
+        this.configuration = new Configuration(configuration);
         this.label = label;
         this.description = description;
     }
@@ -152,6 +152,6 @@ public abstract class ModuleImpl implements Module {
      * @param configuration new configuration values.
      */
     public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration == null ? new Configuration() : configuration;
+        this.configuration = new Configuration(configuration);
     }
 }
