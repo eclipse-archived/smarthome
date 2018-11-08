@@ -43,10 +43,6 @@ public class ExpiringCache<V> {
      * @param action the action to retrieve/calculate the value
      */
     public ExpiringCache(long expiry, Supplier<V> action) {
-        if (action == null) {
-            throw new IllegalArgumentException("ExpiringCacheItem cannot be created as action is null.");
-        }
-
         this.expiry = TimeUnit.MILLISECONDS.toNanos(expiry);
         this.action = action;
     }
