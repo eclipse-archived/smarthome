@@ -37,11 +37,6 @@ public class ExpiringCacheTest {
         subject = new ExpiringCache<>(CACHE_EXPIRY, CACHE_ACTION);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testIllegalArgumentException1() throws IllegalArgumentException {
-        new ExpiringCache<>(CACHE_EXPIRY, null);
-    }
-
     @Test
     public void testGetValue() {
         // use the same key twice
