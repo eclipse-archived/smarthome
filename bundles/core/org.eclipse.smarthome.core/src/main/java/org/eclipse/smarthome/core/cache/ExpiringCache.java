@@ -16,6 +16,7 @@ import java.lang.ref.SoftReference;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -28,10 +29,11 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @param <V> the type of the value
  */
+@NonNullByDefault
 public class ExpiringCache<V> {
     private final long expiry;
     private final Supplier<V> action;
-    private SoftReference<V> value;
+    private SoftReference<V> value = new SoftReference<>(null);
     private long expiresAt;
 
     /**
@@ -47,15 +49,12 @@ public class ExpiringCache<V> {
 
         this.expiry = TimeUnit.MILLISECONDS.toNanos(expiry);
         this.action = action;
-
-        invalidateValue();
     }
 
     /**
      * Returns the value - possibly from the cache, if it is still valid.
      */
-    @Nullable
-    public synchronized V getValue() {
+    public synchronized @Nullable V getValue() {
         V cachedValue = value.get();
         if (cachedValue == null || isExpired()) {
             return refreshValue();
@@ -86,8 +85,7 @@ public class ExpiringCache<V> {
      *
      * @return the new value
      */
-    @Nullable
-    public synchronized V refreshValue() {
+    public synchronized @Nullable V refreshValue() {
         V freshValue = action.get();
         value = new SoftReference<>(freshValue);
         expiresAt = calcExpiresAt();

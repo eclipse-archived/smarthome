@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @param <K> the type of the key
  * @param <V> the type of the value
  */
+@NonNullByDefault
 public class ExpiringCacheMap<K, V> {
 
     private final Logger logger = LoggerFactory.getLogger(ExpiringCacheMap.class);
@@ -114,7 +116,7 @@ public class ExpiringCacheMap<K, V> {
      * @param action the action for the item to be associated with the specified key to retrieve/calculate the value
      * @return the (cached) value for the specified key
      */
-    public V putIfAbsentAndGet(K key, Supplier<V> action) {
+    public @Nullable V putIfAbsentAndGet(K key, Supplier<V> action) {
         return putIfAbsentAndGet(key, new ExpiringCache<>(expiry, action));
     }
 
@@ -127,10 +129,10 @@ public class ExpiringCacheMap<K, V> {
      * @param item the item to be associated with the specified key
      * @return the (cached) value for the specified key
      */
-    public V putIfAbsentAndGet(K key, ExpiringCache<V> item) {
+    public @Nullable V putIfAbsentAndGet(K key, ExpiringCache<V> item) {
         putIfAbsent(key, item);
 
-        return this.get(key);
+        return get(key);
     }
 
     /**
@@ -193,7 +195,7 @@ public class ExpiringCacheMap<K, V> {
      * @param key the key whose associated value is to be returned
      * @return the value associated with the given key, or null if there is no cached value for the given key
      */
-    public V get(K key) {
+    public @Nullable V get(K key) {
         final ExpiringCache<V> item = items.get(key);
         if (item == null) {
             logger.debug("No item for key '{}' found", key);
@@ -208,7 +210,7 @@ public class ExpiringCacheMap<K, V> {
      *
      * @return the collection of all values
      */
-    public synchronized Collection<V> values() {
+    public synchronized Collection<@Nullable V> values() {
         final Collection<V> values = new LinkedList<>();
         for (final ExpiringCache<V> item : items.values()) {
             values.add(item.getValue());
@@ -243,7 +245,7 @@ public class ExpiringCacheMap<K, V> {
      * @param key the key whose associated value is to be refreshed
      * @return the value associated with the given key, or null if there is no cached value for the given key
      */
-    public synchronized V refresh(K key) {
+    public synchronized @Nullable V refresh(K key) {
         final ExpiringCache<V> item = items.get(key);
         if (item == null) {
             logger.debug("No item for key '{}' found", key);
@@ -258,7 +260,7 @@ public class ExpiringCacheMap<K, V> {
      *
      * @return the collection of all values
      */
-    public synchronized Collection<V> refreshAll() {
+    public synchronized Collection<@Nullable V> refreshAll() {
         final Collection<V> values = new LinkedList<>();
         for (final ExpiringCache<V> item : items.values()) {
             values.add(item.refreshValue());
