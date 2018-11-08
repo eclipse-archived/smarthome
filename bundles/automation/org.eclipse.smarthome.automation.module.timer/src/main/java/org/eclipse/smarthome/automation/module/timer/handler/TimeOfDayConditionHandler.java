@@ -47,20 +47,23 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
 
     @Override
     public boolean isSatisfied(Map<String, Object> inputs) {
+
         String startTimeConfig = (String) module.getConfiguration().get(START_TIME);
         String endTimeConfig = (String) module.getConfiguration().get(END_TIME);
         if (startTimeConfig == null || endTimeConfig == null) {
-            logger.error("Module is not well configured: startTime={}  endTime = {}", startTimeConfig, endTimeConfig);
+            logger.error("Time condition with id {} is not well configured: startTime={}  endTime = {}", module.getId(),
+                    startTimeConfig, endTimeConfig);
             return false;
         }
+
         LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
         LocalTime startTime = LocalTime.parse(startTimeConfig).truncatedTo(ChronoUnit.MINUTES);
         LocalTime endTime = LocalTime.parse(endTimeConfig).truncatedTo(ChronoUnit.MINUTES);
 
-        // If the current time equals the start time or the end time the condition is always true.
-        if (currentTime.equals(startTime) || currentTime.equals(endTime)) {
-            logger.debug("Time condition with id {} evaluated, that {} is equals to {} or {}.", module.getId(),
-                    currentTime, startTime, endTime);
+        // If the current time equals the start time, the condition is always true.
+        if (currentTime.equals(startTime)) {
+            logger.debug("Time condition with id {} evaluated, that the current time {} equals the start time: {}",
+                    module.getId(), currentTime, startTime);
             return true;
         }
         // If the start time is before the end time, the condition will evaluate as true,
