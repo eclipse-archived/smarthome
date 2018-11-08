@@ -16,10 +16,13 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.joda.time.Instant.now;
 import static org.junit.Assert.assertThat;
 
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
-import org.junit.Before;
+import org.eclipse.smarthome.model.script.scheduler.test.MockClosure.MockClosure0;
+import org.eclipse.smarthome.model.script.scheduler.test.MockClosure.MockClosure1;
+import org.eclipse.smarthome.model.script.scheduler.test.MockScheduler;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.quartz.SchedulerException;
+import org.quartz.impl.SchedulerRepository;
 import org.quartz.impl.StdSchedulerFactory;
 
 /**
@@ -29,36 +32,56 @@ import org.quartz.impl.StdSchedulerFactory;
  *
  */
 public class ScriptExecutionTest {
+    private static MockScheduler scheduler;
 
     /**
-     * Make sure that the Quartz scheduler is running
+     * Set up Quartz to use our mock scheduler class
      *
      * @throws SchedulerException
      */
-    @Before
-    public void startScheduler() throws SchedulerException {
-        StdSchedulerFactory.getDefaultScheduler().start();
+    @BeforeClass
+    public static void setUp() throws SchedulerException {
+        scheduler = new MockScheduler();
+        System.setProperty(StdSchedulerFactory.PROPERTIES_FILE, "quartz-test.properties");
+        SchedulerRepository.getInstance().bind(scheduler);
+
+        assertThat(StdSchedulerFactory.getDefaultScheduler(), sameInstance(scheduler));
+    }
+
+    private Timer createTimer(MockClosure0 closure) {
+        Timer timer = ScriptExecution.createTimer(now(), closure);
+        // The code in our mock closure needs access to the timer object
+        closure.setTimer(timer);
+        return timer;
+    }
+
+    private Timer createTimer(Object arg, MockClosure1 closure) {
+        Timer timer = ScriptExecution.createTimerWithArgument(now(), arg, closure);
+        // The code in our mock closure needs access to the timer object
+        closure.setTimer(timer);
+        return timer;
     }
 
     /**
-     * Test that a Timer can be rescheduled from within its closure
+     * Test that a running Timer can be rescheduled from within its closure
      *
-     * @throws InterruptedException
+     * @throws Exception
      */
     @Test
-    public void testRescheduleTimerDuringExecution() throws InterruptedException {
+    public void testRescheduleTimerDuringExecution() throws Exception {
         MockClosure0 closure = new MockClosure0(1);
-
-        // Create a Timer to run after 10ms
-        Timer t = ScriptExecution.createTimer(now().plus(10), closure);
-        closure.setTimer(t);
+        Timer t = createTimer(closure);
 
         assertThat(t.isRunning(), is(equalTo(false)));
         assertThat(t.hasTerminated(), is(equalTo(false)));
         assertThat(closure.getApplyCount(), is(equalTo(0)));
+        assertThat(scheduler.getPendingJobCount(), is(equalTo(1)));
 
-        // Wait enough time for the Timer to run twice
-        Thread.sleep(30);
+        // Run the scheduler twice
+        scheduler.run();
+        assertThat(scheduler.getPendingJobCount(), is(equalTo(1)));
+        scheduler.run();
+        assertThat(scheduler.getPendingJobCount(), is(equalTo(0)));
 
         // Check that the Timer ran
         assertThat(closure.getApplyCount(), is(equalTo(2)));
@@ -66,42 +89,26 @@ public class ScriptExecutionTest {
         assertThat(t.hasTerminated(), is(equalTo(true)));
     }
 
-    /**
-     * A mock Closure class that we can use to verify how many times apply() has been called,
-     * and optionally schedule timer restarts from within the apply() method.
-     *
-     */
-    class MockClosure0 implements Procedure0 {
-        private int rescheduleCount;
-        private int applyCount;
-        private Timer timer;
+    @Test
+    public void testClosureWithOneArgument() throws Exception {
+        Object arg = Integer.valueOf(42);
+        MockClosure1 closure = new MockClosure1(arg, 1);
+        Timer t = createTimer(arg, closure);
 
-        public MockClosure0() {
-            this(0);
-        }
+        assertThat(t.isRunning(), is(equalTo(false)));
+        assertThat(t.hasTerminated(), is(equalTo(false)));
+        assertThat(closure.getApplyCount(), is(equalTo(0)));
+        assertThat(scheduler.getPendingJobCount(), is(equalTo(1)));
 
-        public MockClosure0(int rescheduleCount) {
-            this.rescheduleCount = rescheduleCount;
-        }
+        // Run the scheduler twice
+        scheduler.run();
+        assertThat(scheduler.getPendingJobCount(), is(equalTo(1)));
+        scheduler.run();
+        assertThat(scheduler.getPendingJobCount(), is(equalTo(0)));
 
-        @Override
-        public void apply() {
-            this.applyCount++;
-            // Might as well also test Timer#isRunning()
-            assertThat(timer.isRunning(), is(equalTo(true)));
-
-            if (this.rescheduleCount > 0) {
-                this.rescheduleCount--;
-                this.timer.reschedule(now().plus(10));
-            }
-        }
-
-        public void setTimer(Timer timer) {
-            this.timer = timer;
-        }
-
-        public int getApplyCount() {
-            return applyCount;
-        }
+        // Check that the Timer ran
+        assertThat(closure.getApplyCount(), is(equalTo(2)));
+        assertThat(t.isRunning(), is(equalTo(false)));
+        assertThat(t.hasTerminated(), is(equalTo(true)));
     }
 }
