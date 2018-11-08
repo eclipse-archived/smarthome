@@ -72,7 +72,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
 
     /**
      * Low battery default system wide {@link ChannelType}. Represents a low battery warning with possible values
-     * on/off.
+     * on (low battery) and off (battery ok).
      */
     public static final ChannelType SYSTEM_CHANNEL_LOW_BATTERY = ChannelTypeBuilder
             .state(new ChannelTypeUID(BINDING_ID, "low-battery"), "Low Battery", "Switch").withCategory("Battery")
