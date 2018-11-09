@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AnnotationActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
 
+    private static final String MODULE_RESULT = "result";
+
     private final Logger logger = LoggerFactory.getLogger(AnnotationActionHandler.class);
 
     private final Method method;
@@ -57,11 +59,11 @@ public class AnnotationActionHandler extends BaseModuleHandler<Action> implement
     public Map<String, Object> execute(Map<String, Object> context) {
         Map<String, Object> output = new HashMap<>();
 
-        Annotation[][] annots = method.getParameterAnnotations();
+        Annotation[][] annotations = method.getParameterAnnotations();
         List<Object> args = new ArrayList<>();
 
-        for (int i = 0; i < annots.length; i++) {
-            Annotation[] annotationsOnParam = annots[i];
+        for (int i = 0; i < annotations.length; i++) {
+            Annotation[] annotationsOnParam = annotations[i];
             if (annotationsOnParam != null && annotationsOnParam.length == 1) {
                 if (annotationsOnParam[0] instanceof ActionInput) {
                     ActionInput inputAnnotation = (ActionInput) annotationsOnParam[0];
@@ -76,7 +78,6 @@ public class AnnotationActionHandler extends BaseModuleHandler<Action> implement
                     }
                 }
             } else {
-                // TODO: sync "p+i" into constant with AnnotationActionModuleTypeProvider
                 // no annotation on parameter, try to fetch the generic parameter from the context
                 args.add(i, context.get("p" + i));
             }
@@ -104,17 +105,17 @@ public class AnnotationActionHandler extends BaseModuleHandler<Action> implement
                 }
                 // we allow simple data types as return values and put them under the context key "result".
             } else if (result instanceof Boolean) {
-                output.put("result", (boolean) result);
+                output.put(MODULE_RESULT, (boolean) result);
             } else if (result instanceof String) {
-                output.put("result", result);
+                output.put(MODULE_RESULT, result);
             } else if (result instanceof Integer) {
-                output.put("result", result);
+                output.put(MODULE_RESULT, result);
             } else if (result instanceof Double) {
-                output.put("result", (double) result);
+                output.put(MODULE_RESULT, (double) result);
             } else if (result instanceof Float) {
-                output.put("result", (float) result);
+                output.put(MODULE_RESULT, (float) result);
             } else {
-                logger.error("Non compatible return type '{}' on action method.", result.getClass());
+                logger.warn("Non compatible return type '{}' on action method.", result.getClass());
             }
         }
 

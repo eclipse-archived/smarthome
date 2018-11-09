@@ -19,7 +19,7 @@ package org.eclipse.smarthome.core.thing.binding;
  * @author Stefan Triller - initial contribution
  *
  */
-public interface AnnotatedThingActions {
+public interface ThingHandlerService {
 
     public static final String ACTION_THING_UID = "esh.thingActionID";
 

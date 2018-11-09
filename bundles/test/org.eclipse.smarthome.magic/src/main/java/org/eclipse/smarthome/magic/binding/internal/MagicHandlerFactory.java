@@ -15,17 +15,13 @@ package org.eclipse.smarthome.magic.binding.internal;
 import static org.eclipse.smarthome.magic.binding.MagicBindingConstants.*;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
@@ -47,8 +43,6 @@ import org.eclipse.smarthome.magic.binding.handler.MagicOnlineOfflineHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicPlayerHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicRolllershutterHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicThermostatThingHandler;
-import org.eclipse.smarthome.magic.binding.internal.automation.modules.MagicThingActionsService;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -67,8 +61,6 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
                     THING_TYPE_BRIDGED_THING, THING_TYPE_CHATTY_THING, THING_TYPE_ROLLERSHUTTER, THING_TYPE_PLAYER,
                     THING_TYPE_IMAGE, THING_TYPE_ACTION_MODULE, THING_TYPE_ONLINE_OFFLINE)
             .collect(Collectors.toSet()));
-
-    private final Map<ThingUID, @Nullable ServiceRegistration<?>> actionServiceRegs = new HashMap<>();
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -126,12 +118,6 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
         if (thingTypeUID.equals(THING_TYPE_ACTION_MODULE)) {
             MagicActionModuleThingHandler handler = new MagicActionModuleThingHandler(thing);
-
-            MagicThingActionsService actionProvider = new MagicThingActionsService();
-            actionProvider.setThingHandler(handler);
-            ServiceRegistration<?> serviceReg = registerActionService(thing, handler, actionProvider);
-            this.actionServiceRegs.put(thing.getUID(), serviceReg);
-
             return handler;
         }
         if (thingTypeUID.equals(THING_TYPE_ONLINE_OFFLINE)) {
@@ -143,16 +129,5 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
 
         return null;
-    }
-
-    @Override
-    protected void removeHandler(ThingHandler thingHandler) {
-        if (thingHandler instanceof MagicActionModuleThingHandler) {
-            ServiceRegistration<?> serviceReg = this.actionServiceRegs.remove(thingHandler.getThing().getUID());
-            if (serviceReg != null) {
-                // remove actionprovider service, if handler is removed
-                serviceReg.unregister();
-            }
-        }
     }
 }

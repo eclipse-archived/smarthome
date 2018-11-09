@@ -31,7 +31,6 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
@@ -50,17 +49,11 @@ public class AnnotationActionModuleTypeProvider extends BaseModuleHandlerFactory
 
     private final Collection<ProviderChangeListener<ModuleType>> changeListeners = ConcurrentHashMap.newKeySet();
     private Map<String, Set<ModuleInformation>> moduleInformation = new ConcurrentHashMap<>();
-    private AnnotationActionModuleTypeHelper helper;
-
-    @Activate
-    public void activate() {
-        helper = new AnnotationActionModuleTypeHelper();
-    }
+    private final AnnotationActionModuleTypeHelper helper = new AnnotationActionModuleTypeHelper();
 
     @Override
     @Deactivate
     protected void deactivate() {
-        this.helper = null;
         this.moduleInformation = null;
     }
 

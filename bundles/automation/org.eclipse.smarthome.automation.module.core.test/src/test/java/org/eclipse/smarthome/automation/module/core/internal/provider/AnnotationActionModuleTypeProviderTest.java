@@ -78,7 +78,6 @@ public class AnnotationActionModuleTypeProviderTest extends JavaTest {
     @Test
     public void testMultiServiceAnnotationActions() {
         AnnotationActionModuleTypeProvider prov = new AnnotationActionModuleTypeProvider();
-        prov.activate();
 
         HashMap<String, Object> properties1 = new HashMap<String, Object>();
         properties1.put(ConfigConstants.SERVICE_CONTEXT, "conf1");

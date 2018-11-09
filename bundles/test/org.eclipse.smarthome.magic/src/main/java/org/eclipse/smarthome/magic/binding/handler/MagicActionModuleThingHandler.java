@@ -12,12 +12,16 @@
  */
 package org.eclipse.smarthome.magic.binding.handler;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.magic.binding.internal.automation.modules.MagicThingActionsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +53,11 @@ public class MagicActionModuleThingHandler extends BaseThingHandler {
     public void communicateActionToDevice(String doSomething) {
         String text = (String) thing.getConfiguration().get("textParam");
         logger.debug("Handler with textParam={} pushes action {}  to device.", text, doSomething);
+    }
+
+    @Override
+    public Collection<Class> getServices() {
+        return Arrays.asList(new Class[] { MagicThingActionsService.class });
     }
 
 }

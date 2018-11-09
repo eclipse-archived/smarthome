@@ -32,9 +32,8 @@ import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.thing.binding.AnnotatedThingActions;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -51,15 +50,10 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
 
     private final Collection<ProviderChangeListener<ModuleType>> changeListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, Set<ModuleInformation>> moduleInformation = new ConcurrentHashMap<>();
-    private AnnotationActionModuleTypeHelper helper;
-
-    @Activate
-    protected void activate() {
-        this.helper = new AnnotationActionModuleTypeHelper();
-    }
+    private final AnnotationActionModuleTypeHelper helper = new AnnotationActionModuleTypeHelper();
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public void addAnnotatedThingActions(AnnotatedThingActions annotatedThingActions, Map<String, Object> properties) {
+    public void addAnnotatedThingActions(ThingHandlerService annotatedThingActions, Map<String, Object> properties) {
         Collection<ModuleInformation> moduleInformations = helper.parseAnnotations(annotatedThingActions);
 
         String thingUID = getThingUIDFromService(properties);
@@ -91,7 +85,7 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
         }
     }
 
-    public void removeAnnotatedThingActions(AnnotatedThingActions annotatedThingActions,
+    public void removeAnnotatedThingActions(ThingHandlerService annotatedThingActions,
             Map<String, Object> properties) {
         Collection<ModuleInformation> moduleInformations = helper.parseAnnotations(annotatedThingActions);
 

@@ -13,8 +13,11 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -33,6 +36,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link BaseThingHandlerFactory} provides a base implementation for the {@link ThingHandlerFactory} interface.
@@ -53,8 +58,12 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     @NonNullByDefault({})
     protected BundleContext bundleContext;
 
+    private final Logger logger = LoggerFactory.getLogger(BaseThingHandlerFactory.class);
+
     private final Map<String, @Nullable ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
     private final Map<String, @Nullable ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
+
+    private final Map<ThingUID, Set<ServiceRegistration<?>>> thingHandlerServices = new ConcurrentHashMap<>();
 
     @NonNullByDefault({})
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
@@ -130,7 +139,69 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         setHandlerContext(thingHandler);
         registerConfigStatusProvider(thing, thingHandler);
         registerFirmwareUpdateHandler(thing, thingHandler);
+        registerServices(thing, thingHandler);
         return thingHandler;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void registerServices(Thing thing, ThingHandler thingHandler) {
+        ThingUID thingUID = thing.getUID();
+        for (Class c : thingHandler.getServices()) {
+            Object serviceInstance;
+            try {
+                serviceInstance = c.newInstance();
+
+                if (serviceInstance instanceof ThingHandlerService) {
+                    ThingHandlerService ths = (ThingHandlerService) serviceInstance;
+                    ths.setThingHandler(thingHandler);
+                } else {
+                    logger.warn(
+                            "Should register service={} for thingUID={}, but it does not implement the interface ThingHandlerService.",
+                            c.getCanonicalName(), thingUID);
+                    continue;
+                }
+
+                Dictionary<String, String> properties = new Hashtable<>();
+                properties.put(ThingHandlerService.ACTION_THING_UID, thingUID.getAsString());
+
+                Class[] interfaces = c.getInterfaces();
+                LinkedList<String> serviceNames = new LinkedList<>();
+                if (interfaces != null) {
+                    for (Class i : interfaces) {
+                        serviceNames.add(i.getCanonicalName());
+                    }
+                }
+
+                String[] serviceNamesArray = serviceNames.toArray(new String[serviceNames.size()]);
+
+                ServiceRegistration<?> serviceReg = this.bundleContext.registerService(serviceNamesArray,
+                        serviceInstance, properties);
+
+                if (serviceReg != null) {
+                    Set<ServiceRegistration<?>> serviceRegs = this.thingHandlerServices.get(thingUID);
+                    if (serviceRegs == null) {
+                        HashSet<ServiceRegistration<?>> set = new HashSet<>();
+                        set.add(serviceReg);
+                        this.thingHandlerServices.put(thingUID, set);
+                    } else {
+                        serviceRegs.add(serviceReg);
+                    }
+                }
+            } catch (InstantiationException | IllegalAccessException e) {
+                logger.warn("Could not register service for class={}", c, e);
+            }
+        }
+    }
+
+    private void unregisterServices(Thing thing) {
+        ThingUID thingUID = thing.getUID();
+        // ThingHandler thingHandler = thing.getHandler();
+        Set<ServiceRegistration<?>> serviceRegs = this.thingHandlerServices.remove(thingUID);
+        if (serviceRegs != null) {
+            for (ServiceRegistration<?> serviceReg : serviceRegs) {
+                serviceReg.unregister();
+            }
+        }
     }
 
     /**
@@ -175,11 +246,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     }
 
     protected ServiceRegistration<?> registerActionService(Thing thing, ThingHandler handler,
-            AnnotatedThingActions actionProvider) {
+            ThingHandlerService actionProvider) {
         Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(AnnotatedThingActions.ACTION_THING_UID, thing.getUID().getAsString());
+        properties.put(ThingHandlerService.ACTION_THING_UID, thing.getUID().getAsString());
 
-        return this.bundleContext.registerService(AnnotatedThingActions.class, actionProvider, properties);
+        return this.bundleContext.registerService(ThingHandlerService.class, actionProvider, properties);
     }
 
     @Override
@@ -191,6 +262,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         }
         unregisterConfigStatusProvider(thing);
         unregisterFirmwareUpdateHandler(thing);
+        unregisterServices(thing);
     }
 
     /**

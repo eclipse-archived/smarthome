@@ -56,10 +56,10 @@ public class AnnotationActionModuleTypeHelper {
     private static final String SELECT_SERVICE_LABEL = "Service Instance";
     public static final String CONFIG_PARAM = "config";
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Collection<ModuleInformation> parseAnnotations(Object actionProvider) {
         Collection<ModuleInformation> moduleInformation = new ArrayList<>();
 
-        // Class<? extends AnnotatedActions> clazz = actionProvider.getClass();
         Class clazz = actionProvider.getClass();
         if (clazz.isAnnotationPresent(ActionScope.class)) {
             ActionScope scope = (ActionScope) clazz.getAnnotation(ActionScope.class);
