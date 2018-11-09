@@ -52,16 +52,6 @@ public class ExpiringCacheMapTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPutIllegalArgumentException1() throws IllegalArgumentException {
-        subject.put(FIRST_TEST_KEY, (Supplier<String>) null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutIllegalArgumentException2() throws IllegalArgumentException {
-        subject.put(FIRST_TEST_KEY, (ExpiringCache<String>) null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testPutIllegalArgumentException3() throws IllegalArgumentException {
         subject.put(null, CACHE_ACTION);
     }

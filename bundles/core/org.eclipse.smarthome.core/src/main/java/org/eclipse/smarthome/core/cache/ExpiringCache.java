@@ -13,9 +13,10 @@
 package org.eclipse.smarthome.core.cache;
 
 import java.lang.ref.SoftReference;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -25,14 +26,28 @@ import org.eclipse.jdt.annotation.Nullable;
  * answer from the last calculation is not valid anymore, i.e. if it is expired.
  *
  * @author Christoph Weitkamp - Initial contribution
+ * @author Martin van Wingerden - Add Duration constructor
  *
  * @param <V> the type of the value
  */
+@NonNullByDefault
 public class ExpiringCache<V> {
     private final long expiry;
-    private final Supplier<V> action;
-    private SoftReference<V> value;
+    private final Supplier<@Nullable V> action;
+
+    private SoftReference<@Nullable V> value = new SoftReference<>(null);
     private long expiresAt;
+
+    /**
+     * Create a new instance.
+     *
+     * @param expiry the duration for how long the value stays valid
+     * @param action the action to retrieve/calculate the value
+     */
+    public ExpiringCache(Duration expiry, Supplier<@Nullable V> action) {
+        this.expiry = expiry.toNanos();
+        this.action = action;
+    }
 
     /**
      * Create a new instance.
@@ -40,22 +55,14 @@ public class ExpiringCache<V> {
      * @param expiry the duration in milliseconds for how long the value stays valid
      * @param action the action to retrieve/calculate the value
      */
-    public ExpiringCache(long expiry, Supplier<V> action) {
-        if (action == null) {
-            throw new IllegalArgumentException("ExpiringCacheItem cannot be created as action is null.");
-        }
-
-        this.expiry = TimeUnit.MILLISECONDS.toNanos(expiry);
-        this.action = action;
-
-        invalidateValue();
+    public ExpiringCache(long expiry, Supplier<@Nullable V> action) {
+        this(Duration.ofMillis(expiry), action);
     }
 
     /**
      * Returns the value - possibly from the cache, if it is still valid.
      */
-    @Nullable
-    public synchronized V getValue() {
+    public synchronized @Nullable V getValue() {
         V cachedValue = value.get();
         if (cachedValue == null || isExpired()) {
             return refreshValue();
@@ -86,8 +93,7 @@ public class ExpiringCache<V> {
      *
      * @return the new value
      */
-    @Nullable
-    public synchronized V refreshValue() {
+    public synchronized @Nullable V refreshValue() {
         V freshValue = action.get();
         value = new SoftReference<>(freshValue);
         expiresAt = calcExpiresAt();
