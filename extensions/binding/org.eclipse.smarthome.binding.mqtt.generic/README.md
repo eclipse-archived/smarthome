@@ -37,13 +37,13 @@ You can manually add the following channels:
 
 ## Supported Channels
 
-* **String**: This channel can show the received text on the given topic and can send text to a given topic.
-* **Number**: This channel can show the received number on the given topic and can send a number to a given topic. It can have a min, max and step values.
-* **Dimmer**: This channel handles numeric values as percentages. It can have min, max and step values.
-* **Contact**: This channel represents a open/close (on/off) state of a given topic.
-* **Switch**: This channel represents a on/off state of a given topic and can send an on/off value to a given topic.
-* **ColorRGB**: This channel handles color values in RGB format.
-* **ColorHSB**: This channel handles color values in HSB format.
+* **string**: This channel can show the received text on the given topic and can send text to a given topic.
+* **number**: This channel can show the received number on the given topic and can send a number to a given topic. It can have a min, max and step values.
+* **dimmer**: This channel handles numeric values as percentages. It can have min, max and step values.
+* **contact**: This channel represents a open/close (on/off) state of a given topic.
+* **switch**: This channel represents a on/off state of a given topic and can send an on/off value to a given topic.
+* **colorRGB**: This channel handles color values in RGB format.
+* **colorHSB**: This channel handles color values in HSB format.
 
 ## Thing and Channel configuration
 
@@ -56,13 +56,13 @@ All things require a configured broker.
 * __commandTopic__: The MQTT topic that commands are send to. This can be empty, the thing channel will be read-only then. Transformations are not applied for sending data.
 * __formatBeforePublish__: Format a value before it is published to the MQTT broker. The default is to just pass the channel/item state. If you want to apply a prefix, say "MYCOLOR,", you would use "MYCOLOR,%s". If you want to adjust the precision of a number to for example 4 digits, you would use "%.4f".
 
-### Channel Type "String"
+### Channel Type "string"
 
 * __allowedStates__: An optional comma separated list of allowed states. Example: "ONE,TWO,THREE"
 
 You can connect this channel to a String item.
 
-### Channel Type "Number"
+### Channel Type "number"
  
 * __min__: An optional minimum value
 * __max__: An optional maximum value
@@ -73,7 +73,7 @@ If any of the parameters is a float/double (has a decimal point value), then a f
 
 You can connect this channel to a Number item.
 
-### Channel Type "Dimmer"
+### Channel Type "dimmer"
  
 * __min__: A required minimum value.
 * __max__: A required maximum value.
@@ -83,17 +83,16 @@ The value is internally stored as a percentage for a value between **min** and *
 
 You can connect this channel to a Rollershutter or Dimmer item.
 
-### Channel Type "Contact", "Switch"
+### Channel Type "contact", "switch"
 
 * __on__: A number (like 1, 10) or a string (like "ON"/"Open") that is recognised as on state.
 * __off__: A number (like 0, -10) or a string (like "OFF"/"Close") that is recognised as off state.
-* __inverse__: Inverse the meaning. A received "ON"/"Open" will switch the thing channel off/closed and vice versa.
 
 The thing by default always recognises `"ON"`,`"1"`, `1` as on state and `"OFF"`, `"0"`, `0` as off state and if **on** and **off** are not configured it sends the integer values `1` for on and `0` for off.
 
 You can connect this channel to a Contact or Switch item.
 
-### Channel Type "ColorRGB", "ColorHSB"
+### Channel Type "colorRGB", "colorHSB"
 
 You can connect this channel to a Color item.
 
@@ -149,11 +148,11 @@ demo.Things:
 ```xtend
 Thing mqtt:mybroker:topic:mything {
 Channels:
-    Type Switch : lamp "Kitchen Lamp" [ mqttstate="lamp/enabled", mqttcommand="lamp/enabled/set" ]
-    Type Switch : fancylamp "Fancy Lamp" [ mqttstate="fancy/lamp/state", mqttcommand="fancy/lamp/command", on="i-am-on", off="i-am-off" ]
-    Type EnumSwitch : alarmpanel "Alarm system" [ mqttstate="alarm/panel/state", mqttcommand="alarm/panel/set", allowedStates="ARMED_HOME,ARMED_AWAY,UNARMED" ]
-    Type Color : lampcolor "Kitchen Lamp color" [ mqttstate="lamp/color", mqttcommand="lamp/color/set", rgb=true ]
-    Type Dimmer : blind "Blind" [ mqttstate="blind/state", mqttcommand="blind/set", min=0, max=5, step=1 ]
+    Type switch : lamp "Kitchen Lamp" [ mqttstate="lamp/enabled", mqttcommand="lamp/enabled/set" ]
+    Type switch : fancylamp "Fancy Lamp" [ mqttstate="fancy/lamp/state", mqttcommand="fancy/lamp/command", on="i-am-on", off="i-am-off" ]
+    Type string : alarmpanel "Alarm system" [ mqttstate="alarm/panel/state", mqttcommand="alarm/panel/set", allowedStates="ARMED_HOME,ARMED_AWAY,UNARMED" ]
+    Type color : lampcolor "Kitchen Lamp color" [ mqttstate="lamp/color", mqttcommand="lamp/color/set", rgb=true ]
+    Type dimmer : blind "Blind" [ mqttstate="blind/state", mqttcommand="blind/set", min=0, max=5, step=1 ]
 }
 ```
 

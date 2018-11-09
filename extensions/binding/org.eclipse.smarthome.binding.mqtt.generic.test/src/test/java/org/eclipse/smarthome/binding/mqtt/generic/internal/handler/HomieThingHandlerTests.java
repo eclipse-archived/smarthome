@@ -371,6 +371,8 @@ public class HomieThingHandlerTests {
         // Inject spy'ed subscriber object
         doAnswer(this::createSubscriberAnswer).when(thingHandler.device.stats).createSubscriber(any(), any(), any(),
                 anyBoolean());
+        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.attributes).createSubscriber(any(), any(),
+                any(), anyBoolean());
 
         thingHandler.device.attributes.state = ReadyState.ready;
         thingHandler.device.attributes.name = "device";

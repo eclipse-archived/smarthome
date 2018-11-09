@@ -4,7 +4,7 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<channel-type id="String">
+	<channel-type id="string">
 		<item-type>String</item-type>
 		<label>Text value</label>
 		<config-description>
@@ -42,13 +42,13 @@
 		</config-description>
 	</channel-type>
 
-	<channel-type id="Number">
+	<channel-type id="number">
 		<item-type>Number</item-type>
 		<label>Number value</label>
 		<config-description-ref uri="mqtt:number_channel"></config-description-ref>
 	</channel-type>
 
-	<channel-type id="Dimmer">
+	<channel-type id="dimmer">
 		<item-type>Dimmer</item-type>
 		<label>Percentage value</label>
 		<config-description>
@@ -103,7 +103,7 @@
 		</config-description>
 	</channel-type>
 
-	<channel-type id="Switch">
+	<channel-type id="switch">
 		<item-type>Switch</item-type>
 		<label>On/Off switch</label>
 		<config-description>
@@ -148,7 +148,7 @@
 		</config-description>
 	</channel-type>
 
-	<channel-type id="Contact">
+	<channel-type id="contact">
 		<item-type>Contact</item-type>
 		<label>Open/Close contact</label>
 		<config-description>
@@ -189,7 +189,7 @@
 		</config-description>
 	</channel-type>
 
-	<channel-type id="ColorRGB">
+	<channel-type id="colorRGB">
 		<item-type>Color</item-type>
 		<label>Color value (Red,Green,Blue)</label>
 		<description></description>
@@ -235,7 +235,7 @@
 		</config-description>
 	</channel-type>
 
-	<channel-type id="ColorHSB">
+	<channel-type id="colorHSB">
 		<item-type>Color</item-type>
 		<label>Color value (Hue,Saturation,Brightness)</label>
 		<description></description>
