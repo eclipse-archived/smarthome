@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -39,11 +39,12 @@ public class ThingChannelConstants {
     final public static ThingUID testHomieThing = new ThingUID(HOMIE300_MQTT_THING, "device123");
     final public static ThingUID testHomeAssistantThing = new ThingUID(HOMEASSISTANT_MQTT_THING, "device234");
 
-    final public static ChannelTypeUID textChannel = new ChannelTypeUID(BINDING_ID, CoreItemFactory.STRING);
-    final public static ChannelTypeUID textWithJsonChannel = new ChannelTypeUID(BINDING_ID, CoreItemFactory.STRING);
-    final public static ChannelTypeUID onoffChannel = new ChannelTypeUID(BINDING_ID, CoreItemFactory.SWITCH);
-    final public static ChannelTypeUID numberChannel = new ChannelTypeUID(BINDING_ID, CoreItemFactory.NUMBER);
-    final public static ChannelTypeUID percentageChannel = new ChannelTypeUID(BINDING_ID, CoreItemFactory.DIMMER);
+    final public static ChannelTypeUID textChannel = new ChannelTypeUID(BINDING_ID, MqttBindingConstants.STRING);
+    final public static ChannelTypeUID textWithJsonChannel = new ChannelTypeUID(BINDING_ID,
+            MqttBindingConstants.STRING);
+    final public static ChannelTypeUID onoffChannel = new ChannelTypeUID(BINDING_ID, MqttBindingConstants.SWITCH);
+    final public static ChannelTypeUID numberChannel = new ChannelTypeUID(BINDING_ID, MqttBindingConstants.NUMBER);
+    final public static ChannelTypeUID percentageChannel = new ChannelTypeUID(BINDING_ID, MqttBindingConstants.DIMMER);
     final public static ChannelTypeUID unknownChannel = new ChannelTypeUID(BINDING_ID, "unknown");
 
     final public static ChannelUID textChannelUID = new ChannelUID(testGenericThing, "mytext");
