@@ -12,11 +12,16 @@
  */
 package org.eclipse.smarthome.model.script.internal.actions;
 
+import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
+
+import java.util.Date;
 
 import org.eclipse.smarthome.model.script.actions.Timer;
 import org.joda.time.DateTime;
 import org.joda.time.base.AbstractInstant;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -49,17 +54,20 @@ public class TimerImpl implements Timer {
         }
     }
 
-    private JobKey jobKey;
+    private final JobKey jobKey;
     private TriggerKey triggerKey;
-    private AbstractInstant startTime;
+    private final JobDataMap dataMap;
+    private final AbstractInstant startTime;
 
     private boolean cancelled = false;
     private boolean terminated = false;
 
-    public TimerImpl(JobKey jobKey, TriggerKey triggerKey, AbstractInstant startTime) {
+    public TimerImpl(JobKey jobKey, TriggerKey triggerKey, JobDataMap dataMap, AbstractInstant startTime) {
         this.jobKey = jobKey;
         this.triggerKey = triggerKey;
+        this.dataMap = dataMap;
         this.startTime = startTime;
+        dataMap.put("timer", this);
     }
 
     @Override
@@ -79,7 +87,12 @@ public class TimerImpl implements Timer {
     public boolean reschedule(AbstractInstant newTime) {
         try {
             Trigger trigger = newTrigger().startAt(newTime.toDate()).build();
-            scheduler.rescheduleJob(triggerKey, trigger);
+            Date nextTriggerTime = scheduler.rescheduleJob(triggerKey, trigger);
+            if (nextTriggerTime == null) {
+                logger.debug("Scheduling a new job job '{}' because the original has already run", jobKey.toString());
+                JobDetail job = newJob(TimerExecutionJob.class).withIdentity(jobKey).usingJobData(dataMap).build();
+                TimerImpl.scheduler.scheduleJob(job, trigger);
+            }
             this.triggerKey = trigger.getKey();
             this.cancelled = false;
             this.terminated = false;

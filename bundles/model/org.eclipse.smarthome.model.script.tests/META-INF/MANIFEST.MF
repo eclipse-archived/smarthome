@@ -31,6 +31,7 @@ Import-Package:
  org.hamcrest;core=split,
  org.hamcrest.core,
  org.junit;version="4.0.0",
+ org.quartz.spi,
  org.slf4j
 Require-Bundle: 
  org.eclipse.core.runtime,

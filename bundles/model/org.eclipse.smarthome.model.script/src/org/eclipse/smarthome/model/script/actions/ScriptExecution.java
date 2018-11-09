@@ -111,7 +111,7 @@ public class ScriptExecution {
 
     /**
      * helper function to create the timer
-     * 
+     *
      * @param instant the point in time when the code should be executed
      * @param closure string for job id
      * @param dataMap job data map, preconfigured with arguments
@@ -122,8 +122,7 @@ public class ScriptExecution {
         Logger logger = LoggerFactory.getLogger(ScriptExecution.class);
         JobKey jobKey = new JobKey(instant.toString() + ": " + closure.toString());
         Trigger trigger = newTrigger().startAt(instant.toDate()).build();
-        Timer timer = new TimerImpl(jobKey, trigger.getKey(), instant);
-        dataMap.put("timer", timer);
+        Timer timer = new TimerImpl(jobKey, trigger.getKey(), dataMap, instant);
         try {
             JobDetail job = newJob(TimerExecutionJob.class).withIdentity(jobKey).usingJobData(dataMap).build();
             if (TimerImpl.scheduler.checkExists(job.getKey())) {
