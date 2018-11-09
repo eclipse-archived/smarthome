@@ -50,7 +50,7 @@ The regex pattern is is defined as follows
 *  `()` capture group match 
     * `\d*` match a digit (equal to [0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
     * `.` match the dot literally
-    * `\d*` match a digit (equal to [0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
+    * `\w*` match a word character (equal to [a-zA-Z_0-9]), zero and unlimited times, the backslash has to be escaped see [string vs plain](#Differences-to-plain-Regex)
 * `.*` match any character, zero and unlimited times
 
 The result will be `44.0` and displayed on the label as `Temperature 44.0°C`.
