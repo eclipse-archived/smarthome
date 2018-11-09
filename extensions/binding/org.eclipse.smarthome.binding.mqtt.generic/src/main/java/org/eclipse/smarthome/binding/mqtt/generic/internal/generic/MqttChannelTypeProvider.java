@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.generic;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -55,14 +56,12 @@ public class MqttChannelTypeProvider implements ChannelGroupTypeProvider, Channe
         return types.get(channelTypeUID);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public @Nullable ChannelGroupType getChannelGroupType(@NonNull ChannelGroupTypeUID channelGroupTypeUID,
             @Nullable Locale locale) {
         return groups.get(channelGroupTypeUID);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public @Nullable Collection<@NonNull ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
         return groups.values();

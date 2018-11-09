@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.MQTTvalueTransform;
@@ -56,5 +59,19 @@ public class PropertyAttributes extends AbstractMqttAttributeClass {
     @Override
     public Object getFieldsOf() {
         return this;
+    }
+
+    /**
+     * Return a map with all field values.
+     */
+    public Map<String, Object> asMap() {
+        Map<String, Object> properties = new TreeMap<>();
+        properties.put("unit", unit);
+        properties.put("name", name);
+        properties.put("settable", settable ? "true" : "false");
+        properties.put("retained", retained ? "true" : "false");
+        properties.put("format", format);
+        properties.put("datatype", datatype.name());
+        return properties;
     }
 }

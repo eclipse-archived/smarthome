@@ -31,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
@@ -43,6 +42,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.P
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyHelper;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomieThingHandler;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.ThingChannelConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
@@ -100,7 +100,7 @@ public class HomieImplementationTests extends JavaOSGiTest {
     private final String baseTopic = "homie";
     private final String deviceID = ThingChannelConstants.testHomieThing.getId();
     private final String deviceTopic = baseTopic + "/" + deviceID;
-    String propertyBellTopic;
+    String propertyTestTopic;
 
     @Before
     public void setUp() throws InterruptedException, ConfigurationException, ExecutionException, TimeoutException {
@@ -132,7 +132,8 @@ public class HomieImplementationTests extends JavaOSGiTest {
         final String testNode = deviceTopic + "/testnode";
         futures.add(embeddedConnection.publish(testNode + "/$name", "Testnode".getBytes()));
         futures.add(embeddedConnection.publish(testNode + "/$type", "Type".getBytes()));
-        futures.add(embeddedConnection.publish(testNode + "/$properties", "temperature,doorbell".getBytes()));
+        futures.add(
+                embeddedConnection.publish(testNode + "/$properties", "temperature,doorbell,testRetain".getBytes()));
 
         // Add homie property topics
         final String property = testNode + "/temperature";
@@ -143,11 +144,17 @@ public class HomieImplementationTests extends JavaOSGiTest {
         futures.add(embeddedConnection.publish(property + "/$datatype", "float".getBytes()));
         futures.add(embeddedConnection.publish(property + "/$format", "-100:100".getBytes()));
 
-        propertyBellTopic = testNode + "/doorbell";
+        final String propertyBellTopic = testNode + "/doorbell";
         futures.add(embeddedConnection.publish(propertyBellTopic + "/$name", "Doorbell".getBytes()));
         futures.add(embeddedConnection.publish(propertyBellTopic + "/$settable", "false".getBytes()));
         futures.add(embeddedConnection.publish(propertyBellTopic + "/$retained", "false".getBytes()));
         futures.add(embeddedConnection.publish(propertyBellTopic + "/$datatype", "boolean".getBytes()));
+
+        this.propertyTestTopic = testNode + "/testRetain";
+        futures.add(embeddedConnection.publish(propertyTestTopic + "/$name", "Test".getBytes()));
+        futures.add(embeddedConnection.publish(propertyTestTopic + "/$settable", "true".getBytes()));
+        futures.add(embeddedConnection.publish(propertyTestTopic + "/$retained", "false".getBytes()));
+        futures.add(embeddedConnection.publish(propertyTestTopic + "/$datatype", "boolean".getBytes()));
 
         registeredTopics = futures.size();
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).get(200, TimeUnit.MILLISECONDS);
@@ -274,7 +281,7 @@ public class HomieImplementationTests extends JavaOSGiTest {
         assertThat(node.attributes.name, is("Testnode"));
 
         // Expect 2 property
-        assertThat(node.properties.size(), is(2));
+        assertThat(node.properties.size(), is(3));
 
         // Check property and property attributes
         Property property = node.properties.get("temperature");
@@ -303,17 +310,18 @@ public class HomieImplementationTests extends JavaOSGiTest {
         assertThat(propertyBell.getChannelState().getValue().getValue(), is(UnDefType.UNDEF));
         assertThat(property.getChannelState().getValue().getValue(), is(new DecimalType(10)));
 
-        WaitForTopicValue watcher = new WaitForTopicValue(embeddedConnection, propertyBellTopic + "/set");
-        // Watch the topic. Publish a retain=false ON value to MQTT
-        propertyBell.getChannelState().setValue(OnOffType.ON).get();
-        assertThat(watcher.waitForTopicValue(50), is("true"));
+        property = node.properties.get("testRetain");
+        WaitForTopicValue watcher = new WaitForTopicValue(embeddedConnection, propertyTestTopic + "/set");
+        // Watch the topic. Publish a retain=false value to MQTT
+        property.getChannelState().setValue(OnOffType.OFF).get();
+        assertThat(watcher.waitForTopicValue(50), is("false"));
 
-        // Publish a retain=false OFF value to MQTT.
-        propertyBell.getChannelState().setValue(OnOffType.OFF).get();
+        // Publish a retain=false value to MQTT.
+        property.getChannelState().setValue(OnOffType.ON).get();
         // This test is flaky if the MQTT broker does not get a time to "forget" this non-retained value
         Thread.sleep(50);
         // No value is expected to be retained on this MQTT topic
-        watcher = new WaitForTopicValue(embeddedConnection, propertyBellTopic + "/set");
+        watcher = new WaitForTopicValue(embeddedConnection, propertyTestTopic + "/set");
         assertNull(watcher.waitForTopicValue(50));
     }
 }

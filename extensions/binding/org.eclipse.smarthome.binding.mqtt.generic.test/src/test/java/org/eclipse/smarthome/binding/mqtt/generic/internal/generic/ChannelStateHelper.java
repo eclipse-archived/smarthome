@@ -10,9 +10,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.generic;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 
 @NonNullByDefault

@@ -15,20 +15,18 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URI;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.PropertyAttributes.DataTypeEnum;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfigBuilder;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass.AttributeChanged;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ColorValue;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.EnumSwitchValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.NumberValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
@@ -131,9 +129,9 @@ public class Property implements AttributeChanged {
         switch (attributes.datatype) {
             case boolean_:
                 if (attributes.settable) {
-                    value = new OnOffValue("true", "false", false);
+                    value = new OnOffValue("true", "false");
                 } else {
-                    value = OnOffValue.createReceiveOnly("true", "false", false);
+                    value = OnOffValue.createReceiveOnly("true", "false");
                 }
                 break;
             case color_:
@@ -141,11 +139,7 @@ public class Property implements AttributeChanged {
                 break;
             case enum_:
                 String enumValues[] = attributes.format.split(",");
-                if (attributes.settable) {
-                    value = new EnumSwitchValue(enumValues, 0);
-                } else {
-                    value = new TextValue(enumValues);
-                }
+                value = new TextValue(enumValues);
                 break;
             case float_:
             case integer_:
@@ -169,9 +163,12 @@ public class Property implements AttributeChanged {
                 break;
         }
 
-        final ChannelState channelState = new ChannelState(stateTopic, commandTopic, channelUID, value, callback);
-        channelState.setRetained(attributes.retained);
-        channelState.setReadOnly(!attributes.settable);
+        ChannelConfigBuilder b = ChannelConfigBuilder.create().withStateTopic(stateTopic)
+                .withRetain(attributes.retained);
+        if (attributes.settable) {
+            b = b.withCommandTopic(commandTopic);
+        }
+        final ChannelState channelState = new ChannelState(b.build(), channelUID, value, callback);
         this.channelState = channelState;
 
         final ChannelType type;
@@ -185,16 +182,9 @@ public class Property implements AttributeChanged {
         }
         this.type = type;
 
-        Map<String, Object> properties = new TreeMap<>();
-        properties.put("unit", attributes.unit);
-        properties.put("name", attributes.name);
-        properties.put("settable", attributes.settable ? "true" : "false");
-        properties.put("retained", attributes.retained ? "true" : "false");
-        properties.put("format", attributes.format);
-        properties.put("datatype", attributes.datatype.name());
         this.channel = ChannelBuilder.create(channelUID, channelState.getItemType()).withType(channelTypeUID)
-                .withKind(type.getKind()).withLabel(attributes.name).withConfiguration(new Configuration(properties))
-                .build();
+                .withKind(type.getKind()).withLabel(attributes.name)
+                .withConfiguration(new Configuration(attributes.asMap())).build();
     }
 
     /**

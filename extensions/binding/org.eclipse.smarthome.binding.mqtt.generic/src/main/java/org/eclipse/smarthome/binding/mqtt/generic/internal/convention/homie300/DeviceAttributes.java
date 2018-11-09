@@ -45,13 +45,4 @@ public class DeviceAttributes extends AbstractMqttAttributeClass {
     public @NonNull Object getFieldsOf() {
         return this;
     }
-
-    // TODO A later PR may implement the firmware/OTA part
-    // @TopicPrefix("")
-    // public static class Firmware {
-    // public String name;
-    // public String version;
-    // };
-    //
-    // public Firmware fw;
 }

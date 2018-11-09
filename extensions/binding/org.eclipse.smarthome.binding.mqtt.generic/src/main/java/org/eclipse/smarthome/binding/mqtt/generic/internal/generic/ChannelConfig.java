@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.generic.internal.handler;
+package org.eclipse.smarthome.binding.mqtt.generic.internal.generic;
 
 import java.math.BigDecimal;
 
@@ -24,19 +24,21 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class GenericChannelConfig {
+public class ChannelConfig {
     public String stateTopic = "";
     public String commandTopic = "";
+
+    public boolean retained = false;
+    public String unit = "";
+
     public String transformationPattern = "";
+    public String formatBeforePublish = "%s";
     public String allowedStates = "";
 
     public @Nullable BigDecimal min;
     public @Nullable BigDecimal max;
     public @Nullable BigDecimal step;
     public boolean isFloat = false;
-    public boolean inverse = false;
-    public boolean isRGB = false;
-
     public @Nullable String on;
     public @Nullable String off;
 }

@@ -36,14 +36,12 @@ public class OnOffValue implements Value {
     private OnOffType boolValue;
     private final String onValue;
     private final String offValue;
-    private final boolean inverse;
     private final boolean receivesOnly;
 
     /**
      * Creates a switch On/Off type, that accepts "ON", "1" for on and "OFF","0" for off.
      */
     public OnOffValue() {
-        this.inverse = false;
         this.onValue = "ON";
         this.offValue = "OFF";
         this.boolValue = OnOffType.OFF;
@@ -55,10 +53,8 @@ public class OnOffValue implements Value {
      *
      * @param onValue The ON value string. This will be compared to MQTT messages.
      * @param offValue The OFF value string. This will be compared to MQTT messages.
-     * @param isInversedOnOff If true, inverses ON/OFF interpretations.
      */
-    public OnOffValue(@Nullable String onValue, @Nullable String offValue, @Nullable Boolean isInversedOnOff) {
-        this.inverse = isInversedOnOff != null && isInversedOnOff;
+    public OnOffValue(@Nullable String onValue, @Nullable String offValue) {
         this.onValue = onValue == null ? "ON" : onValue;
         this.offValue = offValue == null ? "OFF" : offValue;
         this.boolValue = OnOffType.OFF;
@@ -71,12 +67,9 @@ public class OnOffValue implements Value {
      *
      * @param onValue The ON value string. This will be compared to MQTT messages.
      * @param offValue The OFF value string. This will be compared to MQTT messages.
-     * @param isInversedOnOff If true, inverses ON/OFF interpretations.
      * @param receivesOnly Determines the ESH type. SWITCH if true, CONTACT otherwise
      */
-    private OnOffValue(@Nullable String onValue, @Nullable String offValue, @Nullable Boolean isInversedOnOff,
-            boolean receivesOnly) {
-        this.inverse = isInversedOnOff != null && isInversedOnOff;
+    private OnOffValue(@Nullable String onValue, @Nullable String offValue, boolean receivesOnly) {
         this.onValue = onValue == null ? "ON" : onValue;
         this.offValue = offValue == null ? "OFF" : offValue;
         this.boolValue = OnOffType.OFF;
@@ -90,9 +83,8 @@ public class OnOffValue implements Value {
      * @param offValue The OFF value string. This will be compared to MQTT messages.
      * @param isInversedOnOff If true, inverses ON/OFF interpretations.
      */
-    public static OnOffValue createReceiveOnly(@Nullable String onValue, @Nullable String offValue,
-            @Nullable Boolean isInversedOnOff) {
-        return new OnOffValue(onValue, offValue, isInversedOnOff, true);
+    public static OnOffValue createReceiveOnly(@Nullable String onValue, @Nullable String offValue) {
+        return new OnOffValue(onValue, offValue, true);
     }
 
     @Override
@@ -104,10 +96,8 @@ public class OnOffValue implements Value {
     public String update(Command command) throws IllegalArgumentException {
         if (command instanceof OnOffType) {
             boolValue = ((OnOffType) command);
-            boolValue = inverse ? (boolValue == OnOffType.ON ? OnOffType.OFF : OnOffType.ON) : boolValue;
         } else if (command instanceof OpenClosedType) {
             boolValue = ((OpenClosedType) command) == OpenClosedType.OPEN ? OnOffType.ON : OnOffType.OFF;
-            boolValue = inverse ? (boolValue == OnOffType.ON ? OnOffType.OFF : OnOffType.ON) : boolValue;
         } else if (command instanceof StringType) {
             boolValue = (OnOffType) update(command.toString());
         } else {
@@ -130,7 +120,6 @@ public class OnOffValue implements Value {
             throw new IllegalArgumentException("Didn't recognise the on/off value " + updatedValue);
         }
 
-        boolValue = inverse ? (boolValue == OnOffType.ON ? OnOffType.OFF : OnOffType.ON) : boolValue;
         state = boolValue;
         return boolValue;
     }

@@ -20,8 +20,10 @@ import static org.mockito.Mockito.*;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfig;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfigBuilder;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ValueFactory;
@@ -97,7 +99,7 @@ public class GenericThingHandlerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithUnknownThingUID() {
-        GenericChannelConfig config = textConfiguration().as(GenericChannelConfig.class);
+        ChannelConfig config = textConfiguration().as(ChannelConfig.class);
         thingHandler.createChannelState(config, new ChannelUID(testGenericThing, "test"),
                 ValueFactory.createValueState(config, unknownChannel.getId()));
     }
@@ -139,7 +141,8 @@ public class GenericThingHandlerTests {
     public void handleCommandUpdateString() {
         TextValue value = spy(new TextValue());
         ChannelState channelConfig = spy(
-                new ChannelState("stateTopic", "commandTopic", textChannelUID, value, thingHandler));
+                new ChannelState(ChannelConfigBuilder.create("stateTopic", "commandTopic").build(), textChannelUID,
+                        value, thingHandler));
         doReturn(channelConfig).when(thingHandler).createChannelState(any(), any(), any());
         thingHandler.initialize();
         thingHandler.connection = connection;
@@ -152,9 +155,10 @@ public class GenericThingHandlerTests {
 
     @Test
     public void handleCommandUpdateBoolean() {
-        OnOffValue value = spy(new OnOffValue("ON", "OFF", null));
+        OnOffValue value = spy(new OnOffValue("ON", "OFF"));
         ChannelState channelConfig = spy(
-                new ChannelState("stateTopic", "commandTopic", textChannelUID, value, thingHandler));
+                new ChannelState(ChannelConfigBuilder.create("stateTopic", "commandTopic").build(), textChannelUID,
+                        value, thingHandler));
         doReturn(channelConfig).when(thingHandler).createChannelState(any(), any(), any());
         thingHandler.initialize();
         thingHandler.connection = connection;
@@ -162,26 +166,6 @@ public class GenericThingHandlerTests {
         StringType updateValue = new StringType("ON");
         thingHandler.handleCommand(textChannelUID, updateValue);
 
-        verify(value).update(eq(updateValue));
-        assertThat(channelConfig.getValue().getValue(), is(OnOffType.ON));
-    }
-
-    @Test
-    public void handleCommandUpdateBooleanInverse() {
-        OnOffValue value = spy(new OnOffValue("ON", "OFF", true));
-        ChannelState channelConfig = spy(
-                new ChannelState("stateTopic", "commandTopic", textChannelUID, value, thingHandler));
-        doReturn(channelConfig).when(thingHandler).createChannelState(any(), any(), any());
-        thingHandler.initialize();
-        thingHandler.connection = connection;
-
-        StringType updateValue = new StringType("ON");
-        thingHandler.handleCommand(textChannelUID, updateValue);
-        verify(value).update(eq(updateValue));
-        assertThat(channelConfig.getValue().getValue(), is(OnOffType.OFF));
-
-        updateValue = new StringType("OFF");
-        thingHandler.handleCommand(textChannelUID, updateValue);
         verify(value).update(eq(updateValue));
         assertThat(channelConfig.getValue().getValue(), is(OnOffType.ON));
     }
@@ -190,7 +174,8 @@ public class GenericThingHandlerTests {
     public void processMessage() {
         TextValue textValue = new TextValue();
         ChannelState channelConfig = spy(
-                new ChannelState("test/state", "test/state/set", textChannelUID, textValue, thingHandler));
+                new ChannelState(ChannelConfigBuilder.create("test/state", "test/state/set").build(), textChannelUID,
+                        textValue, thingHandler));
         doReturn(channelConfig).when(thingHandler).createChannelState(any(), any(), any());
         thingHandler.initialize();
         byte payload[] = "UPDATE".getBytes();
@@ -201,21 +186,5 @@ public class GenericThingHandlerTests {
 
         verify(callback).stateUpdated(eq(textChannelUID), argThat(arg -> "UPDATE".equals(arg.toString())));
         assertThat(textValue.getValue().toString(), is("UPDATE"));
-    }
-
-    @Test
-    public void processMessageNotMatching() {
-        thingHandler.initialize();
-        byte payload[] = "UPDATE".getBytes();
-        ChannelState channelConfig = spy(thingHandler.channelStateByChannelUID.get(textChannelUID));
-        TextValue textValue = new TextValue();
-        textValue.update("TEST");
-        doReturn(textValue).when(channelConfig).getValue();
-        assertThat(channelConfig.getStateTopic(), is("test/state"));
-        // Test process message
-        channelConfig.processMessage("test/state2", payload);
-
-        verify(callback, times(0)).stateUpdated(eq(textChannelUID), any());
-        assertThat(channelConfig.getValue().getValue().toString(), is("TEST"));
     }
 }

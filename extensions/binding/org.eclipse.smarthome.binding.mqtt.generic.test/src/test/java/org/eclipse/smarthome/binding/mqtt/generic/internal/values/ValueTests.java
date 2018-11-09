@@ -17,10 +17,6 @@ import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ColorValue;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.NumberValue;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -83,7 +79,7 @@ public class ValueTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void illegalOnOffCommand() {
-        OnOffValue v = new OnOffValue(null, null, null);
+        OnOffValue v = new OnOffValue(null, null);
         v.update(new DecimalType(101.0));
     }
 
@@ -95,7 +91,7 @@ public class ValueTests {
 
     @Test
     public void onoffUpdate() {
-        OnOffValue v = new OnOffValue("fancyON", "fancyOff", false);
+        OnOffValue v = new OnOffValue("fancyON", "fancyOff");
         assertThat(v.update(OnOffType.OFF), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(OnOffType.ON), is("fancyON"));
@@ -114,17 +110,6 @@ public class ValueTests {
         assertThat(v.update(new StringType("fancyOff")), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(new StringType("fancyON")), is("fancyON"));
-        assertThat(v.getValue(), is(OnOffType.ON));
-
-        v = new OnOffValue("fancyON", "fancyOff", true);
-        assertThat(v.update(OnOffType.ON), is("fancyOff"));
-        assertThat(v.getValue(), is(OnOffType.OFF));
-        assertThat(v.update(OnOffType.OFF), is("fancyON"));
-        assertThat(v.getValue(), is(OnOffType.ON));
-
-        assertThat(v.update(new StringType("1")), is("fancyOff"));
-        assertThat(v.getValue(), is(OnOffType.OFF));
-        assertThat(v.update(new StringType("0")), is("fancyON"));
         assertThat(v.getValue(), is(OnOffType.ON));
     }
 

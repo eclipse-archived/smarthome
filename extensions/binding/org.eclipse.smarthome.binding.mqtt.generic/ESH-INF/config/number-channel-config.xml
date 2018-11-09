@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
+
+	<config-description uri="mqtt:number_channel">
+		<parameter name="stateTopic" type="text">
+			<label>MQTT state topic</label>
+			<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less then and will publish values non-retained.</description>
+		</parameter>
+		<parameter name="commandTopic" type="text">
+			<label>MQTT command topic</label>
+			<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
+		</parameter>
+		<parameter name="transformationPattern" type="text">
+			<label>Incoming value transformation</label>
+			<description>Applies a transformation to an incoming MQTT topic value. A transformation example for a received JSON would be "JSONPATH:$.device.status.temperature" for a json {device: {status: { temperature: 23.2 }}}. Any supported transformation service can be used.</description>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="formatBeforePublish" type="text">
+			<label>Outgoing value format</label>
+			<description>Format a value before it is published to the MQTT broker. The default is to just pass the channel/item state. If you want to apply a prefix, say "MYCOLOR,", you would use "MYCOLOR,%s". If you want to adjust the precision of a number to for example 4 digits, you would use "%.4f".</description>
+			<advanced>true</advanced>
+			<default>%s</default>
+		</parameter>
+		<parameter name="retained" type="boolean">
+			<label>Retained</label>
+			<description>The value will be published to the command topic as retained message. A retained value stays on the broker and can even be seen by MQTT clients that are subscribing at a later point in time.</description>
+			<default>false</default>
+			<advanced>true</advanced>
+		</parameter>
+
+		<parameter name="step" type="decimal">
+			<label>Delta value</label>
+			<description>A number channel can receive Increase/Decrease commands and computes the target number by adding or subtracting this delta value.</description>
+			<default>10.0</default>
+			<advanced>true</advanced>
+		</parameter>
+		<parameter name="isfloat" type="boolean">
+			<label>Is Decimal?</label>
+			<description>If enabled, the value will be published to the MQTT broker including the fractional part of the number and a dot as the decimal marker.</description>
+			<default>false</default>
+			<advanced>true</advanced>
+		</parameter>
+	</config-description>
+</config-description:config-descriptions>

@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -66,9 +66,8 @@ public class ComponentBinarySensor extends AbstractComponent {
         }
 
         channels.put(sensorChannelID,
-                new CChannel(this, sensorChannelID,
-                        OnOffValue.createReceiveOnly(config.payload_on, config.payload_off, false), config.state_topic,
-                        null, config.name, config.unit_of_measurement, channelStateUpdateListener));
+                new CChannel(this, sensorChannelID, OnOffValue.createReceiveOnly(config.payload_on, config.payload_off),
+                        config.state_topic, null, config.name, config.unit_of_measurement, channelStateUpdateListener));
     }
 
     @Override

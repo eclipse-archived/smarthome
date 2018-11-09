@@ -13,8 +13,8 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 
 /**
  * Callbacks to inform about the Homie Device state, statistics changes, node layout changes.

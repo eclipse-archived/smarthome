@@ -15,7 +15,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -67,8 +67,8 @@ public class ComponentSwitch extends AbstractComponent {
             throw new UnsupportedOperationException("Component:Switch does not support forced optimistic mode");
         }
 
-        final OnOffValue value = config.command_topic != null ? new OnOffValue(config.state_on, config.state_off, false)
-                : OnOffValue.createReceiveOnly(config.state_on, config.state_off, false);
+        final OnOffValue value = config.command_topic != null ? new OnOffValue(config.state_on, config.state_off)
+                : OnOffValue.createReceiveOnly(config.state_on, config.state_off);
         channels.put(switchChannelID, new CChannel(this, switchChannelID, value, config.state_topic,
                 config.command_topic, config.name, "", channelStateUpdateListener));
     }

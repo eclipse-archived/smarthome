@@ -14,8 +14,7 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassis
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.ChannelStateUpdateListener;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.EnumSwitchValue;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
@@ -80,19 +79,16 @@ public class ComponentAlarmControlPanel extends AbstractComponent {
                 null, config.name, "", channelStateUpdateListener));
 
         channels.put(switchDisarmChannelID,
-                new CChannel(this, switchDisarmChannelID,
-                        new EnumSwitchValue(new String[] { config.payload_disarm }, 0), config.state_topic, null,
-                        config.name, "", channelStateUpdateListener));
+                new CChannel(this, switchDisarmChannelID, new TextValue(new String[] { config.payload_disarm }),
+                        config.state_topic, null, config.name, "", channelStateUpdateListener));
 
         channels.put(switchArmHomeChannelID,
-                new CChannel(this, switchArmHomeChannelID,
-                        new EnumSwitchValue(new String[] { config.payload_arm_home }, 0), config.state_topic, null,
-                        config.name, "", channelStateUpdateListener));
+                new CChannel(this, switchArmHomeChannelID, new TextValue(new String[] { config.payload_arm_home }),
+                        config.state_topic, null, config.name, "", channelStateUpdateListener));
 
         channels.put(switchArmAwayChannelID,
-                new CChannel(this, switchArmAwayChannelID,
-                        new EnumSwitchValue(new String[] { config.payload_arm_away }, 0), config.state_topic, null,
-                        config.name, "", channelStateUpdateListener));
+                new CChannel(this, switchArmAwayChannelID, new TextValue(new String[] { config.payload_arm_away }),
+                        config.state_topic, null, config.name, "", channelStateUpdateListener));
     }
 
     @Override
