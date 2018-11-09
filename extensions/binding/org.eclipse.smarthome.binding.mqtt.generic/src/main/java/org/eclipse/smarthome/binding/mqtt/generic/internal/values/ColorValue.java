@@ -120,24 +120,26 @@ public class ColorValue implements Value {
     /**
      * Updates the color value.
      *
-     * @param updatedValue Expects hue,saturation,brightness as comma separated string. hue is in the range [0,360],
-     *            saturation and brightness are in [0,100]. If rgb is enabled, a string red,green,blue is
-     *            expected.
-     *            red,green,blue are within [0,255].
+     * @param updatedValue Expects hue,saturation,brightness as comma separated string.
+     *            hue is in the range [0,360], saturation and brightness are in [0,100].
+     *            If rgb is enabled, a string red,green,blue is expected. red,green,blue are within [0,255].
+     *            ON/OFF (case insensitive) are also accepted to set the brightness to full and off.
+     *            If a single integer value is received, it is interpreted as a brightness value.
      * @return Returns the color value as HSB/HSV string (hue, saturation, brightness) eg. "60, 100, 100".
      *         If rgb is enabled, an RGB string (red,green,blue) will be returned instead. red,green,blue are within
      *         [0,255].
      */
     @Override
     public State update(String updatedValue) throws IllegalArgumentException {
-        if (onValue.equals(updatedValue) || "ON".equals(updatedValue.toUpperCase()) || "1".equals(updatedValue)) {
+        if (onValue.equals(updatedValue)) {
             PercentType minOn = new PercentType(Math.max(colorValue.getBrightness().intValue(), 10));
             colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), minOn);
-        } else if (offValue.equals(updatedValue) || "OFF".equals(updatedValue.toUpperCase())
-                || "0".equals(updatedValue)) {
+        } else if (offValue.equals(updatedValue)) {
             colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(0));
-        } else {
+        } else if (updatedValue.indexOf(',') > 0) {
             colorValue = new HSBType(updatedValue);
+        } else { // single integer value
+            colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(updatedValue));
         }
         state = colorValue;
         return colorValue;
