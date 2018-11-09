@@ -55,6 +55,9 @@ public interface Value {
     /**
      * Updates the internal value with the received MQTT value.
      *
+     * An implementation may through any form of an {@link IllegalArgumentException}
+     * if the given value does not match the internal type.
+     *
      * @param updatedValue A string representation of the value to be send to MQTT.
      * @return An updated value state. The same as if {@link #getValue()} is called.
      * @exception IllegalArgumentException Thrown if for example a text is assigned to a number type.

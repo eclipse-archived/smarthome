@@ -32,14 +32,16 @@
 		</parameter>
 
 		<parameter name="step" type="decimal">
-			<label>Step value</label>
-			<description>The step value is used if the value channel is bound to a Dimmer item and an increase/decrease is issued</description>
+			<label>Delta value</label>
+			<description>A number channel can receive Increase/Decrease commands and computes the target number by adding or subtracting this delta value.</description>
 			<default>10.0</default>
+			<advanced>true</advanced>
 		</parameter>
 		<parameter name="isfloat" type="boolean">
 			<label>Is Decimal?</label>
-			<description>Set to true if the MQTT topic expects a float/double decimal instead of an integer value</description>
+			<description>If enabled, the value will be published to the MQTT broker including the fractional part of the number and a dot as the decimal marker.</description>
 			<default>false</default>
+			<advanced>true</advanced>
 		</parameter>
 	</config-description>
 </config-description:config-descriptions>

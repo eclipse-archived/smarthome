@@ -389,6 +389,5 @@ public class HomieThingHandlerTests {
 
         verify(thingHandler).heartbeatIntervalChanged(anyInt());
         verify(callback).thingUpdated(any());
-
     }
 }

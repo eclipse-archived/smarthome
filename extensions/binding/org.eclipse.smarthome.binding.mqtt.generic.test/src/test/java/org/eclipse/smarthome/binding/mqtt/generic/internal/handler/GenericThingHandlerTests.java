@@ -139,7 +139,6 @@ public class GenericThingHandlerTests {
 
     @Test
     public void handleCommandUpdateString() {
-
         TextValue value = spy(new TextValue());
         ChannelState channelConfig = spy(
                 new ChannelState(ChannelConfigBuilder.create("stateTopic", "commandTopic").build(), textChannelUID,
@@ -173,7 +172,6 @@ public class GenericThingHandlerTests {
 
     @Test
     public void processMessage() {
-
         TextValue textValue = new TextValue();
         ChannelState channelConfig = spy(
                 new ChannelState(ChannelConfigBuilder.create("test/state", "test/state/set").build(), textChannelUID,

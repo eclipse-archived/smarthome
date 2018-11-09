@@ -97,8 +97,7 @@ public class GenericThingHandler extends AbstractMQTTThingHandler implements Cha
 
     /**
      * For every Thing channel there exists a corresponding {@link ChannelState}. It consists of the MQTT state
-     * and
-     * MQTT command topic, the ChannelUID and a value state.
+     * and MQTT command topic, the ChannelUID and a value state.
      *
      * @param channelConfig The channel configuration that contains MQTT state and command topic and multiple other
      *            configurations.
