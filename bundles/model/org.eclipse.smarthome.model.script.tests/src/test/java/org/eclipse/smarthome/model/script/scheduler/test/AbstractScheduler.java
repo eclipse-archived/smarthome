@@ -52,8 +52,8 @@ public abstract class AbstractScheduler implements Scheduler {
 
     // Anything below this point is unsupported, but we want to know
     // about it if tests break in the future (e.g. new version of
-    // Quartz), so we throw UnsupportedException if any of these
-    // methods are called
+    // Quartz), so we throw UnsupportedOperationException if any of
+    // these methods are called
 
     @Override
     public String getSchedulerName() throws SchedulerException {

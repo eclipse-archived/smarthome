@@ -16,6 +16,7 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.smarthome.model.script.actions.Timer;
 import org.joda.time.DateTime;
@@ -126,5 +127,21 @@ public class TimerImpl implements Timer {
 
     public void setTerminated(boolean terminated) {
         this.terminated = terminated;
+    }
+
+    @Override
+    public AbstractInstant getScheduledFireTime() {
+        try {
+            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+            for (Trigger trigger : triggers) {
+                Date nextFireTime = trigger.getNextFireTime();
+                if (nextFireTime != null) {
+                    return new DateTime(nextFireTime);
+                }
+            }
+        } catch (SchedulerException e) {
+            logger.debug("An error occurred getting triggers for job: {}", e.getMessage());
+        }
+        return null;
     }
 }
