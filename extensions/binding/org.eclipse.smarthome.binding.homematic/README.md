@@ -43,8 +43,8 @@ CCU Autodiscovery:
 **Note:** The binding tries to identify the gateway with XML-RPC and uses henceforth:
 
 -   **CCU**
-    - **RF**: BIN-RPC
-    - **WIRED**: BIN-RPC
+    - **RF**: XML-RPC
+    - **WIRED**: XML-RPC
     - **HMIP**: XML-RPC
     - **CUxD**: BIN-RPC (CUxD version >= 1.6 required)
     - **Groups**: XML-RPC
