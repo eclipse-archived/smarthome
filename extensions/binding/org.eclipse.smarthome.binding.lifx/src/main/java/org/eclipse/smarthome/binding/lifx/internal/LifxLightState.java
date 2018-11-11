@@ -137,17 +137,17 @@ public class LifxLightState {
         listeners.forEach(listener -> listener.handlePowerStateChange(oldPowerState, newPowerState));
     }
 
-    public void setTemperature(PercentType temperature) {
+    public void setTemperature(int kelvin) {
         HSBK[] newColors = getColors();
         for (HSBK newColor : newColors) {
-            newColor.setTemperature(temperature);
+            newColor.setKelvin(kelvin);
         }
         setColors(newColors);
     }
 
-    public void setTemperature(PercentType temperature, int zoneIndex) {
+    public void setTemperature(int kelvin, int zoneIndex) {
         HSBK newColor = getColor(zoneIndex);
-        newColor.setTemperature(temperature);
+        newColor.setKelvin(kelvin);
         setColor(newColor, zoneIndex);
     }
 

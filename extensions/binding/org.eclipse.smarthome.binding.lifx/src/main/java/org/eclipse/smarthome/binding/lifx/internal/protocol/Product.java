@@ -146,6 +146,15 @@ public enum Product {
         public int getMaximum() {
             return maximum;
         }
+
+        /**
+         * The color temperature range in degrees Kelvin.
+         *
+         * @return difference between maximum and minimum color temperature values
+         */
+        public int getRange() {
+            return maximum - minimum;
+        }
     }
 
     private final Vendor vendor;

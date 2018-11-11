@@ -44,9 +44,9 @@ public class HSBK {
         this(other.hue, other.saturation, other.brightness, other.kelvin);
     }
 
-    public HSBK(HSBType hsb, PercentType temperature) {
+    public HSBK(HSBType hsb, int kelvin) {
         setHSB(hsb);
-        setTemperature(temperature);
+        this.kelvin = kelvin;
     }
 
     public int getHue() {
@@ -72,10 +72,6 @@ public class HSBK {
         return new HSBType(hue, saturation, brightness);
     }
 
-    public PercentType getTemperature() {
-        return kelvinToPercentType(kelvin);
-    }
-
     public void setHSB(HSBType hsb) {
         setHue(hsb.getHue());
         setSaturation(hsb.getSaturation());
@@ -94,8 +90,8 @@ public class HSBK {
         this.brightness = percentTypeToBrightness(brightness);
     }
 
-    public void setTemperature(PercentType temperature) {
-        kelvin = percentTypeToKelvin(temperature);
+    public void setKelvin(int kelvin) {
+        this.kelvin = kelvin;
     }
 
     @Override

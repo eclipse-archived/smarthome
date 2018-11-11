@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.lifx.internal.fields.HSBK;
+import org.eclipse.smarthome.binding.lifx.internal.protocol.Product.TemperatureRange;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -90,14 +91,17 @@ public final class LifxMessageUtil {
         return percentTypeToInt(brightness);
     }
 
-    public static PercentType kelvinToPercentType(int kelvin) {
-        // range is from 2500-9000K
-        return new PercentType((kelvin - 9000) / (-65));
+    public static PercentType kelvinToPercentType(int kelvin, TemperatureRange temperatureRange) {
+        if (temperatureRange.getRange() == 0) {
+            return PercentType.HUNDRED;
+        }
+        return new PercentType(
+                BigDecimal.valueOf((kelvin - temperatureRange.getMaximum()) / (temperatureRange.getRange() / -100)));
     }
 
-    public static int percentTypeToKelvin(PercentType temperature) {
-        // range is from 2500-9000K
-        return 9000 - (temperature.intValue() * 65);
+    public static int percentTypeToKelvin(PercentType temperature, TemperatureRange temperatureRange) {
+        return Math.round(
+                temperatureRange.getMaximum() - (temperature.floatValue() * (temperatureRange.getRange() / 100)));
     }
 
     public static PercentType infraredToPercentType(int infrared) {

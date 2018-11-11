@@ -14,7 +14,7 @@ package org.eclipse.smarthome.binding.lifx.handler;
 
 import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 import static org.eclipse.smarthome.binding.lifx.internal.protocol.Product.Feature.*;
-import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.increaseDecreasePercentType;
+import static org.eclipse.smarthome.binding.lifx.internal.util.LifxMessageUtil.*;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -169,7 +169,8 @@ public class LifxLightHandler extends BaseThingHandler {
 
             updateStateIfChanged(CHANNEL_COLOR, hsb);
             updateStateIfChanged(CHANNEL_BRIGHTNESS, hsb.getBrightness());
-            updateStateIfChanged(CHANNEL_TEMPERATURE, updateColor.getTemperature());
+            updateStateIfChanged(CHANNEL_TEMPERATURE,
+                    kelvinToPercentType(updateColor.getKelvin(), product.getTemperatureRange()));
 
             updateZoneChannels(powerState, colors);
         }
@@ -212,7 +213,8 @@ public class LifxLightHandler extends BaseThingHandler {
                 HSBK color = colors[i];
                 HSBK updateColor = nullSafeUpdateColor(powerState, color);
                 updateStateIfChanged(CHANNEL_COLOR_ZONE + i, updateColor.getHSB());
-                updateStateIfChanged(CHANNEL_TEMPERATURE_ZONE + i, updateColor.getTemperature());
+                updateStateIfChanged(CHANNEL_TEMPERATURE_ZONE + i,
+                        kelvinToPercentType(updateColor.getKelvin(), product.getTemperatureRange()));
             }
         }
 
@@ -542,14 +544,14 @@ public class LifxLightHandler extends BaseThingHandler {
     private void handleTemperatureCommand(PercentType temperature) {
         HSBK newColor = getLightStateForCommand().getColor();
         newColor.setSaturation(PercentType.ZERO);
-        newColor.setTemperature(temperature);
+        newColor.setKelvin(percentTypeToKelvin(temperature, product.getTemperatureRange()));
         getLightStateForCommand().setColor(newColor);
     }
 
     private void handleTemperatureCommand(PercentType temperature, int zoneIndex) {
         HSBK newColor = getLightStateForCommand().getColor(zoneIndex);
         newColor.setSaturation(PercentType.ZERO);
-        newColor.setTemperature(temperature);
+        newColor.setKelvin(percentTypeToKelvin(temperature, product.getTemperatureRange()));
         getLightStateForCommand().setColor(newColor, zoneIndex);
     }
 
@@ -577,7 +579,8 @@ public class LifxLightHandler extends BaseThingHandler {
 
         PercentType localPowerOnTemperature = powerOnTemperature;
         if (localPowerOnTemperature != null && onOff == OnOffType.ON) {
-            getLightStateForCommand().setTemperature(localPowerOnTemperature);
+            getLightStateForCommand()
+                    .setTemperature(percentTypeToKelvin(localPowerOnTemperature, product.getTemperatureRange()));
         }
 
         if (powerOnBrightness != null) {
@@ -600,13 +603,15 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleIncreaseDecreaseTemperatureCommand(IncreaseDecreaseType increaseDecrease) {
-        PercentType baseTemperature = getLightStateForCommand().getColor().getTemperature();
+        PercentType baseTemperature = kelvinToPercentType(getLightStateForCommand().getColor().getKelvin(),
+                product.getTemperatureRange());
         PercentType newTemperature = increaseDecreasePercentType(increaseDecrease, baseTemperature);
         handleTemperatureCommand(newTemperature);
     }
 
     private void handleIncreaseDecreaseTemperatureCommand(IncreaseDecreaseType increaseDecrease, int zoneIndex) {
-        PercentType baseTemperature = getLightStateForCommand().getColor(zoneIndex).getTemperature();
+        PercentType baseTemperature = kelvinToPercentType(getLightStateForCommand().getColor(zoneIndex).getKelvin(),
+                product.getTemperatureRange());
         PercentType newTemperature = increaseDecreasePercentType(increaseDecrease, baseTemperature);
         handleTemperatureCommand(newTemperature, zoneIndex);
     }
