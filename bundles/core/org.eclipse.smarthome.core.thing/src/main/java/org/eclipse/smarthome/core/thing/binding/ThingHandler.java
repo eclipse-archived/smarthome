@@ -80,7 +80,7 @@ public interface ThingHandler {
      * <p>
      * The callback is added after the handler instance has been tracked by the framework and before
      * {@link #initialize()} is called. The callback is removed (set to null) after the handler
-     * instance is no longer tracked and before {@link #dispose()} is called.
+     * instance is no longer tracked and after {@link #dispose()} is called.
      * <p>
      *
      * @param thingHandlerCallback the callback (can be null)
