@@ -12,14 +12,15 @@
  */
 package org.eclipse.smarthome.model.script.actions;
 
+import static java.time.ZonedDateTime.now;
 import static org.hamcrest.CoreMatchers.*;
-import static org.joda.time.Instant.now;
 import static org.junit.Assert.assertThat;
+
+import java.time.ZonedDateTime;
 
 import org.eclipse.smarthome.model.script.scheduler.test.MockClosure.MockClosure0;
 import org.eclipse.smarthome.model.script.scheduler.test.MockClosure.MockClosure1;
 import org.eclipse.smarthome.model.script.scheduler.test.MockScheduler;
-import org.joda.time.Instant;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,6 +53,11 @@ public class ScriptExecutionTest {
         assertThat(StdSchedulerFactory.getDefaultScheduler(), sameInstance(scheduler));
     }
 
+    /**
+     * Reset Quartz back to how it was before
+     *
+     * @throws SchedulerException
+     */
     @AfterClass
     public static void teardown() throws SchedulerException {
         if (originalPropertiesFile == null) {
@@ -175,11 +181,11 @@ public class ScriptExecutionTest {
     @Test
     public void testScheduledFireTime() throws Exception {
         MockClosure0 closure = new MockClosure0();
-        Instant triggerTime = now();
+        ZonedDateTime triggerTime = now();
         Timer timer = ScriptExecution.createTimer(triggerTime, closure);
         closure.setTimer(timer);
 
-        assertThat(timer.getScheduledFireTime().toDate(), is(equalTo(triggerTime.toDate())));
+        assertThat(timer.getScheduledFireTime(), is(equalTo(triggerTime)));
 
         scheduler.run();
 

@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.model.script.actions;
 
-import org.joda.time.base.AbstractInstant;
+import java.time.ZonedDateTime;
 
 /**
  * A timer is a handle for a block of code that is scheduled for future execution. A timer
@@ -20,6 +20,7 @@ import org.joda.time.base.AbstractInstant;
  * The script action "createTimer" returns a {@link Timer} instance.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Jon Evans - API enhancements, switch to java.time
  *
  */
 public interface Timer {
@@ -53,13 +54,13 @@ public interface Timer {
      * @param newTime the new time to execute the code
      * @return true, if the rescheduling was done successful
      */
-    public boolean reschedule(AbstractInstant newTime);
+    public boolean reschedule(ZonedDateTime newTime);
 
     /**
      * Determines when this timer will fire.
      *
-     * @return The {@link AbstractInstant} that the timer will next fire,
+     * @return The {@link ZonedDateTime} that the timer will next fire,
      *         or null if the timer has already terminated.
      */
-    public AbstractInstant getScheduledFireTime();
+    public ZonedDateTime getScheduledFireTime();
 }
