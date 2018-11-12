@@ -1257,7 +1257,7 @@ public class ThingManagerImpl
     }
 
     private boolean isDisabledByStorage(ThingUID thingUID) {
-        return storage == null || Boolean.FALSE.equals(storage.get(thingUID.getAsString()));
+        return storage != null && Boolean.FALSE.equals(storage.get(thingUID.getAsString()));
     }
 
     @Reference
