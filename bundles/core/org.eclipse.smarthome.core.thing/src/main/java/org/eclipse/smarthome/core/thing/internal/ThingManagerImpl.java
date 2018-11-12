@@ -632,11 +632,9 @@ public class ThingManagerImpl
     }
 
     private void initializeHandler(Thing thing) {
-        if (storage != null && storage.containsKey(thing.getUID().getAsString())
-                && !storage.get(thing.getUID().getAsString())) {
+        if (isDisabledByStorage(thing.getUID())) {
             setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED));
             logger.debug("Thing '{}' will not be initialized. It is marked as disabled.", thing.getUID());
-
             return;
         }
         if (!isHandlerRegistered(thing)) {
@@ -814,11 +812,7 @@ public class ThingManagerImpl
             }
             thing.setHandler(null);
 
-            boolean enabled = true;
-            if (storage != null && storage.containsKey(thing.getUID().getAsString())
-                    && !storage.get(thing.getUID().getAsString())) {
-                enabled = false;
-            }
+            boolean enabled = !isDisabledByStorage(thing.getUID());
 
             ThingStatusDetail detail = enabled ? ThingStatusDetail.HANDLER_MISSING_ERROR : ThingStatusDetail.DISABLED;
 
@@ -1261,6 +1255,10 @@ public class ThingManagerImpl
     public Boolean isEnabled(ThingUID thingUID) {
         Thing thing = getThing(thingUID);
         return thing.isEnabled();
+    }
+
+    private boolean isDisabledByStorage(ThingUID thingUID) {
+        return storage != null && Boolean.FALSE.equals(storage.get(thingUID.getAsString()));
     }
 
     @Reference
