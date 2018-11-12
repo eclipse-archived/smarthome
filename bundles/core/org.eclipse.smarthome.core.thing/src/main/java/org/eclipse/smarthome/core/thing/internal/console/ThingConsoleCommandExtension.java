@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingManager;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -55,11 +56,14 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_CLEAR = "clear";
     private static final String SUBCMD_REMOVE = "remove";
     private static final String SUBCMD_TRIGGER = "trigger";
+    private static final String SUBCMD_DISABLE = "disable";
+    private static final String SUBCMD_ENABLE = "enable";
 
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
     private ThingStatusInfoI18nLocalizationService thingStatusInfoI18nLocalizationService;
     private EventPublisher eventPublisher;
+    private ThingManager thingManager;
 
     public ThingConsoleCommandExtension() {
         super(CMD_THINGS, "Access your thing registry.");
@@ -83,7 +87,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 case SUBCMD_REMOVE:
                     if (args.length > 1) {
                         ThingUID thingUID = new ThingUID(args[1]);
-                        removeThing(console, things, thingUID);
+                        removeThing(console, thingUID);
                     } else {
                         console.println("Specify thing id to remove: things remove <thingUID> (e.g. \"hue:light:1\")");
                     }
@@ -97,6 +101,16 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         console.println("Command '" + subCommand + "' needs arguments <channelUID> [<event>]");
                     }
                     break;
+                case SUBCMD_DISABLE:
+                case SUBCMD_ENABLE:
+                    if (args.length > 1) {
+                        ThingUID thingUID = new ThingUID(args[1]);
+                        enableThing(console, thingUID, subCommand.equals(SUBCMD_ENABLE));
+                    } else {
+                        console.println(
+                                "Command '" + subCommand + "' needs argument <thingUID> (e.g. \"hue:light:1\")");
+                    }
+                    return;
                 default:
                     break;
             }
@@ -109,7 +123,7 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         eventPublisher.post(ThingEventFactory.createTriggerEvent(event, new ChannelUID(channelUid)));
     }
 
-    private void removeThing(Console console, Collection<Thing> things, ThingUID thingUID) {
+    private void removeThing(Console console, ThingUID thingUID) {
         Thing removedThing = this.managedThingProvider.remove(thingUID);
         if (removedThing != null) {
             console.println("Thing '" + thingUID + "' successfully removed.");
@@ -126,6 +140,12 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
         console.println(numberOfThings + " things successfully removed.");
     }
 
+    private void enableThing(Console console, ThingUID thingUID, boolean isEnabled) {
+        thingManager.setEnabled(thingUID, isEnabled);
+        String command = isEnabled ? "enabled" : "disabled";
+        console.println(thingUID.getAsString() + " successfully " + command + ".");
+    }
+
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all things"),
@@ -134,7 +154,9 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 buildCommandUsage(SUBCMD_CLEAR, "removes all managed things"),
                 buildCommandUsage(SUBCMD_REMOVE + " <thingUID>", "removes a thing"),
                 buildCommandUsage(SUBCMD_TRIGGER + " <channelUID> [<event>]",
-                        "triggers the <channelUID> with <event> (if given)") });
+                        "triggers the <channelUID> with <event> (if given)"),
+                buildCommandUsage(SUBCMD_DISABLE + " <thingUID>", "disables a thing"),
+                buildCommandUsage(SUBCMD_ENABLE + " <thingUID>", "enables a thing") });
     }
 
     private void printThings(Console console, Collection<Thing> things) {
@@ -278,6 +300,15 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
+    }
+
+    @Reference
+    protected void setThingManager(ThingManager thingManager) {
+        this.thingManager = thingManager;
+    }
+
+    protected void unsetThingManager(ThingManager thingManager) {
+        this.thingManager = null;
     }
 
 }

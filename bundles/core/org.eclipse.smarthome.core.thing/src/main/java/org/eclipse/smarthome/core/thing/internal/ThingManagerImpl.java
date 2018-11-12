@@ -633,6 +633,7 @@ public class ThingManagerImpl
 
     private void initializeHandler(Thing thing) {
         if (isDisabledByStorage(thing.getUID())) {
+            setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED));
             logger.debug("Thing '{}' will not be initialized. It is marked as disabled.", thing.getUID());
             return;
         }
