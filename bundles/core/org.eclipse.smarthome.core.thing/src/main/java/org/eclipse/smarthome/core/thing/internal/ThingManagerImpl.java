@@ -1257,7 +1257,7 @@ public class ThingManagerImpl
     }
 
     @Override
-    public Boolean isEnabled(ThingUID thingUID) {
+    public boolean isEnabled(ThingUID thingUID) {
         Thing thing = getThing(thingUID);
         return thing.isEnabled();
     }
