@@ -347,6 +347,13 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants', 'ngResource' ]).c
                 firmwareVersion : '@firmwareVersion'
             },
             url : restConfig.restPath + '/things/:thingUID/firmware/:firmwareVersion'
+        },
+        enable : {
+            method : 'PUT',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/things/:thingUID/enable'
         }
     });
 }).factory('serviceConfigService', function($resource, restConfig) {
