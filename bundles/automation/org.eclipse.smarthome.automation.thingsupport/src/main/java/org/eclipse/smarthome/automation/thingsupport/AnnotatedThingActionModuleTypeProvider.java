@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AnnotatedActions;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -32,7 +31,7 @@ import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
+import org.eclipse.smarthome.core.thing.binding.AnnotatedActionThingHandlerService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -53,10 +52,11 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
     private final AnnotationActionModuleTypeHelper helper = new AnnotationActionModuleTypeHelper();
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public void addAnnotatedThingActions(ThingHandlerService annotatedThingActions, Map<String, Object> properties) {
+    public void addAnnotatedThingActions(AnnotatedActionThingHandlerService annotatedThingActions,
+            Map<String, Object> properties) {
         Collection<ModuleInformation> moduleInformations = helper.parseAnnotations(annotatedThingActions);
 
-        String thingUID = getThingUIDFromService(properties);
+        String thingUID = annotatedThingActions.getThingHandler().getThing().getUID().getAsString();
 
         for (ModuleInformation mi : moduleInformations) {
             mi.setThingUID(thingUID);
@@ -85,11 +85,11 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
         }
     }
 
-    public void removeAnnotatedThingActions(ThingHandlerService annotatedThingActions,
+    public void removeAnnotatedThingActions(AnnotatedActionThingHandlerService annotatedThingActions,
             Map<String, Object> properties) {
         Collection<ModuleInformation> moduleInformations = helper.parseAnnotations(annotatedThingActions);
 
-        String thingUID = getThingUIDFromService(properties);
+        String thingUID = annotatedThingActions.getThingHandler().getThing().getUID().getAsString();
 
         for (ModuleInformation mi : moduleInformations) {
             mi.setThingUID(thingUID);
@@ -114,15 +114,6 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
                 }
             }
         }
-    }
-
-    private String getThingUIDFromService(Map<String, Object> properties) {
-        Object o = properties.get(AnnotatedActions.ACTION_THING_UID);
-        String thingUID = null;
-        if (o instanceof String) {
-            thingUID = (String) o;
-        }
-        return thingUID;
     }
 
     @Override

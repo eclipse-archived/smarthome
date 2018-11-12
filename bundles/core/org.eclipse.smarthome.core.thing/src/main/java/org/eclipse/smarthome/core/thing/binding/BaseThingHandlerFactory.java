@@ -12,9 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -143,7 +141,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         return thingHandler;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("rawtypes")
     private void registerServices(Thing thing, ThingHandler thingHandler) {
         ThingUID thingUID = thing.getUID();
         for (Class c : thingHandler.getServices()) {
@@ -151,8 +149,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             try {
                 serviceInstance = c.newInstance();
 
+                ThingHandlerService ths = null;
                 if (serviceInstance instanceof ThingHandlerService) {
-                    ThingHandlerService ths = (ThingHandlerService) serviceInstance;
+                    ths = (ThingHandlerService) serviceInstance;
                     ths.setThingHandler(thingHandler);
                 } else {
                     logger.warn(
@@ -161,30 +160,34 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
                     continue;
                 }
 
-                Dictionary<String, String> properties = new Hashtable<>();
-                properties.put(ThingHandlerService.ACTION_THING_UID, thingUID.getAsString());
-
                 Class[] interfaces = c.getInterfaces();
                 LinkedList<String> serviceNames = new LinkedList<>();
                 if (interfaces != null) {
                     for (Class i : interfaces) {
-                        serviceNames.add(i.getCanonicalName());
+                        String className = i.getCanonicalName();
+                        // we only add specific ThingHandlerServices, i.e. those that derive from the
+                        // ThingHandlerService interface
+                        if (!ThingHandlerService.class.getCanonicalName().equals(className)) {
+                            serviceNames.add(className);
+                        }
                     }
                 }
+                if (serviceNames.size() > 0) {
+                    String[] serviceNamesArray = serviceNames.toArray(new String[serviceNames.size()]);
 
-                String[] serviceNamesArray = serviceNames.toArray(new String[serviceNames.size()]);
+                    ServiceRegistration<?> serviceReg = this.bundleContext.registerService(serviceNamesArray,
+                            serviceInstance, null);
 
-                ServiceRegistration<?> serviceReg = this.bundleContext.registerService(serviceNamesArray,
-                        serviceInstance, properties);
-
-                if (serviceReg != null) {
-                    Set<ServiceRegistration<?>> serviceRegs = this.thingHandlerServices.get(thingUID);
-                    if (serviceRegs == null) {
-                        HashSet<ServiceRegistration<?>> set = new HashSet<>();
-                        set.add(serviceReg);
-                        this.thingHandlerServices.put(thingUID, set);
-                    } else {
-                        serviceRegs.add(serviceReg);
+                    if (serviceReg != null) {
+                        Set<ServiceRegistration<?>> serviceRegs = this.thingHandlerServices.get(thingUID);
+                        if (serviceRegs == null) {
+                            HashSet<ServiceRegistration<?>> set = new HashSet<>();
+                            set.add(serviceReg);
+                            this.thingHandlerServices.put(thingUID, set);
+                        } else {
+                            serviceRegs.add(serviceReg);
+                        }
+                        ths.activate();
                     }
                 }
             } catch (InstantiationException | IllegalAccessException e) {
@@ -195,11 +198,16 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private void unregisterServices(Thing thing) {
         ThingUID thingUID = thing.getUID();
-        // ThingHandler thingHandler = thing.getHandler();
+
         Set<ServiceRegistration<?>> serviceRegs = this.thingHandlerServices.remove(thingUID);
         if (serviceRegs != null) {
             for (ServiceRegistration<?> serviceReg : serviceRegs) {
+                ThingHandlerService service = (ThingHandlerService) getBundleContext()
+                        .getService(serviceReg.getReference());
                 serviceReg.unregister();
+                if (service != null) {
+                    service.deactivate();
+                }
             }
         }
     }
@@ -243,14 +251,6 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         ServiceRegistration<T> serviceRegistration = (ServiceRegistration<T>) bundleContext
                 .registerService(type.getName(), thingHandler, null);
         return serviceRegistration;
-    }
-
-    protected ServiceRegistration<?> registerActionService(Thing thing, ThingHandler handler,
-            ThingHandlerService actionProvider) {
-        Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(ThingHandlerService.ACTION_THING_UID, thing.getUID().getAsString());
-
-        return this.bundleContext.registerService(ThingHandlerService.class, actionProvider, properties);
     }
 
     @Override

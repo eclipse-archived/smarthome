@@ -14,14 +14,12 @@ package org.eclipse.smarthome.core.thing.binding;
 
 /**
  *
- * Marker interface for a service that provides automation actions via annotated methods
+ * Interface for a service that provides access to a {@link ThingHandler}
  *
  * @author Stefan Triller - initial contribution
  *
  */
 public interface ThingHandlerService {
-
-    public static final String ACTION_THING_UID = "esh.thingActionID";
 
     /**
      * Sets the ThingHandler on which the actions (methods) should be called
@@ -36,5 +34,17 @@ public interface ThingHandlerService {
      * @return the {@link ThingHandler}
      */
     ThingHandler getThingHandler();
+
+    /**
+     * Method that will be called if this service will be activated
+     */
+    default void activate() {
+    }
+
+    /**
+     * Method that will be called if this service will be deactivated
+     */
+    default void deactivate() {
+    }
 
 }
