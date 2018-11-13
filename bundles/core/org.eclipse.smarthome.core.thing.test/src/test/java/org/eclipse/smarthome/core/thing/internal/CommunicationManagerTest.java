@@ -65,6 +65,9 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
@@ -92,31 +95,36 @@ public class CommunicationManagerTest extends JavaOSGiTest {
     private static final String ITEM_NAME_1 = "testItem1";
     private static final String ITEM_NAME_2 = "testItem2";
     private static final String ITEM_NAME_3 = "testItem3";
+    private static final String ITEM_NAME_4 = "testItem4";
     private static final SwitchItem ITEM_1 = new SwitchItem(ITEM_NAME_1);
     private static final SwitchItem ITEM_2 = new SwitchItem(ITEM_NAME_2);
     private static final NumberItem ITEM_3 = new NumberItem(ITEM_NAME_3);
+    private static final NumberItem ITEM_4 = new NumberItem(ITEM_NAME_4);
     private static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID("test", "type");
     private static final ThingUID THING_UID = new ThingUID("test", "thing");
     private static final ChannelUID STATE_CHANNEL_UID_1 = new ChannelUID(THING_UID, "state-channel1");
     private static final ChannelUID STATE_CHANNEL_UID_2 = new ChannelUID(THING_UID, "state-channel2");
     private static final ChannelUID STATE_CHANNEL_UID_3 = new ChannelUID(THING_UID, "state-channel3");
+    private static final ChannelUID STATE_CHANNEL_UID_4 = new ChannelUID(THING_UID, "state-channel4");
+    private static final ChannelTypeUID CHANNEL_TYPE_UID_4 = new ChannelTypeUID("test", "channeltype");
     private static final ChannelUID TRIGGER_CHANNEL_UID_1 = new ChannelUID(THING_UID, "trigger-channel1");
     private static final ChannelUID TRIGGER_CHANNEL_UID_2 = new ChannelUID(THING_UID, "trigger-channel2");
     private static final ItemChannelLink LINK_1_S1 = new ItemChannelLink(ITEM_NAME_1, STATE_CHANNEL_UID_1);
     private static final ItemChannelLink LINK_1_S2 = new ItemChannelLink(ITEM_NAME_1, STATE_CHANNEL_UID_2);
     private static final ItemChannelLink LINK_2_S2 = new ItemChannelLink(ITEM_NAME_2, STATE_CHANNEL_UID_2);
     private static final ItemChannelLink LINK_3_S3 = new ItemChannelLink(ITEM_NAME_3, STATE_CHANNEL_UID_3);
+    private static final ItemChannelLink LINK_4_S4 = new ItemChannelLink(ITEM_NAME_4, STATE_CHANNEL_UID_4);
     private static final ItemChannelLink LINK_1_T1 = new ItemChannelLink(ITEM_NAME_1, TRIGGER_CHANNEL_UID_1);
     private static final ItemChannelLink LINK_1_T2 = new ItemChannelLink(ITEM_NAME_1, TRIGGER_CHANNEL_UID_2);
     private static final ItemChannelLink LINK_2_T2 = new ItemChannelLink(ITEM_NAME_2, TRIGGER_CHANNEL_UID_2);
-    private static final Thing THING = ThingBuilder.create(THING_TYPE_UID, THING_UID)
-            .withChannels(ChannelBuilder.create(STATE_CHANNEL_UID_1, "").withKind(ChannelKind.STATE).build(),
-                    ChannelBuilder.create(STATE_CHANNEL_UID_2, "").withKind(ChannelKind.STATE).build(),
-                    ChannelBuilder.create(STATE_CHANNEL_UID_3, "Number:Temperature").withKind(ChannelKind.STATE)
-                            .build(),
-                    ChannelBuilder.create(TRIGGER_CHANNEL_UID_1, "").withKind(ChannelKind.TRIGGER).build(),
-                    ChannelBuilder.create(TRIGGER_CHANNEL_UID_2, "").withKind(ChannelKind.TRIGGER).build())
-            .build();
+    private static final Thing THING = ThingBuilder.create(THING_TYPE_UID, THING_UID).withChannels(
+            ChannelBuilder.create(STATE_CHANNEL_UID_1, "").withKind(ChannelKind.STATE).build(),
+            ChannelBuilder.create(STATE_CHANNEL_UID_2, "").withKind(ChannelKind.STATE).build(),
+            ChannelBuilder.create(STATE_CHANNEL_UID_3, "Number:Temperature").withKind(ChannelKind.STATE).build(),
+            ChannelBuilder.create(STATE_CHANNEL_UID_4, "Number").withKind(ChannelKind.STATE)
+                    .withType(CHANNEL_TYPE_UID_4).build(),
+            ChannelBuilder.create(TRIGGER_CHANNEL_UID_1, "").withKind(ChannelKind.TRIGGER).build(),
+            ChannelBuilder.create(TRIGGER_CHANNEL_UID_2, "").withKind(ChannelKind.TRIGGER).build()).build();
 
     private CommunicationManager manager;
 
@@ -146,6 +154,9 @@ public class CommunicationManagerTest extends JavaOSGiTest {
 
     @Mock
     private AutoUpdateManager mockAutoUpdateManager;
+
+    @Mock
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private SafeCaller safeCaller;
 
@@ -199,7 +210,8 @@ public class CommunicationManagerTest extends JavaOSGiTest {
 
             @Override
             public Collection<ItemChannelLink> getAll() {
-                return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2, LINK_3_S3);
+                return Arrays.asList(LINK_1_S1, LINK_1_S2, LINK_2_S2, LINK_1_T1, LINK_1_T2, LINK_2_T2, LINK_3_S3,
+                        LINK_4_S4);
             }
         });
         manager.setItemChannelLinkRegistry(iclRegistry);
@@ -207,7 +219,14 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         when(itemRegistry.get(eq(ITEM_NAME_1))).thenReturn(ITEM_1);
         when(itemRegistry.get(eq(ITEM_NAME_2))).thenReturn(ITEM_2);
         when(itemRegistry.get(eq(ITEM_NAME_3))).thenReturn(ITEM_3);
+        when(itemRegistry.get(eq(ITEM_NAME_4))).thenReturn(ITEM_4);
         manager.setItemRegistry(itemRegistry);
+
+        ChannelType channelType4 = mock(ChannelType.class);
+        when(channelType4.getItemType()).thenReturn("Number:Temperature");
+
+        when(channelTypeRegistry.getChannelType(CHANNEL_TYPE_UID_4)).thenReturn(channelType4);
+        manager.setChannelTypeRegistry(channelTypeRegistry);
 
         THING.setHandler(mockHandler);
 
@@ -219,6 +238,7 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         UnitProvider unitProvider = mock(UnitProvider.class);
         when(unitProvider.getUnit(Temperature.class)).thenReturn(SIUnits.CELSIUS);
         ITEM_3.setUnitProvider(unitProvider);
+        ITEM_4.setUnitProvider(unitProvider);
     }
 
     @Test
@@ -299,6 +319,19 @@ public class CommunicationManagerTest extends JavaOSGiTest {
         verifyNoMoreInteractions(triggerProfile);
 
         ITEM_3.setStateDescriptionService(null);
+    }
+
+    @Test
+    public void testItemCommandEvent_Decimal2Quantity_ChannelType() {
+        // The command is sent to an item w/o dimension defined and the channel is legacy (created from a ThingType
+        // definition before UoM was introduced to the binding). The dimension information might now be defined on the
+        // current ThingType.
+        manager.receive(ItemEventFactory.createCommandEvent(ITEM_NAME_4, DecimalType.valueOf("20")));
+        waitForAssert(() -> {
+            verify(stateProfile).onCommandFromItem(eq(QuantityType.valueOf("20 °C")));
+        });
+        verifyNoMoreInteractions(stateProfile);
+        verifyNoMoreInteractions(triggerProfile);
     }
 
     @Test
