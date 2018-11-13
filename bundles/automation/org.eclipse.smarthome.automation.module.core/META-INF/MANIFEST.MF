@@ -10,7 +10,8 @@ Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.automation.module.core.factory,
  org.eclipse.smarthome.automation.module.core.handler,
- org.eclipse.smarthome.automation.module.core.provider
+ org.eclipse.smarthome.automation.module.core.provider,
+ org.eclipse.smarthome.automation.module.core.provider.i18n
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,

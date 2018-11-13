@@ -14,8 +14,10 @@ package org.eclipse.smarthome.automation.thingsupport;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,12 +29,15 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.core.handler.AnnotationActionHandler;
 import org.eclipse.smarthome.automation.module.core.provider.AnnotationActionModuleTypeHelper;
 import org.eclipse.smarthome.automation.module.core.provider.ModuleInformation;
+import org.eclipse.smarthome.automation.module.core.provider.i18n.ModuleTypeI18nService;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.thing.binding.AnnotatedActionThingHandlerService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -50,6 +55,8 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
     private final Collection<ProviderChangeListener<ModuleType>> changeListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, Set<ModuleInformation>> moduleInformation = new ConcurrentHashMap<>();
     private final AnnotationActionModuleTypeHelper helper = new AnnotationActionModuleTypeHelper();
+
+    private ModuleTypeI18nService moduleTypeI18nService;
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     public void addAnnotatedThingActions(AnnotatedActionThingHandlerService annotatedThingActions,
@@ -105,6 +112,7 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
                 }
 
                 ModuleType mt = helper.buildModuleType(mi.getUID(), this.moduleInformation);
+                // localize moduletype -> remove from map
                 for (ProviderChangeListener<ModuleType> l : changeListeners) {
                     if (oldType != null) {
                         l.updated(this, oldType, mt);
@@ -146,13 +154,34 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
     @SuppressWarnings("unchecked")
     @Override
     public <T extends ModuleType> T getModuleType(String UID, Locale locale) {
-        return (T) helper.buildModuleType(UID, this.moduleInformation);
+        return (T) localizeModuleType(UID, locale);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends ModuleType> Collection<T> getModuleTypes(Locale locale) {
-        return (Collection<T>) getAll();
+        List<T> result = new ArrayList<>();
+        for (Entry<String, Set<ModuleInformation>> entry : moduleInformation.entrySet()) {
+            ModuleType localizedModuleType = localizeModuleType(entry.getKey(), locale);
+            if (localizedModuleType != null) {
+                result.add((T) localizedModuleType);
+            }
+        }
+        return result;
+    }
+
+    private ModuleType localizeModuleType(String uid, Locale locale) {
+        Set<ModuleInformation> mis = moduleInformation.get(uid);
+        if (mis != null && !mis.isEmpty()) {
+            ModuleInformation mi = mis.iterator().next();
+
+            Bundle bundle = FrameworkUtil.getBundle(mi.getActionProvider().getClass());
+            ModuleType mt = helper.buildModuleType(uid, moduleInformation);
+
+            ModuleType localizedModuleType = moduleTypeI18nService.getModuleTypePerLocale(mt, locale, bundle);
+            return localizedModuleType;
+        }
+        return null;
     }
 
     @Override
@@ -172,5 +201,14 @@ public class AnnotatedThingActionModuleTypeProvider extends BaseModuleHandlerFac
             }
         }
         return null;
+    }
+
+    @Reference
+    protected void setModuleTypeI18nService(ModuleTypeI18nService moduleTypeI18nService) {
+        this.moduleTypeI18nService = moduleTypeI18nService;
+    }
+
+    protected void unsetModuleTypeI18nService(ModuleTypeI18nService moduleTypeI18nService) {
+        this.moduleTypeI18nService = null;
     }
 }
