@@ -213,7 +213,7 @@ public class OpenWeatherMapConnection {
         }
     }
 
-    private String getResponseFromCache(String url) {
+    private @Nullable String getResponseFromCache(String url) {
         return cache.putIfAbsentAndGet(url, () -> getResponse(url));
     }
 
