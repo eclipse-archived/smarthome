@@ -13,6 +13,8 @@
 package org.eclipse.smarthome.automation.module.core.internal.provider;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +29,7 @@ import org.eclipse.smarthome.automation.annotation.ActionOutput;
 import org.eclipse.smarthome.automation.annotation.ActionScope;
 import org.eclipse.smarthome.automation.annotation.RuleAction;
 import org.eclipse.smarthome.automation.module.core.provider.AnnotationActionModuleTypeHelper;
-import org.eclipse.smarthome.automation.module.core.provider.AnnotationActionModuleTypeProvider;
+import org.eclipse.smarthome.automation.module.core.provider.i18n.ModuleTypeI18nService;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -66,6 +68,8 @@ public class AnnotationActionModuleTypeProviderTest extends JavaTest {
     private static final String ACTION_OUTPUT2 = "output2";
     private static final String ACTION_OUTPUT2_TYPE = "java.lang.String";
 
+    private ModuleTypeI18nService moduleTypeI18nService;
+
     private AnnotatedActions actionProviderConf1;
     private AnnotatedActions actionProviderConf2;
 
@@ -73,11 +77,16 @@ public class AnnotationActionModuleTypeProviderTest extends JavaTest {
     public void setUp() {
         actionProviderConf1 = new TestActionProvider();
         actionProviderConf2 = new TestActionProvider();
+
+        moduleTypeI18nService = mock(ModuleTypeI18nService.class);
+        when(moduleTypeI18nService.getModuleTypePerLocale(any(ModuleType.class), any(), any()))
+                .thenAnswer(i -> i.getArguments()[0]);
     }
 
     @Test
     public void testMultiServiceAnnotationActions() {
         AnnotationActionModuleTypeProvider prov = new AnnotationActionModuleTypeProvider();
+        prov.setModuleTypeI18nService(moduleTypeI18nService);
 
         HashMap<String, Object> properties1 = new HashMap<String, Object>();
         properties1.put(ConfigConstants.SERVICE_CONTEXT, "conf1");

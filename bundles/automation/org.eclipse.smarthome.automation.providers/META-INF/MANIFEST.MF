@@ -24,4 +24,3 @@ Import-Package:
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: org.eclipse.smarthome.automation.providers
-Export-Package: org.eclipse.smarthome.automation.core.provider.i18n

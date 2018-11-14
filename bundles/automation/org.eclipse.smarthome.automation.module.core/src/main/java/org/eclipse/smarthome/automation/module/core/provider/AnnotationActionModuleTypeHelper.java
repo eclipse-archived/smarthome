@@ -53,7 +53,8 @@ public class AnnotationActionModuleTypeHelper {
 
     private final Logger logger = LoggerFactory.getLogger(AnnotationActionModuleTypeHelper.class);
 
-    private static final String SELECT_SERVICE_LABEL = "Service Instance";
+    private static final String SELECT_SERVICE_LABEL = "Select Service Instance";
+    private static final String SELECT_THING_LABEL = "Select Thing";
     public static final String CONFIG_PARAM = "config";
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -186,7 +187,7 @@ public class AnnotationActionModuleTypeHelper {
         } else if (kind == ActionModuleKind.SERVICE) {
             for (ModuleInformation mi : moduleInformations) {
                 String configName = mi.getConfigName();
-                options.add(new ParameterOption(configName, null));
+                options.add(new ParameterOption(configName, configName));
             }
             return ConfigDescriptionParameterBuilder.create(CONFIG_PARAM, Type.TEXT).withLabel(SELECT_SERVICE_LABEL)
                     .withOptions(options).withLimitToOptions(true).withRequired(true).build();
@@ -195,7 +196,7 @@ public class AnnotationActionModuleTypeHelper {
                 String thingUID = mi.getThingUID();
                 options.add(new ParameterOption(thingUID, null));
             }
-            return ConfigDescriptionParameterBuilder.create(CONFIG_PARAM, Type.TEXT).withLabel("Select Thing")
+            return ConfigDescriptionParameterBuilder.create(CONFIG_PARAM, Type.TEXT).withLabel(SELECT_THING_LABEL)
                     .withContext("thing").withOptions(options).withLimitToOptions(true).withRequired(true).build();
         }
         return null;

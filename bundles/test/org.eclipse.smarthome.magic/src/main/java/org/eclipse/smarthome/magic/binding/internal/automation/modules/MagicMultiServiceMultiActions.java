@@ -54,7 +54,7 @@ public class MagicMultiServiceMultiActions implements AnnotatedActions {
         this.config = config;
     }
 
-    @RuleAction(label = "Magics Multi Action Test", description = "Just a text that prints out inputs and config parameters")
+    @RuleAction(label = "@text/module.binding.magic.testMethod.label", description = "Just a text that prints out inputs and config parameters")
     public @ActionOutput(name = "output1", type = "java.lang.Integer") @ActionOutput(name = "output2", type = "java.lang.String") Map<String, Object> testMethod(
             @ActionInput(name = "input1") String input1, @ActionInput(name = "input2") String input2) {
         Map<String, Object> result = new HashMap<>();

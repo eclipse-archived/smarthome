@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.automation.module.core.provider;
+package org.eclipse.smarthome.automation.module.core.internal.provider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +28,8 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.core.handler.AnnotationActionHandler;
+import org.eclipse.smarthome.automation.module.core.provider.AnnotationActionModuleTypeHelper;
+import org.eclipse.smarthome.automation.module.core.provider.ModuleInformation;
 import org.eclipse.smarthome.automation.module.core.provider.i18n.ModuleTypeI18nService;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
