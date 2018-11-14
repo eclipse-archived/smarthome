@@ -71,22 +71,6 @@ public class MagicMultiServiceMultiActions implements AnnotatedActions {
         return result;
     }
 
-    @RuleAction(label = "Magic Multi Action invalid return Test", description = "Test for forcing an error in the ActionHandler")
-    public @ActionOutput(name = "o1", type = "java.lang.String") @ActionOutput(name = "o2", type = "java.lang.String") Map<Integer, Object> invalidReturnMethod(
-            @ActionInput(name = "i1") String input1, @ActionInput(name = "i2") String input2) {
-        Map<Integer, Object> result = new HashMap<>();
-        result.put(1, 23);
-
-        boolean boolParam = (Boolean) config.get("boolParam");
-        String textParam = (String) config.get("textParam");
-
-        logger.debug(
-                "Executed multi action invalidReturnMethod with inputs: {}, {} and configParams: boolParam={}, textParam={}",
-                input1, input2, boolParam, textParam);
-
-        return result;
-    }
-
     @RuleAction(label = "Magic Multi Action boolean", description = "Action method that returns a plain boolean")
     public @ActionOutput(name = "out1", type = "java.lang.Boolean") boolean booleanMethod(
             @ActionInput(name = "in1") String input1, @ActionInput(name = "in2") String input2) {
@@ -99,9 +83,6 @@ public class MagicMultiServiceMultiActions implements AnnotatedActions {
 
         logger.debug("executed boolean method with: {}, {}", input1, input2);
 
-        String t = (String) config.get("textParam");
-        boolean b = (Boolean) config.get("boolParam");
-
         logger.debug(
                 "Executed multi action booleanMethod with inputs: {}, {} and configParams: boolParam={}, textParam={}",
                 input1, input2, boolParam, textParam);
@@ -109,12 +90,8 @@ public class MagicMultiServiceMultiActions implements AnnotatedActions {
         return true;
     }
 
-    @RuleAction(label = "Magic Multi Action void", description = "Action method with type void, but fills outputs")
+    @RuleAction(label = "Magic Multi Action void", description = "Action method with type void, so no outputs")
     public void voidMethod(@ActionInput(name = "inv1") String input1, @ActionInput(name = "inv2") String input2) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("output1", 42);
-        result.put("output2", "foobar");
-
         boolean boolParam = (Boolean) config.get("boolParam");
         String textParam = (String) config.get("textParam");
 

@@ -48,7 +48,7 @@ public class MagicThingActionsService implements AnnotatedActionThingHandlerServ
         // passed into this module via the automation engine
         handler.communicateActionToDevice(input1);
 
-        // hint: one could also put handler results into the output map for further processing wihtin the automation
+        // hint: one could also put handler results into the output map for further processing within the automation
         // engine
         Map<String, Object> result = new HashMap<>();
         result.put("output1", 23);
