@@ -36,7 +36,17 @@ public enum ThingStatusDetail {
      * the thing handler should be removed.
      */
     GONE,
-    DISABLED;
+    DISABLED,
+
+    /**
+     * A device which can be reached by the handler and is ONLINE while it can not receive or respond to command sent to
+     * it. A vendor application might set/unset this status.
+     * E.g. a speaker which is paired as a slave in a stereo pair and will not react to commands. But it will send
+     * updates about its pairing status or even updates on channel states. Only the vendor application can unpair the
+     * speaker to make it ONLINE/NONE again.
+     *
+     */
+    DEACTIVATED;
 
     public static final UninitializedStatus UNINITIALIZED = new UninitializedStatus();
     public static final NoneOnlyStatus INITIALIZING = new NoneOnlyStatus();
@@ -71,6 +81,7 @@ public enum ThingStatusDetail {
 
         public ThingStatusDetail NONE = ThingStatusDetail.NONE;
         public ThingStatusDetail CONFIGURATION_PENDING = ThingStatusDetail.CONFIGURATION_PENDING;
+        public ThingStatusDetail DEACTIVATED = ThingStatusDetail.DEACTIVATED;
     };
 
     public static final class OfflineStatus {
