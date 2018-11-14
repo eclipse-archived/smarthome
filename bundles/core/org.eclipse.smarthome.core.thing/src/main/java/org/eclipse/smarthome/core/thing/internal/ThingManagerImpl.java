@@ -279,7 +279,9 @@ public class ThingManagerImpl
 
         @Override
         public void configurationUpdated(Thing thing) {
-            initializeHandler(thing);
+            if (!ThingHandlerHelper.isHandlerInitialized(thing)) {
+                initializeHandler(thing);
+            }
         }
 
         @Override
