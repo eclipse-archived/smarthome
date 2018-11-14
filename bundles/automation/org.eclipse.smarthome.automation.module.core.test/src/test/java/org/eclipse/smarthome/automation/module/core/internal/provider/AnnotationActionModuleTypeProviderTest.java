@@ -42,7 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests for the {@link AnnotationActionModuleTypeProvider}
+ * Tests for the {@link AnnotatedActionModuleTypeProvider}
  *
  * @author Stefan Triller - initial contribution
  *
@@ -85,7 +85,7 @@ public class AnnotationActionModuleTypeProviderTest extends JavaTest {
 
     @Test
     public void testMultiServiceAnnotationActions() {
-        AnnotationActionModuleTypeProvider prov = new AnnotationActionModuleTypeProvider();
+        AnnotatedActionModuleTypeProvider prov = new AnnotatedActionModuleTypeProvider();
         prov.setModuleTypeI18nService(moduleTypeI18nService);
 
         HashMap<String, Object> properties1 = new HashMap<String, Object>();

@@ -52,7 +52,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  *
  */
 @Component(service = { ModuleTypeProvider.class, ModuleHandlerFactory.class })
-public class AnnotationActionModuleTypeProvider extends BaseModuleHandlerFactory implements ModuleTypeProvider {
+public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory implements ModuleTypeProvider {
 
     private final Collection<ProviderChangeListener<ModuleType>> changeListeners = ConcurrentHashMap.newKeySet();
     private Map<String, Set<ModuleInformation>> moduleInformation = new ConcurrentHashMap<>();
