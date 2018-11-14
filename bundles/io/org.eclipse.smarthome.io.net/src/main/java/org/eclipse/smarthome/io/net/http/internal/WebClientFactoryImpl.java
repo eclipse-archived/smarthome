@@ -391,12 +391,10 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     }
 
     @Reference
-    @Deprecated
     protected void setExtensibleTrustManager(ExtensibleTrustManager extensibleTrustManager) {
         this.extensibleTrustManager = extensibleTrustManager;
     }
 
-    @Deprecated
     protected void unsetExtensibleTrustManager(ExtensibleTrustManager extensibleTrustManager) {
         if (this.extensibleTrustManager == extensibleTrustManager) {
             this.extensibleTrustManager = null;
@@ -404,10 +402,12 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     }
 
     @Reference(service = TrustManagerProvider.class, cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    @Deprecated
     protected void setTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
         this.trustmanagerProvider = trustmanagerProvider;
     }
 
+    @Deprecated
     protected void unsetTrustmanagerProvider(TrustManagerProvider trustmanagerProvider) {
         if (this.trustmanagerProvider == trustmanagerProvider) {
             this.trustmanagerProvider = null;

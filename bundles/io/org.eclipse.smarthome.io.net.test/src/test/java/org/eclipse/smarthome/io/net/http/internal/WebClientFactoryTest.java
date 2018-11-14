@@ -65,7 +65,7 @@ public class WebClientFactoryTest {
         webClientFactory.setTrustmanagerProvider(trustmanagerProvider);
         webClientFactory.setExtensibleTrustManager(extensibleTrustManager);
 
-        webClientFactory.activate(createConfigMap(10, 200, 60, 5, 10, 60));
+        webClientFactory.activate(createConfigMap(4, 200, 60, 2, 10, 60));
     }
 
     @After
@@ -83,6 +83,7 @@ public class WebClientFactoryTest {
     }
 
     @Test
+    @Ignore("connecting to the outside world makes this test flaky")
     public void testCommonClientUsesExtensibleTrustManager() throws Exception {
         ArgumentCaptor<X509Certificate[]> certificateChainCaptor = ArgumentCaptor.forClass(X509Certificate[].class);
         ArgumentCaptor<SSLEngine> sslEngineCaptor = ArgumentCaptor.forClass(SSLEngine.class);
@@ -100,8 +101,6 @@ public class WebClientFactoryTest {
         assertThat(sslEngineCaptor.getValue().getPeerPort(), is(443));
         assertThat(certificateChainCaptor.getValue()[0].getSubjectX500Principal().getName(),
                 containsString("eclipse.org"));
-
-        httpClient.stop();
     }
 
     @Test
@@ -137,8 +136,6 @@ public class WebClientFactoryTest {
             httpClient.GET(TEST_URL);
         } catch (ExecutionException e) {
             throw e.getCause();
-        } finally {
-            httpClient.stop();
         }
     }
 
