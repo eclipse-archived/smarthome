@@ -44,6 +44,7 @@
     <module>org.eclipse.smarthome.binding.ntp.test</module>
     <module>org.eclipse.smarthome.binding.onewire</module>
     <module>org.eclipse.smarthome.binding.onewire.test</module>
+    <module>org.eclipse.smarthome.binding.openweathermap</module>
     <module>org.eclipse.smarthome.binding.serialbutton</module>
     <module>org.eclipse.smarthome.binding.sonos</module>
     <module>org.eclipse.smarthome.binding.sonyaudio</module>
