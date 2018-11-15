@@ -19,8 +19,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
@@ -222,4 +222,13 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
         super.updateState(channelUID, value);
     }
 
+    @Override
+    public void triggerChannel(ChannelUID channelUID, String event) {
+        super.triggerChannel(channelUID, event);
+    }
+
+    @Override
+    public void postChannelState(ChannelUID channelUID, Command command) {
+        postCommand(channelUID, command);
+    }
 }

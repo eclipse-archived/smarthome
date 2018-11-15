@@ -114,7 +114,11 @@ public class ColorValue implements Value {
             throw new IllegalArgumentException("Didn't recognise the color value " + command.toString());
         }
         state = colorValue;
-        return colorValue.toString();
+        if (isRGB) {
+            return colorValue.getRed() + "," + colorValue.getGreen() + "," + colorValue.getBlue();
+        } else {
+            return colorValue.toString();
+        }
     }
 
     /**
@@ -152,7 +156,8 @@ public class ColorValue implements Value {
 
     @Override
     public StateDescription createStateDescription(String unit, boolean readOnly) {
-        return new StateDescription(null, null, null, "%s " + unit, readOnly, Collections.emptyList());
+        return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), readOnly,
+                Collections.emptyList());
     }
 
     @Override

@@ -44,26 +44,31 @@ import org.slf4j.LoggerFactory;
 public class ChannelState implements MqttMessageSubscriber {
     private final Logger logger = LoggerFactory.getLogger(ChannelState.class);
 
-    protected @Nullable MqttBrokerConnection connection;
-    private final boolean readOnly;
+    // Immutable channel configuration
+    protected final boolean readOnly;
     protected final ChannelUID channelUID;
+    protected final boolean trigger;
+    protected final ChannelConfig config;
+
+    /** Channel value **/
     protected final Value value;
 
+    // Runtime variables
+
+    protected @Nullable MqttBrokerConnection connection;
     protected final List<ChannelStateTransformation> transformations = new ArrayList<>();
     private @Nullable ChannelStateUpdateListener channelStateUpdateListener;
     protected boolean hasSubscribed = false;
     private @Nullable ScheduledFuture<?> scheduledFuture;
     private CompletableFuture<@Nullable Void> future = new CompletableFuture<>();
 
-    final ChannelConfig config;
-
     /**
      * Creates a new channel state.
      *
-     * @param stateTopic The state topic. Might be null for a no-state channel
-     * @param commandTopic The command topic, Might be null for a read-only channel
+     * @param config The channel configuration
      * @param channelUID The channelUID is used for the {@link ChannelStateUpdateListener} to notify about value changes
      * @param value The channel state value.
+     * @param channelStateUpdateListener A channel state update listener
      */
     public ChannelState(ChannelConfig config, ChannelUID channelUID, Value value,
             @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
@@ -72,6 +77,7 @@ public class ChannelState implements MqttMessageSubscriber {
         this.channelUID = channelUID;
         this.value = value;
         this.readOnly = StringUtils.isBlank(config.commandTopic);
+        this.trigger = StringUtils.isBlank(config.stateTopic);
     }
 
     public boolean isReadOnly() {
@@ -131,12 +137,20 @@ public class ChannelState implements MqttMessageSubscriber {
             strvalue = t.processValue(strvalue);
         }
 
-        try {
-            final State updatedState = value.update(strvalue);
-            channelStateUpdateListener.updateChannelState(channelUID, updatedState);
-        } catch (IllegalArgumentException e) {
-            logger.warn("Incoming payload '{}' not supported by type '{}'", strvalue, value.getClass().getSimpleName(),
-                    e);
+        if (trigger) {
+            channelStateUpdateListener.triggerChannel(channelUID, strvalue);
+        } else {
+            try {
+                final State updatedState = value.update(strvalue);
+                if (config.postCommand) {
+                    channelStateUpdateListener.postChannelState(channelUID, (Command) updatedState);
+                } else {
+                    channelStateUpdateListener.updateChannelState(channelUID, updatedState);
+                }
+            } catch (IllegalArgumentException e) {
+                logger.warn("Incoming payload '{}' not supported by type '{}'", strvalue,
+                        value.getClass().getSimpleName(), e);
+            }
         }
 
         receivedOrTimeout();

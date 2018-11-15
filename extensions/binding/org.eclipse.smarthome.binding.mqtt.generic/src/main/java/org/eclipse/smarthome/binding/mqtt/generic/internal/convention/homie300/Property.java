@@ -163,8 +163,12 @@ public class Property implements AttributeChanged {
                 break;
         }
 
-        ChannelConfigBuilder b = ChannelConfigBuilder.create().withStateTopic(stateTopic)
-                .withRetain(attributes.retained);
+        ChannelConfigBuilder b = ChannelConfigBuilder.create().withRetain(attributes.retained);
+
+        if (attributes.retained) {
+            b = b.withStateTopic(stateTopic);
+        }
+
         if (attributes.settable) {
             b = b.withCommandTopic(commandTopic);
         }

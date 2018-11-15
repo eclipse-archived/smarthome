@@ -70,11 +70,11 @@ public class HomeAssistantDiscovery extends AbstractMQTTDiscovery {
         String name = "";
     }
 
-    final static String baseTopic = "homeassistant";
+    static final String BASE_TOPIC = "homeassistant";
 
     public HomeAssistantDiscovery() {
         super(Stream.of(MqttBindingConstants.HOMEASSISTANT_MQTT_THING).collect(Collectors.toSet()), 3, true,
-                baseTopic + "/#");
+                BASE_TOPIC + "/#");
     }
 
     @NonNullByDefault({})
@@ -159,7 +159,7 @@ public class HomeAssistantDiscovery extends AbstractMQTTDiscovery {
         Map<String, Object> properties = new HashMap<>();
         properties.put("objectid", topicParts.objectID);
         properties.put("nodeid", topicParts.nodeID);
-        properties.put("basetopic", baseTopic);
+        properties.put("basetopic", BASE_TOPIC);
         // First remove an already discovered thing with the same ID
         thingRemoved(thingUID);
         // Because we need the new properties map with the updated "components" list

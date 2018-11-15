@@ -126,12 +126,13 @@ public class OnOffValue implements Value {
 
     @Override
     public String channelTypeID() {
-        return receivesOnly ? CoreItemFactory.CONTACT : CoreItemFactory.SWITCH;
+        return CoreItemFactory.SWITCH;
     }
 
     @Override
     public StateDescription createStateDescription(String unit, boolean readOnly) {
-        return new StateDescription(null, null, null, "%s " + unit, receivesOnly || readOnly, Collections.emptyList());
+        return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), receivesOnly || readOnly,
+                Collections.emptyList());
     }
 
     @Override
