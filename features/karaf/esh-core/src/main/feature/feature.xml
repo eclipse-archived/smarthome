@@ -230,6 +230,7 @@
     <feature>esh-base</feature>
     <feature dependency="true">esh-automation-api</feature>
     <feature dependency="true">esh-automation-core</feature>
+    <feature dependency="true">esh-automation-module-core</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.providers/${project.version}</bundle>
   </feature>
 
