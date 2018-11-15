@@ -12,8 +12,8 @@
  */
 package org.eclipse.smarthome.model.script.scheduler.test;
 
+import static java.time.ZonedDateTime.now;
 import static org.hamcrest.CoreMatchers.*;
-import static org.joda.time.Instant.now;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.smarthome.model.script.actions.Timer;
