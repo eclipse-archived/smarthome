@@ -33,6 +33,12 @@
 				<default>false</default>
 				<advanced>true</advanced>
 			</parameter>
+			<parameter name="postCommand" type="boolean">
+				<label>Is command</label>
+				<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
 
 			<parameter name="allowedStates" type="text">
 				<label>Allowed states</label>
@@ -74,6 +80,12 @@
 			<parameter name="retained" type="boolean">
 				<label>Retained</label>
 				<description>The value will be published to the command topic as retained message. A retained value stays on the broker and can even be seen by MQTT clients that are subscribing at a later point in time.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
+			<parameter name="postCommand" type="boolean">
+				<label>Is command</label>
+				<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
 				<default>false</default>
 				<advanced>true</advanced>
 			</parameter>
@@ -132,6 +144,12 @@
 				<default>false</default>
 				<advanced>true</advanced>
 			</parameter>
+			<parameter name="postCommand" type="boolean">
+				<label>Is command</label>
+				<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
 
 			<parameter name="on" type="text">
 				<label>ON value</label>
@@ -170,6 +188,12 @@
 			<parameter name="retained" type="boolean">
 				<label>Retained</label>
 				<description>The value will be published to the command topic as retained message. A retained value stays on the broker and can even be seen by MQTT clients that are subscribing at a later point in time.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
+			<parameter name="postCommand" type="boolean">
+				<label>Is command</label>
+				<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
 				<default>false</default>
 				<advanced>true</advanced>
 			</parameter>
@@ -219,6 +243,12 @@
 				<default>false</default>
 				<advanced>true</advanced>
 			</parameter>
+			<parameter name="postCommand" type="boolean">
+				<label>Is command</label>
+				<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
 
 			<parameter name="on" type="text">
 				<label>ON value</label>
@@ -262,6 +292,12 @@
 			<parameter name="retained" type="boolean">
 				<label>Retained</label>
 				<description>The value will be published to the command topic as retained message. A retained value stays on the broker and can even be seen by MQTT clients that are subscribing at a later point in time.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
+			<parameter name="postCommand" type="boolean">
+				<label>Is command</label>
+				<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
 				<default>false</default>
 				<advanced>true</advanced>
 			</parameter>

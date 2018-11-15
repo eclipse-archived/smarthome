@@ -44,11 +44,11 @@ import org.slf4j.LoggerFactory;
 public class Homie300Discovery extends AbstractMQTTDiscovery {
     private final Logger logger = LoggerFactory.getLogger(Homie300Discovery.class);
 
-    final static String baseTopic = "homie";
+    static final String BASE_TOPIC = "homie";
 
     public Homie300Discovery() {
         super(Stream.of(MqttBindingConstants.HOMIE300_MQTT_THING).collect(Collectors.toSet()), 3, true,
-                baseTopic + "/+/$homie");
+                BASE_TOPIC + "/+/$homie");
     }
 
     @NonNullByDefault({})
@@ -119,7 +119,7 @@ public class Homie300Discovery extends AbstractMQTTDiscovery {
     void publishDevice(ThingUID connectionBridge, MqttBrokerConnection connection, String deviceID, String name) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("deviceid", deviceID);
-        properties.put("basetopic", baseTopic);
+        properties.put("basetopic", BASE_TOPIC);
 
         thingDiscovered(DiscoveryResultBuilder
                 .create(new ThingUID(MqttBindingConstants.HOMIE300_MQTT_THING, connectionBridge, deviceID))
