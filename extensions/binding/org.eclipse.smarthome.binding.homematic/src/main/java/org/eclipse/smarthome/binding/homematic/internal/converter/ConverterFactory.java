@@ -21,6 +21,7 @@ import org.eclipse.smarthome.binding.homematic.internal.converter.type.DecimalTy
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.OnOffTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.OpenClosedTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.PercentTypeConverter;
+import org.eclipse.smarthome.binding.homematic.internal.converter.type.QuantityTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.StringTypeConverter;
 
 /**
@@ -39,8 +40,7 @@ public class ConverterFactory {
         Class<? extends TypeConverter<?>> converterClass = null;
 
         if (itemType.startsWith(ITEM_TYPE_NUMBER + ":")) {
-            // NumberItem combined with QuantityType
-            converterClass = DecimalTypeConverter.class;
+            converterClass = QuantityTypeConverter.class;
         } else {
             switch (itemType) {
                 case ITEM_TYPE_SWITCH:
