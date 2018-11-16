@@ -107,7 +107,7 @@ public class BrokerHandlerTest {
         assertThat(initializeHandlerWaitForTimeout(), is(true));
 
         ArgumentCaptor<ThingStatusInfo> statusInfoCaptor = ArgumentCaptor.forClass(ThingStatusInfo.class);
-        verify(callback, times(3)).statusUpdated(eq(thing), statusInfoCaptor.capture());
+        verify(callback, atLeast(3)).statusUpdated(eq(thing), statusInfoCaptor.capture());
         Assert.assertThat(statusInfoCaptor.getValue().getStatus(), is(ThingStatus.ONLINE));
     }
 

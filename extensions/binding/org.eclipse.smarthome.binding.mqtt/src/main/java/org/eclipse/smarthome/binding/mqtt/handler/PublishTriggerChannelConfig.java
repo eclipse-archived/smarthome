@@ -23,5 +23,6 @@ import org.eclipse.jdt.annotation.Nullable;
 @NonNullByDefault
 public class PublishTriggerChannelConfig {
     public String stateTopic = "";
+    public String separator = "";
     public @Nullable String payload;
 }
