@@ -15,9 +15,6 @@ package org.eclipse.smarthome.model.script.actions;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
@@ -29,6 +26,7 @@ import org.eclipse.smarthome.model.script.internal.actions.TimerImpl;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+import org.joda.time.base.AbstractInstant;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -42,7 +40,6 @@ import org.slf4j.LoggerFactory;
  * This allows a script to call another script, which is available as a file.
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Jon Evans - switch to java.time
  *
  */
 public class ScriptExecution {
@@ -83,49 +80,49 @@ public class ScriptExecution {
     /**
      * Schedules a block of code for later execution.
      *
-     * @param dateTime the point in time when the code should be executed
+     * @param instant the point in time when the code should be executed
      * @param closure the code block to execute
      *
      * @return a handle to the created timer, so that it can be canceled or rescheduled
      * @throws ScriptExecutionException if an error occurs during the execution
      */
-    public static Timer createTimer(ZonedDateTime dateTime, Procedure0 closure) {
+    public static Timer createTimer(AbstractInstant instant, Procedure0 closure) {
         JobDataMap dataMap = new JobDataMap();
         dataMap.put("procedure", closure);
-        return makeTimer(dateTime, closure.toString(), dataMap);
+        return makeTimer(instant, closure.toString(), dataMap);
     }
 
     /**
      * Schedules a block of code (with argument) for later execution
      *
-     * @param dateTime the point in time when the code should be executed
+     * @param instant the point in time when the code should be executed
      * @param arg1 the argument to pass to the code block
      * @param closure the code block to execute
      *
      * @return a handle to the created timer, so that it can be canceled or rescheduled
      * @throws ScriptExecutionException if an error occurs during the execution
      */
-    public static Timer createTimerWithArgument(ZonedDateTime dateTime, Object arg1, Procedure1<Object> closure) {
+    public static Timer createTimerWithArgument(AbstractInstant instant, Object arg1, Procedure1<Object> closure) {
         JobDataMap dataMap = new JobDataMap();
         dataMap.put("procedure1", closure);
         dataMap.put("argument1", arg1);
-        return makeTimer(dateTime, closure.toString(), dataMap);
+        return makeTimer(instant, closure.toString(), dataMap);
     }
 
     /**
      * helper function to create the timer
      *
-     * @param dateTime the point in time when the code should be executed
+     * @param instant the point in time when the code should be executed
      * @param closure string for job id
      * @param dataMap job data map, preconfigured with arguments
      * @return
      */
-    private static Timer makeTimer(ZonedDateTime dateTime, String closure, JobDataMap dataMap) {
+    private static Timer makeTimer(AbstractInstant instant, String closure, JobDataMap dataMap) {
 
         Logger logger = LoggerFactory.getLogger(ScriptExecution.class);
-        JobKey jobKey = new JobKey(dateTime.toString() + ": " + closure.toString());
-        Trigger trigger = newTrigger().startAt(Date.from(dateTime.toInstant())).build();
-        Timer timer = new TimerImpl(jobKey, trigger.getKey(), dataMap, dateTime);
+        JobKey jobKey = new JobKey(instant.toString() + ": " + closure.toString());
+        Trigger trigger = newTrigger().startAt(instant.toDate()).build();
+        Timer timer = new TimerImpl(jobKey, trigger.getKey(), dataMap, instant);
         try {
             JobDetail job = newJob(TimerExecutionJob.class).withIdentity(jobKey).usingJobData(dataMap).build();
             if (TimerImpl.scheduler.checkExists(job.getKey())) {
@@ -133,7 +130,7 @@ public class ScriptExecution {
                 logger.debug("Deleted existing Job {}", job.getKey().toString());
             }
             TimerImpl.scheduler.scheduleJob(job, trigger);
-            logger.debug("Scheduled code for execution at {}", dateTime.toString());
+            logger.debug("Scheduled code for execution at {}", instant.toString());
             return timer;
         } catch (SchedulerException e) {
             logger.error("Failed to schedule code for execution.", e);

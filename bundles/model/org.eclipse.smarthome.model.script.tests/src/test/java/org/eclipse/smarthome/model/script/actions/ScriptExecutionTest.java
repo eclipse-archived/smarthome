@@ -12,17 +12,13 @@
  */
 package org.eclipse.smarthome.model.script.actions;
 
-import static java.time.ZonedDateTime.now;
 import static org.hamcrest.CoreMatchers.*;
+import static org.joda.time.Instant.now;
 import static org.junit.Assert.assertThat;
-
-import java.time.ZonedDateTime;
 
 import org.eclipse.smarthome.model.script.scheduler.test.MockClosure.MockClosure0;
 import org.eclipse.smarthome.model.script.scheduler.test.MockClosure.MockClosure1;
 import org.eclipse.smarthome.model.script.scheduler.test.MockScheduler;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.quartz.SchedulerException;
@@ -37,7 +33,6 @@ import org.quartz.impl.StdSchedulerFactory;
  */
 public class ScriptExecutionTest {
     private static MockScheduler scheduler;
-    private static String originalPropertiesFile;
 
     /**
      * Set up Quartz to use our mock scheduler class
@@ -47,31 +42,10 @@ public class ScriptExecutionTest {
     @BeforeClass
     public static void setUp() throws SchedulerException {
         scheduler = new MockScheduler();
-        originalPropertiesFile = System.setProperty(StdSchedulerFactory.PROPERTIES_FILE, "quartz-test.properties");
+        System.setProperty(StdSchedulerFactory.PROPERTIES_FILE, "quartz-test.properties");
         SchedulerRepository.getInstance().bind(scheduler);
 
         assertThat(StdSchedulerFactory.getDefaultScheduler(), sameInstance(scheduler));
-    }
-
-    /**
-     * Reset Quartz back to how it was before
-     *
-     * @throws SchedulerException
-     */
-    @AfterClass
-    public static void teardown() throws SchedulerException {
-        if (originalPropertiesFile == null) {
-            System.clearProperty(StdSchedulerFactory.PROPERTIES_FILE);
-        } else {
-            System.setProperty(StdSchedulerFactory.PROPERTIES_FILE, originalPropertiesFile);
-        }
-        SchedulerRepository.getInstance().remove(scheduler.getSchedulerName());
-        assertThat(StdSchedulerFactory.getDefaultScheduler(), not(instanceOf(MockScheduler.class)));
-    }
-
-    @Before
-    public void resetMocks() {
-        scheduler.reset();
     }
 
     private Timer createTimer(MockClosure0 closure) {
@@ -139,7 +113,7 @@ public class ScriptExecutionTest {
         assertThat(t.isRunning(), is(equalTo(false)));
         assertThat(t.hasTerminated(), is(equalTo(true)));
 
-        // Now try to reschedule the Timer to run again
+        // Now try to reschedule the Timer to run again after 10ms
         boolean rescheduled = t.reschedule(now());
         assertThat(rescheduled, is(equalTo(true)));
         assertThat(t.hasTerminated(), is(equalTo(false)));
@@ -176,19 +150,5 @@ public class ScriptExecutionTest {
         assertThat(closure.getApplyCount(), is(equalTo(2)));
         assertThat(t.isRunning(), is(equalTo(false)));
         assertThat(t.hasTerminated(), is(equalTo(true)));
-    }
-
-    @Test
-    public void testScheduledFireTime() throws Exception {
-        MockClosure0 closure = new MockClosure0();
-        ZonedDateTime triggerTime = now();
-        Timer timer = ScriptExecution.createTimer(triggerTime, closure);
-        closure.setTimer(timer);
-
-        assertThat(timer.getScheduledFireTime(), is(equalTo(triggerTime)));
-
-        scheduler.run();
-
-        assertThat(timer.getScheduledFireTime(), is(nullValue()));
     }
 }

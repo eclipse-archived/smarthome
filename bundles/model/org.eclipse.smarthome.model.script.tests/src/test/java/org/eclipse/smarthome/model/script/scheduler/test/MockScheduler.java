@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.model.script.scheduler.test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,7 @@ import org.quartz.spi.TriggerFiredBundle;
 public class MockScheduler extends AbstractScheduler {
     private final List<JobExecutionContext> currentlyExecutingJobs = new ArrayList<>();
     private final Map<Trigger, JobExecutionContext> jobs = new HashMap<>();
-    private final Map<TriggerKey, OperableTrigger> rescheduledJobs = new HashMap<>();
+    private final Map<TriggerKey, Trigger> rescheduledJobs = new HashMap<>();
 
     @Override
     public String getSchedulerName() throws SchedulerException {
@@ -69,44 +68,27 @@ public class MockScheduler extends AbstractScheduler {
 
     @Override
     public Date scheduleJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
-        OperableTrigger oTrigger = (OperableTrigger) trigger;
-        oTrigger.setNextFireTime(trigger.getStartTime());
-        TriggerFiredBundle tfb = new TriggerFiredBundle(jobDetail, // job
-                oTrigger, // trigger
-                null, // cal
+        TriggerFiredBundle tfb = new TriggerFiredBundle(jobDetail, (OperableTrigger) trigger, null, // cal
                 false, // jobIsRecovering
                 null, // fireTime
                 null, // scheduledFireTime
                 null, // prevFireTime
-                null // nextFireTime
+                null // nextFireTime)
         );
         JobExecutionContextImpl jec = new JobExecutionContextImpl(this, tfb, null);
-        jobs.put(oTrigger, jec);
-        return trigger.getStartTime();
+        jobs.put(trigger, jec);
+        return new Date();
     }
 
     @Override
     public Date rescheduleJob(TriggerKey triggerKey, Trigger newTrigger) throws SchedulerException {
         for (Trigger trigger : jobs.keySet()) {
             if (triggerKey.equals(trigger.getKey())) {
-                OperableTrigger oTrigger = (OperableTrigger) newTrigger;
-                oTrigger.setNextFireTime(oTrigger.getStartTime());
-                rescheduledJobs.put(triggerKey, oTrigger);
+                rescheduledJobs.put(triggerKey, newTrigger);
                 return new Date();
             }
         }
         return null;
-    }
-
-    @Override
-    public List<? extends Trigger> getTriggersOfJob(JobKey jobKey) throws SchedulerException {
-        for (Entry<Trigger, JobExecutionContext> entry : jobs.entrySet()) {
-            JobExecutionContext jec = entry.getValue();
-            if (jobKey.equals(jec.getJobDetail().getKey())) {
-                return Collections.singletonList(entry.getKey());
-            }
-        }
-        return Collections.emptyList();
     }
 
     /**
@@ -140,11 +122,5 @@ public class MockScheduler extends AbstractScheduler {
 
     public int getPendingJobCount() {
         return jobs.size();
-    }
-
-    public void reset() {
-        currentlyExecutingJobs.clear();
-        jobs.clear();
-        rescheduledJobs.clear();
     }
 }
