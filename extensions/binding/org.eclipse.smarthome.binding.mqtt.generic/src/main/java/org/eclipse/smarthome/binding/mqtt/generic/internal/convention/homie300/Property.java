@@ -163,11 +163,8 @@ public class Property implements AttributeChanged {
                 break;
         }
 
-        ChannelConfigBuilder b = ChannelConfigBuilder.create().withRetain(attributes.retained);
-
-        if (attributes.retained) {
-            b = b.withStateTopic(stateTopic);
-        }
+        ChannelConfigBuilder b = ChannelConfigBuilder.create().makeTrigger(!attributes.retained)
+                .withStateTopic(stateTopic);
 
         if (attributes.settable) {
             b = b.withCommandTopic(commandTopic);
@@ -186,7 +183,7 @@ public class Property implements AttributeChanged {
         }
         this.type = type;
 
-        this.channel = ChannelBuilder.create(channelUID, channelState.getItemType()).withType(channelTypeUID)
+        this.channel = ChannelBuilder.create(channelUID, type.getItemType()).withType(type.getUID())
                 .withKind(type.getKind()).withLabel(attributes.name)
                 .withConfiguration(new Configuration(attributes.asMap())).build();
     }

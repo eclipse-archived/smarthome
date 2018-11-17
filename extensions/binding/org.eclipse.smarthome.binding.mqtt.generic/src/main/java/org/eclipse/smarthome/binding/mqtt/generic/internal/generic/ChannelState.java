@@ -47,7 +47,6 @@ public class ChannelState implements MqttMessageSubscriber {
     // Immutable channel configuration
     protected final boolean readOnly;
     protected final ChannelUID channelUID;
-    protected final boolean trigger;
     protected final ChannelConfig config;
 
     /** Channel value **/
@@ -77,7 +76,6 @@ public class ChannelState implements MqttMessageSubscriber {
         this.channelUID = channelUID;
         this.value = value;
         this.readOnly = StringUtils.isBlank(config.commandTopic);
-        this.trigger = StringUtils.isBlank(config.stateTopic);
     }
 
     public boolean isReadOnly() {
@@ -137,7 +135,7 @@ public class ChannelState implements MqttMessageSubscriber {
             strvalue = t.processValue(strvalue);
         }
 
-        if (trigger) {
+        if (config.trigger) {
             channelStateUpdateListener.triggerChannel(channelUID, strvalue);
         } else {
             try {

@@ -35,6 +35,7 @@ public class ChannelConfig {
     public boolean postCommand = false;
     /** If true publishes messages as retained messages */
     public boolean retained = false;
+    public boolean trigger = false;
     public String unit = "";
 
     public String transformationPattern = "";
