@@ -15,13 +15,11 @@ package org.eclipse.smarthome.model.script.internal.actions;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.List;
 
 import org.eclipse.smarthome.model.script.actions.Timer;
+import org.joda.time.DateTime;
+import org.joda.time.base.AbstractInstant;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -39,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * library for scheduling.
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Jon Evans - API enhancements, switch to java.time
  *
  */
 public class TimerImpl implements Timer {
@@ -60,12 +57,12 @@ public class TimerImpl implements Timer {
     private final JobKey jobKey;
     private TriggerKey triggerKey;
     private final JobDataMap dataMap;
-    private final ZonedDateTime startTime;
+    private final AbstractInstant startTime;
 
     private boolean cancelled = false;
     private boolean terminated = false;
 
-    public TimerImpl(JobKey jobKey, TriggerKey triggerKey, JobDataMap dataMap, ZonedDateTime startTime) {
+    public TimerImpl(JobKey jobKey, TriggerKey triggerKey, JobDataMap dataMap, AbstractInstant startTime) {
         this.jobKey = jobKey;
         this.triggerKey = triggerKey;
         this.dataMap = dataMap;
@@ -87,9 +84,9 @@ public class TimerImpl implements Timer {
     }
 
     @Override
-    public boolean reschedule(ZonedDateTime newTime) {
+    public boolean reschedule(AbstractInstant newTime) {
         try {
-            Trigger trigger = newTrigger().startAt(Date.from(newTime.toInstant())).build();
+            Trigger trigger = newTrigger().startAt(newTime.toDate()).build();
             Date nextTriggerTime = scheduler.rescheduleJob(triggerKey, trigger);
             if (nextTriggerTime == null) {
                 logger.debug("Scheduling a new job job '{}' because the original has already run", jobKey.toString());
@@ -118,7 +115,7 @@ public class TimerImpl implements Timer {
         } catch (SchedulerException e) {
             // fallback implementation
             logger.debug("An error occurred getting currently running jobs: {}", e.getMessage());
-            return Instant.now().isAfter(startTime.toInstant()) && !terminated;
+            return DateTime.now().isAfter(startTime) && !terminated;
         }
     }
 
@@ -129,21 +126,5 @@ public class TimerImpl implements Timer {
 
     public void setTerminated(boolean terminated) {
         this.terminated = terminated;
-    }
-
-    @Override
-    public ZonedDateTime getScheduledFireTime() {
-        try {
-            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
-            for (Trigger trigger : triggers) {
-                Date nextFireTime = trigger.getNextFireTime();
-                if (nextFireTime != null) {
-                    return ZonedDateTime.ofInstant(nextFireTime.toInstant(), ZoneId.systemDefault());
-                }
-            }
-        } catch (SchedulerException e) {
-            logger.debug("An error occurred getting triggers for job: {}", e.getMessage());
-        }
-        return null;
     }
 }

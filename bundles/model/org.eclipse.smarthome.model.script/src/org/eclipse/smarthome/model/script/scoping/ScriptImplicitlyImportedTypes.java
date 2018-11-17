@@ -27,7 +27,6 @@ import org.eclipse.smarthome.model.script.actions.Audio;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
 import org.eclipse.smarthome.model.script.actions.Exec;
 import org.eclipse.smarthome.model.script.actions.HTTP;
-import org.eclipse.smarthome.model.script.actions.JavaTime;
 import org.eclipse.smarthome.model.script.actions.LogAction;
 import org.eclipse.smarthome.model.script.actions.Ping;
 import org.eclipse.smarthome.model.script.actions.ScriptExecution;
@@ -37,6 +36,7 @@ import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
+import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -100,8 +100,8 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(SIUnits.class);
         result.add(MetricPrefix.class);
 
-        // Curated set of java time static functions
-        result.add(JavaTime.class);
+        // jodatime static functions
+        result.add(DateTime.class);
 
         result.addAll(getActionClasses());
         return result;
