@@ -3,14 +3,14 @@
     {  
      "uid":"core.TimeOfDayCondition",
      "label":"it is a certain time of day",
-     "description":"Compares the item state with the given value",
+     "description":"Evaluates if the current time is within a user-configured time span.",
      "configDescriptions":[
       {  
          "name":"startTime",
          "context":"time",
          "type":"TEXT",
          "label":"Start Time",
-         "description":"the time when this condition starts to evaluate as true (in hh:mm)",
+         "description":"Start of the time span (in hh:mm)",
          "required":true
       },
       {  
@@ -18,7 +18,7 @@
          "context":"time",
          "type":"TEXT",
          "label":"End Time",
-         "description":"the time when this condition stops to evaluate as true (in hh:mm)",
+         "description":"End of the time span (in hh:mm)",
          "required":true
       }
      ]
