@@ -15,16 +15,20 @@ package org.eclipse.smarthome.core.thing;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 import org.eclipse.smarthome.core.service.ReadyMarker;
 import org.eclipse.smarthome.core.service.ReadyMarkerFilter;
 import org.eclipse.smarthome.core.service.ReadyService;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -140,19 +144,60 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
         return thingsList;
     }
 
-    private void createThingFromStorageForThingHandlerFactory(Thing thing, ThingHandlerFactory factory) {
+    private boolean compareChannels(Channel a, Channel b) {
+        if (!a.getUID().equals(b.getUID())) {
+            return false;
+        }
+        if (!a.getChannelTypeUID().equals(b.getChannelTypeUID())) {
+            return false;
+        }
+        if (!a.getAcceptedItemType().equals(b.getAcceptedItemType())) {
+            return false;
+        }
+        return true;
+    }
+
+    private void createThingFromStorageForThingHandlerFactory(Thing storedThing, ThingHandlerFactory factory) {
         if (!loadedXmlThingTypes.contains(getBundleName(factory))) {
             return;
         }
 
-        if (factory.supportsThingType(thing.getThingTypeUID())) {
-            if (thingsList.contains(thing)) {
-                notifyListenersAboutUpdatedElement(thing, thing);
-                logger.info("updated {} from {}", thing, factory);
+        if (factory.supportsThingType(storedThing.getThingTypeUID())) {
+            ThingBuilder thingBuilder = ThingBuilder.create(storedThing.getThingTypeUID(), storedThing.getUID())
+                    .withBridge(storedThing.getBridgeUID()).withChannels(storedThing.getChannels())
+                    .withConfiguration(storedThing.getConfiguration()).withLabel(storedThing.getLabel())
+                    .withLocation(storedThing.getLocation()).withProperties(storedThing.getProperties());
+
+            Configuration storedConfiguration = storedThing.getConfiguration();
+            Thing factoryThing = factory.createThing(storedThing.getThingTypeUID(), storedConfiguration,
+                    storedThing.getUID(), storedThing.getBridgeUID());
+
+            if (factoryThing != null) {
+                Map<ChannelUID, Channel> factoryChannels = factoryThing.getChannels().stream()
+                        .collect(Collectors.toMap(Channel::getUID, channel -> channel));
+                Map<ChannelUID, Channel> storedChannels = storedThing.getChannels().stream()
+                        .collect(Collectors.toMap(Channel::getUID, channel -> channel));
+
+                factoryChannels.forEach((factoryChannelUID, factoryChannel) -> {
+                    if (!storedChannels.containsKey(factoryChannelUID)) {
+                        thingBuilder.withChannel(factoryChannel);
+                        logger.trace("added channel {} to thing{}", factoryChannel, storedThing.getUID());
+                    } else {
+                        if (!compareChannels(factoryChannel, storedThing.getChannel(factoryChannelUID.getId()))) {
+                            thingBuilder.withoutChannel(factoryChannelUID).withChannel(factoryChannel);
+                            logger.trace("updated channel {} in thing {}", factoryChannel, storedThing.getUID());
+                        }
+                    }
+                });
+            }
+            Thing newThing = thingBuilder.build();
+            if (thingsList.contains(storedThing)) {
+                notifyListenersAboutUpdatedElement(storedThing, newThing);
+                logger.debug("updated {}", newThing.getUID());
             } else {
-                thingsList.add(thing);
-                notifyListenersAboutAddedElement(thing);
-                logger.info("added {} from {}", thing, factory);
+                thingsList.add(newThing);
+                notifyListenersAboutAddedElement(newThing);
+                logger.debug("added {}", newThing.getUID());
             }
         }
     }
