@@ -12,14 +12,15 @@
  */
 package org.eclipse.smarthome.magic.binding.handler;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.magic.binding.internal.automation.modules.MagicThingActionsService;
 import org.slf4j.Logger;
@@ -56,8 +57,8 @@ public class MagicActionModuleThingHandler extends BaseThingHandler {
     }
 
     @Override
-    public Collection<Class> getServices() {
-        return Arrays.asList(new Class[] { MagicThingActionsService.class });
+    public Collection<Class<? extends ThingHandlerService>> getServices() {
+        return Collections.singletonList(MagicThingActionsService.class);
     }
 
 }

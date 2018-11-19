@@ -22,9 +22,4 @@ package org.eclipse.smarthome.automation;
  */
 public interface AnnotatedActions {
 
-    /**
-     * This constant is used as a parameter on OSGi services. It is a marker for the framework to recognize
-     * which @{@link ThingHandler} instance to use. The handler is retrieved using this {@link ThingUID}.
-     */
-    static final String ACTION_THING_UID = "esh.thingActionID";
 }

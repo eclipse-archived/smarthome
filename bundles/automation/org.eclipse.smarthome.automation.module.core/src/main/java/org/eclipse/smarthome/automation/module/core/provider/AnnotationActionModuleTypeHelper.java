@@ -109,7 +109,7 @@ public class AnnotationActionModuleTypeHelper {
                 if (a instanceof ActionInput) {
                     ActionInput inp = (ActionInput) a;
 
-                    // check is a type is given, otherwise use the java type specified on the parameter
+                    // check if a type is given, otherwise use the java type specified on the parameter
                     String type;
                     if (!"".equals(inp.type())) {
                         type = inp.type();

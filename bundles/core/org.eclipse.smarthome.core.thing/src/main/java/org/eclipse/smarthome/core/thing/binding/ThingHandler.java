@@ -192,7 +192,7 @@ public interface ThingHandler {
      *
      * @return - list of classes that will be registered as OSGi services
      */
-    default Collection<Class> getServices() {
+    default Collection<Class<? extends ThingHandlerService>> getServices() {
         return Collections.emptyList();
     }
 }

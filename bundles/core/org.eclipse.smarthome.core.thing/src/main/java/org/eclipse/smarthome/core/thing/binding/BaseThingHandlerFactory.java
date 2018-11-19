@@ -166,7 +166,8 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
                     for (Class i : interfaces) {
                         String className = i.getCanonicalName();
                         // we only add specific ThingHandlerServices, i.e. those that derive from the
-                        // ThingHandlerService interface
+                        // ThingHandlerService interface, NOT the ThingHandlerService itself. We do this to register
+                        // them as specific OSGi services later, rather than as a generic ThingHandlerService.
                         if (!ThingHandlerService.class.getCanonicalName().equals(className)) {
                             serviceNames.add(className);
                         }
