@@ -58,4 +58,9 @@ public class ChannelConfigBuilder {
         config.retained = retain;
         return this;
     }
+
+    public ChannelConfigBuilder makeTrigger(boolean trigger) {
+        config.trigger = trigger;
+        return this;
+    }
 }
