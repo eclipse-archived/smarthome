@@ -21,12 +21,14 @@ import org.eclipse.smarthome.binding.homematic.internal.converter.type.DecimalTy
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.OnOffTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.OpenClosedTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.PercentTypeConverter;
+import org.eclipse.smarthome.binding.homematic.internal.converter.type.QuantityTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.StringTypeConverter;
 
 /**
  * A factory for creating converters based on the itemType.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Michael Reitler - QuantityType support
  */
 public class ConverterFactory {
     private static Map<String, TypeConverter<?>> converterCache = new HashMap<String, TypeConverter<?>>();
@@ -36,23 +38,28 @@ public class ConverterFactory {
      */
     public static TypeConverter<?> createConverter(String itemType) throws ConverterException {
         Class<? extends TypeConverter<?>> converterClass = null;
-        switch (itemType) {
-            case ITEM_TYPE_SWITCH:
-                converterClass = OnOffTypeConverter.class;
-                break;
-            case ITEM_TYPE_ROLLERSHUTTER:
-            case ITEM_TYPE_DIMMER:
-                converterClass = PercentTypeConverter.class;
-                break;
-            case ITEM_TYPE_CONTACT:
-                converterClass = OpenClosedTypeConverter.class;
-                break;
-            case ITEM_TYPE_STRING:
-                converterClass = StringTypeConverter.class;
-                break;
-            case ITEM_TYPE_NUMBER:
-                converterClass = DecimalTypeConverter.class;
-                break;
+
+        if (itemType.startsWith(ITEM_TYPE_NUMBER + ":")) {
+            converterClass = QuantityTypeConverter.class;
+        } else {
+            switch (itemType) {
+                case ITEM_TYPE_SWITCH:
+                    converterClass = OnOffTypeConverter.class;
+                    break;
+                case ITEM_TYPE_ROLLERSHUTTER:
+                case ITEM_TYPE_DIMMER:
+                    converterClass = PercentTypeConverter.class;
+                    break;
+                case ITEM_TYPE_CONTACT:
+                    converterClass = OpenClosedTypeConverter.class;
+                    break;
+                case ITEM_TYPE_STRING:
+                    converterClass = StringTypeConverter.class;
+                    break;
+                case ITEM_TYPE_NUMBER:
+                    converterClass = DecimalTypeConverter.class;
+                    break;
+            }
         }
 
         TypeConverter<?> converter = null;

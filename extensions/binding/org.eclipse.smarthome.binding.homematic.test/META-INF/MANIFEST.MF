@@ -8,10 +8,14 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Fragment-Host: org.eclipse.smarthome.binding.homematic
 Service-Component: OSGI-INF/*.xml
-Import-Package: org.eclipse.smarthome.core.thing.binding.builder,
+Import-Package: javax.measure.quantity,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.semantics.model.property,
+ org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.test.java,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.mockito,
- org.mockito.stubbing
+ org.mockito.stubbing,
+ tec.uom.se.quantity
 Automatic-Module-Name: org.eclipse.smarthome.binding.homematic.test
