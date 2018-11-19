@@ -20,6 +20,8 @@ import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.SystemProfiles;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the default implementation for a follow profile.
@@ -37,6 +39,7 @@ import org.eclipse.smarthome.core.types.State;
 @NonNullByDefault
 public class SystemFollowProfile implements StateProfile {
 
+    private final Logger logger = LoggerFactory.getLogger(SystemFollowProfile.class);
     private final ProfileCallback callback;
 
     public SystemFollowProfile(ProfileCallback callback) {
@@ -50,7 +53,12 @@ public class SystemFollowProfile implements StateProfile {
 
     @Override
     public void onStateUpdateFromItem(State state) {
-        callback.handleUpdate(state);
+        if (!(state instanceof Command)) {
+            logger.debug("The given state {} could not be transformed to a command", state);
+            return;
+        }
+        Command command = (Command) state;
+        callback.handleCommand(command);
     }
 
     @Override
