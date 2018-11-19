@@ -170,7 +170,7 @@ public class MetadataUtils {
         if (unit != null) {
             String pattern = getPattern(dp);
             if (pattern != null) {
-                return String.format("%s %s", pattern, unit);
+                return String.format("%s %s", pattern, "%unit%");
             }
         }
         return null;
@@ -292,12 +292,14 @@ public class MetadataUtils {
                 return ITEM_TYPE_DIMMER;
             } else {
                 // determine QuantityType
-                switch (dp.getUnit()) {
+                String unit = dp.getUnit() != null ? dp.getUnit() : "";
+                switch (unit) {
                     case "°C":
                         return ITEM_TYPE_NUMBER + ":Temperature";
                     case "V":
                         return ITEM_TYPE_NUMBER + ":ElectricPotential";
                     case "%":
+                    case "":
                         return ITEM_TYPE_NUMBER + ":Dimensionless";
                     case "s":
                     case "min":
