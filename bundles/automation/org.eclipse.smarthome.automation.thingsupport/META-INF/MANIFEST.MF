@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Automation Thingsupport
+Bundle-SymbolicName: org.eclipse.smarthome.automation.thingsupport
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.10.0.qualifier
+Automatic-Module-Name: org.eclipse.smarthome.automation.thingsupport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.module.core.handler,
+ org.eclipse.smarthome.automation.module.core.provider,
+ org.eclipse.smarthome.automation.module.core.provider.i18n,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.osgi.framework;version="1.8.0"
+Export-Package: org.eclipse.smarthome.automation.thingsupport
+Service-Component: OSGI-INF/*.xml

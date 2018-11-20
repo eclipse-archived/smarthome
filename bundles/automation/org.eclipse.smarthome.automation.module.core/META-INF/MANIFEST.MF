@@ -9,14 +9,19 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.automation.module.core.factory,
- org.eclipse.smarthome.automation.module.core.handler
+ org.eclipse.smarthome.automation.module.core.handler,
+ org.eclipse.smarthome.automation.module.core.provider,
+ org.eclipse.smarthome.automation.module.core.provider.i18n
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.annotation,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.module.core.factory,
  org.eclipse.smarthome.automation.module.core.handler,
+ org.eclipse.smarthome.automation.type,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.events,

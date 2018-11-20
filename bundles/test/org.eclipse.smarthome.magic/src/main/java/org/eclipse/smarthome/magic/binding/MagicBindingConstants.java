@@ -41,6 +41,7 @@ public class MagicBindingConstants {
     public static final ThingTypeUID THING_TYPE_ROLLERSHUTTER = new ThingTypeUID(BINDING_ID, "rollershutter");
     public static final ThingTypeUID THING_TYPE_PLAYER = new ThingTypeUID(BINDING_ID, "player");
     public static final ThingTypeUID THING_TYPE_IMAGE = new ThingTypeUID(BINDING_ID, "image");
+    public static final ThingTypeUID THING_TYPE_ACTION_MODULE = new ThingTypeUID(BINDING_ID, "action-module");
     public static final ThingTypeUID THING_TYPE_ONLINE_OFFLINE = new ThingTypeUID(BINDING_ID, "online-offline");
 
     // bridged things

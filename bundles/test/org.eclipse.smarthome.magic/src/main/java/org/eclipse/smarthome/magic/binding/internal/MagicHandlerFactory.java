@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.magic.binding.handler.MagicActionModuleThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicBridgeHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicBridgedThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicChattyThingHandler;
@@ -58,7 +59,7 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
                     THING_TYPE_CONTACT_SENSOR, THING_TYPE_CONFIG_THING, THING_TYPE_DELAYED_THING, THING_TYPE_LOCATION,
                     THING_TYPE_THERMOSTAT, THING_TYPE_FIRMWARE_UPDATE, THING_TYPE_BRIDGE_1, THING_TYPE_BRIDGE_2,
                     THING_TYPE_BRIDGED_THING, THING_TYPE_CHATTY_THING, THING_TYPE_ROLLERSHUTTER, THING_TYPE_PLAYER,
-                    THING_TYPE_IMAGE, THING_TYPE_ONLINE_OFFLINE)
+                    THING_TYPE_IMAGE, THING_TYPE_ACTION_MODULE, THING_TYPE_ONLINE_OFFLINE)
             .collect(Collectors.toSet()));
 
     @Override
@@ -114,6 +115,10 @@ public class MagicHandlerFactory extends BaseThingHandlerFactory {
         }
         if (thingTypeUID.equals(THING_TYPE_IMAGE)) {
             return new MagicImageHandler(thing);
+        }
+        if (thingTypeUID.equals(THING_TYPE_ACTION_MODULE)) {
+            MagicActionModuleThingHandler handler = new MagicActionModuleThingHandler(thing);
+            return handler;
         }
         if (thingTypeUID.equals(THING_TYPE_ONLINE_OFFLINE)) {
             return new MagicOnlineOfflineHandler(thing);

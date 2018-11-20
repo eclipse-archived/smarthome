@@ -19,24 +19,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
-import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleTypeI18nUtil;
+import org.eclipse.smarthome.automation.module.core.provider.i18n.ModuleTypeI18nService;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
-import org.eclipse.smarthome.automation.type.ConditionType;
-import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
-import org.eclipse.smarthome.automation.type.Output;
-import org.eclipse.smarthome.automation.type.TriggerType;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.i18n.TranslationProvider;
@@ -67,6 +54,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(immediate = true, service = { ModuleTypeProvider.class, Provider.class }, property = "provider.type=bundle")
 public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
         implements ModuleTypeProvider {
+
+    private ModuleTypeI18nService moduleTypeI18nService;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the
@@ -166,122 +155,18 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      * @return the localized {@link ModuleType}.
      */
     private ModuleType getPerLocale(ModuleType defModuleType, Locale locale) {
-        if (locale == null || defModuleType == null || i18nProvider == null) {
-            return defModuleType;
-        }
         String uid = defModuleType.getUID();
         Bundle bundle = getBundle(uid);
-        String llabel = ModuleTypeI18nUtil.getLocalizedModuleTypeLabel(i18nProvider, bundle, uid,
-                defModuleType.getLabel(), locale);
-        String ldescription = ModuleTypeI18nUtil.getLocalizedModuleTypeDescription(i18nProvider, bundle, uid,
-                defModuleType.getDescription(), locale);
-        List<ConfigDescriptionParameter> lconfigDescriptions = getLocalizedConfigurationDescription(i18nProvider,
-                defModuleType.getConfigurationDescriptions(), bundle, uid, ModuleTypeI18nUtil.MODULE_TYPE, locale);
-        if (defModuleType instanceof ActionType) {
-            return createLocalizedActionType((ActionType) defModuleType, bundle, uid, locale, lconfigDescriptions,
-                    llabel, ldescription);
-        }
-        if (defModuleType instanceof ConditionType) {
-            return createLocalizedConditionType((ConditionType) defModuleType, bundle, uid, locale, lconfigDescriptions,
-                    llabel, ldescription);
-        }
-        if (defModuleType instanceof TriggerType) {
-            return createLocalizedTriggerType((TriggerType) defModuleType, bundle, uid, locale, lconfigDescriptions,
-                    llabel, ldescription);
-        }
-        return null;
+
+        return moduleTypeI18nService.getModuleTypePerLocale(defModuleType, locale, bundle);
     }
 
-    /**
-     * Utility method for localization of ActionTypes.
-     *
-     * @param at is an ActionType for localization.
-     * @param bundle the bundle providing localization resources.
-     * @param moduleTypeUID is an ActionType uid.
-     * @param locale represents a specific geographical, political, or cultural region.
-     * @param lconfigDescriptions are ActionType localized config descriptions.
-     * @param llabel is an ActionType localized label.
-     * @param ldescription is an ActionType localized description.
-     * @return localized ActionType.
-     */
-    private ActionType createLocalizedActionType(ActionType at, Bundle bundle, String moduleTypeUID, Locale locale,
-            List<ConfigDescriptionParameter> lconfigDescriptions, String llabel, String ldescription) {
-        List<Input> inputs = ModuleTypeI18nUtil.getLocalizedInputs(i18nProvider, at.getInputs(), bundle, moduleTypeUID,
-                locale);
-        List<Output> outputs = ModuleTypeI18nUtil.getLocalizedOutputs(i18nProvider, at.getOutputs(), bundle,
-                moduleTypeUID, locale);
-        ActionType lat = null;
-        if (at instanceof CompositeActionType) {
-            List<Action> modules = ModuleI18nUtil.getLocalizedModules(i18nProvider,
-                    ((CompositeActionType) at).getChildren(), bundle, moduleTypeUID, ModuleTypeI18nUtil.MODULE_TYPE,
-                    locale);
-            lat = new CompositeActionType(moduleTypeUID, lconfigDescriptions, llabel, ldescription, at.getTags(),
-                    at.getVisibility(), inputs, outputs, modules);
-        } else {
-            lat = new ActionType(moduleTypeUID, lconfigDescriptions, llabel, ldescription, at.getTags(),
-                    at.getVisibility(), inputs, outputs);
-        }
-        return lat;
+    @Reference
+    protected void setModuleTypeI18nService(ModuleTypeI18nService moduleTypeI18nService) {
+        this.moduleTypeI18nService = moduleTypeI18nService;
     }
 
-    /**
-     * Utility method for localization of ConditionTypes.
-     *
-     * @param ct is a ConditionType for localization.
-     * @param bundle the bundle providing localization resources.
-     * @param moduleTypeUID is a ConditionType uid.
-     * @param locale represents a specific geographical, political, or cultural region.
-     * @param lconfigDescriptions are ConditionType localized config descriptions.
-     * @param llabel is a ConditionType localized label.
-     * @param ldescription is a ConditionType localized description.
-     * @return localized ConditionType.
-     */
-    private ConditionType createLocalizedConditionType(ConditionType ct, Bundle bundle, String moduleTypeUID,
-            Locale locale, List<ConfigDescriptionParameter> lconfigDescriptions, String llabel, String ldescription) {
-        List<Input> inputs = ModuleTypeI18nUtil.getLocalizedInputs(i18nProvider, ct.getInputs(), bundle, moduleTypeUID,
-                locale);
-        ConditionType lct = null;
-        if (ct instanceof CompositeConditionType) {
-            List<Condition> modules = ModuleI18nUtil.getLocalizedModules(i18nProvider,
-                    ((CompositeConditionType) ct).getChildren(), bundle, moduleTypeUID, ModuleTypeI18nUtil.MODULE_TYPE,
-                    locale);
-            lct = new CompositeConditionType(moduleTypeUID, lconfigDescriptions, llabel, ldescription, ct.getTags(),
-                    ct.getVisibility(), inputs, modules);
-        } else {
-            lct = new ConditionType(moduleTypeUID, lconfigDescriptions, llabel, ldescription, ct.getTags(),
-                    ct.getVisibility(), inputs);
-        }
-        return lct;
+    protected void unsetModuleTypeI18nService(ModuleTypeI18nService moduleTypeI18nService) {
+        this.moduleTypeI18nService = null;
     }
-
-    /**
-     * Utility method for localization of TriggerTypes.
-     *
-     * @param ct is a TriggerType for localization.
-     * @param bundle the bundle providing localization resources.
-     * @param moduleTypeUID is a TriggerType uid.
-     * @param locale represents a specific geographical, political, or cultural region.
-     * @param lconfigDescriptions are TriggerType localized config descriptions.
-     * @param llabel is a TriggerType localized label.
-     * @param ldescription is a TriggerType localized description.
-     * @return localized TriggerType.
-     */
-    private TriggerType createLocalizedTriggerType(TriggerType tt, Bundle bundle, String moduleTypeUID, Locale locale,
-            List<ConfigDescriptionParameter> lconfigDescriptions, String llabel, String ldescription) {
-        List<Output> outputs = ModuleTypeI18nUtil.getLocalizedOutputs(i18nProvider, tt.getOutputs(), bundle,
-                moduleTypeUID, locale);
-        TriggerType ltt = null;
-        if (tt instanceof CompositeTriggerType) {
-            List<Trigger> modules = ModuleI18nUtil.getLocalizedModules(i18nProvider,
-                    ((CompositeTriggerType) tt).getChildren(), bundle, moduleTypeUID, ModuleTypeI18nUtil.MODULE_TYPE,
-                    locale);
-            ltt = new CompositeTriggerType(moduleTypeUID, lconfigDescriptions, llabel, ldescription, tt.getTags(),
-                    tt.getVisibility(), outputs, modules);
-        } else {
-            ltt = new TriggerType(moduleTypeUID, lconfigDescriptions, llabel, ldescription, tt.getTags(),
-                    tt.getVisibility(), outputs);
-        }
-        return ltt;
-    }
-
 }
