@@ -141,7 +141,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
                 Bundle.RESOLVED | Bundle.STARTING | Bundle.STOPPING | Bundle.ACTIVE, null) {
             @Override
             public Object addingBundle(Bundle bundle, BundleEvent event) {
-                return isBundleRelevant(bundle) ? bundle : null;
+                return open && isBundleRelevant(bundle) ? bundle : null;
             }
         };
         relevantBundlesTracker.open();
@@ -152,6 +152,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     @Override
     public final synchronized void close() {
         open = false;
+        clearQueue();
 
         super.close();
         unregisterReadyMarkers();
@@ -159,7 +160,6 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
         if (relevantBundlesTracker != null) {
             relevantBundlesTracker.close();
         }
-        clearQueue();
         finishedBundles.clear();
     }
 
@@ -298,17 +298,28 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
      * @param bundle
      */
     private void addingBundle(Bundle bundle) {
-        Future<?> future = scheduler.submit(new Runnable() {
+        if (!open) {
+            return;
+        }
+
+        queue.put(bundle, scheduler.submit(new Runnable() {
             // this should remain an anonymous class and not be converted to a lambda because of
             // http://bugs.java.com/view_bug.do?bug_id=8073755
             @Override
             public void run() {
                 if (open) {
-                    processBundle(bundle);
+                    try {
+                        processBundle(bundle);
+                    } catch (final RuntimeException ex) {
+                        // Check if our OSGi instance is still active.
+                        // If the component has been deactivated while the execution hide the exception.
+                        if (open) {
+                            throw ex;
+                        }
+                    }
                 }
             }
-        });
-        queue.put(bundle, future);
+        }));
     }
 
     private void finishBundle(Bundle bundle) {
