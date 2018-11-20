@@ -29,4 +29,7 @@ public class BoseSoundTouchConfiguration {
     public String host;
     public String macAddress;
     public String appKey;
+
+    // Not an actual configuration field, but it will contain the name of the group (in case of Stereo Pair)
+    public String groupName;
 }
