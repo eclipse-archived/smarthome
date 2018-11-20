@@ -34,6 +34,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.DefaultSystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
@@ -121,6 +122,38 @@ public class Property implements AttributeChanged {
         callback.propertyAddedOrChanged(this);
     }
 
+    /**
+     * Creates the ChannelType of the Homie property.
+     *
+     * @param attributes Attributes of the property.
+     * @param channelState ChannelState of the property.
+     *
+     * @return Returns the ChannelType to be used to build the Channel.
+     */
+    private ChannelType createChannelType(PropertyAttributes attributes, ChannelState channelState) {
+        if (attributes.retained) {
+            return ChannelTypeBuilder.state(channelTypeUID, attributes.name, channelState.getItemType())
+                    .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL))
+                    .withStateDescription(
+                            channelState.getValue().createStateDescription(attributes.unit, !attributes.settable))
+                    .build();
+        } else {
+            if (attributes.datatype.equals(DataTypeEnum.enum_)) {
+                if (attributes.format.contains("PRESSED") && attributes.format.contains("RELEASED")) {
+                    return DefaultSystemChannelTypeProvider.SYSTEM_RAWBUTTON;
+                } else if (attributes.format.contains("SHORT_PRESSED") && attributes.format.contains("LONG_PRESSED")
+                        && attributes.format.contains("DOUBLE_PRESSED")) {
+                    return DefaultSystemChannelTypeProvider.SYSTEM_BUTTON;
+                } else if (attributes.format.contains("DIR1_PRESSED") && attributes.format.contains("DIR1_RELEASED")
+                        && attributes.format.contains("DIR2_PRESSED") && attributes.format.contains("DIR2_RELEASED")) {
+                    return DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER;
+                }
+            }
+            return ChannelTypeBuilder.trigger(channelTypeUID, attributes.name)
+                    .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL)).build();
+        }
+    }
+
     public void createChannelFromAttribute() {
         final String commandTopic = topic + "/set";
         final String stateTopic = topic;
@@ -169,18 +202,11 @@ public class Property implements AttributeChanged {
         if (attributes.settable) {
             b = b.withCommandTopic(commandTopic);
         }
+
         final ChannelState channelState = new ChannelState(b.build(), channelUID, value, callback);
         this.channelState = channelState;
 
-        final ChannelType type;
-        if (attributes.retained) {
-            type = ChannelTypeBuilder.state(channelTypeUID, attributes.name, channelState.getItemType())
-                    .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL))
-                    .withStateDescription(value.createStateDescription(attributes.unit, !attributes.settable)).build();
-        } else {
-            type = ChannelTypeBuilder.trigger(channelTypeUID, attributes.name)
-                    .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL)).build();
-        }
+        final ChannelType type = createChannelType(attributes, channelState);
         this.type = type;
 
         this.channel = ChannelBuilder.create(channelUID, type.getItemType()).withType(type.getUID())
