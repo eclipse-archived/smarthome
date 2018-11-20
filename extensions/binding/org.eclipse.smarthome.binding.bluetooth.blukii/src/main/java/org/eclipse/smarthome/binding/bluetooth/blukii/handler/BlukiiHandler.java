@@ -50,9 +50,9 @@ public class BlukiiHandler extends BeaconBluetoothHandler implements BluetoothDe
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
         byte[] data = scanNotification.getManufacturerData();
         if (data != null && data[0] == 0x4F) { // only data starting with 0x4F is Blukii-specific data
-            logger.debug("Manufacturer data: {}", HexUtils.bytesToHex(scanNotification.getManufacturerData(), " "));
+            logger.debug("Manufacturer data: {}", HexUtils.bytesToHex(data, " "));
 
-            int battery = scanNotification.getManufacturerData()[12] & 0x7F;
+            int battery = data[12] & 0x7F;
             updateState(BlukiiBindingConstants.CHANNEL_ID_BATTERY, new DecimalType(battery));
 
             if ((data[14] & 0x30) == 0x30) {

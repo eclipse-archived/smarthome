@@ -150,7 +150,8 @@ describe('factory configService', function() {
                     context : 'thing',
                     options : [ 
                         { value:'thingUID1', label:'Existing Thing 1' },
-                        { value:'thingUID2' }
+                        { value:'thingUID2' },
+                        { value:'thingUID3' }
                     ]
             }];
             
@@ -172,6 +173,8 @@ describe('factory configService', function() {
                 expect(params[0].parameters[0].options[0].label).toEqual('Existing Thing 1');
                 expect(params[0].parameters[0].options[1]).toBeDefined();
                 expect(params[0].parameters[0].options[1].label).toEqual('Magic Thing 2');
+                expect(params[0].parameters[0].options[2]).toBeDefined();
+                expect(params[0].parameters[0].options[2].label).toEqual('thingUID3');
             })
             
             deferred.resolve(things);

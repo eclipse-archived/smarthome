@@ -66,6 +66,9 @@ import org.eclipse.smarthome.core.thing.profiles.ProfileFactory;
 import org.eclipse.smarthome.core.thing.profiles.ProfileTypeUID;
 import org.eclipse.smarthome.core.thing.profiles.StateProfile;
 import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
@@ -113,6 +116,8 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
     private AutoUpdateManager autoUpdateManager;
     @NonNullByDefault({})
     private ItemStateConverter itemStateConverter;
+    @NonNullByDefault({})
+    private ChannelTypeRegistry channelTypeRegistry;
 
     private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
@@ -351,6 +356,25 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
             }
         }
 
+        // The command is sent to an item w/o dimension defined and the channel is legacy (created from a ThingType
+        // definition before UoM was introduced to the binding). The dimension information might now be defined on the
+        // current ThingType. The binding might expect us to provide a QuantityType so try to convert to the dimension
+        // the ChannelType provides.
+        // This can be removed once a suitable solution for https://github.com/eclipse/smarthome/issues/2555 (Thing
+        // migration) is found.
+        if (originalType instanceof DecimalType && !hasDimension(item, acceptedItemType)
+                && channelTypeDefinesDimension(channel.getChannelTypeUID())) {
+            ChannelType channelType = channelTypeRegistry.getChannelType(channel.getChannelTypeUID());
+
+            String acceptedItemTypeFromChannelType = channelType != null ? channelType.getItemType() : null;
+            @Nullable
+            QuantityType<?> quantityType = convertToQuantityType((DecimalType) originalType, item,
+                    acceptedItemTypeFromChannelType);
+            if (quantityType != null) {
+                return (T) quantityType;
+            }
+        }
+
         if (acceptedItemType == null) {
             return originalType;
         }
@@ -380,6 +404,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
         logger.debug("Received not accepted type '{}' for channel '{}'", originalType.getClass().getSimpleName(),
                 channel.getUID());
         return null;
+    }
+
+    private boolean channelTypeDefinesDimension(@Nullable ChannelTypeUID channelTypeUID) {
+        if (channelTypeUID == null) {
+            return false;
+        }
+
+        ChannelType channelType = channelTypeRegistry.getChannelType(channelTypeUID);
+        return channelType != null && getDimension(channelType.getItemType()) != null;
     }
 
     private boolean hasDimension(Item item, @Nullable String acceptedItemType) {
@@ -614,6 +647,15 @@ public class CommunicationManager implements EventSubscriber, RegistryChangeList
 
     public void unsetAutoUpdateManager(AutoUpdateManager autoUpdateManager) {
         this.autoUpdateManager = null;
+    }
+
+    @Reference
+    public void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
+    public void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     private static class NoOpProfile implements Profile {

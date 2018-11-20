@@ -38,10 +38,15 @@
 								</div>
 								<div ng-switch-when="select" ng-show="(part==='normal' && !parameter.advanced) || (part==='advance' && parameter.advanced && isAdvanced)">
 									<label class="config-textInput">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer no-animation"> <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="$ctrl.configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required" aria-label="parameter.label"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options" ng-finish-render> <span style="display: inline-block;" ng-if="parameter.context">
-										{{ option.label?option.label:option.name }}
-										<span class="md-caption" style="color: grey;" ng-if="$ctrl.getName(parameter, option)" )>({{ $ctrl.getName(parameter, option) }}) </span>
-									</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
+									<md-input-container class="col-xs-12 configContainer no-animation"> 
+									   <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="$ctrl.configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required" aria-label="parameter.label"> 
+									       <md-option ng-value="option.value" ng-repeat="option in parameter.options" ng-finish-render> 
+									           <span style="display: inline-block;" ng-if="parameter.context">{{option.label}}
+										           <span class="md-caption" style="color: grey;">({{option.value}})</span>
+									           </span>
+									           <span ng-if="!parameter.context">{{option.label}}</span> 
+									      </md-option>
+									   </md-select>
 									<div ng-messages="$ctrl.form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="required">Field is required</div>
 									</div>

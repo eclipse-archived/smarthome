@@ -28,7 +28,14 @@ public class ChannelConfig {
     public String stateTopic = "";
     public String commandTopic = "";
 
+    /**
+     * If true, the channel state is not updated on a new message.
+     * Instead a postCommand() call is performed.
+     */
+    public boolean postCommand = false;
+    /** If true publishes messages as retained messages */
     public boolean retained = false;
+    public boolean trigger = false;
     public String unit = "";
 
     public String transformationPattern = "";

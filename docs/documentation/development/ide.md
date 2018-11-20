@@ -28,7 +28,7 @@ Simply follow these steps:
 4. Expand the "SmartHome" entry, double click "Runtime" and select "Next":
 ![Step 2](images/ide2.png)
 
-5. Now provide an installation folder and your Github id (used to push your changesets to) and select "Next":
+5. Now provide an installation folder (don't use spaces in the path on Windows!) and your Github id (used to push your changesets to) and select "Next":
 ![Step 3](images/ide3.png)
 
 6. The installation will now begin when pressing "Finish".

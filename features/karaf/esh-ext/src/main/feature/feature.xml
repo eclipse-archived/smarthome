@@ -125,6 +125,11 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.onewire/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-openweathermap" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.openweathermap/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-serialbutton" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-serial</feature>

@@ -23,17 +23,10 @@
 				<advanced>true</advanced>
 			</parameter>
 
-			<parameter name="secure" type="text" required="true">
+			<parameter name="secure" type="boolean" required="true">
 				<label>Secure connection</label>
-				<description>Uses TLS/SSL to establish a secure connection to the
-					broker. Can be "OFF","ON","AUTO". The AUTO setting prefers a secure
-					connection but will fall-back to an insecure one.</description>
-				<options>
-					<option value="ON">Enabled</option>
-					<option value="OFF">Disabled</option>
-					<option value="AUTO">Automatic</option>
-				</options>
-				<default>AUTO</default>
+				<description>Uses TLS/SSL to establish a secure connection to the broker.</description>
+				<default>false</default>
 			</parameter>
 
 			<parameter name="qos" type="integer">
@@ -187,6 +180,10 @@
             <parameter name="payload" type="text" required="false">
                 <label>Payload condition</label>
                 <description>An optional condition on the value of the MQTT topic that must match before this channel is triggered.</description>
+            </parameter>
+            <parameter name="separator" type="text" required="false">
+                <label>Separator character</label>
+                <description>The trigger channel payload usually only contains the received MQTT topic value. If you define a separator character, for example '#', the topic and received value will be in the trigger channel payload. For example: my_topic#my_received_value.</description>
             </parameter>
         </config-description>
     </channel-type>

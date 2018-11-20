@@ -110,7 +110,7 @@ public class TextValue implements Value {
                 stateOptions.add(new StateOption(state, state));
             }
         }
-        return new StateDescription(null, null, null, "%s " + unit, readOnly, stateOptions);
+        return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), readOnly, stateOptions);
     }
 
     @Override

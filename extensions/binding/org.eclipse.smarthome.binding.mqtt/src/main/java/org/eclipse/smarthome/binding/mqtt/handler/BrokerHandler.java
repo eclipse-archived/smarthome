@@ -182,7 +182,9 @@ public class BrokerHandler extends AbstractBrokerHandler implements PinnedCallba
         if (StringUtils.isBlank(host) || host == null) {
             throw new IllegalArgumentException("Host is empty!");
         }
-        final MqttBrokerConnection connection = new MqttBrokerConnection(host, config.port, false, config.clientID);
+
+        final MqttBrokerConnection connection = new MqttBrokerConnection(host, config.port, config.secure,
+                config.clientID);
 
         final String username = config.username;
         final String password = config.password;

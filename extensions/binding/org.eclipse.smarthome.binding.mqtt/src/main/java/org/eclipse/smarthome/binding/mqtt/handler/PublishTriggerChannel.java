@@ -52,7 +52,11 @@ public class PublishTriggerChannel implements MqttMessageSubscriber {
         if (expectedPayload != null && !value.equals(expectedPayload)) {
             return;
         }
-        handler.triggerChannel(uid, value);
+        if (config.separator.isEmpty()) {
+            handler.triggerChannel(uid, value);
+        } else {
+            handler.triggerChannel(uid, topic + config.separator + value);
+        }
     }
 
     public CompletableFuture<Boolean> stop() {

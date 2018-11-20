@@ -14,7 +14,7 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ThingManager} interface defines methods for managing a {@link Thing}.
- * 
+ *
  * @author Yordan Zhelev - Initial contribution
  */
 public interface ThingManager {
@@ -28,7 +28,7 @@ public interface ThingManager {
      * @return {@code false} when the {@link Thing} has {@link ThingStatus} with {@link ThingStatusDetail#DISABLED}.
      *         Returns {@code true} in all other cases.
      */
-    public Boolean isEnabled(ThingUID thingUID);
+    public boolean isEnabled(ThingUID thingUID);
 
     /**
      * This method is used for changing <b>enabled</b> state of the {@link Thing}

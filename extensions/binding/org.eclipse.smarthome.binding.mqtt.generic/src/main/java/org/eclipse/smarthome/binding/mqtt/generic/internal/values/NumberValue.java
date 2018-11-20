@@ -155,8 +155,8 @@ public class NumberValue implements Value {
 
     @Override
     public StateDescription createStateDescription(String unit, boolean readOnly) {
-        return new StateDescription(new BigDecimal(min), new BigDecimal(max), new BigDecimal(step), "%s " + unit,
-                readOnly, Collections.emptyList());
+        return new StateDescription(new BigDecimal(min), new BigDecimal(max), new BigDecimal(step),
+                "%s " + unit.replace("%", "%%"), readOnly, Collections.emptyList());
     }
 
     @Override

@@ -6,6 +6,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.module.core.test;s
  ingleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
+Fragment-Host: org.eclipse.smarthome.automation.module.core
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
@@ -21,6 +22,9 @@ Import-Package:
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test.java,
  org.eclipse.smarthome.test.storage,
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.stubbing,
  org.osgi.framework,
  org.slf4j
 Require-Bundle: 

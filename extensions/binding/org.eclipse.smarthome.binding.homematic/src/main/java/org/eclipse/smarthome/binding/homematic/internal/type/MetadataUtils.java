@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * Helper methods for generating the openHAB metadata.
  *
  * @author Gerhard Riegler - Initial contribution
+ * @author Michael Reitler - QuantityType support
  */
 
 public class MetadataUtils {
@@ -169,7 +170,7 @@ public class MetadataUtils {
         if (unit != null) {
             String pattern = getPattern(dp);
             if (pattern != null) {
-                return String.format("%s %s", pattern, unit);
+                return String.format("%s %s", pattern, "%unit%");
             }
         }
         return null;
@@ -290,6 +291,43 @@ public class MetadataUtils {
                     && !channelType.equals(CHANNEL_TYPE_AKKU)) {
                 return ITEM_TYPE_DIMMER;
             } else {
+                // determine QuantityType
+                String unit = dp.getUnit() != null ? dp.getUnit() : "";
+                switch (unit) {
+                    case "°C":
+                        return ITEM_TYPE_NUMBER + ":Temperature";
+                    case "V":
+                        return ITEM_TYPE_NUMBER + ":ElectricPotential";
+                    case "%":
+                    case "":
+                        return ITEM_TYPE_NUMBER + ":Dimensionless";
+                    case "s":
+                    case "min":
+                    case "minutes":
+                    case "day":
+                    case "month":
+                    case "year":
+                        return ITEM_TYPE_NUMBER + ":Time";
+                    case "mHz":
+                    case "Hz":
+                        return ITEM_TYPE_NUMBER + ":Frequency";
+                    case "hPa":
+                        return ITEM_TYPE_NUMBER + ":Pressure";
+                    case "Lux":
+                        return ITEM_TYPE_NUMBER + ":Illuminance";
+                    case "degree":
+                        return ITEM_TYPE_NUMBER + ":Angle";
+                    case "km/h":
+                        return ITEM_TYPE_NUMBER + ":Speed";
+                    case "mm":
+                        return ITEM_TYPE_NUMBER + ":Length";
+                    case "W":
+                        return ITEM_TYPE_NUMBER + ":Power";
+                    case "Wh":
+                        return ITEM_TYPE_NUMBER + ":Energy";
+                    case "m3":
+                        return ITEM_TYPE_NUMBER + ":Volume";
+                }
                 return ITEM_TYPE_NUMBER;
             }
         } else if (dp.isDateTimeType()) {
