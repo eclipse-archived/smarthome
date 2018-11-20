@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,25 +41,34 @@ public class TimeOfDayConditionHandler extends BaseModuleHandler<Condition> impl
      */
     private static final String START_TIME = "startTime";
     private static final String END_TIME = "endTime";
+    /**
+     * The start time of the user configured time span.
+     */
+    private final LocalTime startTime;
+    /**
+     * The end time of the user configured time span.
+     */
+    private final LocalTime endTime;
 
     public TimeOfDayConditionHandler(Condition condition) {
         super(condition);
+        Configuration configuration = module.getConfiguration();
+        String startTimeConfig = (String) configuration.get(START_TIME);
+        String endTimeConfig = (String) configuration.get(END_TIME);
+        startTime = startTimeConfig == null ? null : LocalTime.parse(startTimeConfig).truncatedTo(ChronoUnit.MINUTES);
+        endTime = endTimeConfig == null ? null : LocalTime.parse(endTimeConfig).truncatedTo(ChronoUnit.MINUTES);
     }
 
     @Override
     public boolean isSatisfied(Map<String, Object> inputs) {
 
-        String startTimeConfig = (String) module.getConfiguration().get(START_TIME);
-        String endTimeConfig = (String) module.getConfiguration().get(END_TIME);
-        if (startTimeConfig == null || endTimeConfig == null) {
-            logger.error("Time condition with id {} is not well configured: startTime={}  endTime = {}", module.getId(),
-                    startTimeConfig, endTimeConfig);
+        if (startTime == null || endTime == null) {
+            logger.warn("Time condition with id {} is not well configured: startTime={}  endTime = {}", module.getId(),
+                    startTime, endTime);
             return false;
         }
 
         LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalTime startTime = LocalTime.parse(startTimeConfig).truncatedTo(ChronoUnit.MINUTES);
-        LocalTime endTime = LocalTime.parse(endTimeConfig).truncatedTo(ChronoUnit.MINUTES);
 
         // If the current time equals the start time, the condition is always true.
         if (currentTime.equals(startTime)) {
