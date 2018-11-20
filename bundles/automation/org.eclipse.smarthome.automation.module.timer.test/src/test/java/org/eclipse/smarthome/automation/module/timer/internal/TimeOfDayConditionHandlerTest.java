@@ -49,24 +49,26 @@ public class TimeOfDayConditionHandlerTest extends BasicConditionHandlerTest {
         LocalTime beforeCurrentTime = currentTime.minus(Duration.ofMinutes(2));
         LocalTime afterCurrentTime = currentTime.plus(Duration.ofMinutes(2));
 
-        // Time is between start and end time
+        // Time is between start and end time -> should return true.
         TimeOfDayConditionHandler handler = getTimeOfDayConditionHandler(beforeCurrentTime.toString(),
                 afterCurrentTime.toString());
         assertThat(handler.isSatisfied(null), is(true));
 
-        // Start time is included
+        // Time is equal to start time -> should return true
         handler = getTimeOfDayConditionHandler(currentTime.toString(), afterCurrentTime.toString());
         assertThat(handler.isSatisfied(null), is(true));
 
-        // End time is not included
+        // Time is equal to end time -> should return false
         handler = getTimeOfDayConditionHandler(beforeCurrentTime.toString(), currentTime.toString());
         assertThat(handler.isSatisfied(null), is(false));
 
-        // When the start value is in the future and the end value is in the past, the condition is false
+        // Start value is in the future & end value is in the past
+        // -> should return false
         handler = getTimeOfDayConditionHandler(afterCurrentTime.toString(), beforeCurrentTime.toString());
         assertThat(handler.isSatisfied(null), is(false));
 
-        // If both values are in the future, but the start time is after the end time, the condition is true
+        // Start & end time are in the future & start time is after the end time
+        // -> should return true
         handler = getTimeOfDayConditionHandler(afterCurrentTime.plus(Duration.ofMinutes(2)).toString(),
                 afterCurrentTime.toString());
         assertThat(handler.isSatisfied(null), is(true));
