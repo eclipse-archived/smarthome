@@ -38,6 +38,7 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemBuilder;
+import org.eclipse.smarthome.core.items.ItemBuilderFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -125,6 +126,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     protected ItemRegistry itemRegistry;
 
+    private ItemBuilderFactory itemBuilderFactory;
+
     private final Map<Widget, Widget> defaultWidgets = Collections.synchronizedMap(new WeakHashMap<Widget, Widget>());
 
     public ItemUIRegistryImpl() {
@@ -146,6 +149,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     public void removeItemUIProvider(ItemUIProvider itemUIProvider) {
         itemUIProviders.remove(itemUIProvider);
+    }
+
+    @Reference(policy = ReferencePolicy.DYNAMIC)
+    protected void setItemBuilderFactory(ItemBuilderFactory itemBuilderFactory) {
+        this.itemBuilderFactory = itemBuilderFactory;
+    }
+
+    protected void unsetItemBuilderFactory(ItemBuilderFactory itemBuilderFactory) {
+        this.itemBuilderFactory = null;
     }
 
     @Override
@@ -1338,8 +1350,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public ItemBuilder newItemBuilder(Item item) {
-        if (itemRegistry != null) {
-            return itemRegistry.newItemBuilder(item);
+        if (itemBuilderFactory != null) {
+            return itemBuilderFactory.newItemBuilder(item);
         } else {
             throw new IllegalStateException("Cannot create an item builder without the item registry");
         }
@@ -1347,8 +1359,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public ItemBuilder newItemBuilder(String itemType, String itemName) {
-        if (itemRegistry != null) {
-            return itemRegistry.newItemBuilder(itemType, itemName);
+        if (itemBuilderFactory != null) {
+            return itemBuilderFactory.newItemBuilder(itemType, itemName);
         } else {
             throw new IllegalStateException("Cannot create an item builder without the item registry");
         }

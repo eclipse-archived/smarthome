@@ -15,7 +15,6 @@ package org.eclipse.smarthome.io.rest.core.internal.item;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,7 +50,7 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.items.ItemBuilderFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
@@ -140,8 +139,9 @@ public class ItemResource implements RESTResource {
     private DTOMapper dtoMapper;
     @NonNullByDefault({})
     private MetadataSelectorMatcher metadataSelectorMatcher;
+    @NonNullByDefault({})
+    private ItemBuilderFactory itemBuilderFactory;
 
-    private final Set<ItemFactory> itemFactories = new HashSet<>();
     @NonNullByDefault({})
     private LocaleService localeService;
 
@@ -181,15 +181,6 @@ public class ItemResource implements RESTResource {
         this.managedItemProvider = null;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addItemFactory(ItemFactory itemFactory) {
-        this.itemFactories.add(itemFactory);
-    }
-
-    protected void removeItemFactory(ItemFactory itemFactory) {
-        this.itemFactories.remove(itemFactory);
-    }
-
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setDTOMapper(DTOMapper dtoMapper) {
         this.dtoMapper = dtoMapper;
@@ -215,6 +206,15 @@ public class ItemResource implements RESTResource {
 
     protected void unsetMetadataSelectorMatcher(MetadataSelectorMatcher metadataSelectorMatcher) {
         this.metadataSelectorMatcher = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void setItemBuilderFactory(ItemBuilderFactory itemBuilderFactory) {
+        this.itemBuilderFactory = itemBuilderFactory;
+    }
+
+    public void unsetItemBuilderFactory(ItemBuilderFactory itemBuilderFactory) {
+        this.itemBuilderFactory = null;
     }
 
     @GET
@@ -637,7 +637,7 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        Item newItem = ItemDTOMapper.map(item, itemRegistry);
+        Item newItem = ItemDTOMapper.map(item, itemBuilderFactory);
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
                     item.type);
@@ -685,7 +685,7 @@ public class ItemResource implements RESTResource {
         Map<String, Collection<String>> tagMap = new HashMap<>();
 
         for (GroupItemDTO item : items) {
-            Item newItem = ItemDTOMapper.map(item, itemRegistry);
+            Item newItem = ItemDTOMapper.map(item, itemBuilderFactory);
             if (newItem == null) {
                 wrongTypes.add(item);
                 tagMap.put(item.name, item.tags);
@@ -827,8 +827,8 @@ public class ItemResource implements RESTResource {
 
     @Override
     public boolean isSatisfied() {
-        return itemRegistry != null && managedItemProvider != null && eventPublisher != null && !itemFactories.isEmpty()
-                && dtoMapper != null && metadataRegistry != null && metadataSelectorMatcher != null
-                && localeService != null;
+        return itemRegistry != null && managedItemProvider != null && eventPublisher != null
+                && itemBuilderFactory != null && dtoMapper != null && metadataRegistry != null
+                && metadataSelectorMatcher != null && localeService != null;
     }
 }
