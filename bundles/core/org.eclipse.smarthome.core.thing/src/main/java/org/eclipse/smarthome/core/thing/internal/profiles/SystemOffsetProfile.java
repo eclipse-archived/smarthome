@@ -88,7 +88,7 @@ public class SystemOffsetProfile implements StateProfile {
 
     @Override
     public void onStateUpdateFromItem(State state) {
-        callback.handleCommand((Command) applyOffset(state, false));
+        callback.handleUpdate((State) applyOffset(state, false));
     }
 
     @Override
