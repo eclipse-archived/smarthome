@@ -137,6 +137,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
     public static final Unit<Volume> LITRE = addUnit(Units.LITRE);
     public static final Unit<Density> KILOGRAM_PER_CUBICMETRE = addUnit(
             new ProductUnit<Density>(Units.KILOGRAM.divide(Units.METRE.pow(3))));
+    public static final Unit<Density> MICROGRAM_PER_CUBICMETRE = addUnit(
+            new TransformedUnit<>(KILOGRAM_PER_CUBICMETRE, new RationalConverter(BigInteger.valueOf(1), BigInteger.valueOf(1000000000))));
     public static final Unit<Energy> WATT_SECOND = addUnit(new ProductUnit<Energy>(Units.WATT.multiply(Units.SECOND)));
     public static final Unit<Energy> WATT_HOUR = addUnit(new ProductUnit<Energy>(Units.WATT.multiply(Units.HOUR)));
     public static final Unit<Energy> KILOWATT_HOUR = addUnit(MetricPrefix.KILO(WATT_HOUR));
@@ -156,6 +158,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
         SimpleUnitFormat.getInstance().label(DECIBEL, "dB");
         SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m²");
         SimpleUnitFormat.getInstance().label(DEGREE_ANGLE, "°");
+        SimpleUnitFormat.getInstance().label(MICROGRAM_PER_CUBICMETRE, "μg/m³");
         SimpleUnitFormat.getInstance().label(WATT_SECOND, "Ws");
         SimpleUnitFormat.getInstance().label(WATT_HOUR, "Wh");
         SimpleUnitFormat.getInstance().label(KILOWATT_HOUR, "kWh");
