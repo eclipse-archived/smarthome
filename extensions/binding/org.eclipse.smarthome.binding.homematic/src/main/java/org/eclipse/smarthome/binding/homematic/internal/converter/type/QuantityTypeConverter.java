@@ -61,7 +61,7 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
 
     private QuantityType<? extends Quantity<?>> toUnitFromDatapoint(QuantityType<? extends Quantity<?>> type,
             HmDatapoint dp) {
-        if (dp == null || dp.getUnit().isEmpty()) {
+        if (dp == null || dp.getUnit() == null || dp.getUnit().isEmpty()) {
             // datapoint is dimensionless, nothing to convert
             return type;
         }
