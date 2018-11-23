@@ -224,9 +224,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                 updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
                 updateLightState(light, stateUpdate);
             }
-        } else if (e instanceof IOException)
-
-        {
+        } else if (e instanceof IOException) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
         } else if (e instanceof ApiException) {
             // This should not happen - if it does, it is most likely some bug that should be reported.
