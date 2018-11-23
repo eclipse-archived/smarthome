@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * Blukii data decoding.
  *
  * @author Markus Rathgeb - Initial contribution (migrate from handler)
+ * @author Markus Rathgeb - Fixed temperature decoding
  */
 @NonNullByDefault
 public class BlukiiDataDecoder {
@@ -69,7 +70,7 @@ public class BlukiiDataDecoder {
         double pressure = doubleByteToInt(data[15], data[16]) / 10;
         int luminance = doubleByteToInt(data[17], data[18]);
         int humidity = data[19] & 0xFF;
-        double temperature = (data[20] & 0xFF) + (data[21] & 0xFF) / 100000000;
+        double temperature = (data[20] << 8 | data[21] & 0xFF) / 256d;
 
         return new Environment(pressure, luminance, humidity, temperature);
     }
