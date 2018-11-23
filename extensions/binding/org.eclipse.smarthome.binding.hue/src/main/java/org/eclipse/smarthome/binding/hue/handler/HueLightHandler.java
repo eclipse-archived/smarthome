@@ -227,6 +227,11 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 } else if (command instanceof IncreaseDecreaseType) {
                     lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
                 }
+                if (lightState != null && lastSentColorTemp != null) {
+                    // make sure that the light also has the latest color temp
+                    // this might not have been yet set in the light, if it was off
+                    lightState.setColorTemperature(lastSentColorTemp);
+                }
                 break;
             case CHANNEL_SWITCH:
                 logger.trace("CHANNEL_SWITCH handling command {}", command);
@@ -235,6 +240,11 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     if (isOsramPar16) {
                         lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
                     }
+                }
+                if (lightState != null && lastSentColorTemp != null) {
+                    // make sure that the light also has the latest color temp
+                    // this might not have been yet set in the light, if it was off
+                    lightState.setColorTemperature(lastSentColorTemp);
                 }
                 break;
             case CHANNEL_COLOR:
@@ -293,8 +303,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     /*
      * Applies additional {@link StateUpdate} commands as a workaround for Osram
      * Lightify PAR16 TW firmware bug. Also see
-     * http://www.everyhue.com/vanilla/discussion
-     * /1756/solved-lightify-turning-off
+     * http://www.everyhue.com/vanilla/discussion/1756/solved-lightify-turning-off
      */
     private StateUpdate addOsramSpecificCommands(StateUpdate lightState, OnOffType actionType) {
         if (actionType.equals(OnOffType.ON)) {
