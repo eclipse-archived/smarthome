@@ -61,8 +61,7 @@ public class OAuthClientServiceImpl implements OAuthClientService {
 
     private transient final Logger logger = LoggerFactory.getLogger(OAuthClientServiceImpl.class);
 
-    @NonNullByDefault({})
-    private OAuthStoreHandler storeHandler;
+    private @NonNullByDefault({}) OAuthStoreHandler storeHandler;
 
     // Constructor params - static
     private final String handle;
