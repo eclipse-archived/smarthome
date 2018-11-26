@@ -29,10 +29,10 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassist
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.CFactory;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents.ComponentDiscovered;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HaID;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HandlerConfiguration;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.DelayedBatchProcessing;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -63,8 +63,9 @@ import org.slf4j.LoggerFactory;
 public class HomeAssistantThingHandler extends AbstractMQTTThingHandler
         implements ComponentDiscovered, Consumer<List<AbstractComponent>> {
     private final Logger logger = LoggerFactory.getLogger(HomeAssistantThingHandler.class);
-    // The timeout per attribute field subscription
+    /** The timeout per attribute field subscription */
     public final int attributeReceiveTimeout;
+    protected final MqttChannelTypeProvider channelTypeProvider;
     protected HandlerConfiguration config = new HandlerConfiguration();
     protected final Map<String, AbstractComponent> haComponents = new HashMap<String, AbstractComponent>();
     protected final DiscoverComponents discoverComponents = new DiscoverComponents(thing.getUID(), scheduler, this);
@@ -76,13 +77,14 @@ public class HomeAssistantThingHandler extends AbstractMQTTThingHandler
      * A channel type provider and a topic value receive timeout must be provided.
      *
      * @param thing The thing of this handler
-     * @param provider A channel type provider
-     * @param homieReceiveTimeout Timeout for the entire tree parsing and subscription. In milliseconds.
+     * @param channelTypeProvider A channel type provider
+     * @param subscribeTimeout Timeout for the entire tree parsing and subscription. In milliseconds.
      * @param attributeReceiveTimeout The timeout per attribute field subscription. In milliseconds.
      */
-    public HomeAssistantThingHandler(Thing thing, MqttChannelTypeProvider provider, int subscribeTimeout,
+    public HomeAssistantThingHandler(Thing thing, MqttChannelTypeProvider channelTypeProvider, int subscribeTimeout,
             int attributeReceiveTimeout) {
-        super(thing, provider, null, subscribeTimeout);
+        super(thing, subscribeTimeout);
+        this.channelTypeProvider = channelTypeProvider;
         this.attributeReceiveTimeout = attributeReceiveTimeout;
         this.delayedProcessing = new DelayedBatchProcessing<>(attributeReceiveTimeout, this, scheduler);
     }

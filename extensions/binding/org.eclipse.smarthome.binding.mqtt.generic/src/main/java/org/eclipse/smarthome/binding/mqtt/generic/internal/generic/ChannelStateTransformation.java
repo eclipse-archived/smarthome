@@ -80,7 +80,7 @@ public class ChannelStateTransformation {
         try {
             temp = transformationService.transform(pattern, value);
         } catch (TransformationException e) {
-            logger.warn("Error executing the transformation", e);
+            logger.warn("Executing the {}-transformation failed: {}", serviceName, e.getMessage());
         }
         return (temp != null) ? temp : value;
     }

@@ -30,7 +30,7 @@ public class ValueFactory {
      * @param config The channel configuration
      * @param channelTypeID The channel type, for instance TEXT_CHANNEL.
      */
-    public static Value createValueState(ChannelConfig config, String channelTypeID) {
+    public static Value createValueState(ChannelConfig config, String channelTypeID) throws IllegalArgumentException {
         Value value;
         switch (channelTypeID) {
             case MqttBindingConstants.STRING:
@@ -53,7 +53,7 @@ public class ValueFactory {
                 value = new OnOffValue(config.on, config.off);
                 break;
             case MqttBindingConstants.CONTACT:
-                value = OnOffValue.createReceiveOnly(config.on, config.off);
+                value = new OpenCloseValue(config.on, config.off);
                 break;
             default:
                 throw new IllegalArgumentException("ChannelTypeUID not recognised: " + channelTypeID);

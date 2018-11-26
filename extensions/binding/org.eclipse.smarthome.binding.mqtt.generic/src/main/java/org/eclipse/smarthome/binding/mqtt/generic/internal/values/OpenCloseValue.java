@@ -17,7 +17,7 @@ import java.util.Collections;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
-import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -25,36 +25,36 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
- * Implements an on/off boolean value.
+ * Implements an open/close boolean value.
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class OnOffValue implements Value {
+public class OpenCloseValue implements Value {
     private State state = UnDefType.UNDEF;
-    private OnOffType onOffValue;
-    private final String onString;
-    private final String offString;
+    private OpenClosedType boolValue;
+    private final String openString;
+    private final String closeString;
 
     /**
-     * Creates a switch On/Off type, that accepts "ON", "1" for on and "OFF","0" for off.
+     * Creates a contact Open/Close type.
      */
-    public OnOffValue() {
-        this.onString = OnOffType.ON.name();
-        this.offString = OnOffType.OFF.name();
-        this.onOffValue = OnOffType.OFF;
+    public OpenCloseValue() {
+        this.openString = OpenClosedType.OPEN.name();
+        this.closeString = OpenClosedType.CLOSED.name();
+        this.boolValue = OpenClosedType.CLOSED;
     }
 
     /**
-     * Creates a new SWITCH On/Off value.
+     * Creates a new contact Open/Close value.
      *
-     * @param onValue The ON value string. This will be compared to MQTT messages.
-     * @param offValue The OFF value string. This will be compared to MQTT messages.
+     * @param openValue The ON value string. This will be compared to MQTT messages.
+     * @param closeValue The OFF value string. This will be compared to MQTT messages.
      */
-    public OnOffValue(@Nullable String onValue, @Nullable String offValue) {
-        this.onString = onValue == null ? OnOffType.ON.name() : onValue;
-        this.offString = offValue == null ? OnOffType.OFF.name() : offValue;
-        this.onOffValue = OnOffType.OFF;
+    public OpenCloseValue(@Nullable String openValue, @Nullable String closeValue) {
+        this.openString = openValue == null ? OpenClosedType.OPEN.name() : openValue;
+        this.closeString = closeValue == null ? OpenClosedType.CLOSED.name() : closeValue;
+        this.boolValue = OpenClosedType.CLOSED;
     }
 
     @Override
@@ -64,37 +64,37 @@ public class OnOffValue implements Value {
 
     @Override
     public String update(Command command) throws IllegalArgumentException {
-        if (command instanceof OnOffType) {
-            onOffValue = ((OnOffType) command);
+        if (command instanceof OpenClosedType) {
+            boolValue = ((OpenClosedType) command);
         } else if (command instanceof StringType) {
-            onOffValue = (OnOffType) update(command.toString());
+            boolValue = (OpenClosedType) update(command.toString());
         } else {
             throw new IllegalArgumentException(
-                    "Type " + command.getClass().getName() + " not supported for OnOffValue");
+                    "Type " + command.getClass().getName() + " not supported for OpenCloseValue");
         }
 
-        state = onOffValue;
-        return (onOffValue == OnOffType.ON) ? onString : offString;
+        state = boolValue;
+        return (boolValue == OpenClosedType.OPEN) ? openString : closeString;
     }
 
     @Override
     public State update(String updatedValue) throws IllegalArgumentException {
         final String upperCase = updatedValue.toUpperCase();
-        if (onString.equals(updatedValue) || OnOffType.ON.name().equals(upperCase)) {
-            onOffValue = OnOffType.ON;
-        } else if (offString.equals(updatedValue) || OnOffType.OFF.name().equals(upperCase)) {
-            onOffValue = OnOffType.OFF;
+        if (openString.equals(updatedValue) || OpenClosedType.OPEN.name().equals(upperCase)) {
+            boolValue = OpenClosedType.OPEN;
+        } else if (closeString.equals(updatedValue) || OpenClosedType.CLOSED.name().equals(upperCase)) {
+            boolValue = OpenClosedType.CLOSED;
         } else {
-            throw new IllegalArgumentException("Didn't recognise the on/off value " + updatedValue);
+            throw new IllegalArgumentException("Didn't recognise the open/closed value " + updatedValue);
         }
 
-        state = onOffValue;
-        return onOffValue;
+        state = boolValue;
+        return boolValue;
     }
 
     @Override
     public String channelTypeID() {
-        return CoreItemFactory.SWITCH;
+        return CoreItemFactory.CONTACT;
     }
 
     @Override

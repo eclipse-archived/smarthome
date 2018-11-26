@@ -12,6 +12,7 @@ Import-Package:
  org.apache.commons.lang,
  org.apache.commons.net.util,
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.automation.annotation,
  org.eclipse.smarthome.binding.mqtt,
  org.eclipse.smarthome.binding.mqtt.handler,
  org.eclipse.smarthome.config.core,

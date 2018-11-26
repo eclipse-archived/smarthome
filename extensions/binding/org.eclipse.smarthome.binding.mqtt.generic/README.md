@@ -45,7 +45,7 @@ You can manually add the following channels:
 * **string**: This channel can show the received text on the given topic and can send text to a given topic.
 * **number**: This channel can show the received number on the given topic and can send a number to a given topic. It can have a min, max and step values.
 * **dimmer**: This channel handles numeric values as percentages. It can have min, max and step values.
-* **contact**: This channel represents a open/close (on/off) state of a given topic.
+* **contact**: This channel represents a open/close state of a given topic.
 * **switch**: This channel represents a on/off state of a given topic and can send an on/off value to a given topic.
 * **colorRGB**: This channel handles color values in RGB format.
 * **colorHSB**: This channel handles color values in HSB format.
@@ -90,10 +90,13 @@ You can connect this channel to a Rollershutter or Dimmer item.
 
 ### Channel Type "contact", "switch"
 
-* __on__: A number (like 1, 10) or a string (like "ON"/"Open") that is recognised as on state.
-* __off__: A number (like 0, -10) or a string (like "OFF"/"Close") that is recognised as off state.
+* __on__: A number (like 1, 10) or a string (like "ON"/"Open") that is recognised as on/open state.
+* __off__: A number (like 0, -10) or a string (like "OFF"/"Close") that is recognised as off/closed state.
 
-The thing by default always recognises `"ON"`,`"1"`, `1` as on state and `"OFF"`, `"0"`, `0` as off state and if **on** and **off** are not configured it sends the integer values `1` for on and `0` for off.
+The contact channel by default recognises `"OPEN"` and `"CLOSED"`. You can connect this channel to a Contact item.
+The switch channel by default recognises `"ON"` and `"OFF"`. You can connect this channel to a Switch item.
+
+If **on** and **off** are not configured it publishes the strings mentioned before respectively.
 
 You can connect this channel to a Contact or Switch item.
 

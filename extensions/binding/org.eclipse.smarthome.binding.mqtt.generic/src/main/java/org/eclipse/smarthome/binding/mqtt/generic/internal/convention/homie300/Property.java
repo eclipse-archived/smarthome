@@ -161,11 +161,7 @@ public class Property implements AttributeChanged {
         Value value;
         switch (attributes.datatype) {
             case boolean_:
-                if (attributes.settable) {
-                    value = new OnOffValue("true", "false");
-                } else {
-                    value = OnOffValue.createReceiveOnly("true", "false");
-                }
+                value = new OnOffValue("true", "false");
                 break;
             case color_:
                 value = new ColorValue(attributes.format.contains("rgb"), null, null);

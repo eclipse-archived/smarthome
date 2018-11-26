@@ -66,7 +66,7 @@ public class ComponentBinarySensor extends AbstractComponent {
         }
 
         channels.put(sensorChannelID,
-                new CChannel(this, sensorChannelID, OnOffValue.createReceiveOnly(config.payload_on, config.payload_off),
+                new CChannel(this, sensorChannelID, new OnOffValue(config.payload_on, config.payload_off),
                         config.state_topic, null, config.name, config.unit_of_measurement, channelStateUpdateListener));
     }
 
