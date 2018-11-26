@@ -76,4 +76,20 @@ public class ThingManagerTest {
         verify(mockFactory2, atLeastOnce()).supportsThingType(any());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCallSetEnabledWithUnknownThingUID() throws Exception {
+        ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
+        ThingManagerImpl thingManager = new ThingManagerImpl();
+
+        thingManager.setEnabled(unknownUID, true);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCallIsEnabledWithUnknownThingUID() throws Exception {
+        ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
+        ThingManagerImpl thingManager = new ThingManagerImpl();
+
+        thingManager.isEnabled(unknownUID);
+    }
+
 }
