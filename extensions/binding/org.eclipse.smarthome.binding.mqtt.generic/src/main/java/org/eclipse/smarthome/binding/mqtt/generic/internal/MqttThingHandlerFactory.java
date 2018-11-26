@@ -43,7 +43,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author David Graeff - Initial contribution
  */
-@Component(immediate = true, service = ThingHandlerFactory.class)
+@Component(service = ThingHandlerFactory.class)
 @NonNullByDefault
 public class MqttThingHandlerFactory extends BaseThingHandlerFactory implements TransformationServiceProvider {
     private @NonNullByDefault({}) MqttChannelTypeProvider typeProvider;
@@ -89,10 +89,7 @@ public class MqttThingHandlerFactory extends BaseThingHandlerFactory implements 
     }
 
     @Override
-    protected @Nullable ThingHandler createHandler(@Nullable Thing thing) {
-        if (thing == null) {
-            throw new IllegalStateException("No thing");
-        }
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(MqttBindingConstants.GENERIC_MQTT_THING)) {

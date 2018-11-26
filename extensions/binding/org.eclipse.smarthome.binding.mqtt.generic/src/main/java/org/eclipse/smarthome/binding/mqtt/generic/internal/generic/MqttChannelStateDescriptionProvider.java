@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
-@Component(immediate = false, service = { DynamicStateDescriptionProvider.class,
-        MqttChannelStateDescriptionProvider.class })
+@Component(service = { DynamicStateDescriptionProvider.class, MqttChannelStateDescriptionProvider.class })
 @NonNullByDefault
 public class MqttChannelStateDescriptionProvider implements DynamicStateDescriptionProvider {
 

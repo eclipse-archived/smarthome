@@ -62,8 +62,8 @@ public class GenericThingHandler extends AbstractMQTTThingHandler implements Cha
      *
      * @param thing The thing of this handler
      * @param stateDescProvider A channel state provider
-     * @param transformationServiceProvider
-     * @param subscribeTimeout
+     * @param transformationServiceProvider The transformation service provider
+     * @param subscribeTimeout The subscribe timeout
      */
     public GenericThingHandler(Thing thing, MqttChannelStateDescriptionProvider stateDescProvider,
             TransformationServiceProvider transformationServiceProvider, int subscribeTimeout) {

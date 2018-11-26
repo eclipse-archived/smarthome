@@ -200,13 +200,13 @@
 
 			<parameter name="on" type="text">
 				<label>Open value</label>
-				<description>A number (like 1, 10) or a string (like "positionUp") that is recognised as on state. "OPEN" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
+				<description>A number (like 1, 10) or a string (like "positionUp") that is recognised as open state. "OPEN" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
 				<default>1</default>
 				<advanced>true</advanced>
 			</parameter>
 			<parameter name="off" type="text">
 				<label>Close value</label>
-				<description>A number (like 0, -10) or a string (like "positionDown") that is recognised as off state. "CLOSE" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
+				<description>A number (like 0, -10) or a string (like "positionDown") that is recognised as close state. "CLOSED" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
 				<default>0</default>
 				<advanced>true</advanced>
 			</parameter>
