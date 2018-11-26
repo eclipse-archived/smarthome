@@ -216,8 +216,14 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
 
     private void handleException(FullLight light, StateUpdate stateUpdate, Throwable e) {
         if (e instanceof DeviceOffException) {
-            updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
-            updateLightState(light, stateUpdate);
+            if (stateUpdate.getColorTemperature() != null && stateUpdate.getBrightness() == null) {
+                // If there is only a change of the color temperature, we do not want the light
+                // to be turned on (i.e. change its brightness).
+                return;
+            } else {
+                updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
+                updateLightState(light, stateUpdate);
+            }
         } else if (e instanceof IOException) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
         } else if (e instanceof ApiException) {
