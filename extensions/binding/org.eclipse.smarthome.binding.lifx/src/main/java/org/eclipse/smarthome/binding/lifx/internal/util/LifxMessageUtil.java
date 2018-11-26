@@ -95,8 +95,11 @@ public final class LifxMessageUtil {
         if (temperatureRange.getRange() == 0) {
             return PercentType.HUNDRED;
         }
-        return new PercentType(
-                BigDecimal.valueOf((kelvin - temperatureRange.getMaximum()) / (temperatureRange.getRange() / -100)));
+        BigDecimal value = BigDecimal
+                .valueOf((kelvin - temperatureRange.getMaximum()) / (temperatureRange.getRange() / -100));
+        value = value.min(HUNDRED);
+        value = value.max(ZERO);
+        return new PercentType(value);
     }
 
     public static int percentTypeToKelvin(PercentType temperature, TemperatureRange temperatureRange) {
