@@ -32,7 +32,8 @@ public enum APIRequest {
     VOLUME("volume"),
     PRESETS("presets"),
     INFO("info"),
-    NAME("name");
+    NAME("name"),
+    GET_GROUP("getGroup");
 
     private String name;
 
