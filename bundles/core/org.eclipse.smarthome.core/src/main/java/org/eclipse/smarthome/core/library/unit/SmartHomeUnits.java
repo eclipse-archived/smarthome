@@ -92,6 +92,8 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
      */
     public static final Unit<Intensity> IRRADIANCE = addUnit(
             new AlternateUnit<Intensity>(Units.WATT.divide(Units.SQUARE_METRE), "W/m2"));
+    public static final Unit<Intensity> MICROWATT_PER_SQUARE_CENTIMETRE = addUnit(
+            new TransformedUnit<>(IRRADIANCE, new RationalConverter(BigInteger.valueOf(100), BigInteger.valueOf(1))));
 
     public static final Unit<Dimensionless> ONE = addUnit(AbstractUnit.ONE);
 
@@ -157,6 +159,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
         SimpleUnitFormat.getInstance().label(PARTS_PER_MILLION, "ppm");
         SimpleUnitFormat.getInstance().label(DECIBEL, "dB");
         SimpleUnitFormat.getInstance().label(IRRADIANCE, "W/m²");
+        SimpleUnitFormat.getInstance().label(MICROWATT_PER_SQUARE_CENTIMETRE, "μW/cm²");
         SimpleUnitFormat.getInstance().label(DEGREE_ANGLE, "°");
         SimpleUnitFormat.getInstance().label(MICROGRAM_PER_CUBICMETRE, "μg/m³");
         SimpleUnitFormat.getInstance().label(WATT_SECOND, "Ws");
