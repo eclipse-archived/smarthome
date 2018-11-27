@@ -109,7 +109,6 @@ public class ItemRegistryImplTest extends JavaTest {
 
                 setManagedProvider(itemProvider);
                 setEventPublisher(ItemRegistryImplTest.this.eventPublisher);
-                setCoreItemFactory(coreItemFactory);
                 setStateDescriptionService(mock(StateDescriptionService.class));
                 setUnitProvider(mock(UnitProvider.class));
                 setItemStateConverter(mock(ItemStateConverter.class));

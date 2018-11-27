@@ -36,7 +36,7 @@ import org.mockito.Mock;
  */
 public class ItemBuilderTest {
 
-    private ItemRegistryImpl itemRegistry;
+    private ItemBuilderFactoryImpl itemBuilderFactory;
     private @Mock ItemFactory mockFactory;
     private @Mock ActiveItem mockItem;
     private @Mock Item originalItem;
@@ -44,15 +44,15 @@ public class ItemBuilderTest {
     @Before
     public void setup() {
         initMocks(this);
-        itemRegistry = new ItemRegistryImpl();
-        itemRegistry.addItemFactory(mockFactory);
+        itemBuilderFactory = new ItemBuilderFactoryImpl();
+        itemBuilderFactory.addItemFactory(mockFactory);
     }
 
     @Test
     public void testMinimal() {
         when(mockFactory.createItem(anyString(), anyString())).thenReturn(mockItem);
 
-        Item res = itemRegistry.newItemBuilder("String", "test").build();
+        Item res = itemBuilderFactory.newItemBuilder("String", "test").build();
 
         assertSame(mockItem, res);
         verify(mockFactory).createItem(eq("String"), eq("test"));
@@ -63,7 +63,7 @@ public class ItemBuilderTest {
 
     @Test
     public void testMinimalGroupItem() {
-        Item resItem = itemRegistry.newItemBuilder("Group", "test").build();
+        Item resItem = itemBuilderFactory.newItemBuilder("Group", "test").build();
 
         assertEquals(GroupItem.class, resItem.getClass());
         GroupItem res = (GroupItem) resItem;
@@ -79,7 +79,7 @@ public class ItemBuilderTest {
     public void testFull() {
         when(mockFactory.createItem(anyString(), anyString())).thenReturn(mockItem);
 
-        Item res = itemRegistry.newItemBuilder("String", "test") //
+        Item res = itemBuilderFactory.newItemBuilder("String", "test") //
                 .withCategory("category") //
                 .withGroups(Arrays.asList("a", "b")) //
                 .withLabel("label") //
@@ -97,7 +97,7 @@ public class ItemBuilderTest {
         Item baseItem = mock(Item.class);
         GroupFunction mockFunction = mock(GroupFunction.class);
 
-        Item resItem = itemRegistry.newItemBuilder("Group", "test") //
+        Item resItem = itemBuilderFactory.newItemBuilder("Group", "test") //
                 .withCategory("category") //
                 .withGroups(Arrays.asList("a", "b")) //
                 .withLabel("label") //
@@ -125,7 +125,7 @@ public class ItemBuilderTest {
 
         when(mockFactory.createItem(anyString(), anyString())).thenReturn(mockItem);
 
-        Item res = itemRegistry.newItemBuilder(originalItem).build();
+        Item res = itemBuilderFactory.newItemBuilder(originalItem).build();
 
         assertSame(mockItem, res);
         verify(mockFactory).createItem(eq("type"), eq("name"));
@@ -143,7 +143,7 @@ public class ItemBuilderTest {
         originalItem.setLabel("label");
         originalItem.addGroupNames("a", "b");
 
-        Item resItem = itemRegistry.newItemBuilder(originalItem).build();
+        Item resItem = itemBuilderFactory.newItemBuilder(originalItem).build();
 
         assertEquals(GroupItem.class, resItem.getClass());
         GroupItem res = (GroupItem) resItem;
@@ -158,19 +158,19 @@ public class ItemBuilderTest {
     @Test(expected = IllegalStateException.class)
     public void testNoFactory() {
         when(mockFactory.createItem(anyString(), anyString())).thenReturn(null);
-        itemRegistry.newItemBuilder("String", "test").build();
+        itemBuilderFactory.newItemBuilder("String", "test").build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFunctionOnNonGroupItem() {
         GroupFunction mockFunction = mock(GroupFunction.class);
-        itemRegistry.newItemBuilder("String", "test").withGroupFunction(mockFunction);
+        itemBuilderFactory.newItemBuilder("String", "test").withGroupFunction(mockFunction);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBaseItemOnNonGroupItem() {
         Item mockItem = mock(Item.class);
-        itemRegistry.newItemBuilder("String", "test").withBaseItem(mockItem);
+        itemBuilderFactory.newItemBuilder("String", "test").withBaseItem(mockItem);
     }
 
 }

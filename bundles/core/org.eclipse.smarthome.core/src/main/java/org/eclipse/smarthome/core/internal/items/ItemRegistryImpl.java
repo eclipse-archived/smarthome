@@ -17,9 +17,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
@@ -28,8 +26,6 @@ import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemBuilder;
-import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
@@ -68,7 +64,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
     private final List<RegistryHook<Item>> registryHooks = new CopyOnWriteArrayList<>();
     private StateDescriptionService stateDescriptionService;
     private MetadataRegistry metadataRegistry;
-    private final Set<ItemFactory> itemFactories = new CopyOnWriteArraySet<>();
 
     private UnitProvider unitProvider;
     private ItemStateConverter itemStateConverter;
@@ -429,16 +424,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
         registryHooks.remove(hook);
     }
 
-    @Override
-    public ItemBuilder newItemBuilder(Item item) {
-        return new ItemBuilderImpl(itemFactories, item);
-    }
-
-    @Override
-    public ItemBuilder newItemBuilder(String itemType, String itemName) {
-        return new ItemBuilderImpl(itemFactories, itemType, itemName);
-    }
-
     @Activate
     protected void activate(final ComponentContext componentContext) {
         super.activate(componentContext.getBundleContext());
@@ -482,24 +467,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String, ItemProvide
 
     protected void unsetMetadataRegistry(MetadataRegistry metadataRegistry) {
         this.metadataRegistry = null;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    protected void addItemFactory(ItemFactory itemFactory) {
-        itemFactories.add(itemFactory);
-    }
-
-    protected void removeItemFactory(ItemFactory itemFactory) {
-        itemFactories.remove(itemFactory);
-    }
-
-    @Reference(target = "(component.name=org.eclipse.smarthome.core.library.CoreItemFactory)")
-    protected void setCoreItemFactory(ItemFactory coreItemFactory) {
-        itemFactories.add(coreItemFactory);
-    }
-
-    protected void unsetCoreItemFactory(ItemFactory coreItemFactory) {
-        itemFactories.remove(coreItemFactory);
     }
 
 }

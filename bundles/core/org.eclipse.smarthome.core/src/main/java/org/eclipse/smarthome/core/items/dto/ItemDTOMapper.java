@@ -25,7 +25,7 @@ import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemBuilder;
-import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemBuilderFactory;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
@@ -47,25 +47,25 @@ public class ItemDTOMapper {
      * Maps item DTO into item object.
      *
      * @param itemDTO the DTO
-     * @param itemRegistry the item registry
+     * @param itemBuilderFactory the item registry
      * @return the item object
      */
-    public static @Nullable Item map(ItemDTO itemDTO, ItemRegistry itemRegistry) {
+    public static @Nullable Item map(ItemDTO itemDTO, ItemBuilderFactory itemBuilderFactory) {
         if (itemDTO == null) {
             throw new IllegalArgumentException("The argument 'itemDTO' must no be null.");
         }
-        if (itemRegistry == null) {
-            throw new IllegalArgumentException("The argument 'itemRegistry' must no be null.");
+        if (itemBuilderFactory == null) {
+            throw new IllegalArgumentException("The argument 'itemBuilderFactory' must no be null.");
         }
 
         if (itemDTO.type != null) {
-            ItemBuilder builder = itemRegistry.newItemBuilder(itemDTO.type, itemDTO.name);
+            ItemBuilder builder = itemBuilderFactory.newItemBuilder(itemDTO.type, itemDTO.name);
 
             if (itemDTO instanceof GroupItemDTO && GroupItem.TYPE.equals(itemDTO.type)) {
                 GroupItemDTO groupItemDTO = (GroupItemDTO) itemDTO;
                 Item baseItem = null;
                 if (!StringUtils.isEmpty(groupItemDTO.groupType)) {
-                    baseItem = itemRegistry.newItemBuilder(groupItemDTO.groupType, itemDTO.name).build();
+                    baseItem = itemBuilderFactory.newItemBuilder(groupItemDTO.groupType, itemDTO.name).build();
                     builder.withBaseItem(baseItem);
                 }
                 GroupFunction function = new GroupFunction.Equality();
