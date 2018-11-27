@@ -93,16 +93,19 @@ public class ValueTests {
     @Test
     public void onoffUpdate() {
         OnOffValue v = new OnOffValue("fancyON", "fancyOff");
+        // Test with command
         assertThat(v.update(OnOffType.OFF), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(OnOffType.ON), is("fancyON"));
         assertThat(v.getValue(), is(OnOffType.ON));
 
+        // Test with string, representing the command
         assertThat(v.update(new StringType("OFF")), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(new StringType("ON")), is("fancyON"));
         assertThat(v.getValue(), is(OnOffType.ON));
 
+        // Test with custom string, setup in the constructor
         assertThat(v.update(new StringType("fancyOff")), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(new StringType("fancyON")), is("fancyON"));
@@ -112,19 +115,22 @@ public class ValueTests {
     @Test
     public void openCloseUpdate() {
         OpenCloseValue v = new OpenCloseValue("fancyON", "fancyOff");
+        // Test with command
         assertThat(v.update(OpenClosedType.CLOSED), is("fancyOff"));
         assertThat(v.getValue(), is(OpenClosedType.CLOSED));
         assertThat(v.update(OpenClosedType.OPEN), is("fancyON"));
         assertThat(v.getValue(), is(OpenClosedType.OPEN));
 
+        // Test with string, representing the command
         assertThat(v.update(new StringType("CLOSED")), is("fancyOff"));
         assertThat(v.getValue(), is(OpenClosedType.CLOSED));
         assertThat(v.update(new StringType("OPEN")), is("fancyON"));
         assertThat(v.getValue(), is(OpenClosedType.OPEN));
 
-        assertThat(v.update(new StringType("CLOSED")), is("fancyOff"));
+        // Test with custom string, setup in the constructor
+        assertThat(v.update(new StringType("fancyOff")), is("fancyOff"));
         assertThat(v.getValue(), is(OpenClosedType.CLOSED));
-        assertThat(v.update(new StringType("OPEN")), is("fancyON"));
+        assertThat(v.update(new StringType("fancyON")), is("fancyON"));
         assertThat(v.getValue(), is(OpenClosedType.OPEN));
     }
 
