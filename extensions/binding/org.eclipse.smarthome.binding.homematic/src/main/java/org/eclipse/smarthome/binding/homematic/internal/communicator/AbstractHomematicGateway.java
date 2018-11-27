@@ -43,6 +43,7 @@ import org.eclipse.smarthome.binding.homematic.internal.communicator.server.RpcE
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.RpcServer;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.XmlRpcServer;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.BatteryTypeVirtualDatapointHandler;
+import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ButtonVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.DeleteDeviceVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.DisplayOptionsVirtualDatapointHandler;
@@ -131,6 +132,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         virtualDatapointHandlers.add(new DisplayTextVirtualDatapoint());
         virtualDatapointHandlers.add(new HmwIoModuleVirtualDatapointHandler());
         virtualDatapointHandlers.add(new PressVirtualDatapointHandler());
+        virtualDatapointHandlers.add(new ButtonVirtualDatapointHandler());
     }
 
     public AbstractHomematicGateway(String id, HomematicConfig config, HomematicGatewayAdapter gatewayAdapter,
