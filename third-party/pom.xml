@@ -178,6 +178,13 @@
                   <source>true</source>
                 </artifact>
 
+                <!-- Paho MQTT client -->
+                <artifact>
+                  <id>org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0</id>
+                  <transitive>false</transitive>
+                  <source>true</source>
+                </artifact>
+
               </artifacts>
             </configuration>
           </execution>
