@@ -93,7 +93,7 @@ public class OnOffValue implements Value {
     }
 
     @Override
-    public String channelTypeID() {
+    public String getItemType() {
         return CoreItemFactory.SWITCH;
     }
 

@@ -93,7 +93,7 @@ public class OpenCloseValue implements Value {
     }
 
     @Override
-    public String channelTypeID() {
+    public String getItemType() {
         return CoreItemFactory.CONTACT;
     }
 

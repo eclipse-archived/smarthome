@@ -159,7 +159,7 @@ public class ColorValue implements Value {
     }
 
     @Override
-    public String channelTypeID() {
+    public String getItemType() {
         return CoreItemFactory.COLOR;
     }
 
