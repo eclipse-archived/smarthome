@@ -57,12 +57,12 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
 
     private static final Set<ProfileType> SUPPORTED_PROFILE_TYPES = Stream.of(SystemProfiles.DEFAULT_TYPE,
             SystemProfiles.FOLLOW_TYPE, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH_TYPE,
-            SystemProfiles.RAWROCKER_ON_OFF_TYPE, SystemProfiles.RAWROCKER_DIMMER_TYPE, SystemProfiles.OFFSET_TYPE)
+            SystemProfiles.RAWROCKER_ON_OFF_TYPE, SystemProfiles.RAWROCKER_DIMMER_TYPE, SystemProfiles.OFFSET_TYPE, SystemProfiles.RAWROCKER_PLAY_PAUSE_TYPE)
             .collect(Collectors.toSet());
 
     private static final Set<ProfileTypeUID> SUPPORTED_PROFILE_TYPE_UIDS = Stream
             .of(SystemProfiles.DEFAULT, SystemProfiles.FOLLOW, SystemProfiles.RAWBUTTON_TOGGLE_SWITCH,
-                    SystemProfiles.RAWROCKER_ON_OFF, SystemProfiles.RAWROCKER_DIMMER, SystemProfiles.OFFSET)
+                    SystemProfiles.RAWROCKER_ON_OFF, SystemProfiles.RAWROCKER_DIMMER, SystemProfiles.OFFSET, SystemProfiles.RAWROCKER_PLAY_PAUSE)
             .collect(Collectors.toSet());
 
     @Nullable
@@ -78,6 +78,8 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
             return new RawRockerOnOffProfile(callback);
         } else if (SystemProfiles.RAWROCKER_DIMMER.equals(profileTypeUID)) {
             return new RawRockerDimmerProfile(callback, context);
+        } else if (SystemProfiles.RAWROCKER_PLAY_PAUSE.equals(profileTypeUID)) {
+            return new RawRockerPlayPauseProfile(callback);
         } else if (SystemProfiles.OFFSET.equals(profileTypeUID)) {
             return new SystemOffsetProfile(callback, context);
         } else {
@@ -104,6 +106,8 @@ public class SystemProfileFactory implements ProfileFactory, ProfileAdvisor, Pro
                         return SystemProfiles.RAWROCKER_ON_OFF;
                     } else if (CoreItemFactory.DIMMER.equalsIgnoreCase(itemType)) {
                         return SystemProfiles.RAWROCKER_DIMMER;
+                    } else if (CoreItemFactory.PLAYER.equalsIgnoreCase(itemType)) {
+                        return SystemProfiles.RAWROCKER_PLAY_PAUSE;
                     }
                 }
                 break;
