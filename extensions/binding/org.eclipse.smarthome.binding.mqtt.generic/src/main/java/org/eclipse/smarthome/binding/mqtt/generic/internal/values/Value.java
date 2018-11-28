@@ -33,10 +33,9 @@ import org.eclipse.smarthome.core.types.UnDefType;
 @NonNullByDefault
 public interface Value {
     /**
-     * Returns the channelType ID.
-     * The channel type id is always also an item-type of {@link CoreItemFactory}.
+     * Returns the item-type (one of {@link CoreItemFactory}).
      */
-    String channelTypeID();
+    String getItemType();
 
     /**
      * Returns the current value state.

@@ -27,13 +27,13 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceCallback;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.HandlerConfiguration;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Node;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.DelayedBatchProcessing;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -54,7 +54,8 @@ import org.slf4j.LoggerFactory;
 public class HomieThingHandler extends AbstractMQTTThingHandler implements DeviceCallback, Consumer<List<Object>> {
     private final Logger logger = LoggerFactory.getLogger(HomieThingHandler.class);
     protected Device device;
-    // The timeout per attribute field subscription
+    protected final MqttChannelTypeProvider channelTypeProvider;
+    /** The timeout per attribute field subscription */
     protected final int attributeReceiveTimeout;
     protected final int subscribeTimeout;
     protected HandlerConfiguration config = new HandlerConfiguration();
@@ -66,15 +67,16 @@ public class HomieThingHandler extends AbstractMQTTThingHandler implements Devic
      * must be provided.
      *
      * @param thing The thing of this handler
-     * @param provider A channel type provider
+     * @param channelTypeProvider A channel type provider
      * @param subscribeTimeout Timeout for an entire attribute class subscription and receive. In milliseconds.
      *            Even a slow remote device will publish a full node or property within 100ms.
      * @param attributeReceiveTimeout The timeout per attribute field subscription. In milliseconds.
      *            One attribute subscription and receiving should not take longer than 50ms.
      */
-    public HomieThingHandler(Thing thing, MqttChannelTypeProvider provider, int subscribeTimeout,
+    public HomieThingHandler(Thing thing, MqttChannelTypeProvider channelTypeProvider, int subscribeTimeout,
             int attributeReceiveTimeout) {
-        super(thing, provider, null, subscribeTimeout);
+        super(thing, subscribeTimeout);
+        this.channelTypeProvider = channelTypeProvider;
         this.subscribeTimeout = subscribeTimeout;
         this.attributeReceiveTimeout = attributeReceiveTimeout;
         this.delayedProcessing = new DelayedBatchProcessing<Object>(subscribeTimeout, this, scheduler);

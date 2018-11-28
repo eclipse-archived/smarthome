@@ -98,6 +98,7 @@
   <feature name="esh-binding-mqtt" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-mqtt</feature>
+    <feature>esh-automation-api</feature>
 
     <requirement>esh.tp;filter:="(feature=commons-net)"</requirement>
     <feature dependency="true">esh.tp-commons-net</feature>

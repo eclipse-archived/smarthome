@@ -10,11 +10,11 @@
 		<config-description>
 			<parameter name="stateTopic" type="text">
 				<label>MQTT state topic</label>
-				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less then and will publish values non-retained.</description>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less command-only channel.</description>
 			</parameter>
 			<parameter name="commandTopic" type="text">
 				<label>MQTT command topic</label>
-				<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
+				<description>An MQTT topic that this thing will send a command to. If not set, this will be a read-only channel.</description>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Incoming value transformation</label>
@@ -60,11 +60,11 @@
 		<config-description>
 			<parameter name="stateTopic" type="text">
 				<label>MQTT state topic</label>
-				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less then and will publish values non-retained.</description>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less command-only channel.</description>
 			</parameter>
 			<parameter name="commandTopic" type="text">
 				<label>MQTT command topic</label>
-				<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
+				<description>An MQTT topic that this thing will send a command to. If not set, this will be a read-only channel.</description>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Incoming value transformation</label>
@@ -121,11 +121,11 @@
 		<config-description>
 			<parameter name="stateTopic" type="text">
 				<label>MQTT state topic</label>
-				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less then and will publish values non-retained.</description>
+				<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less command-only channel.</description>
 			</parameter>
-			<parameter name="commandTopic" type="text" required="true">
+			<parameter name="commandTopic" type="text">
 				<label>MQTT command topic</label>
-				<description>An MQTT topic that this thing will send a command to.</description>
+				<description>An MQTT topic that this thing will send a command to. If not set, this will be a read-only switch.</description>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Incoming value transformation</label>
@@ -153,14 +153,14 @@
 
 			<parameter name="on" type="text">
 				<label>ON value</label>
-				<description>A number (like 1, 10) or a string (like ON) that is recognised as on state.</description>
-				<default>0</default>
+				<description>A number (like 1, 10) or a string (like enabled) that is recognised as on state. "ON" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
+				<default>1</default>
 				<advanced>true</advanced>
 			</parameter>
 			<parameter name="off" type="text">
 				<label>OFF value</label>
-				<description>A number (like 0, -10) or a string (like OFF) that is recognised as off state.</description>
-				<default>1</default>
+				<description>A number (like 0, -10) or a string (like disabled) that is recognised as off state. "OFF" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
+				<default>0</default>
 				<advanced>true</advanced>
 			</parameter>
 		</config-description>
@@ -198,16 +198,16 @@
 				<advanced>true</advanced>
 			</parameter>
 
-			<parameter name="open" type="text">
+			<parameter name="on" type="text">
 				<label>Open value</label>
-				<description>A number (like 1, 10) or a string (like "open") that is recognised as on state.</description>
-				<default>0</default>
+				<description>A number (like 1, 10) or a string (like "positionUp") that is recognised as open state. "OPEN" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
+				<default>1</default>
 				<advanced>true</advanced>
 			</parameter>
-			<parameter name="close" type="text">
+			<parameter name="off" type="text">
 				<label>Close value</label>
-				<description>A number (like 0, -10) or a string (like "close") that is recognised as off state.</description>
-				<default>1</default>
+				<description>A number (like 0, -10) or a string (like "positionDown") that is recognised as close state. "CLOSED" (case insensitive) will always be recognised. You can use this parameter for a second keyword.</description>
+				<default>0</default>
 				<advanced>true</advanced>
 			</parameter>
 		</config-description>
@@ -224,7 +224,7 @@
 			</parameter>
 			<parameter name="commandTopic" type="text">
 				<label>MQTT command topic</label>
-				<description>An MQTT topic that this thing will send a command to. This can be left empty which makes this channel read only. A read only channel cannot be set by you and only updates if the MQTT broker publishes a new value for the state topic.</description>
+				<description>An MQTT topic that this thing will send a command to. If not set, this will be a read-only channel.</description>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Incoming value transformation</label>
@@ -276,7 +276,7 @@
 			</parameter>
 			<parameter name="commandTopic" type="text">
 				<label>MQTT command topic</label>
-				<description>An MQTT topic that this thing will send a command to. This can be left empty which makes this channel read only. A read only channel cannot be set by you and only updates if the MQTT broker publishes a new value for the state topic.</description>
+				<description>An MQTT topic that this thing will send a command to. If not set, this will be a read-only channel.</description>
 			</parameter>
 			<parameter name="transformationPattern" type="text">
 				<label>Incoming value transformation</label>

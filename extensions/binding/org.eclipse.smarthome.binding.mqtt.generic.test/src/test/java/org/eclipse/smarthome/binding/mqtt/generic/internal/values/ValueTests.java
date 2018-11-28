@@ -13,13 +13,14 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.junit.Test;
@@ -92,25 +93,45 @@ public class ValueTests {
     @Test
     public void onoffUpdate() {
         OnOffValue v = new OnOffValue("fancyON", "fancyOff");
+        // Test with command
         assertThat(v.update(OnOffType.OFF), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(OnOffType.ON), is("fancyON"));
         assertThat(v.getValue(), is(OnOffType.ON));
 
+        // Test with string, representing the command
         assertThat(v.update(new StringType("OFF")), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(new StringType("ON")), is("fancyON"));
         assertThat(v.getValue(), is(OnOffType.ON));
 
-        assertThat(v.update(new StringType("0")), is("fancyOff"));
-        assertThat(v.getValue(), is(OnOffType.OFF));
-        assertThat(v.update(new StringType("1")), is("fancyON"));
-        assertThat(v.getValue(), is(OnOffType.ON));
-
+        // Test with custom string, setup in the constructor
         assertThat(v.update(new StringType("fancyOff")), is("fancyOff"));
         assertThat(v.getValue(), is(OnOffType.OFF));
         assertThat(v.update(new StringType("fancyON")), is("fancyON"));
         assertThat(v.getValue(), is(OnOffType.ON));
+    }
+
+    @Test
+    public void openCloseUpdate() {
+        OpenCloseValue v = new OpenCloseValue("fancyON", "fancyOff");
+        // Test with command
+        assertThat(v.update(OpenClosedType.CLOSED), is("fancyOff"));
+        assertThat(v.getValue(), is(OpenClosedType.CLOSED));
+        assertThat(v.update(OpenClosedType.OPEN), is("fancyON"));
+        assertThat(v.getValue(), is(OpenClosedType.OPEN));
+
+        // Test with string, representing the command
+        assertThat(v.update(new StringType("CLOSED")), is("fancyOff"));
+        assertThat(v.getValue(), is(OpenClosedType.CLOSED));
+        assertThat(v.update(new StringType("OPEN")), is("fancyON"));
+        assertThat(v.getValue(), is(OpenClosedType.OPEN));
+
+        // Test with custom string, setup in the constructor
+        assertThat(v.update(new StringType("fancyOff")), is("fancyOff"));
+        assertThat(v.getValue(), is(OpenClosedType.CLOSED));
+        assertThat(v.update(new StringType("fancyON")), is("fancyON"));
+        assertThat(v.getValue(), is(OpenClosedType.OPEN));
     }
 
     @Test
@@ -120,6 +141,17 @@ public class ValueTests {
         assertThat((PercentType) v.getValue(), is(new PercentType(100)));
         v.update(new DecimalType(10.0));
         assertThat((PercentType) v.getValue(), is(new PercentType(0)));
+    }
+
+    @Test
+    public void decimalCalc() {
+        NumberValue v = new NumberValue(true, new BigDecimal(0.1), new BigDecimal(1.0), new BigDecimal(0.1), true);
+        v.update(new DecimalType(1.0));
+        assertThat((PercentType) v.getValue(), is(new PercentType(100)));
+        v.update(new DecimalType(0.1));
+        assertThat((PercentType) v.getValue(), is(new PercentType(0)));
+        v.update(new DecimalType(0.2));
+        assertEquals(((PercentType) v.getValue()).floatValue(), 11.11f, 0.01f);
     }
 
     @Test(expected = IllegalArgumentException.class)

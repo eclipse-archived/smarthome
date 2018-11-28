@@ -41,7 +41,7 @@ import org.osgi.service.cm.ConfigurationException;
  *
  * @author David Graeff - Initial contribution
  */
-public class MQTTMultiBrokerTopicDiscoveryTest {
+public class MQTTTopicDiscoveryServiceTest {
     private ScheduledExecutorService scheduler;
 
     private MqttBrokerHandlerFactory subject;

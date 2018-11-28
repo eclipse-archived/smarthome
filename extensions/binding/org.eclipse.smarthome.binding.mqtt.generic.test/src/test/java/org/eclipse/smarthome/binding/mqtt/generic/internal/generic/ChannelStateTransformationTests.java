@@ -23,10 +23,6 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.naming.ConfigurationException;
 
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateTransformation;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -91,7 +87,7 @@ public class ChannelStateTransformationTests {
         doReturn(CompletableFuture.completedFuture(true)).when(connection).subscribe(any(), any());
         doReturn(CompletableFuture.completedFuture(true)).when(connection).unsubscribe(any(), any());
 
-        thingHandler = spy(new GenericThingHandler(thing, mock(MqttChannelTypeProvider.class),
+        thingHandler = spy(new GenericThingHandler(thing, mock(MqttChannelStateDescriptionProvider.class),
                 transformationServiceProvider, 1500));
         when(transformationServiceProvider.getTransformationService(anyString())).thenReturn(jsonPathService);
 

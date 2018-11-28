@@ -90,7 +90,7 @@ public class TextValue implements Value {
     }
 
     @Override
-    public String channelTypeID() {
+    public String getItemType() {
         return CoreItemFactory.STRING;
     }
 
