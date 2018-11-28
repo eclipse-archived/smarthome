@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * simulate a key trigger.
  *
  * <p>
- * <b>Depreaction notice:</b>
+ * <b>Deprecation notice:</b>
  * </p>
  * The trigger channel which is implemented here has two major drawbacks:
  * <ul>

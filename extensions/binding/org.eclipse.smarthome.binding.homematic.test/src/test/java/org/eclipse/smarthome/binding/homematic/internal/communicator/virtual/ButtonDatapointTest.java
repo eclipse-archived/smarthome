@@ -114,13 +114,10 @@ public class ButtonDatapointTest extends JavaTest {
     private HmDatapoint createPressDatapoint(String channelName, Object value) {
         HmDatapoint pressDp = new HmDatapoint(channelName, "", HmValueType.ACTION, value, true, HmParamsetType.VALUES);
         HmChannel hmChannel = new HmChannel(channelName, 1);
-        // HmDatapoint buttonVirtualDatapoint = new HmDatapoint(HomematicConstants.VIRTUAL_DATAPOINT_NAME_BUTTON, "",
-        // HmValueType.ACTION, Boolean.FALSE, true, HmParamsetType.VALUES);
         HmDevice device = new HmDevice("ABC12345", HmInterface.RF, "HM-MOCK", "mockid", "mockid", "mockfw");
         hmChannel.setDevice(device);
         device.addChannel(hmChannel);
         bvdpHandler.initialize(device);
-        // shortPressChannel.addDatapoint(buttonVirtualDatapoint);
 
         pressDp.setChannel(hmChannel);
 
