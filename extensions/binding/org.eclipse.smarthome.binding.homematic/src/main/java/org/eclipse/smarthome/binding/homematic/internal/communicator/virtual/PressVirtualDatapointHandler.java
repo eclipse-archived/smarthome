@@ -28,8 +28,22 @@ import org.slf4j.LoggerFactory;
  * A virtual String datapoint which adds a PRESS datapoint for each key with a PRESS_SHORT and PRESS_LONG datapoint to
  * simulate a key trigger.
  *
+ * <p>
+ * <b>Depreaction notice:</b>
+ * </p>
+ * The trigger channel which is implemented here has two major drawbacks:
+ * <ul>
+ * <li>It does not use the system channel, therefore it is specific to this binding.</li>
+ * <li>Homematic button devices generally do not send PRESSED_LONG before you release the key. Therefore the events
+ * LONG and LONG_RELEASE appear almost at the same time on PressVirtualDatapoint. Which means the LONG_RELEASE is
+ * not worth sending.</li>
+ * </ul>
+ * Summing up it is recommended to use {@link ButtonVirtualDatapointHandler} instead. However, for compatibility
+ * reasons this VirtualDatapoint is not removed yet.
+ *
  * @author Gerhard Riegler - Initial contribution
  */
+@Deprecated()
 public class PressVirtualDatapointHandler extends AbstractVirtualDatapointHandler {
     private final Logger logger = LoggerFactory.getLogger(PressVirtualDatapointHandler.class);
 
