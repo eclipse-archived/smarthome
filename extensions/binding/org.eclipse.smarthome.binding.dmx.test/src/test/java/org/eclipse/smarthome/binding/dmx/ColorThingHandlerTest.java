@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.*;
@@ -66,6 +66,7 @@ public class ColorThingHandlerTest extends AbstractDmxThingTest {
         thingProperties.put(CONFIG_DMX_ID, TEST_CHANNEL_CONFIG);
         thingProperties.put(CONFIG_DIMMER_FADE_TIME, TEST_FADE_TIME);
         thingProperties.put(CONFIG_DIMMER_TURNONVALUE, "255,128,0");
+        thingProperties.put(CONFIG_DIMMER_DYNAMICTURNONVALUE, true);
         dimmerThing = ThingBuilder.create(THING_TYPE_COLOR, "testdimmer").withLabel("Dimmer Thing")
                 .withBridge(bridge.getUID()).withConfiguration(new Configuration(thingProperties))
                 .withChannel(ChannelBuilder.create(CHANNEL_UID_BRIGHTNESS_R, "Brightness R")
@@ -128,6 +129,46 @@ public class ColorThingHandlerTest extends AbstractDmxThingTest {
             assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_R, state -> assertEquals(PercentType.ZERO, state));
             assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_G, state -> assertEquals(PercentType.ZERO, state));
             assertChannelStateUpdate(CHANNEL_UID_BRIGHTNESS_B, state -> assertEquals(PercentType.ZERO, state));
+        });
+    }
+
+    @Test
+    public void testDynamicTurnOnValue() {
+        long currentTime = System.currentTimeMillis();
+
+        // turn on with arbitrary value
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, TEST_COLOR);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getHue().doubleValue(), is(closeTo(280, 2))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getSaturation().doubleValue(), is(closeTo(100.0, 1))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getBrightness().doubleValue(), is(closeTo(100.0, 1))));
+        });
+
+        // turn off and hopefully store last value
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, OnOffType.OFF);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getBrightness().doubleValue(), is(closeTo(0.0, 1))));
+        });
+
+        // turn on and restore value
+        dimmerThingHandler.handleCommand(CHANNEL_UID_COLOR, OnOffType.ON);
+        currentTime = dmxBridgeHandler.calcBuffer(currentTime, TEST_FADE_TIME);
+
+        waitForAssert(() -> {
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getHue().doubleValue(), is(closeTo(280, 2))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getSaturation().doubleValue(), is(closeTo(100.0, 1))));
+            assertChannelStateUpdate(CHANNEL_UID_COLOR,
+                    state -> assertThat(((HSBType) state).getBrightness().doubleValue(), is(closeTo(100.0, 1))));
         });
     }
 

@@ -3,16 +3,16 @@
 	<!-- Dimmer -->
 	<thing-type id="tunablewhite">
 		<supported-bridge-type-refs>
-			<bridge-type-ref id="artnet-bridge"/>
-			<bridge-type-ref id="lib485-bridge"/>
-			<bridge-type-ref id="sacn-bridge"/>
+			<bridge-type-ref id="artnet-bridge" />
+			<bridge-type-ref id="lib485-bridge" />
+			<bridge-type-ref id="sacn-bridge" />
 		</supported-bridge-type-refs>
 		<label>DMX Tunable White Dimmer</label>
 		<description>A tunable white capable dimmer</description>
 		<channels>
-			<channel id="brightness" typeId="brightness"/>
-			<channel id="brightness_cw" typeId="brightness"/>
-			<channel id="brightness_ww" typeId="brightness"/>
+			<channel id="brightness" typeId="brightness" />
+			<channel id="brightness_cw" typeId="brightness" />
+			<channel id="brightness_ww" typeId="brightness" />
 			<channel id="color_temperature" typeId="color_temperature" />
 		</channels>
 		<config-description>
@@ -41,6 +41,12 @@
 				<label>Turn-Off value(s)</label>
 				<description>Format is "value[, value, ...]". If less values than channels are defined, they are reused from the beginning. </description>
 				<advanced>true</advanced>
+			</parameter>
+			<parameter name="dynamicturnonvalue" type="boolean">
+				<label>Dynamic Turn-On Value</label>
+				<description>If enabled, values are stored on OFF command and restored on ON command</description>
+				<required>false</required>
+				<default>false</default>
 			</parameter>
 		</config-description>
 	</thing-type>

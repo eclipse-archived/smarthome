@@ -140,6 +140,13 @@ public class ValueSet {
     }
 
     /**
+     * remove all elements from ValueSet
+     */
+    public void clear() {
+        values.clear();
+    }
+
+    /**
      * parse this value set from a string
      *
      * @param valueSetConfig a string holding a complete value set configuration fadeTime:value,value2,...:holdTime

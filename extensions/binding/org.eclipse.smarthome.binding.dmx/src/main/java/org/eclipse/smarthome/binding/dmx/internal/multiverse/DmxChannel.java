@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.binding.dmx.DmxBindingConstants.ListenerType;
+import org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.Util;
 import org.eclipse.smarthome.binding.dmx.internal.action.ActionState;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * handlers.
  *
  * @author Jan N. Klug - Initial contribution
- * @author Davy Vanherbergen
+ * @author Davy Vanherbergen - Initial contribution
  */
 public class DmxChannel extends BaseDmxChannel {
     public static final int MIN_VALUE = 0;

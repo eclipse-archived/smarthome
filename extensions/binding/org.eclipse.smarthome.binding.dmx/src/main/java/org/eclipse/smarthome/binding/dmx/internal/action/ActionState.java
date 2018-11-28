@@ -20,7 +20,7 @@ package org.eclipse.smarthome.binding.dmx.internal.action;
  * completed : action has completed, proceed to next action
  * completedfinal : action has completed, hold here
  *
- * @author Jan N. Klug
+ * @author Jan N. Klug - Initial contribution
  */
 public enum ActionState {
     WAITING,
