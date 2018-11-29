@@ -22,6 +22,7 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
+import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayConditionHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayTriggerHandler;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
     public static final String THREADPOOLNAME = "ruletimer";
     private static final Collection<String> TYPES = Arrays
             .asList(new String[] { GenericCronTriggerHandler.MODULE_TYPE_ID, TimeOfDayTriggerHandler.MODULE_TYPE_ID,
-                    DayOfWeekConditionHandler.MODULE_TYPE_ID });
+                    TimeOfDayConditionHandler.MODULE_TYPE_ID, DayOfWeekConditionHandler.MODULE_TYPE_ID });
 
     @Override
     @Deactivate
@@ -63,6 +64,8 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
             return new GenericCronTriggerHandler((Trigger) module);
         } else if (TimeOfDayTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
             return new TimeOfDayTriggerHandler((Trigger) module);
+        } else if (TimeOfDayConditionHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
+            return new TimeOfDayConditionHandler((Condition) module);
         } else if (DayOfWeekConditionHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
             return new DayOfWeekConditionHandler((Condition) module);
         } else {
