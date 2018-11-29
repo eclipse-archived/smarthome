@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.thing.profiles.TriggerProfile;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * The {@link RawRockerPlayPauseProfile} transforms rocker switch channel events into ON and OFF commands.
+ * The {@link RawRockerPlayPauseProfile} transforms rocker switch channel events into PLAY and PAUSE commands.
  *
  * @author Daniel Weber - Initial contribution
  */
