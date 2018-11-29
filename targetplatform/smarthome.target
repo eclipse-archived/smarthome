@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="SmartHome" sequenceNumber="133">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="SmartHome" sequenceNumber="134">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -137,8 +137,7 @@
 <unit id="org.eclipse.soda.dk.comm.aarch64" version="0.0.0"/>
 <unit id="org.eclipse.soda.dk.comm.armv6hf" version="0.0.0"/>
 <unit id="org.eclipse.soda.dk.comm.x86_64" version="0.0.0"/>
-<unit id="org.eclipse.paho.client.mqttv3" version="1.2.0"/>
-<unit id="org.eclipse.paho.client.mqttv3.source" version="1.2.0"/>
+<unit id="org.eclipse.paho.client.mqttv3" version="0.0.0"/>
 <repository location="http://eclipse.github.io/smarthome/third-party/target/repository"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
