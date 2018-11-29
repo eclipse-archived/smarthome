@@ -182,7 +182,7 @@
                 <artifact>
                   <id>org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0</id>
                   <transitive>false</transitive>
-                  <source>true</source>
+                  <source>false</source> <!-- the source artifact does not seem to have a valid signature-->
                 </artifact>
 
               </artifacts>
