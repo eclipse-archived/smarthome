@@ -15,6 +15,7 @@ package org.eclipse.smarthome.model.script.scoping;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.eclipse.smarthome.model.script.actions.Audio;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
+import org.eclipse.smarthome.model.script.actions.JodaTimeCompatibilityExtensions;
 import org.eclipse.smarthome.model.script.actions.Exec;
 import org.eclipse.smarthome.model.script.actions.HTTP;
 import org.eclipse.smarthome.model.script.actions.JavaTime;
@@ -80,6 +82,7 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(Audio.class);
         result.add(Voice.class);
         result.add(ThingAction.class);
+        result.add(JodaTimeCompatibilityExtensions.class);
         return result;
     }
 
@@ -102,6 +105,7 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
 
         // Curated set of java time static functions
         result.add(JavaTime.class);
+        result.add(ChronoUnit.class);
 
         result.addAll(getActionClasses());
         return result;

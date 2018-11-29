@@ -8,3 +8,11 @@ then
   DemoDateTime.postUpdate(new DateTimeType())
   DemoNumber.postUpdate(12.34)
 end
+
+rule "Test cron"
+when
+    Time cron "0/10 * * * * ?"
+then
+  logDebug("rule", "now = {} ({})", now, now.class.name)
+  logDebug("rule", "now.plusMillis(100) = {}", now.plusMillis(100))
+end
