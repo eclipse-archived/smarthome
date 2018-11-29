@@ -149,7 +149,7 @@ public class NumberValue implements Value {
     }
 
     @Override
-    public String channelTypeID() {
+    public String getItemType() {
         return isPercent ? CoreItemFactory.DIMMER : CoreItemFactory.NUMBER;
     }
 

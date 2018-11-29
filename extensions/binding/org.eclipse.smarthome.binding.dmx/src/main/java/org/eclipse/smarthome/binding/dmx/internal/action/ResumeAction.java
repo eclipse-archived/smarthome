@@ -17,8 +17,8 @@ import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 /**
  * Resume action. Restores previously suspended value or actions on an item.
  *
- * @author Davy Vanherbergen
- * @author Jan N. Klug
+ * @author Davy Vanherbergen - Initial contribution
+ * @author Jan N. Klug - Refactoring for ESH
  */
 public class ResumeAction extends BaseAction {
 

@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.handler;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import org.eclipse.smarthome.binding.dmx.DmxBindingConstants.ListenerType;
+import org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
 import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.Util;
@@ -66,6 +66,7 @@ public class DimmerThingHandler extends DmxThingHandler {
 
     private int fadeTime = 0, dimTime = 0;
 
+    private boolean dynamicTurnOnValue = false;
     private boolean isDimming = false;
 
     public DimmerThingHandler(Thing dimmerThing) {
@@ -85,7 +86,18 @@ public class DimmerThingHandler extends DmxThingHandler {
                     targetValueSet.addValue(brightness);
                 } else if (command instanceof OnOffType) {
                     logger.trace("adding {} fade to channels in thing {}", command, this.thing.getUID());
-                    targetValueSet = ((OnOffType) command).equals(OnOffType.ON) ? turnOnValue : turnOffValue;
+                    if (((OnOffType) command) == OnOffType.ON) {
+                        targetValueSet = turnOnValue;
+                    } else {
+                        if (dynamicTurnOnValue) {
+                            turnOnValue.clear();
+                            for (DmxChannel channel : channels) {
+                                turnOnValue.addValue(channel.getValue());
+                            }
+                            logger.trace("stored channel values fort next turn-on");
+                        }
+                        targetValueSet = turnOffValue;
+                    }
                 } else if (command instanceof IncreaseDecreaseType) {
                     if (isDimming && ((IncreaseDecreaseType) command).equals(IncreaseDecreaseType.INCREASE)) {
                         logger.trace("stopping fade in thing {}", this.thing.getUID());
@@ -141,7 +153,7 @@ public class DimmerThingHandler extends DmxThingHandler {
             }
         }
 
-        if (configuration.get(CONFIG_DMX_ID) == null) {
+        if (!configuration.containsKey(CONFIG_DMX_ID)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "DMX channel configuration missing");
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
@@ -160,17 +172,17 @@ public class DimmerThingHandler extends DmxThingHandler {
             return;
         }
 
-        if (configuration.get(CONFIG_DIMMER_FADE_TIME) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_FADE_TIME)) {
             fadeTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_FADE_TIME)).intValue();
             logger.debug("setting fadeTime to {} ms in {}", fadeTime, this.thing.getUID());
         }
 
-        if (configuration.get(CONFIG_DIMMER_DIM_TIME) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_DIM_TIME)) {
             dimTime = ((BigDecimal) configuration.get(CONFIG_DIMMER_DIM_TIME)).intValue();
             logger.trace("setting dimTime to {} ms in {}", fadeTime, this.thing.getUID());
         }
 
-        if (configuration.get(CONFIG_DIMMER_TURNONVALUE) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_TURNONVALUE)) {
             String turnOnValueString = String.valueOf(fadeTime) + ":"
                     + ((String) configuration.get(CONFIG_DIMMER_TURNONVALUE)) + ":-1";
             ValueSet turnOnValue = ValueSet.fromString(turnOnValueString);
@@ -185,7 +197,11 @@ public class DimmerThingHandler extends DmxThingHandler {
         }
         this.turnOnValue.setFadeTime(fadeTime);
 
-        if (configuration.get(CONFIG_DIMMER_TURNOFFVALUE) != null) {
+        if (configuration.containsKey(CONFIG_DIMMER_DYNAMICTURNONVALUE)) {
+            dynamicTurnOnValue = (Boolean) configuration.get(CONFIG_DIMMER_DYNAMICTURNONVALUE);
+        }
+
+        if (configuration.containsKey(CONFIG_DIMMER_TURNOFFVALUE)) {
             String turnOffValueString = String.valueOf(fadeTime) + ":"
                     + ((String) configuration.get(CONFIG_DIMMER_TURNOFFVALUE)) + ":-1";
             ValueSet turnOffValue = ValueSet.fromString(turnOffValueString);
@@ -199,6 +215,10 @@ public class DimmerThingHandler extends DmxThingHandler {
             }
         }
         this.turnOffValue.setFadeTime(fadeTime);
+
+        if (configuration.containsKey(CONFIG_DIMMER_DYNAMICTURNONVALUE)) {
+            dynamicTurnOnValue = (Boolean) configuration.get(CONFIG_DIMMER_DYNAMICTURNONVALUE);
+        }
 
         // register feedback listener
         channels.get(0).addListener(new ChannelUID(this.thing.getUID(), CHANNEL_BRIGHTNESS), this, ListenerType.VALUE);

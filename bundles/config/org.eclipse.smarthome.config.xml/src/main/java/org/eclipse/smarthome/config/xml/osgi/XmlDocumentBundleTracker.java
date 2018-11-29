@@ -26,6 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
@@ -52,11 +56,40 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues - Changed resource handling so that resources can be
  *         patched by fragments.
  * @author Simon Kaufmann - Tracking of remaining bundles
+ * @author Markus Rathgeb - Harden the usage
  *
- * @param <T>
- *            the result type of the conversion
+ * @param <T> the result type of the conversion
  */
 public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
+
+    /**
+     * Execute given method while take the lock and unlock before return.
+     *
+     * @param lock the lock that should be taken
+     * @param supplier the method to execute. The return value of this method is returned
+     * @return the return value of the supplier
+     */
+    private static <T> T withLock(final Lock lock, final Supplier<T> supplier) {
+        lock.lock();
+        try {
+            return supplier.get();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /*
+     * We use three open states, so we can ensure that open is only allowed to be called if the current state is
+     * "created" and cannot be called after a close.
+     * If the open is called asynchronously, there is a little chance that the serialized call hierarchy would be:
+     * create, close, open
+     * This can be handled correctly using three states and checking the transition.
+     */
+    private static enum OpenState {
+        CREATED,
+        OPENED,
+        CLOSED
+    };
 
     public static final String THREAD_POOL_NAME = "file-processing";
 
@@ -71,7 +104,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     private final Map<String, ReadyMarker> bundleReadyMarkerRegistrations = new ConcurrentHashMap<>();
     private final String readyMarkerKey;
 
-    private volatile boolean open = false;
+    private final ReadWriteLock lockOpenState = new ReentrantReadWriteLock();
+    private OpenState openState = OpenState.CREATED;
 
     @SuppressWarnings("rawtypes")
     private BundleTracker relevantBundlesTracker;
@@ -135,13 +169,23 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public final synchronized void open() {
-        open = true;
+        final OpenState openState = withLock(lockOpenState.writeLock(), () -> {
+            if (this.openState == OpenState.CREATED) {
+                this.openState = OpenState.OPENED;
+            }
+            return this.openState;
+        });
+        if (openState != OpenState.OPENED) {
+            logger.warn("Open XML document bundle tracker forbidden (state: {})", openState);
+            return;
+        }
 
         relevantBundlesTracker = new BundleTracker(context,
                 Bundle.RESOLVED | Bundle.STARTING | Bundle.STOPPING | Bundle.ACTIVE, null) {
             @Override
             public Object addingBundle(Bundle bundle, BundleEvent event) {
-                return open && isBundleRelevant(bundle) ? bundle : null;
+                return withLock(lockOpenState.readLock(),
+                        () -> openState == OpenState.OPENED && isBundleRelevant(bundle) ? bundle : null);
             }
         };
         relevantBundlesTracker.open();
@@ -151,7 +195,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     @Override
     public final synchronized void close() {
-        open = false;
+        withLock(lockOpenState.writeLock(), () -> openState = OpenState.CLOSED);
+
         clearQueue();
 
         super.close();
@@ -298,7 +343,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
      * @param bundle
      */
     private void addingBundle(Bundle bundle) {
-        if (!open) {
+        if (withLock(lockOpenState.readLock(), () -> openState != OpenState.OPENED)) {
             return;
         }
 
@@ -307,15 +352,16 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
             // http://bugs.java.com/view_bug.do?bug_id=8073755
             @Override
             public void run() {
-                if (open) {
-                    try {
-                        processBundle(bundle);
-                    } catch (final RuntimeException ex) {
-                        // Check if our OSGi instance is still active.
-                        // If the component has been deactivated while the execution hide the exception.
-                        if (open) {
-                            throw ex;
-                        }
+                if (withLock(lockOpenState.readLock(), () -> openState != OpenState.OPENED)) {
+                    return;
+                }
+                try {
+                    processBundle(bundle);
+                } catch (final RuntimeException ex) {
+                    // Check if our OSGi instance is still active.
+                    // If the component has been deactivated while the execution hide the exception.
+                    if (withLock(lockOpenState.readLock(), () -> openState == OpenState.OPENED)) {
+                        throw ex;
                     }
                 }
             }
@@ -362,6 +408,10 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
                 addingObject(bundle, object);
                 numberOfParsedXmlDocuments++;
             } catch (Exception ex) {
+                // If we are not open, we can stop here.
+                if (withLock(lockOpenState.readLock(), () -> openState != OpenState.OPENED)) {
+                    return;
+                }
                 logger.warn("The XML document '{}' in module '{}' could not be parsed: {}", xmlDocumentFile, moduleName,
                         ex.getLocalizedMessage(), ex);
             }

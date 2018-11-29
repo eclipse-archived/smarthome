@@ -8,6 +8,8 @@
 
 cp -f house.png             group.png
 cp -f house.svg             group.svg
+cp -f house.png             presence.png
+cp -f house.svg             presence.svg
 
 
 # Alternative Types

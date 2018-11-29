@@ -217,8 +217,9 @@ public class LightStateConverter {
      * @return HSB type representing the color
      */
     public static HSBType toHSBType(State lightState) {
-        return ColorMode.XY.equals(lightState.getColorMode()) ? fromXYtoHSBType(lightState)
-                : fromHSBtoHSBType(lightState);
+        // even if color mode is reported to be XY, xy field of lightState might be null, while hsb is available
+        boolean isInXYMode = ColorMode.XY.equals(lightState.getColorMode()) && lightState.getXY() != null;
+        return isInXYMode ? fromXYtoHSBType(lightState) : fromHSBtoHSBType(lightState);
     }
 
     private static HSBType fromHSBtoHSBType(State lightState) {

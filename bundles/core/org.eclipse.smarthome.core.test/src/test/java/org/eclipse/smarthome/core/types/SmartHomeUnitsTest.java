@@ -27,6 +27,8 @@ import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.library.dimension.ArealDensity;
+import org.eclipse.smarthome.core.library.dimension.Density;
+import org.eclipse.smarthome.core.library.dimension.Intensity;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
@@ -261,6 +263,30 @@ public class SmartHomeUnitsTest {
     public void testBar2Pascal() {
         Quantity<Pressure> bar = Quantities.getQuantity(BigDecimal.valueOf(1), SmartHomeUnits.BAR);
         assertThat(bar.to(SIUnits.PASCAL), is(Quantities.getQuantity(100000, SIUnits.PASCAL)));
+    }
+
+    @Test
+    public void testMicrogramPerCubicMeter2KilogramPerCubicMeter() {
+        Quantity<Density> one_kg_m3 = Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.KILOGRAM_PER_CUBICMETRE);
+        Quantity<Density> converted = one_kg_m3.to(SmartHomeUnits.MICROGRAM_PER_CUBICMETRE);
+        assertThat(converted.getValue().doubleValue(), is(closeTo(1000000000, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void testMicrogramPerCubicMeterUnitSymbol() {
+        assertThat(SmartHomeUnits.MICROGRAM_PER_CUBICMETRE.toString(), is("μg/m³"));
+    }
+
+    @Test
+    public void testMicrowattPerSquareCentimetre2KilogramPerSquareCentiMetre() {
+        Quantity<Intensity> one_mw_cm2 = Quantities.getQuantity(BigDecimal.ONE, SmartHomeUnits.IRRADIANCE);
+        Quantity<Intensity> converted = one_mw_cm2.to(SmartHomeUnits.MICROWATT_PER_SQUARE_CENTIMETRE);
+        assertThat(converted.getValue().doubleValue(), is(closeTo(0.01, DEFAULT_ERROR)));
+    }
+
+    @Test
+    public void testMicrowattPerSquareCentimetreUnitSymbol() {
+        assertThat(SmartHomeUnits.MICROWATT_PER_SQUARE_CENTIMETRE.toString(), is("μW/cm²"));
     }
 
 }

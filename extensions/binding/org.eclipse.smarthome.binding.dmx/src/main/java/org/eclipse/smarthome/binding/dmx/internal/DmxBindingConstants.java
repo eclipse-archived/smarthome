@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.dmx;
+package org.eclipse.smarthome.binding.dmx.internal;
 
 import java.util.Collections;
 import java.util.Set;
@@ -59,6 +59,7 @@ public class DmxBindingConstants {
     public static final String CONFIG_DIMMER_DIM_TIME = "dimtime";
     public static final String CONFIG_DIMMER_TURNONVALUE = "turnonvalue";
     public static final String CONFIG_DIMMER_TURNOFFVALUE = "turnoffvalue";
+    public static final String CONFIG_DIMMER_DYNAMICTURNONVALUE = "dynamicturnonvalue";
     public static final String CONFIG_CHASER_STEPS = "steps";
     public static final String CONFIG_CHASER_RESUME_AFTER = "resumeafter";
 

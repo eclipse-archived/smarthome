@@ -1,29 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="dmx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+<thing:thing-descriptions bindingId="dmx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 	<!-- Dimmer -->
 	<thing-type id="dimmer">
 		<supported-bridge-type-refs>
-			<bridge-type-ref id="artnet-bridge"/>
-			<bridge-type-ref id="lib485-bridge"/>
-			<bridge-type-ref id="sacn-bridge"/>
+			<bridge-type-ref id="artnet-bridge" />
+			<bridge-type-ref id="lib485-bridge" />
+			<bridge-type-ref id="sacn-bridge" />
 		</supported-bridge-type-refs>
 		<label>DMX Dimmer</label>
 		<description>A single/multi-channel dimmer</description>
 		<channels>
-			<channel id="brightness" typeId="brightness"/>
+			<channel id="brightness" typeId="brightness" />
 			<channel id="switch" typeId="switch" />
 		</channels>
 		<config-description>
-			<parameter name="dimmertype" type="text">
-				<label>Dimmer Type</label>
-				<description>Type of connected dimmer: normal, three-channel color light (RGB), two-channel tunable white (Tunable white)</description>
-				<options>
-					<option value="normal">Normal</option>
-					<option value="rgb">RGB</option>
-					<option value="tunablewhite">Tunable white</option>
-				</options>
-				<default>normal</default>
-			</parameter>
 			<parameter name="dmxid" type="text">
 				<label>DMX channel configuration</label>
 				<description>Format is channel[,channel, ...] or channel[/width]</description>
@@ -49,6 +41,12 @@
 				<label>Turn-Off value(s)</label>
 				<description>Format is "value[, value, ...]". If less values than channels are defined, they are reused from the beginning. </description>
 				<advanced>true</advanced>
+			</parameter>
+			<parameter name="dynamicturnonvalue" type="boolean">
+				<label>Dynamic Turn-On Value</label>
+				<description>If enabled, values are stored on OFF command and restored on ON command</description>
+				<required>false</required>
+				<default>false</default>
 			</parameter>
 		</config-description>
 	</thing-type>

@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelStateDescriptionProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
@@ -45,7 +46,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = ThingHandlerFactory.class)
 @NonNullByDefault
 public class MqttThingHandlerFactory extends BaseThingHandlerFactory implements TransformationServiceProvider {
-    private @Nullable MqttChannelTypeProvider provider;
+    private @NonNullByDefault({}) MqttChannelTypeProvider typeProvider;
+    private @NonNullByDefault({}) MqttChannelStateDescriptionProvider stateDescriptionProvider;
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Stream
             .of(MqttBindingConstants.GENERIC_MQTT_THING, MqttBindingConstants.HOMIE300_MQTT_THING,
                     MqttBindingConstants.HOMEASSISTANT_MQTT_THING)
@@ -69,28 +71,33 @@ public class MqttThingHandlerFactory extends BaseThingHandlerFactory implements 
     }
 
     @Reference
+    protected void setStateDescriptionProvider(MqttChannelStateDescriptionProvider stateDescription) {
+        this.stateDescriptionProvider = stateDescription;
+    }
+
+    protected void unsetStateDescriptionProvider(MqttChannelStateDescriptionProvider stateDescription) {
+        this.stateDescriptionProvider = null;
+    }
+
+    @Reference
     protected void setChannelProvider(MqttChannelTypeProvider provider) {
-        this.provider = provider;
+        this.typeProvider = provider;
     }
 
     protected void unsetChannelProvider(MqttChannelTypeProvider provider) {
-        this.provider = null;
+        this.typeProvider = null;
     }
 
     @Override
-    protected @Nullable ThingHandler createHandler(@Nullable Thing thing) {
-        MqttChannelTypeProvider provider = this.provider;
-        if (thing == null || provider == null) {
-            throw new IllegalStateException("No thing");
-        }
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(MqttBindingConstants.GENERIC_MQTT_THING)) {
-            return new GenericThingHandler(thing, provider, this, 1500);
+            return new GenericThingHandler(thing, stateDescriptionProvider, this, 1500);
         } else if (thingTypeUID.equals(MqttBindingConstants.HOMIE300_MQTT_THING)) {
-            return new HomieThingHandler(thing, provider, 1500, 200);
+            return new HomieThingHandler(thing, typeProvider, 1500, 200);
         } else if (thingTypeUID.equals(MqttBindingConstants.HOMEASSISTANT_MQTT_THING)) {
-            return new HomeAssistantThingHandler(thing, provider, 1500, 200);
+            return new HomeAssistantThingHandler(thing, typeProvider, 1500, 200);
         }
         return null;
     }

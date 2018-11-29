@@ -130,6 +130,10 @@ This value can be set individually for all DMX channels, the format is `value1,v
 If less values than DMX channels are defined, the values will be re-used from the beginning (i.e. if two values are defined, value1 will be used for channel1, channel3, ... and value2 will be used for channel2, channel4, ...).
 These values will be used if the thing receives an ON or OFF command. 
 
+The `dynamicturnonvalue` can be set to `true` or `false` (default).
+If enabled, thing overwrites the previous turn-on value with the current channel values.
+The next `ON` command uses these values instead of the default (or configuration supplied) values. 
+
 ### Color Thing (`color`)
 
 There is one mandatory configuration value for a dimmer thing.
@@ -150,6 +154,10 @@ They default to 255 (equals 100%) and 0 (equals 0%) respectively.
 This value can be set individually for all DMX channels, the format is `value1,value2, ...` with values from 0 to 255.
 If less values than DMX channels are defined, the values will be re-used from the beginning (i.e. if two values are defined, value1 will be used for channel1, channel3, ... and value2 will be used for channel2, channel4, ...).
 These values will be used if the thing receives an ON or OFF command. 
+
+The `dynamicturnonvalue` can be set to `true` or `false` (default).
+If enabled, thing overwrites the previous turn-on value with the current channel values.
+The next `ON` command uses these values instead of the default (or configuration supplied) values. 
 
 ### Tunable White Thing (`tunablewhite`)
 
@@ -172,6 +180,11 @@ They default to 255 (equals 100%) and 0 (equals 0%) respectively.
 This value can be set individually for all DMX channels, the format is `value1,value2, ...` with values from 0 to 255.
 If less values than DMX channels are defined, the values will be re-used from the beginning (i.e. if two values are defined, value1 will be used for channel1, channel3, ... and value2 will be used for channel2, channel4, ...). 
 These values will be used if the thing receives an ON or OFF command. 
+ 
+The `dynamicturnonvalue` can be set to `true` or `false` (default).
+If enabled, thing overwrites the previous turn-on value with the current channel values.
+The next `ON` command uses these values instead of the default (or configuration supplied) values. 
+ 
  
 ## Channels
 

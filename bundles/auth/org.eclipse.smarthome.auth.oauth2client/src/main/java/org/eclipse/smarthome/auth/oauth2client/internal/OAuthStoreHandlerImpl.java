@@ -38,7 +38,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,13 +79,9 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
     protected static final int ACCESS_TOKEN_CACHE_SIZE = 50;
     private static final String STORE_NAME = "StorageHandler.For.OAuthClientService";
     private static final String STORE_KEY_INDEX_OF_HANDLES = "INDEX_HANDLES";
-    private static final String EXCEPTION_STORAGE = "Unable to continue, storage is not available";
 
     private final Set<String> allHandles = new HashSet<>(); // must be initialized
-
-    // gets replaced if Store becomes available. storageFacade handles all the times when
-    // the actual storage becomes unavailable and locking issues.
-    private StorageFacade storageFacade = new StorageFacade(null);
+    private @NonNullByDefault({}) StorageFacade storageFacade;
 
     private final Set<StorageCipher> allAvailableStorageCiphers = new LinkedHashSet<>();
     private Optional<StorageCipher> storageCipher = Optional.empty();
@@ -107,9 +102,7 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
     }
 
     /**
-     * Deactivate and free resources. Never set the storageFacade to null
-     * as this will cause NullPointerExceptions. StorageFacade can internally
-     * handle removed storage.
+     * Deactivate and free resources.
      */
     @Deactivate
     public void deactivate() {
@@ -134,7 +127,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
     @Override
     public void saveAccessTokenResponse(@NonNull String handle, @Nullable AccessTokenResponse pAccessTokenResponse) {
         AccessTokenResponse accessTokenResponse = pAccessTokenResponse;
-        String storageKeyAccessToken = ACCESS_TOKEN_RESPONSE.getKey(handle);
         if (accessTokenResponse == null) {
             accessTokenResponse = new AccessTokenResponse(); // put empty
         }
@@ -150,7 +142,7 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
     }
 
     @Override
-    public void remove(@NonNull String handle) {
+    public void remove(String handle) {
         storageFacade.removeByHandle(handle);
     }
 
@@ -203,24 +195,18 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
         }
     }
 
-    /**
-     * Reference is optional -- basically the storage service may be removed during runtime.
-     * When it is removed, the service should still stay up for read-only operations.
-     *
-     * Using default ReferencePolicyOption.RELUCTANT, so it should not be called twice.
-     */
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    @Reference
     protected synchronized void setStorageService(StorageService storageService) {
-        Storage storage = storageService.getStorage(STORE_NAME);
-        storageFacade = new StorageFacade(storage);
+        storageFacade = new StorageFacade(storageService.getStorage(STORE_NAME));
     }
 
     protected synchronized void unsetStorageService(StorageService storageService) {
         storageFacade.close();
+        storageFacade = null;
     }
 
     /**
-     * Static policy -- dont want to change cipher on the fly!
+     * Static policy -- don't want to change cipher on the fly!
      * There may be multiple storage ciphers, choose the one that matches the target (done at activate)
      *
      */
@@ -246,18 +232,15 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
     }
 
     /**
-     * This is designed to simplify all the locking required for the store,
-     * which may get removed/ destroyed/ unavailable due to OSGi policy.
+     * This is designed to simplify all the locking required for the store.
      */
     private class StorageFacade implements AutoCloseable {
-        @Nullable
-        private volatile Storage<String> storage;
+        private final Storage<String> storage;
         private final Lock storageLock = new ReentrantLock(); // for all operations on the storage
         private final Gson gson;
 
-        public StorageFacade(@Nullable Storage<String> storage) {
+        public StorageFacade(Storage<String> storage) {
             this.storage = storage;
-
             // Add adapters for LocalDateTime
             gson = new GsonBuilder()
                     .registerTypeAdapter(LocalDateTime.class,
@@ -283,12 +266,9 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
             }
         }
 
-        public @Nullable String get(@NonNull String key) {
+        public @Nullable String get(String key) {
             storageLock.lock();
             try {
-                if (storage == null) {
-                    throw new IllegalStateException(EXCEPTION_STORAGE);
-                }
                 return storage.get(key);
             } finally {
                 storageLock.unlock();
@@ -298,10 +278,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
         public @Nullable Object get(String handle, StorageRecordType recordType) {
             storageLock.lock();
             try {
-                if (storage == null) {
-                    throw new IllegalStateException(EXCEPTION_STORAGE);
-                }
-
                 String value = storage.get(recordType.getKey(handle));
                 if (value == null) {
                     return null;
@@ -342,13 +318,9 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
             }
         }
 
-        public void put(String handle, LocalDateTime lastUsed) {
+        public void put(String handle, @Nullable LocalDateTime lastUsed) {
             storageLock.lock();
             try {
-                if (storage == null) {
-                    throw new IllegalStateException(EXCEPTION_STORAGE);
-                }
-
                 if (lastUsed == null) {
                     storage.put(LAST_USED.getKey(handle), (String) null);
                 } else {
@@ -363,10 +335,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
         public void put(String handle, @Nullable AccessTokenResponse accessTokenResponse) {
             storageLock.lock();
             try {
-                if (storage == null) {
-                    throw new IllegalStateException(EXCEPTION_STORAGE);
-                }
-
                 if (accessTokenResponse == null) {
                     storage.put(ACCESS_TOKEN_RESPONSE.getKey(handle), (String) null);
                 } else {
@@ -389,10 +357,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
         public void put(String handle, @Nullable PersistedParams persistedParams) {
             storageLock.lock();
             try {
-                if (storage == null) {
-                    throw new IllegalStateException(EXCEPTION_STORAGE);
-                }
-
                 if (persistedParams == null) {
                     storage.put(SERVICE_CONFIGURATION.getKey(handle), (String) null);
                 } else {
@@ -416,9 +380,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
             storageLock.lock();
             try {
                 if (allHandles.remove(handle)) { // entry exists and successfully removed
-                    if (storage == null) {
-                        throw new IllegalStateException(EXCEPTION_STORAGE);
-                    }
                     storage.remove(ACCESS_TOKEN_RESPONSE.getKey(handle));
                     storage.remove(LAST_USED.getKey(handle));
                     storage.remove(SERVICE_CONFIGURATION.getKey(handle));
@@ -446,11 +407,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
 
                 // if lockGained within timeout, then try to remove old entries
                 if (lockGained) {
-                    if (storage == null) {
-                        // no resources to release/ delete, just return.
-                        return;
-                    }
-
                     String handlesSSV = this.storage.get(STORE_KEY_INDEX_OF_HANDLES);
                     if (handlesSSV != null) {
                         String[] handles = handlesSSV.trim().split(" ");
@@ -468,8 +424,6 @@ public class OAuthStoreHandlerImpl implements OAuthStoreHandler {
                 // re-setting thread state to interrupted
                 Thread.currentThread().interrupt();
             } finally {
-                // force to remove the service no matter we got the lock or not
-                this.storage = null;
                 if (lockGained) {
                     try {
                         storageLock.unlock();

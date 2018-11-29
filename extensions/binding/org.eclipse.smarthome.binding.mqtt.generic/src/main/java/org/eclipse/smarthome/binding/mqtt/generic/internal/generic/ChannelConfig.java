@@ -25,6 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 @NonNullByDefault
 public class ChannelConfig {
+    /** This is either a state topic or a trigger topic, depending on {@link #trigger}. */
     public String stateTopic = "";
     public String commandTopic = "";
 
@@ -35,6 +36,7 @@ public class ChannelConfig {
     public boolean postCommand = false;
     /** If true publishes messages as retained messages */
     public boolean retained = false;
+    /** If true, the state topic will not update a state, but trigger a channel instead. */
     public boolean trigger = false;
     public String unit = "";
 

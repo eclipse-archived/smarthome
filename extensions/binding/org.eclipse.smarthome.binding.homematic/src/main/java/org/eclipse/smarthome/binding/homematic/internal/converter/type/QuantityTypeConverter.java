@@ -61,6 +61,11 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
 
     private QuantityType<? extends Quantity<?>> toUnitFromDatapoint(QuantityType<? extends Quantity<?>> type,
             HmDatapoint dp) {
+        if (dp == null || dp.getUnit() == null || dp.getUnit().isEmpty()) {
+            // datapoint is dimensionless, nothing to convert
+            return type;
+        }
+
         // convert the given QuantityType to a QuantityType with the unit of the target datapoint
         switch (dp.getUnit()) {
             case "minutes":
@@ -96,7 +101,8 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
         }
 
         // create a QuantityType from the datapoint's value based on the datapoint's unit
-        switch (dp.getUnit()) {
+        String unit = dp.getUnit() != null ? dp.getUnit() : "";
+        switch (unit) {
             case "°C":
                 return new QuantityType<Temperature>(number, SIUnits.CELSIUS);
             case "V":

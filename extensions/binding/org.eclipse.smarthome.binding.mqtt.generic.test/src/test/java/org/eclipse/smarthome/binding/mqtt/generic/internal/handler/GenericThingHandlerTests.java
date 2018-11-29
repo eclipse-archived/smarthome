@@ -23,7 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfig;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelConfigBuilder;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelStateDescriptionProvider;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.TextValue;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ValueFactory;
@@ -87,7 +88,8 @@ public class GenericThingHandlerTests {
         doReturn(CompletableFuture.completedFuture(true)).when(connection).publish(any(), any(), anyInt(),
                 anyBoolean());
 
-        thingHandler = spy(new GenericThingHandler(thing, mock(MqttChannelTypeProvider.class), null, 1500));
+        thingHandler = spy(new GenericThingHandler(thing, mock(MqttChannelStateDescriptionProvider.class),
+                mock(TransformationServiceProvider.class), 1500));
         thingHandler.setCallback(callback);
 
         // Return the bridge handler if the thing handler asks for it

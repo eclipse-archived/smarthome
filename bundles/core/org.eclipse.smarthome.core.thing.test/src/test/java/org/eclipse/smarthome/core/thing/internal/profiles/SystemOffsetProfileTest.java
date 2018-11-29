@@ -72,10 +72,10 @@ public class SystemOffsetProfileTest {
         State state = new DecimalType(23);
         offsetProfile.onStateUpdateFromItem(state);
 
-        ArgumentCaptor<Command> capture = ArgumentCaptor.forClass(Command.class);
-        verify(callback, times(1)).handleCommand(capture.capture());
+        ArgumentCaptor<State> capture = ArgumentCaptor.forClass(State.class);
+        verify(callback, times(1)).handleUpdate(capture.capture());
 
-        Command result = capture.getValue();
+        State result = capture.getValue();
         DecimalType decResult = (DecimalType) result;
         assertEquals(20, decResult.intValue());
     }
@@ -106,10 +106,10 @@ public class SystemOffsetProfileTest {
         State state = new QuantityType<Temperature>("23°C");
         offsetProfile.onStateUpdateFromItem(state);
 
-        ArgumentCaptor<Command> capture = ArgumentCaptor.forClass(Command.class);
-        verify(callback, times(1)).handleCommand(capture.capture());
+        ArgumentCaptor<State> capture = ArgumentCaptor.forClass(State.class);
+        verify(callback, times(1)).handleUpdate(capture.capture());
 
-        Command result = capture.getValue();
+        State result = capture.getValue();
         @SuppressWarnings("unchecked")
         QuantityType<Temperature> decResult = (QuantityType<Temperature>) result;
         assertEquals(20, decResult.intValue());

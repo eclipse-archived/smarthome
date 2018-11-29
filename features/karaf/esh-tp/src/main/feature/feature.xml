@@ -133,9 +133,9 @@
   </feature>
 
   <feature name="esh.tp-paho" description="MQTT v3 Client" version="${project.version}">
-    <capability>esh.tp;feature=paho;version=1.0.2</capability>
+    <capability>esh.tp;feature=paho;version=1.2.0</capability>
 
-    <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.0.2</bundle>
+    <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.2.0</bundle>
   </feature>
 
   <feature name="esh.tp-serial-javacomm" version="${project.version}">

@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.handler;
 
-import static org.eclipse.smarthome.binding.dmx.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 
 import java.util.Collections;
 import java.util.Set;

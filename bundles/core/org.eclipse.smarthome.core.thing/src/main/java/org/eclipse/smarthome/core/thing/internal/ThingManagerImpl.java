@@ -1208,6 +1208,11 @@ public class ThingManagerImpl
     @Override
     public void setEnabled(ThingUID thingUID, boolean enabled) {
         Thing thing = getThing(thingUID);
+        
+        if (thing == null) {
+            throw new IllegalArgumentException(String.format("Thing with the UID '%s' is unknown, cannot set its enabled status.", thingUID));
+        }
+        
         if (enabled) {
             // Enable a thing
             // Clear the disabled thing storage. Otherwise the handler will NOT be initialized later.
@@ -1256,6 +1261,11 @@ public class ThingManagerImpl
     @Override
     public boolean isEnabled(ThingUID thingUID) {
         Thing thing = getThing(thingUID);
+
+        if (thing == null) {
+            throw new IllegalArgumentException(String.format("Thing with the UID '%s' is unknown, cannot get its enabled status.", thingUID));
+        }
+        
         return thing.isEnabled();
     }
 

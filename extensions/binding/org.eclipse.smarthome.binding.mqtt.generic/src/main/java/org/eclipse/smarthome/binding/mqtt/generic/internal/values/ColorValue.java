@@ -141,7 +141,16 @@ public class ColorValue implements Value {
         } else if (offValue.equals(updatedValue)) {
             colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(0));
         } else if (updatedValue.indexOf(',') > 0) {
-            colorValue = new HSBType(updatedValue);
+            if (isRGB) {
+                String[] split = updatedValue.toString().split(",");
+                if (split.length != 3) {
+                    throw new IllegalArgumentException(updatedValue + " is not a valid RGB syntax");
+                }
+                colorValue = HSBType.fromRGB(Integer.parseInt(split[0]), Integer.parseInt(split[1]),
+                        Integer.parseInt(split[2]));
+            } else {
+                colorValue = new HSBType(updatedValue);
+            }
         } else { // single integer value
             colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(updatedValue));
         }
@@ -150,7 +159,7 @@ public class ColorValue implements Value {
     }
 
     @Override
-    public String channelTypeID() {
+    public String getItemType() {
         return CoreItemFactory.COLOR;
     }
 

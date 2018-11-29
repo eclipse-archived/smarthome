@@ -45,7 +45,7 @@ public interface OAuthStoreHandler {
     /**
      * Save the {@code AccessTokenResponse} by the handle
      *
-     * @param handle secure random string used as a handle/ reference to the OAuth client service, and the underlying
+     * @param handle unique string used as a handle/ reference to the OAuth client service, and the underlying
      *            access tokens, configs.
      * @param accessTokenResponse This can be null, which explicitly removes the AccessTokenResponse from store.
      */
@@ -54,7 +54,7 @@ public interface OAuthStoreHandler {
     /**
      * Remove the token for the given handler. No exception is thrown in all cases
      *
-     * @param handle secure random string used as a handle/ reference to the OAuth client service, and the underlying
+     * @param handle unique string used as a handle/ reference to the OAuth client service, and the underlying
      *            access tokens, configs.
      */
     void remove(String handle);
@@ -67,7 +67,7 @@ public interface OAuthStoreHandler {
     /**
      * Save the {@code PersistedParams} into the store
      *
-     * @param handle secure random string used as a handle/ reference to the OAuth client service, and the underlying
+     * @param handle unique string used as a handle/ reference to the OAuth client service, and the underlying
      *            access tokens, configs.
      * @param persistedParams These parameters are static with respect to the oauth provider and thus can be persisted.
      */
@@ -76,11 +76,10 @@ public interface OAuthStoreHandler {
     /**
      * Load the {@code PersistedParams} from the store
      *
-     * @param handle secure random string used as a handle/ reference to the OAuth client service, and the underlying
+     * @param handle unique string used as a handle/ reference to the OAuth client service, and the underlying
      *            access tokens, configs.
      * @return PersistedParams when available, null if not exist
      */
     @Nullable
     PersistedParams loadPersistedParams(String handle);
-
 }

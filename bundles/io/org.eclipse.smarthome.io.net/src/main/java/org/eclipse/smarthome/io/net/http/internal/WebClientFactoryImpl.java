@@ -129,14 +129,14 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("http client for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
-        return createHttpClientInternal(consumerName, endpoint, false);
+        return createHttpClientInternal(consumerName, endpoint, false, null);
     }
 
     @Override
     public HttpClient createHttpClient(String consumerName) {
         logger.debug("http client for consumer {} requested", consumerName);
         checkConsumerName(consumerName);
-        return createHttpClientInternal(consumerName, null, false);
+        return createHttpClientInternal(consumerName, null, false, null);
     }
 
     @Override
@@ -145,14 +145,14 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
         Objects.requireNonNull(endpoint, "endpoint must not be null");
         logger.debug("web socket client for endpoint {} requested", endpoint);
         checkConsumerName(consumerName);
-        return createWebSocketClientInternal(consumerName, endpoint, false);
+        return createWebSocketClientInternal(consumerName, endpoint, false, null);
     }
 
     @Override
     public WebSocketClient createWebSocketClient(String consumerName) {
         logger.debug("web socket client for consumer {} requested", consumerName);
         checkConsumerName(consumerName);
-        return createWebSocketClientInternal(consumerName, null, false);
+        return createWebSocketClientInternal(consumerName, null, false, null);
     }
 
     @Override
@@ -215,12 +215,12 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
                         }
 
                         if (commonHttpClient == null) {
-                            commonHttpClient = createHttpClientInternal("common", null, true);
+                            commonHttpClient = createHttpClientInternal("common", null, true, threadPool);
                             logger.debug("Jetty shared http client created");
                         }
 
                         if (commonWebSocketClient == null) {
-                            commonWebSocketClient = createWebSocketClientInternal("common", null, true);
+                            commonWebSocketClient = createWebSocketClientInternal("common", null, true, threadPool);
                             logger.debug("Jetty shared web socket client created");
                         }
 
@@ -239,7 +239,8 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
         }
     }
 
-    private HttpClient createHttpClientInternal(String consumerName, @Nullable String endpoint, boolean startClient) {
+    private HttpClient createHttpClientInternal(String consumerName, @Nullable String endpoint, boolean startClient,
+            @Nullable QueuedThreadPool threadPool) {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
@@ -247,11 +248,15 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
                     logger.debug("creating http client for consumer {}, endpoint {}", consumerName, endpoint);
 
                     HttpClient httpClient = new HttpClient(createSslContextFactory(endpoint));
-                    final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
-                            maxThreadsCustom, keepAliveTimeoutCustom);
-
                     httpClient.setMaxConnectionsPerDestination(2);
-                    httpClient.setExecutor(queuedThreadPool);
+
+                    if (threadPool != null) {
+                        httpClient.setExecutor(threadPool);
+                    } else {
+                        final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
+                                maxThreadsCustom, keepAliveTimeoutCustom);
+                        httpClient.setExecutor(queuedThreadPool);
+                    }
 
                     if (startClient) {
                         try {
@@ -277,7 +282,7 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     }
 
     private WebSocketClient createWebSocketClientInternal(String consumerName, @Nullable String endpoint,
-            boolean startClient) {
+            boolean startClient, @Nullable QueuedThreadPool threadPool) {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<WebSocketClient>() {
                 @Override
@@ -285,10 +290,13 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
                     logger.debug("creating web socket client for consumer {}, endpoint {}", consumerName, endpoint);
 
                     WebSocketClient webSocketClient = new WebSocketClient(createSslContextFactory(endpoint));
-                    final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
-                            maxThreadsCustom, keepAliveTimeoutCustom);
-
-                    webSocketClient.setExecutor(queuedThreadPool);
+                    if (threadPool != null) {
+                        webSocketClient.setExecutor(threadPool);
+                    } else {
+                        final QueuedThreadPool queuedThreadPool = createThreadPool(consumerName, minThreadsCustom,
+                                maxThreadsCustom, keepAliveTimeoutCustom);
+                        webSocketClient.setExecutor(queuedThreadPool);
+                    }
 
                     if (startClient) {
                         try {

@@ -146,8 +146,8 @@ public class ChannelState implements MqttMessageSubscriber {
                     channelStateUpdateListener.updateChannelState(channelUID, updatedState);
                 }
             } catch (IllegalArgumentException e) {
-                logger.warn("Incoming payload '{}' not supported by type '{}'", strvalue,
-                        value.getClass().getSimpleName(), e);
+                logger.warn("Incoming payload '{}' not supported by type '{}': {}", strvalue,
+                        value.getClass().getSimpleName(), e.getMessage());
             }
         }
 
@@ -172,7 +172,7 @@ public class ChannelState implements MqttMessageSubscriber {
      * Returns the channelType ID which also happens to be an item-type
      */
     public String getItemType() {
-        return value.channelTypeID();
+        return value.getItemType();
     }
 
     /**

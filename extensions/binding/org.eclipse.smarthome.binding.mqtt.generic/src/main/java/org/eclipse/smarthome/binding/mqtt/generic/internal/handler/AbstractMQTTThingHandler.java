@@ -21,8 +21,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.TransformationServiceProvider;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -63,18 +61,13 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public abstract class AbstractMQTTThingHandler extends BaseThingHandler implements ChannelStateUpdateListener {
     private final Logger logger = LoggerFactory.getLogger(AbstractMQTTThingHandler.class);
-    protected final @Nullable TransformationServiceProvider transformationServiceProvider;
-    protected final MqttChannelTypeProvider channelTypeProvider;
     // Timeout for the entire tree parsing and subscription
     private final int subscribeTimeout;
 
     protected @Nullable MqttBrokerConnection connection;
 
-    public AbstractMQTTThingHandler(Thing thing, MqttChannelTypeProvider provider,
-            @Nullable TransformationServiceProvider transformationServiceProvider, int subscribeTimeout) {
+    public AbstractMQTTThingHandler(Thing thing, int subscribeTimeout) {
         super(thing);
-        this.channelTypeProvider = provider;
-        this.transformationServiceProvider = transformationServiceProvider;
         this.subscribeTimeout = subscribeTimeout;
     }
 

@@ -66,6 +66,7 @@ public class XMLResponseProcessor {
         msgBodyMap.put("bass", XMLHandlerState.Bass);
         msgBodyMap.put("sources", XMLHandlerState.Sources);
         msgBodyMap.put("bassCapabilities", XMLHandlerState.BassCapabilities);
+        msgBodyMap.put("group", XMLHandlerState.Group);
 
         // info message states
         Map<String, XMLHandlerState> infoMap = new HashMap<>();
@@ -95,6 +96,7 @@ public class XMLResponseProcessor {
         updatesMap.put("zoneUpdated", XMLHandlerState.ZoneUpdated); // just notifies but dosn't provide details
         updatesMap.put("bassUpdated", XMLHandlerState.BassUpdated);
         updatesMap.put("presetsUpdated", XMLHandlerState.MsgBody);
+        updatesMap.put("groupUpdated", XMLHandlerState.MsgBody);
 
         Map<String, XMLHandlerState> volume = new HashMap<>();
         stateSwitchingMap.put(XMLHandlerState.Volume, volume);
@@ -150,6 +152,18 @@ public class XMLResponseProcessor {
         bassCapabilitiesMap.put("bassMin", XMLHandlerState.BassMin);
         bassCapabilitiesMap.put("bassMax", XMLHandlerState.BassMax);
         bassCapabilitiesMap.put("bassDefault", XMLHandlerState.BassDefault);
+        
+        Map<String, XMLHandlerState> groupsMap = new HashMap<>();
+        stateSwitchingMap.put(XMLHandlerState.Group, groupsMap);
+        groupsMap.put("name", XMLHandlerState.GroupName);
+        groupsMap.put("masterDeviceId", XMLHandlerState.MasterDeviceId);
+        groupsMap.put("roles", XMLHandlerState.Unprocessed);
+        groupsMap.put("senderIPAddress", XMLHandlerState.Unprocessed);
+        groupsMap.put("status", XMLHandlerState.Unprocessed);
+        groupsMap.put("roles", XMLHandlerState.Unprocessed);
+        groupsMap.put("groupRole", XMLHandlerState.Unprocessed);
+        groupsMap.put("deviceId", XMLHandlerState.DeviceId);
+        groupsMap.put("role", XMLHandlerState.Unprocessed);
+        groupsMap.put("ipAddress", XMLHandlerState.DeviceIp);
     }
-
 }

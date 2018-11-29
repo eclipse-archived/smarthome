@@ -31,6 +31,7 @@ public interface SystemProfiles {
     ProfileTypeUID RAWBUTTON_TOGGLE_SWITCH = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawbutton-toggle-switch");
     ProfileTypeUID RAWROCKER_ON_OFF = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-on-off");
     ProfileTypeUID RAWROCKER_DIMMER = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-dimmer");
+    ProfileTypeUID RAWROCKER_PLAY_PAUSE = new ProfileTypeUID(ProfileTypeUID.SYSTEM_SCOPE, "rawrocker-to-play-pause");
 
     StateProfileType DEFAULT_TYPE = ProfileTypeBuilder.newState(DEFAULT, "Default").build();
 
@@ -51,5 +52,9 @@ public interface SystemProfiles {
 
     TriggerProfileType RAWROCKER_DIMMER_TYPE = ProfileTypeBuilder.newTrigger(RAWROCKER_DIMMER, "Raw Rocker To Dimmer")
             .withSupportedItemTypes(CoreItemFactory.DIMMER)
+            .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
+    
+    TriggerProfileType RAWROCKER_PLAY_PAUSE_TYPE = ProfileTypeBuilder.newTrigger(RAWROCKER_PLAY_PAUSE, "Raw Rocker To Play/Pause")
+            .withSupportedItemTypes(CoreItemFactory.PLAYER)
             .withSupportedChannelTypeUIDs(DefaultSystemChannelTypeProvider.SYSTEM_RAWROCKER.getUID()).build();
 }

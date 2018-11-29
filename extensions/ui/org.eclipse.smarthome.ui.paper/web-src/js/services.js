@@ -277,11 +277,6 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
     }
 
     function getItemOptions(parameter) {
-        angular.forEach(parameter.options, function(option) {
-            if (!option.value && option.name) {
-                option.value = option.name;
-            }
-        });
         return itemRepository.getAll().then(function(items) {
             var filteredItems = filterByAttributes(items, parameter.filterCriteria);
             if (parameter.options && parameter.options.length > 0) {
@@ -289,17 +284,17 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             } else {
                 parameter.options = $filter('orderBy')(filteredItems, 'label');
             }
+            angular.forEach(parameter.options, function(option) {
+                if (!option.value && option.name) {
+                    option.value = option.name;
+                }
+            });
 
             return parameter;
         });
     }
 
     function getThingOptions(parameter) {
-        angular.forEach(parameter.options, function(option) {
-            if (!option.value && option.UID) {
-                option.value = option.UID;
-            }
-        });
         return thingRepository.getAll().then(function(things) {
             var filteredThings = filterByAttributes(things, parameter.filterCriteria);
             if (parameter.options && parameter.options.length > 0) {
@@ -307,17 +302,17 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             } else {
                 parameter.options = filteredThings;
             }
+            angular.forEach(parameter.options, function(option) {
+                if (!option.value && option.UID) {
+                    option.value = option.UID;
+                }
+            });
 
             return parameter;
         });
     }
 
     function getChannelOptions(parameter) {
-        angular.forEach(parameter.options, function(option) {
-            if (!option.value && option.id) {
-                option.value = option.id;
-            }
-        });
         return thingRepository.getAll().then(function(things) {
             var filteredChannels = getChannelsFromThings(things, parameter.filterCriteria);
             if (parameter.options && parameter.options.length > 0) {
@@ -325,6 +320,11 @@ angular.module('PaperUI.services', [ 'PaperUI.services.repositories', 'PaperUI.c
             } else {
                 parameter.options = filteredChannels;
             }
+            angular.forEach(parameter.options, function(option) {
+                if (!option.value && option.id) {
+                    option.value = option.id;
+                }
+            });
 
             return parameter;
         });
