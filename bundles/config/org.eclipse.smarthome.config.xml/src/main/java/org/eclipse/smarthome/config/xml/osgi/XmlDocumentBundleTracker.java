@@ -81,9 +81,9 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     /*
      * We use three open states, so we can ensure that open is only allowed to be called if the current state is
      * "created" and cannot be called after a close.
-     * If the open is called asynchron, there is a little change that the serialized call hierarchy would be:
+     * If the open is called asynchronously, there is a little chance that the serialized call hierarchy would be:
      * create, close, open
-     * This can be handled correctly using three states and check the transition.
+     * This can be handled correctly using three states and checking the transition.
      */
     private static enum OpenState {
         CREATED,
