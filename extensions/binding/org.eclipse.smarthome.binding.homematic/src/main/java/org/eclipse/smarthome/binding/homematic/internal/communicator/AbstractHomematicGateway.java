@@ -53,7 +53,6 @@ import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.Hmw
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.InstallModeDurationVirtualDatapoint;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.InstallModeVirtualDatapoint;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.OnTimeAutomaticVirtualDatapointHandler;
-import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.PressVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ReloadAllFromGatewayVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ReloadFromGatewayVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ReloadRssiVirtualDatapointHandler;
@@ -131,7 +130,6 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         virtualDatapointHandlers.add(new SignalStrengthVirtualDatapointHandler());
         virtualDatapointHandlers.add(new DisplayTextVirtualDatapoint());
         virtualDatapointHandlers.add(new HmwIoModuleVirtualDatapointHandler());
-        virtualDatapointHandlers.add(new PressVirtualDatapointHandler());
         virtualDatapointHandlers.add(new ButtonVirtualDatapointHandler());
     }
 

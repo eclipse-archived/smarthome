@@ -419,13 +419,6 @@ then
 end
 ```
 
-### ~~PRESS~~
-
-~~A virtual datapoint (String) to simulate a key press, available on all channels that contains PRESS_ datapoints.
-Available values: SHORT, LONG, LONG_RELEASE, CONT~~
-
-_The PRESS datapoint is still available, but it is recommended to use BUTTON instead._
-
 ### BUTTON
 
 A virtual datapoint (String) to simulate a key press, available on all channels that contains PRESS_ datapoints.
