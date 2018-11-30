@@ -8,6 +8,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.transform.scale
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Import-Package: 
+ javax.measure.quantity,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.i18n,

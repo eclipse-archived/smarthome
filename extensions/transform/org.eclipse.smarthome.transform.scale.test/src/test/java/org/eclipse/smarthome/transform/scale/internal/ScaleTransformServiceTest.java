@@ -16,6 +16,9 @@ import static org.junit.Assert.fail;
 
 import java.util.Locale;
 
+import javax.measure.quantity.Dimensionless;
+
+import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -101,6 +104,15 @@ public class ScaleTransformServiceTest {
     }
 
     @Test
+    public void testTransformByScaleErrorInValue() throws TransformationException {
+        // checks that an error is raised when trying to scale an erroneous value
+        String existingscale = "scale/evaluationorder.scale";
+        String source = "azerty";
+        String transformedResponse = processor.transform(existingscale, source);
+        Assert.assertEquals("", transformedResponse);
+    }
+
+    @Test
     public void testEvaluationOrder() throws TransformationException {
         // Ensures that only first matching scale as presented in the file is taken in account
         String evaluationOrder = "scale/evaluationorder.scale";
@@ -109,6 +121,16 @@ public class ScaleTransformServiceTest {
 
         String transformedResponse = processor.transform(evaluationOrder, source);
         Assert.assertEquals("first", transformedResponse);
+    }
+
+    @Test
+    public void testTransformQuantityType() throws TransformationException {
+        QuantityType<Dimensionless> airQuality = new QuantityType<>("992 ppm");
+        String aqScaleFile = "scale/netatmo_aq.scale";
+        String expected = "Qualité d'air correcte";
+
+        String transformedResponse = processor.transform(aqScaleFile, airQuality.toString());
+        Assert.assertEquals(expected, transformedResponse);
     }
 
 }
