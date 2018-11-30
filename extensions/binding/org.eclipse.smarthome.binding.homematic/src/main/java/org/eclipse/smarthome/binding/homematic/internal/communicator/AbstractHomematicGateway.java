@@ -43,6 +43,7 @@ import org.eclipse.smarthome.binding.homematic.internal.communicator.server.RpcE
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.RpcServer;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.server.XmlRpcServer;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.BatteryTypeVirtualDatapointHandler;
+import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ButtonVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.DeleteDeviceVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.DisplayOptionsVirtualDatapointHandler;
@@ -52,7 +53,6 @@ import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.Hmw
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.InstallModeDurationVirtualDatapoint;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.InstallModeVirtualDatapoint;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.OnTimeAutomaticVirtualDatapointHandler;
-import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.PressVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ReloadAllFromGatewayVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ReloadFromGatewayVirtualDatapointHandler;
 import org.eclipse.smarthome.binding.homematic.internal.communicator.virtual.ReloadRssiVirtualDatapointHandler;
@@ -130,7 +130,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         virtualDatapointHandlers.add(new SignalStrengthVirtualDatapointHandler());
         virtualDatapointHandlers.add(new DisplayTextVirtualDatapoint());
         virtualDatapointHandlers.add(new HmwIoModuleVirtualDatapointHandler());
-        virtualDatapointHandlers.add(new PressVirtualDatapointHandler());
+        virtualDatapointHandlers.add(new ButtonVirtualDatapointHandler());
     }
 
     public AbstractHomematicGateway(String id, HomematicConfig config, HomematicGatewayAdapter gatewayAdapter,

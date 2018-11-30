@@ -258,6 +258,8 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
             channelType = DefaultSystemChannelTypeProvider.SYSTEM_CHANNEL_LOW_BATTERY;
         } else if (dp.getName().equals(VIRTUAL_DATAPOINT_NAME_SIGNAL_STRENGTH)) {
             channelType = DefaultSystemChannelTypeProvider.SYSTEM_CHANNEL_SIGNAL_STRENGTH;
+        } else if (dp.getName().equals(VIRTUAL_DATAPOINT_NAME_BUTTON)) {
+            channelType = DefaultSystemChannelTypeProvider.SYSTEM_BUTTON;
         } else {
             String itemType = MetadataUtils.getItemType(dp);
             String category = MetadataUtils.getCategory(dp, itemType);
