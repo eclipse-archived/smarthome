@@ -24,7 +24,7 @@
    </description>
 
    <copyright>
-      Copyright (C) 2014-2016 the respective copyright holders
+      Copyright (C) 2014-2018 the respective copyright holders
    </copyright>
 
    <license url="%licenseURL">
@@ -33,6 +33,13 @@
 
    <plugin
          id="org.eclipse.smarthome.auth.jaas"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.auth.oauth2client"
          download-size="0"
          install-size="0"
          version="0.0.0"

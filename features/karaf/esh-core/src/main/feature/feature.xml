@@ -158,6 +158,11 @@
     <bundle>mvn:org.eclipse.smarthome.auth/org.eclipse.smarthome.auth.jaas/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-auth-oauth2client" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.auth/org.eclipse.smarthome.auth.oauth2client/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-automation-api" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.api/${project.version}</bundle>
