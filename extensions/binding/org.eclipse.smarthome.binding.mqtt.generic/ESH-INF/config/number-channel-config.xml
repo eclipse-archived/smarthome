@@ -30,14 +30,13 @@
 			<default>false</default>
 			<advanced>true</advanced>
 		</parameter>
-
 		<parameter name="step" type="decimal">
 			<label>Delta value</label>
 			<description>A number channel can receive Increase/Decrease commands and computes the target number by adding or subtracting this delta value.</description>
 			<default>10.0</default>
 			<advanced>true</advanced>
 		</parameter>
-		<parameter name="isFloat" type="boolean">
+		<parameter name="isDecimal" type="boolean">
 			<label>Is Decimal?</label>
 			<description>If enabled, the value will be published to the MQTT broker including the fractional part of the number and a dot as the decimal marker.</description>
 			<default>false</default>

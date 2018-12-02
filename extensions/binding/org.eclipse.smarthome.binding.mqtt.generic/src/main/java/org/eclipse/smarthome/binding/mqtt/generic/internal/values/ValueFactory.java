@@ -38,10 +38,10 @@ public class ValueFactory {
                         : new TextValue(config.allowedStates.split(","));
                 break;
             case MqttBindingConstants.NUMBER:
-                value = new NumberValue(config.isFloat, config.min, config.max, config.step, false);
+                value = new NumberValue(config.isDecimal, config.min, config.max, config.step, false);
                 break;
             case MqttBindingConstants.DIMMER:
-                value = new NumberValue(config.isFloat, config.min, config.max, config.step, true);
+                value = new NumberValue(config.isDecimal, config.min, config.max, config.step, true);
                 break;
             case MqttBindingConstants.COLOR_RGB:
                 value = new ColorValue(true, config.on, config.off);

@@ -106,7 +106,7 @@
 				<default>10.0</default>
 				<advanced>true</advanced>
 			</parameter>
-			<parameter name="isfloat" type="boolean">
+			<parameter name="isDecimal" type="boolean">
 				<label>Is Decimal?</label>
 				<description>If enabled, the value will be published to the MQTT broker including the fractional part of the number and a dot as the decimal marker.</description>
 				<default>false</default>

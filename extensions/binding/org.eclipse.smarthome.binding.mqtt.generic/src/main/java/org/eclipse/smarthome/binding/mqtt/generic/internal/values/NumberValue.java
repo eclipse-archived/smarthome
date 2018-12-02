@@ -39,14 +39,14 @@ public class NumberValue implements Value {
     private final double min;
     private final double max;
     private final double step;
-    private final Boolean isFloat;
+    private final Boolean isDecimal;
     private final boolean isPercent;
 
     private DecimalType numberValue;
 
-    public NumberValue(@Nullable Boolean isFloat, @Nullable BigDecimal min, @Nullable BigDecimal max,
+    public NumberValue(@Nullable Boolean isDecimal, @Nullable BigDecimal min, @Nullable BigDecimal max,
             @Nullable BigDecimal step, boolean isPercent) {
-        this.isFloat = isFloat == null ? false : isFloat;
+        this.isDecimal = isDecimal == null ? false : isDecimal;
         this.min = min == null ? 0.0 : min.doubleValue();
         this.max = max == null ? 100.0 : max.doubleValue();
         if (isPercent && this.min >= this.max) {
@@ -96,7 +96,7 @@ public class NumberValue implements Value {
                         "Type " + command.getClass().getName() + " not supported for PercentValue");
             }
 
-            if (isFloat) {
+            if (isDecimal) {
                 state = numberValue;
                 return numberValue.toString();
             } else {
@@ -131,7 +131,7 @@ public class NumberValue implements Value {
                         "Type " + command.getClass().getName() + " not supported for NumberValue");
             }
 
-            if (isFloat) {
+            if (isDecimal) {
                 state = numberValue;
                 return numberValue.toString();
             } else {
