@@ -236,9 +236,13 @@ public class ChannelState implements MqttMessageSubscriber {
      */
     public CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection, ScheduledExecutorService scheduler,
             int timeout) {
+        if (hasSubscribed) {
+            return CompletableFuture.completedFuture(null);
+        }
+        
         this.connection = connection;
         
-        if (hasSubscribed || StringUtils.isBlank(config.stateTopic)) {
+        if (StringUtils.isBlank(config.stateTopic)) {
             return CompletableFuture.completedFuture(null);
         }
 
