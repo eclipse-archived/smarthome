@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.service.ReadyService;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.util.BundleResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -44,6 +45,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Integrated Storage
  * @author Michael Grammling - Added dynamic configuration update
+ * @author Jan N. Klug - Added dynamic channel updates
  */
 @Component(immediate = true, service = { ThingProvider.class, ManagedThingProvider.class })
 public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, ThingUID>
@@ -148,12 +150,28 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
         if (!a.getUID().equals(b.getUID())) {
             return false;
         }
-        if (!a.getChannelTypeUID().equals(b.getChannelTypeUID())) {
+
+        ChannelTypeUID aChannelTypeUID = a.getChannelTypeUID();
+        ChannelTypeUID bChannelTypeUID = b.getChannelTypeUID();
+        if (aChannelTypeUID != null) {
+            if (!aChannelTypeUID.equals(bChannelTypeUID)) {
+                return false;
+            }
+        } else if (bChannelTypeUID != null) {
             return false;
         }
-        if (!a.getAcceptedItemType().equals(b.getAcceptedItemType())) {
+
+        String aAcceptedItemType = a.getAcceptedItemType();
+        String bAcceptedItemType = b.getAcceptedItemType();
+
+        if (aAcceptedItemType != null) {
+            if (!aAcceptedItemType.equals(bAcceptedItemType)) {
+                return false;
+            }
+        } else if (bAcceptedItemType != null) {
             return false;
         }
+
         return true;
     }
 
@@ -178,10 +196,11 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
                 Map<ChannelUID, Channel> storedChannels = storedThing.getChannels().stream()
                         .collect(Collectors.toMap(Channel::getUID, channel -> channel));
 
+                // check if we have new or updated channels
                 factoryChannels.forEach((factoryChannelUID, factoryChannel) -> {
                     if (!storedChannels.containsKey(factoryChannelUID)) {
                         thingBuilder.withChannel(factoryChannel);
-                        logger.trace("added channel {} to thing{}", factoryChannel, storedThing.getUID());
+                        logger.trace("added channel {} to thing {}", factoryChannel, storedThing.getUID());
                     } else {
                         if (!compareChannels(factoryChannel, storedThing.getChannel(factoryChannelUID.getId()))) {
                             thingBuilder.withoutChannel(factoryChannelUID).withChannel(factoryChannel);
@@ -189,8 +208,17 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
                         }
                     }
                 });
+
+                // check if we have removed channels
+                storedChannels.forEach((storedChannelUID, storedChannel) -> {
+                    if (!factoryChannels.containsKey(storedChannelUID)) {
+                        logger.trace("channel {} in thing {} no longer present in XML", storedChannel,
+                                storedThing.getUID());
+                    }
+                });
             }
             Thing newThing = thingBuilder.build();
+
             if (thingsList.contains(storedThing)) {
                 notifyListenersAboutUpdatedElement(storedThing, newThing);
                 logger.debug("updated {}", newThing.getUID());
