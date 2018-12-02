@@ -72,7 +72,7 @@ You can connect this channel to a String item.
 * __min__: An optional minimum value
 * __max__: An optional maximum value
 * __step__: For decrease, increase commands the step needs to be known
-* __isfloat__: If set to true the value is send as a decimal value, otherwise it is send as integer.
+* __isFloat__: If set to true the value is send as a decimal value, otherwise it is send as integer.
 
 If any of the parameters is a float/double (has a decimal point value), then a float value is send to the MQTT topic otherwise an int value is send.
 
