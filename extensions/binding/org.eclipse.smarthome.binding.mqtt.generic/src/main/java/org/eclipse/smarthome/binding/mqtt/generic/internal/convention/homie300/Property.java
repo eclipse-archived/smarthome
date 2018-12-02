@@ -172,18 +172,18 @@ public class Property implements AttributeChanged {
                 break;
             case float_:
             case integer_:
-                boolean isFloat = attributes.datatype == DataTypeEnum.float_;
+                boolean isDecimal = attributes.datatype == DataTypeEnum.float_;
                 String s[] = attributes.format.split("\\:");
                 BigDecimal min = s.length == 2 ? convertFromString(s[0]) : null;
                 BigDecimal max = s.length == 2 ? convertFromString(s[1]) : null;
                 BigDecimal step = (min != null && max != null)
-                        ? max.subtract(min).divide(new BigDecimal(100.0), new MathContext(isFloat ? 2 : 0))
+                        ? max.subtract(min).divide(new BigDecimal(100.0), new MathContext(isDecimal ? 2 : 0))
                         : null;
-                if (step != null && !isFloat && step.intValue() <= 0) {
+                if (step != null && !isDecimal && step.intValue() <= 0) {
                     step = new BigDecimal(1);
                 }
 
-                value = new NumberValue(isFloat, min, max, step, false);
+                value = new NumberValue(isDecimal, min, max, step, false);
                 break;
             case string_:
             case unknown:

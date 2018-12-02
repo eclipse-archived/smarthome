@@ -103,7 +103,7 @@ public class ThingChannelConstants {
         data.put("min", BigDecimal.valueOf(1));
         data.put("max", BigDecimal.valueOf(99));
         data.put("step", BigDecimal.valueOf(2));
-        data.put("isFloat", true);
+        data.put("isDecimal", true);
         return new Configuration(data);
     }
 
