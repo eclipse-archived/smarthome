@@ -13,11 +13,6 @@ The hereby configured broker connections make it possible to link MQTT topics to
 * Broker: This bridge represents a MQTT Broker connection, configured and managed by this binding.
 * SystemBroker: A system configured broker cannot be changed by this binding and will be listed as read-only system-broker.
 
-## Discovery
-
-A best-effort subnet port scanner allows to find running MQTT brokers in the same network segment.
-It scans the localhost and a /8 subnet on each IPv4 network interface for typical MQTT server ports on 1883 and 8883 (SSL).
-
 ## Bridge Configuration
  
 Required configuration parameters are:
