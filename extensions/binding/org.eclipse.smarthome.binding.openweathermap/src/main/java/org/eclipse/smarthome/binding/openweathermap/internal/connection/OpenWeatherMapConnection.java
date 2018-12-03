@@ -18,6 +18,7 @@ import static org.eclipse.jetty.http.HttpStatus.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +36,7 @@ import org.eclipse.smarthome.binding.openweathermap.internal.handler.OpenWeather
 import org.eclipse.smarthome.binding.openweathermap.internal.model.OpenWeatherMapJsonDailyForecastData;
 import org.eclipse.smarthome.binding.openweathermap.internal.model.OpenWeatherMapJsonHourlyForecastData;
 import org.eclipse.smarthome.binding.openweathermap.internal.model.OpenWeatherMapJsonWeatherData;
+import org.eclipse.smarthome.binding.openweathermap.internal.utils.ByteArrayFileCache;
 import org.eclipse.smarthome.core.cache.ExpiringCacheMap;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.library.types.RawType;
@@ -57,7 +59,9 @@ public class OpenWeatherMapConnection {
 
     private final Logger logger = LoggerFactory.getLogger(OpenWeatherMapConnection.class);
 
-    private static final String UTF_8_ENCODING = "UTF-8";
+    private static final String PROPERTY_MESSAGE = "message";
+
+    private static final String PNG_CONTENT_TYPE = "image/png";
 
     private static final String PARAM_APPID = "appid";
     private static final String PARAM_UNITS = "units";
@@ -73,13 +77,13 @@ public class OpenWeatherMapConnection {
     // 16 day / daily forecast (see https://openweathermap.org/forecast16)
     private static final String DAILY_FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast/daily";
     // Weather icons (see https://openweathermap.org/weather-conditions)
-    private static final String ICON_URL = "https://openweathermap.org/img/w/";
+    private static final String ICON_URL = "https://openweathermap.org/img/w/%s.png";
 
     private final OpenWeatherMapAPIHandler handler;
     private final HttpClient httpClient;
 
-    private static final ExpiringCacheMap<String, @Nullable RawType> IMAGE_CACHE = new ExpiringCacheMap<>(
-            TimeUnit.DAYS.toMillis(7));
+    private static final ByteArrayFileCache IMAGE_CACHE = new ByteArrayFileCache(
+            "org.eclipse.smarthome.binding.openweathermap");
     private final ExpiringCacheMap<String, String> cache;
 
     private final JsonParser parser = new JsonParser();
@@ -158,17 +162,31 @@ public class OpenWeatherMapConnection {
                 OpenWeatherMapJsonDailyForecastData.class);
     }
 
-    public static @Nullable RawType getWeatherIcon(String iconKey) {
-        if (StringUtils.isEmpty(iconKey)) {
-            throw new IllegalArgumentException("Cannot download weather icon as icon key is null.");
+    /**
+     * Downloads the icon for the given icon id (see https://openweathermap.org/weather-conditions).
+     *
+     * @param iconId the id of the icon
+     * @return the weather icon as {@link RawType}
+     */
+    public static @Nullable RawType getWeatherIcon(String iconId) {
+        if (StringUtils.isEmpty(iconId)) {
+            throw new IllegalArgumentException("Cannot download weather icon as icon id is null.");
         }
 
-        return downloadWeatherIconFromCache(ICON_URL + iconKey + ".png");
+        return downloadWeatherIconFromCache(String.format(ICON_URL, iconId));
     }
 
     private static @Nullable RawType downloadWeatherIconFromCache(String url) {
-        // TODO store / cache icon file in a local folder
-        return IMAGE_CACHE.putIfAbsentAndGet(url, () -> downloadWeatherIcon(url));
+        if (IMAGE_CACHE.containsKey(url)) {
+            return new RawType(IMAGE_CACHE.get(url), PNG_CONTENT_TYPE);
+        } else {
+            RawType image = downloadWeatherIcon(url);
+            if (image != null) {
+                IMAGE_CACHE.put(url, image.getBytes());
+                return image;
+            }
+        }
+        return null;
     }
 
     private static @Nullable RawType downloadWeatherIcon(String url) {
@@ -206,7 +224,7 @@ public class OpenWeatherMapConnection {
 
     private String encodeParam(String value) {
         try {
-            return URLEncoder.encode(value, UTF_8_ENCODING);
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             logger.debug("UnsupportedEncodingException occurred during execution: {}", e.getLocalizedMessage(), e);
             return StringUtils.EMPTY;
@@ -265,8 +283,8 @@ public class OpenWeatherMapConnection {
 
     private String getErrorMessage(String response) {
         JsonObject jsonResponse = parser.parse(response).getAsJsonObject();
-        if (jsonResponse.has("message")) {
-            return jsonResponse.get("message").getAsString();
+        if (jsonResponse.has(PROPERTY_MESSAGE)) {
+            return jsonResponse.get(PROPERTY_MESSAGE).getAsString();
         }
         return response;
     }
