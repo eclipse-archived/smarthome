@@ -41,7 +41,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * @author Ana Dimova - Initial contribution and API
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Benedikt Niehues - validation of connection-types respects inheriting types
- * @author Ana Dimova - new reference syntax: array[index], list[index], map["key"], bean.field
+ * @author Ana Dimova - new reference syntax: list[index], map["key"], bean.field
  *
  */
 public class ConnectionValidator {

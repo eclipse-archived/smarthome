@@ -602,7 +602,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
     private <T extends WrappedModule<?, ?>> @Nullable String setModuleHandlers(String rUID, List<T> modules) {
-        StringBuffer sb = null;
+        StringBuilder sb = null;
         for (T mm : modules) {
             final Module m = mm.unwrap();
             try {
@@ -617,7 +617,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                     }
                 } else {
                     if (sb == null) {
-                        sb = new StringBuffer();
+                        sb = new StringBuilder();
                     }
                     String message = "Missing handler '" + m.getTypeUID() + "' for module '" + m.getId() + "'";
                     sb.append(message).append("\n");
@@ -625,7 +625,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
                 }
             } catch (Throwable t) {
                 if (sb == null) {
-                    sb = new StringBuffer();
+                    sb = new StringBuilder();
                 }
                 String message = "Getting handler '" + m.getTypeUID() + "' for module '" + m.getId() + "' failed: "
                         + t.getMessage();

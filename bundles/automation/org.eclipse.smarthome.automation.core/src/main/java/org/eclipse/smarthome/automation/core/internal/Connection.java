@@ -29,7 +29,7 @@ import org.eclipse.smarthome.automation.type.Output;
  * defined by id of the module and name of the output.
  *
  * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - new reference syntax: array[index], list[index], map["key"], bean.field
+ * @author Ana Dimova - new reference syntax: list[index], map["key"], bean.field
  */
 @NonNullByDefault
 public final class Connection {
@@ -42,8 +42,8 @@ public final class Connection {
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
      *
-     * @param reference
      * @param inputName is an unique id of the {@code Input} in scope of the {@link Module}.
+     * @param reference the reference tokens of this connection
      */
     public Connection(String inputName, String reference) {
         this(inputName, null, null, Objects.requireNonNull(reference, "Configuration Reference can't be null."));
@@ -52,9 +52,10 @@ public final class Connection {
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
      *
-     * @param inputName      is an unique name of the {@code Input} in scope of the {@link Module}.
+     * @param inputName is an unique name of the {@code Input} in scope of the {@link Module}.
      * @param outputModuleId is an unique id of the {@code Module} in scope of the {@link Rule}.
-     * @param outputName     is an unique name of the {@code Output} in scope of the {@link Module}.
+     * @param outputName is an unique name of the {@code Output} in scope of the {@link Module}.
+     * @param reference the reference tokens of this connection
      */
     public Connection(String inputName, @Nullable String outputModuleId, @Nullable String outputName,
             @Nullable String reference) {
@@ -114,7 +115,9 @@ public final class Connection {
             sb.append(outputName);
         }
         if (reference != null) {
+            sb.append("(");
             sb.append(reference);
+            sb.append(")");
         }
         sb.append("->");
         sb.append(inputName);
