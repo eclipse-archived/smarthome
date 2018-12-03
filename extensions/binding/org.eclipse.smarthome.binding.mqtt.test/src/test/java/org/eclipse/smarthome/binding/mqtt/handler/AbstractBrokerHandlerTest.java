@@ -17,7 +17,10 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Collections;
+
 import org.eclipse.smarthome.binding.mqtt.internal.MqttThingID;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
@@ -54,9 +57,11 @@ public class AbstractBrokerHandlerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         doReturn(MqttThingID.getThingUID(HOST, PORT)).when(thing).getUID();
+        doReturn(new Configuration(Collections.singletonMap("brokerid", MqttThingID.getThingUID(HOST, PORT).getId())))
+                .when(thing).getConfiguration();
         handler = new SystemBrokerHandler(thing, service);
         handler.setCallback(callback);
-        assertThat(handler.brokerID, is(MqttThingID.getThingID(HOST, PORT)));
+        assertThat(handler.getThing().getConfiguration().get("brokerid"), is(MqttThingID.getThingID(HOST, PORT)));
         stateChangeCounter = 0;
     }
 
