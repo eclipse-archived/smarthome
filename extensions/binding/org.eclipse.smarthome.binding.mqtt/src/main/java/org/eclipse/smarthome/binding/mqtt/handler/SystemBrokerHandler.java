@@ -49,6 +49,8 @@ public class SystemBrokerHandler extends AbstractBrokerHandler implements MqttSe
 
     protected final MqttService service;
 
+    protected String brokerID = "";
+
     public SystemBrokerHandler(Bridge thing, MqttService service) {
         super(thing);
         this.service = service;
@@ -113,6 +115,7 @@ public class SystemBrokerHandler extends AbstractBrokerHandler implements MqttSe
 
     @Override
     public void initialize() {
+        this.brokerID = getThing().getConfiguration().get("brokerid").toString();
         service.addBrokersListener(this);
 
         connection = service.getBrokerConnection(brokerID);
