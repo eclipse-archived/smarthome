@@ -490,21 +490,6 @@ angular.module('PaperUI.things') //
             $scope.getThing(false);
         });
     }
-
-    $scope.isEnabled = function() {
-        return $scope.thing && $scope.thing.statusInfo.statusDetail !== 'DISABLED';
-    }
-
-    $scope.toggleEnabled = function() {
-        var enable = !$scope.isEnabled();
-
-        thingService.enable({
-            thingUID : $scope.thing.UID
-        }, enable).$promise.then(function() {
-            toastService.showDefaultToast('Thing ' + (enable ? 'enabled' : 'disabled'));
-        });
-    }
-
 }).controller('AddChannelController', function($scope, $mdDialog, toastService, channelTypeRepository, configService, thingService, thingType, thing) {
     $scope.channelTypes = []
     $scope.parameters = undefined
