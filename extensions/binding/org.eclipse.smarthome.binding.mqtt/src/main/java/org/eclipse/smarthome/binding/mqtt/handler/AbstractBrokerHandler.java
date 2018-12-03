@@ -34,8 +34,6 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionState;
 import org.eclipse.smarthome.io.transport.mqtt.MqttService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This base implementation handles connection changes of the {@link MqttBrokerConnection}
@@ -46,9 +44,8 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements MqttConnectionObserver {
-    private final Logger logger = LoggerFactory.getLogger(AbstractBrokerHandler.class);
+
     public static int TIMEOUT_DEFAULT = 1200; /* timeout in milliseconds */
-    protected final String brokerID;
     final Map<ChannelUID, PublishTriggerChannel> channelStateByChannelUID = new HashMap<>();
 
     @NonNullByDefault({})
@@ -57,7 +54,6 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
 
     public AbstractBrokerHandler(Bridge thing) {
         super(thing);
-        this.brokerID = thing.getUID().getId();
     }
 
     @Override
