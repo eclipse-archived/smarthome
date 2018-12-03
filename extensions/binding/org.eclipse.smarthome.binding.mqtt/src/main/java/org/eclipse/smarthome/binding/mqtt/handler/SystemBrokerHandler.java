@@ -46,6 +46,7 @@ public class SystemBrokerHandler extends AbstractBrokerHandler implements MqttSe
     public static final String PROPERTY_RECONNECT_TIME = "reconnect_time_ms";
     public static final String PROPERTY_KEEP_ALIVE_TIME = "keep_alive_time_ms";
     public static final String PROPERTY_CONNECT_TIMEOUT = "connect_timeout_ms";
+    protected String brokerID = "";
 
     protected final MqttService service;
 
@@ -113,6 +114,7 @@ public class SystemBrokerHandler extends AbstractBrokerHandler implements MqttSe
 
     @Override
     public void initialize() {
+        this.brokerID = getConfiguration().get("brokerid");
         service.addBrokersListener(this);
 
         connection = service.getBrokerConnection(brokerID);
