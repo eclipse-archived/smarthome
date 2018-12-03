@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements MqttConnectionObserver {
     private final Logger logger = LoggerFactory.getLogger(AbstractBrokerHandler.class);
     public static int TIMEOUT_DEFAULT = 1200; /* timeout in milliseconds */
-    protected final String brokerID;
     final Map<ChannelUID, PublishTriggerChannel> channelStateByChannelUID = new HashMap<>();
 
     @NonNullByDefault({})
@@ -57,7 +56,6 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
 
     public AbstractBrokerHandler(Bridge thing) {
         super(thing);
-        this.brokerID = thing.getUID().getId();
     }
 
     @Override
