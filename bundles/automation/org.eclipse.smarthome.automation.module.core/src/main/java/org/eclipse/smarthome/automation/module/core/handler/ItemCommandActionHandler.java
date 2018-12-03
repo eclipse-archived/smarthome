@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Benedikt Niehues - Initial contribution and API
  * @author Kai Kreuzer - refactored and simplified customized module handling
+ * @author Stefan Triller - use command from input first and if not set, use command from configuration
  *
  */
 public class ItemCommandActionHandler extends BaseModuleHandler<Action> implements ActionHandler {
@@ -102,10 +103,21 @@ public class ItemCommandActionHandler extends BaseModuleHandler<Action> implemen
     public Map<String, Object> execute(Map<String, Object> inputs) {
         String itemName = (String) module.getConfiguration().get(ITEM_NAME);
         String command = (String) module.getConfiguration().get(COMMAND);
-        if (itemName != null && command != null && eventPublisher != null && itemRegistry != null) {
+
+        if (itemName != null && eventPublisher != null && itemRegistry != null) {
             try {
                 Item item = itemRegistry.getItem(itemName);
-                Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
+
+                Command commandObj = null;
+                Object cmd = inputs.get(COMMAND);
+
+                if (cmd instanceof Command) {
+                    if (item.getAcceptedCommandTypes().contains(cmd.getClass())) {
+                        commandObj = (Command) cmd;
+                    }
+                } else {
+                    commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
+                }
                 if (commandObj != null) {
                     ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
                     logger.debug("Executing ItemCommandAction on Item {} with Command {}",
