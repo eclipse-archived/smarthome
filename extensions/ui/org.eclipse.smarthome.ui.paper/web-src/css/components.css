@@ -1015,6 +1015,10 @@ md-chips strong {
 	outline: 0;
 }
 
+.thing.disabled .description {
+    color: grey;
+}
+
 .material-icons.color-remove {
 	font-size: 12px;
 	margin-top: 10px;

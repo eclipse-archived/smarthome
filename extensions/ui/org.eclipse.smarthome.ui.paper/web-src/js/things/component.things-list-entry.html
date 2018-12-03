@@ -1,4 +1,4 @@
-<div class="thing fab-item text-left" data-thing-uid="{{$ctrl.thing.UID}}" ng-click="$ctrl.navigateTo('view/' + $ctrl.thing.UID)">
+<div class="thing fab-item text-left" data-thing-uid="{{$ctrl.thing.UID}}" ng-click="$ctrl.navigateTo('view/' + $ctrl.thing.UID)" ng-class="{'disabled' : !$ctrl.isEnabled()}">
 	<div class="circle">{{$ctrl.thing.thingTypeUID?$ctrl.thing.thingTypeUID.split(':')[1].substring(0,1).toUpperCase():''}}</div>
 	<div class="cbody item-content">
 		<div class="description">
