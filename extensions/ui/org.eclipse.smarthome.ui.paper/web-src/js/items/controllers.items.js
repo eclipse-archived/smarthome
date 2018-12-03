@@ -217,7 +217,8 @@ angular.module('PaperUI.items')//
             if (splitValue.length > 1) {
                 $scope.item['function'].params = [ splitValue[1], splitValue[2] ];
             }
-
+        } else {
+            delete $scope.item.groupType;
         }
         if ($scope.item['function'] && !$scope.item['function'].name) {
             $scope.item['function'] = null;
