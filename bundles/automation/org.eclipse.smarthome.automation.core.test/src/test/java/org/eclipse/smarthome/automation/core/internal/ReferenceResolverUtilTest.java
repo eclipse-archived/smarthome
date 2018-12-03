@@ -152,22 +152,16 @@ public class ReferenceResolverUtilTest {
     }
 
     @Test
-    public void testGetFromArray() {
+    public void testGetFromList() {
         String ken = "Ken";
-        String[] names = { "John", ken, "Sue" };
+        List<String> names = Arrays.asList("John", ken, "Sue");
         Assert.assertEquals(ken,
                 ReferenceResolver.resolveComplexDataReference(names, ReferenceResolver.splitReferenceToTokens("[1]")));
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
-    public void testGetFromArrayInvalidIndex() {
-        String[] names = { "John", "Ken", "Sue" };
-        ReferenceResolver.resolveComplexDataReference(names, ReferenceResolver.splitReferenceToTokens("[10]"));
-    }
-
     @Test(expected = NumberFormatException.class)
-    public void testGetFromArrayInvalidIndexFormat() {
-        String[] names = { "John", "Ken", "Sue" };
+    public void testGetFromListInvalidIndexFormat() {
+        List<String> names = Arrays.asList("John", "Ken", "Sue");
         ReferenceResolver.resolveComplexDataReference(names, ReferenceResolver.splitReferenceToTokens("[Ten]"));
     }
 
@@ -250,15 +244,14 @@ public class ReferenceResolverUtilTest {
     }
 
     @Test()
-    public void testGetBeanFieldFromArray() {
+    public void testGetBeanFieldFromList() {
         String name = "John";
         B1<String> b31 = new B1<>("Ken");
         B1<String> b32 = new B1<>("Sue");
         B1<String> b33 = new B1<>(name);
-        @SuppressWarnings("rawtypes")
-        B1[] b = { b31, b32, b33 };
-        Assert.assertArrayEquals(name.toCharArray(), (char[]) ReferenceResolver.resolveComplexDataReference(b,
-                ReferenceResolver.splitReferenceToTokens("[2].value.value")));
+        List<B1<String>> b = Arrays.asList(b31, b32, b33);
+        Assert.assertEquals(name, ReferenceResolver.resolveComplexDataReference(b,
+                ReferenceResolver.splitReferenceToTokens("[2].value")));
     }
 
     public class B1<T> {

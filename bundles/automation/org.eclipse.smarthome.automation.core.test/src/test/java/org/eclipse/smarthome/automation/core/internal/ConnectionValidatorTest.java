@@ -12,7 +12,7 @@ public class ConnectionValidatorTest {
         Assert.assertTrue(Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "$name"));
         Assert.assertTrue(Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "${name}"));
         Assert.assertTrue(Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "moduleId.outputName"));
-        Assert.assertTrue(Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.array[1].name.values"));
+        Assert.assertTrue(Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.list[1].name.values"));
         Assert.assertTrue(
                 Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module1.map[\"na[m}.\"e\"][1].values_1-2"));
     }
@@ -31,13 +31,13 @@ public class ConnectionValidatorTest {
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "$name.values"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "moduleId.outputName."));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "[1].name.values"));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "array.[1]name.values"));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "list.[1]name.values"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, ".module.array[1].name.values"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module1.map\"na[m}.\"e\"]"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.map[\"na[m}.\"e\""));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.array[1.name"));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.array1].name"));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.array[1].name."));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.list[1.name"));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.list1].name"));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.list[1].name."));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module[\"name\"]"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module.[name]"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.CONNECTION_PATTERN, "module[\"name]"));
@@ -85,12 +85,12 @@ public class ConnectionValidatorTest {
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "]phones"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "phones[].name"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "phones[\"\"].name"));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "array.[1]name.values"));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "list.[1]name.values"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, ".map\"na[m}.\"e\"]"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.map[\"na[m}.\"e\""));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.array[1.name"));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.array1].name"));
-        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.array[1].name."));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.list[1.name"));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.list1].name"));
+        Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.list[1].name."));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module[\"name\"]"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module.[name]"));
         Assert.assertTrue(!Pattern.matches(ConnectionValidator.OUTPUT_REFERENCE_PATTERN, "module[\"name]"));

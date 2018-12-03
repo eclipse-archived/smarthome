@@ -60,7 +60,7 @@ public class ConnectionValidator {
      */
     public static void validateConnections(ModuleTypeRegistry mtRegistry, Rule r) {
         if (r == null) {
-            throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
+            throw new IllegalArgumentException("Validation of rule has failed! Rule must not be null!");
         }
         validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
     }
@@ -70,9 +70,9 @@ public class ConnectionValidator {
      * there unconnected required inputs and compatibility of data types of connected inputs and outputs. Throws
      * exception if they are incompatible.
      *
-     * @param triggers   is a list with triggers of the rule whose connections have to be validated
+     * @param triggers is a list with triggers of the rule whose connections have to be validated
      * @param conditions is a list with conditions of the rule whose connections have to be validated
-     * @param actions    is a list with actions of the rule whose connections have to be validated
+     * @param actions is a list with actions of the rule whose connections have to be validated
      * @throws IllegalArgumentException when validation fails.
      */
     public static void validateConnections(ModuleTypeRegistry mtRegistry,
@@ -95,9 +95,9 @@ public class ConnectionValidator {
      * unconnected required inputs and compatibility of data types of connected inputs and outputs. Throws exception if
      * they are incompatible.
      *
-     * @param action   is an Action module whose connections have to be validated
+     * @param action is an Action module whose connections have to be validated
      * @param triggers is a list with triggers of the rule on which the action belongs
-     * @param actions  is a list with actions of the rule on which the action belongs
+     * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateActionConnections(ModuleTypeRegistry mtRegistry, Action action,
@@ -142,9 +142,9 @@ public class ConnectionValidator {
      * exception if they are incompatible.
      *
      * @param connection that should be validated
-     * @param input      that should be validated
-     * @param triggers   is a list with triggers of the rule on which the action belongs
-     * @param actions    is a list with actions of the rule on which the action belongs
+     * @param input that should be validated
+     * @param triggers is a list with triggers of the rule on which the action belongs
+     * @param actions is a list with actions of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
@@ -174,7 +174,7 @@ public class ConnectionValidator {
      * incompatible.
      *
      * @param condition is a Condition module whose connections have to be validated
-     * @param triggers  is a list with triggers of the rule on which the condition belongs
+     * @param triggers is a list with triggers of the rule on which the condition belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, @NonNull Condition condition,
@@ -219,8 +219,8 @@ public class ConnectionValidator {
      * exception if they are incompatible.
      *
      * @param connection that should be validated
-     * @param input      that should be validated
-     * @param triggers   is a list with triggers of the rule on which the action belongs
+     * @param input that should be validated
+     * @param triggers is a list with triggers of the rule on which the action belongs
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkConnection(ModuleTypeRegistry mtRegistry, Connection connection, Input input,
@@ -251,10 +251,10 @@ public class ConnectionValidator {
      * Checks the compatibility of data types of the input and connected output. Throws
      * exception if they are incompatible.
      *
-     * @param msg        message should be extended with an information and thrown as exception when validation fails.
+     * @param msg message should be extended with an information and thrown as exception when validation fails.
      * @param connection that should be validated
-     * @param input      that should be validated
-     * @param outputs    list with outputs of the module connected to the given input
+     * @param input that should be validated
+     * @param outputs list with outputs of the module connected to the given input
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkCompatibility(String msg, Connection connection, Input input, List<Output> outputs) {
@@ -302,7 +302,7 @@ public class ConnectionValidator {
      * @param inputs the map of input references of the module.
      * @return collected set of Connections.
      * @throws IllegalArgumentException if there is a value in the {@code inputs} map with an invalid format for a
-     *                                  connection.
+     *             connection.
      */
     public static Set<Connection> getConnections(Map<String, String> inputs) {
         Set<Connection> connections = new HashSet<>();

@@ -12,7 +12,6 @@
  */
 package org.eclipse.smarthome.automation.core.util;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +59,7 @@ import org.slf4j.Logger;
  * </ul>
  *
  * @author Vasil Ilchev - Initial Contribution
- * @author Ana Dimova - new reference syntax: array[index], list[index], map["key"], bean.field
+ * @author Ana Dimova - new reference syntax: list[index], map["key"], bean.field
  */
 public class ReferenceResolver {
 
@@ -75,7 +74,7 @@ public class ReferenceResolver {
      * try to find values for ${firstName} and ${lastName} in the given context and replace them. References that are
      * not found in the context - are not replaced.
      *
-     * @param module  module that is directly part of Rule or part of CompositeModule
+     * @param module module that is directly part of Rule or part of CompositeModule
      * @param context containing Rule configuration or Composite configuration values.
      */
     public static void updateConfiguration(Configuration config, Map<String, ?> context, Logger logger) {
@@ -116,7 +115,7 @@ public class ReferenceResolver {
     /**
      * Resolves Composite child module's references to CompositeModule context (inputs and configuration).
      *
-     * @param module           Composite Module's child module.
+     * @param module Composite Module's child module.
      * @param compositeContext Composite Module's context
      * @return context for given module ready for execution.
      */
@@ -147,7 +146,7 @@ public class ReferenceResolver {
      * Resolves single reference '${singleReference}' from given context.
      *
      * @param reference single reference expression for resolving
-     * @param context   contains the values that will be used for reference resolving
+     * @param context contains the values that will be used for reference resolving
      * @return resolved value.
      */
     public static Object resolveReference(String reference, Map<String, ?> context) {
@@ -200,7 +199,7 @@ public class ReferenceResolver {
      * will not stop resolving the remaining references(if there are) in the configuration property value)
      *
      * @param reference a pattern expression for resolving
-     * @param context   contains the values that will be used for reference resolving
+     * @param context contains the values that will be used for reference resolving
      * @return the resolved reference.
      */
     private static String resolvePattern(String reference, Map<String, ?> context, Logger logger) {
@@ -257,7 +256,7 @@ public class ReferenceResolver {
     /**
      * Gets the end of current token of reference path.
      *
-     * @param ref        reference path used to access value in bean or map objects
+     * @param ref reference path used to access value in bean or map objects
      * @param startIndex starting point to check for next tokens
      * @return end of current token.
      */
@@ -274,8 +273,8 @@ public class ReferenceResolver {
 
     /**
      * Splits a given reference to tokens.<br>
-     * The reference must have the following syntax: array[index], list[index], map["key"], bean.field.<br>
-     * It is possible to chain references in one bigger expression. For example: {@code array[1].name.values}.
+     * The reference must have the following syntax: list[index], map["key"], bean.field.<br>
+     * It is possible to chain references in one bigger expression. For example: {@code list[1].name.values}.
      *
      * @param reference the reference that should be split
      * @return array of the tokens in the reference
@@ -306,30 +305,29 @@ public class ReferenceResolver {
     /**
      * Gets an object by given hierarchical path of tokens.
      *
-     * @param object bean, map, list or array
+     * @param object bean, map or list
      * @param tokens a sequence of field names, indexes, or keys that represent the hierarchical path to the required
-     *               object
+     *            object
      * @return the value of the object to witch the hierarchical path is pointing.
      *
-     * @throws IllegalArgumentException       if one of the tokens point to field that is not existing or the tokens is
-     *                                        null array or the object is null
-     * @throws SecurityException              If a security manager, <i>s</i>, is present and any of the following
-     *                                        conditions is met:
-     *                                        <ul>
-     *                                        <li>the caller's class loader is not the same as the class loader of this
-     *                                        class and invocation of {@link SecurityManager#checkPermission
-     *                                        s.checkPermission} method with
-     *                                        {@code RuntimePermission("accessDeclaredMembers")} denies access to the
-     *                                        declared field</li>
-     *                                        <li>the caller's class loader is not the same as or an ancestor of the
-     *                                        class loader for the current class and invocation of
-     *                                        {@link SecurityManager#checkPackageAccess s.checkPackageAccess()} denies
-     *                                        access to the package of this class</li>
-     *                                        </ul>
-     * @throws ArrayIndexOutOfBoundsException if one of the tokens represent a invalid index in array or list.
-     * @throws NullPointerException           if the path references something in a non existing map entry.
-     * @throws NumberFormatException          if one of the tokens is accessing array and the token that represent the
-     *                                        index can't be converted to integer.
+     * @throws IllegalArgumentException if one of the tokens point to field that is not existing or the object is null
+     * @throws SecurityException If a security manager, <i>s</i>, is present and any of the following
+     *             conditions is met:
+     *             <ul>
+     *             <li>the caller's class loader is not the same as the class loader of this
+     *             class and invocation of {@link SecurityManager#checkPermission
+     *             s.checkPermission} method with
+     *             {@code RuntimePermission("accessDeclaredMembers")} denies access to the
+     *             declared field</li>
+     *             <li>the caller's class loader is not the same as or an ancestor of the
+     *             class loader for the current class and invocation of
+     *             {@link SecurityManager#checkPackageAccess s.checkPackageAccess()} denies
+     *             access to the package of this class</li>
+     *             </ul>
+     * @throws ArrayIndexOutOfBoundsException if one of the tokens represent a invalid index in the list.
+     * @throws NullPointerException if the path references something in a non existing map entry.
+     * @throws NumberFormatException if one of the tokens is accessing a list and the token that represent the
+     *             index can't be converted to integer.
      */
     public static Object resolveComplexDataReference(Object object, String... tokens)
             throws IllegalArgumentException, SecurityException {
@@ -340,21 +338,18 @@ public class ReferenceResolver {
             return object;
         }
         try {
+            Object obj = object;
             for (String token : tokens) {
-                if (object instanceof Map) {
-                    object = getValueFromMap(((Map<?, ?>) object), token);
-                } else if (object instanceof List) {
-                    object = getValueFromList(((List<?>) object), Integer.parseInt(token));
+                if (obj instanceof Map) {
+                    obj = getValueFromMap(((Map<?, ?>) obj), token);
+                } else if (obj instanceof List) {
+                    obj = getValueFromList(((List<?>) obj), Integer.parseInt(token));
                 } else {
-                    final Class<?> objClass = object.getClass();
-                    if (objClass.isArray()) {
-                        object = getValueFromArray(object, Integer.parseInt(token));
-                    } else {
-                        object = getValueFromBean(objClass, object, token);
-                    }
+                    final Class<?> objClass = obj.getClass();
+                    obj = getValueFromBean(objClass, obj, token);
                 }
             }
-            return object;
+            return obj;
         } catch (NoSuchFieldException e) {
             throw new IllegalArgumentException("Invalid reference path. A field from the reference path doesn't exist",
                     e);
@@ -367,10 +362,6 @@ public class ReferenceResolver {
 
     private static Object getValueFromList(List<?> list, int index) {
         return list.get(index);
-    }
-
-    private static Object getValueFromArray(Object array, int index) {
-        return Array.get(array, index);
     }
 
     private static Object getValueFromBean(Class<?> objClass, Object bean, String fieldName)
