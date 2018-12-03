@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.THING_TYPE_BRIDGE;
 import static org.eclipse.smarthome.config.discovery.inbox.InboxPredicates.forThingTypeUID;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
@@ -155,7 +155,7 @@ public class HueBridgeNupnpDiscoveryOSGITest extends JavaOSGiTest {
     @Test
     public void bridgeThingTypeIsSupported() {
         assertThat(sut.getSupportedThingTypes().size(), is(1));
-        assertThat(sut.getSupportedThingTypes().iterator().next(), is(HueBindingConstants.THING_TYPE_BRIDGE));
+        assertThat(sut.getSupportedThingTypes().iterator().next(), is(THING_TYPE_BRIDGE));
     }
 
     @Test

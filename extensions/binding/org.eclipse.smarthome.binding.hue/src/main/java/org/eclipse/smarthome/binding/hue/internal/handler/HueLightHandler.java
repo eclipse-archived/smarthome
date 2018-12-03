@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.hue.handler;
+package org.eclipse.smarthome.binding.hue.internal.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.*;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.hue.internal.FullHueObject;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 import org.eclipse.smarthome.binding.hue.internal.State;
@@ -142,7 +143,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     private synchronized void initializeProperties() {
         if (!propertiesInitializedSuccessfully) {
-            FullLight fullLight = getLight();
+            FullHueObject fullLight = getLight();
             if (fullLight != null) {
                 String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
                 updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
@@ -151,7 +152,10 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (vendor != null) {
                     updateProperty(Thing.PROPERTY_VENDOR, vendor);
                 }
-                updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
+                String uniqueID = fullLight.getUniqueID();
+                if (uniqueID != null) {
+                    updateProperty(UNIQUE_ID, uniqueID);
+                }
                 isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
                 propertiesInitializedSuccessfully = true;
             }
@@ -169,12 +173,12 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public void dispose() {
-        logger.debug("Handler disposes. Unregistering listener.");
+        logger.debug("Hue light handler disposes. Unregistering listener.");
         if (lightId != null) {
             HueClient bridgeHandler = getHueClient();
             if (bridgeHandler != null) {
                 bridgeHandler.unregisterLightStatusListener(this);
-                this.hueClient = null;
+                hueClient = null;
             }
             lightId = null;
         }
@@ -368,20 +372,20 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     protected synchronized @Nullable HueClient getHueClient() {
-        if (this.hueClient == null) {
+        if (hueClient == null) {
             Bridge bridge = getBridge();
             if (bridge == null) {
                 return null;
             }
             ThingHandler handler = bridge.getHandler();
             if (handler instanceof HueClient) {
-                this.hueClient = (HueClient) handler;
-                this.hueClient.registerLightStatusListener(this);
+                hueClient = (HueClient) handler;
+                hueClient.registerLightStatusListener(this);
             } else {
                 return null;
             }
         }
-        return this.hueClient;
+        return hueClient;
     }
 
     @Override

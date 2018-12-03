@@ -12,8 +12,9 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -23,9 +24,13 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
-import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueLightDiscoveryService;
+import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
+import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler;
+import org.eclipse.smarthome.binding.hue.internal.handler.sensors.DimmerSwitchHandler;
+import org.eclipse.smarthome.binding.hue.internal.handler.sensors.LightLevelHandler;
+import org.eclipse.smarthome.binding.hue.internal.handler.sensors.PresenceHandler;
+import org.eclipse.smarthome.binding.hue.internal.handler.sensors.TemperatureHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -44,15 +49,17 @@ import org.osgi.service.component.annotations.Component;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Kai Kreuzer - added supportsThingType method
  * @author Andre Fuechsel - implemented to use one discovery service per bridge
- *
+ * @author Samuel Leisering - Added support for sensor API
+ * @author Christoph Weitkamp - Added support for sensor API
  */
 @NonNullByDefault
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.hue")
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
-
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream
-            .concat(HueBridgeHandler.SUPPORTED_THING_TYPES.stream(), HueLightHandler.SUPPORTED_THING_TYPES.stream())
-            .collect(Collectors.toSet());
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(Stream
+            .of(HueBridgeHandler.SUPPORTED_THING_TYPES.stream(), HueLightHandler.SUPPORTED_THING_TYPES.stream(),
+                    DimmerSwitchHandler.SUPPORTED_THING_TYPES.stream(), PresenceHandler.SUPPORTED_THING_TYPES.stream(),
+                    TemperatureHandler.SUPPORTED_THING_TYPES.stream(), LightLevelHandler.SUPPORTED_THING_TYPES.stream())
+            .flatMap(i -> i).collect(Collectors.toSet()));
 
     private final Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
@@ -61,11 +68,17 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             @Nullable ThingUID thingUID, @Nullable ThingUID bridgeUID) {
         if (HueBridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return super.createThing(thingTypeUID, configuration, thingUID, null);
-        }
-        if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+        } else if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
             return super.createThing(thingTypeUID, configuration, hueLightUID, bridgeUID);
+        } else if (DimmerSwitchHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)
+                || PresenceHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)
+                || TemperatureHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)
+                || LightLevelHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            ThingUID hueSensorUID = getSensorUID(thingTypeUID, thingUID, configuration, bridgeUID);
+            return super.createThing(thingTypeUID, configuration, hueSensorUID, bridgeUID);
         }
+
         throw new IllegalArgumentException("The thing type " + thingTypeUID + " is not supported by the hue binding.");
     }
 
@@ -79,12 +92,24 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         if (thingUID != null) {
             return thingUID;
         } else {
-            String lightId = (String) configuration.get(LIGHT_ID);
-            if (bridgeUID != null) {
-                return new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
-            } else {
-                return new ThingUID(thingTypeUID, lightId, (String[]) null);
-            }
+            return getThingUID(thingTypeUID, configuration.get(LIGHT_ID).toString(), bridgeUID);
+        }
+    }
+
+    private ThingUID getSensorUID(ThingTypeUID thingTypeUID, @Nullable ThingUID thingUID, Configuration configuration,
+            @Nullable ThingUID bridgeUID) {
+        if (thingUID != null) {
+            return thingUID;
+        } else {
+            return getThingUID(thingTypeUID, configuration.get(SENSOR_ID).toString(), bridgeUID);
+        }
+    }
+
+    private ThingUID getThingUID(ThingTypeUID thingTypeUID, String id, @Nullable ThingUID bridgeUID) {
+        if (bridgeUID != null) {
+            return new ThingUID(thingTypeUID, id, bridgeUID.getId());
+        } else {
+            return new ThingUID(thingTypeUID, id);
         }
     }
 
@@ -96,6 +121,14 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             return handler;
         } else if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
             return new HueLightHandler(thing);
+        } else if (DimmerSwitchHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
+            return new DimmerSwitchHandler(thing);
+        } else if (PresenceHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
+            return new PresenceHandler(thing);
+        } else if (TemperatureHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
+            return new TemperatureHandler(thing);
+        } else if (LightLevelHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
+            return new LightLevelHandler(thing);
         } else {
             return null;
         }
