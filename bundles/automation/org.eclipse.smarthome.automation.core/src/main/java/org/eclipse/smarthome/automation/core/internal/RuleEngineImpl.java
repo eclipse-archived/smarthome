@@ -97,6 +97,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  * @author Markus Rathgeb - use a managed rule
+ * @author Ana Dimova - new reference syntax: list[index], map["key"], bean.field
  */
 @Component(immediate = true)
 @NonNullByDefault
@@ -114,26 +115,26 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      */
     private long scheduleReinitializationDelay;
 
-    private final Map<String, WrappedRule> managedRules = new ConcurrentHashMap<>();
+    private final @NonNullByDefault({}) Map<String, WrappedRule> managedRules = new ConcurrentHashMap<>();
 
     /**
      * {@link Map} holding all created {@link TriggerHandlerCallback} instances, corresponding to each {@link Rule}.
      * There is only one {@link TriggerHandlerCallback} instance per {@link Rule}. The relation is
      * {@link Rule}'s UID to {@link TriggerHandlerCallback} instance.
      */
-    private final Map<String, TriggerHandlerCallbackImpl> thCallbacks = new HashMap<String, TriggerHandlerCallbackImpl>();
+    private final @NonNullByDefault({}) Map<String, TriggerHandlerCallbackImpl> thCallbacks = new HashMap<String, TriggerHandlerCallbackImpl>();
 
     /**
      * {@link Map} holding all {@link ModuleType} UIDs that are available in some rule's module definition. The relation
      * is {@link ModuleType}'s UID to {@link Set} of {@link Rule} UIDs.
      */
-    private final Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
+    private final @NonNullByDefault({}) Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
 
     /**
      * {@link Map} holding all available {@link ModuleHandlerFactory}s linked with {@link ModuleType}s that they
      * supporting. The relation is {@link ModuleType}'s UID to {@link ModuleHandlerFactory} instance.
      */
-    private final Map<String, ModuleHandlerFactory> moduleHandlerFactories;
+    private final @NonNullByDefault({}) Map<String, ModuleHandlerFactory> moduleHandlerFactories;
 
     /**
      * {@link Set} holding all available {@link ModuleHandlerFactory}s.
@@ -163,7 +164,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * The context map of a {@link Rule} is cleaned when the execution is completed. The relation is
      * {@link Rule}'s UID to Rule context map.
      */
-    private final Map<String, Map<String, Object>> contextMap;
+    private @NonNullByDefault({}) final Map<String, Map<String, Object>> contextMap;
 
     /**
      * This field holds reference to {@link ModuleTypeRegistry}. The {@link RuleEngineImpl} needs it to auto-map
@@ -181,7 +182,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * UID to
      * re-initialization task as a {@link Future} instance.
      */
-    private final Map<String, Future<?>> scheduleTasks = new HashMap<>(31);
+    private final @NonNullByDefault({}) Map<String, Future<?>> scheduleTasks = new HashMap<>(31);
 
     /**
      * Performs the {@link Rule} re-initialization tasks.
@@ -519,25 +520,19 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         }
         String rUID = rule.getUID();
         setStatus(rUID, new RuleStatusInfo(RuleStatus.INITIALIZING));
-        for (final WrappedAction action : rule.getActions()) {
-            updateMapModuleTypeToRule(rUID, action.unwrap().getTypeUID());
-            action.setConnections(resolveConnections(action.getInputs()));
-        }
-        for (final WrappedCondition condition : rule.getConditions()) {
-            updateMapModuleTypeToRule(rUID, condition.unwrap().getTypeUID());
-            condition.setConnections(resolveConnections(condition.getInputs()));
-        }
-        for (final WrappedTrigger trigger : rule.getTriggers()) {
-            updateMapModuleTypeToRule(rUID, trigger.unwrap().getTypeUID());
-        }
         try {
+            for (final WrappedAction action : rule.getActions()) {
+                updateMapModuleTypeToRule(rUID, action.unwrap().getTypeUID());
+                action.setConnections(ConnectionValidator.getConnections(action.getInputs()));
+            }
+            for (final WrappedCondition condition : rule.getConditions()) {
+                updateMapModuleTypeToRule(rUID, condition.unwrap().getTypeUID());
+                condition.setConnections(ConnectionValidator.getConnections(condition.getInputs()));
+            }
+            for (final WrappedTrigger trigger : rule.getTriggers()) {
+                updateMapModuleTypeToRule(rUID, trigger.unwrap().getTypeUID());
+            }
             validateModuleIDs(rule);
-        } catch (IllegalArgumentException e) {
-            setStatus(rUID,
-                    new RuleStatusInfo(RuleStatus.UNINITIALIZED, RuleStatusDetail.INVALID_RULE, e.getMessage()));
-            return;
-        }
-        try {
             autoMapConnections(rule);
             ConnectionValidator.validateConnections(mtRegistry, rule.unwrap());
         } catch (IllegalArgumentException e) {
@@ -589,9 +584,10 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      */
     protected void postRuleStatusInfoEvent(String ruleUID, RuleStatusInfo statusInfo) {
         if (eventPublisher != null) {
+            EventPublisher ep = eventPublisher;
             Event event = RuleEventFactory.createRuleStatusInfoEvent(statusInfo, ruleUID, SOURCE);
             try {
-                eventPublisher.post(event);
+                ep.post(event);
             } catch (Exception ex) {
                 logger.error("Could not post event of type '{}'.", event.getType(), ex);
             }
@@ -606,37 +602,35 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
     private <T extends WrappedModule<?, ?>> @Nullable String setModuleHandlers(String rUID, List<T> modules) {
-        StringBuffer sb = null;
-        if (modules != null) {
-            for (T mm : modules) {
-                final Module m = mm.unwrap();
-                try {
-                    ModuleHandler moduleHandler = getModuleHandler(m, rUID);
-                    if (moduleHandler != null) {
-                        if (mm instanceof WrappedAction) {
-                            ((WrappedAction) mm).setModuleHandler((ActionHandler) moduleHandler);
-                        } else if (mm instanceof WrappedCondition) {
-                            ((WrappedCondition) mm).setModuleHandler((ConditionHandler) moduleHandler);
-                        } else if (mm instanceof WrappedTrigger) {
-                            ((WrappedTrigger) mm).setModuleHandler((TriggerHandler) moduleHandler);
-                        }
-                    } else {
-                        if (sb == null) {
-                            sb = new StringBuffer();
-                        }
-                        String message = "Missing handler '" + m.getTypeUID() + "' for module '" + m.getId() + "'";
-                        sb.append(message).append("\n");
-                        logger.trace(message);
+        StringBuilder sb = null;
+        for (T mm : modules) {
+            final Module m = mm.unwrap();
+            try {
+                ModuleHandler moduleHandler = getModuleHandler(m, rUID);
+                if (moduleHandler != null) {
+                    if (mm instanceof WrappedAction) {
+                        ((WrappedAction) mm).setModuleHandler((ActionHandler) moduleHandler);
+                    } else if (mm instanceof WrappedCondition) {
+                        ((WrappedCondition) mm).setModuleHandler((ConditionHandler) moduleHandler);
+                    } else if (mm instanceof WrappedTrigger) {
+                        ((WrappedTrigger) mm).setModuleHandler((TriggerHandler) moduleHandler);
                     }
-                } catch (Throwable t) {
+                } else {
                     if (sb == null) {
-                        sb = new StringBuffer();
+                        sb = new StringBuilder();
                     }
-                    String message = "Getting handler '" + m.getTypeUID() + "' for module '" + m.getId() + "' failed: "
-                            + t.getMessage();
+                    String message = "Missing handler '" + m.getTypeUID() + "' for module '" + m.getId() + "'";
                     sb.append(message).append("\n");
                     logger.trace(message);
                 }
+            } catch (Throwable t) {
+                if (sb == null) {
+                    sb = new StringBuilder();
+                }
+                String message = "Getting handler '" + m.getTypeUID() + "' for module '" + m.getId() + "' failed: "
+                        + t.getMessage();
+                sb.append(message).append("\n");
+                logger.trace(message);
             }
         }
         return sb != null ? sb.toString() : null;
@@ -665,18 +659,16 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param modules list of modules which should be disconnected.
      */
     private <T extends WrappedModule<?, ?>> void removeModuleHandlers(List<T> modules, String ruleUID) {
-        if (modules != null) {
-            for (T mm : modules) {
-                final Module m = mm.unwrap();
-                ModuleHandler handler = mm.getModuleHandler();
+        for (T mm : modules) {
+            final Module m = mm.unwrap();
+            ModuleHandler handler = mm.getModuleHandler();
 
-                if (handler != null) {
-                    ModuleHandlerFactory factory = getModuleHandlerFactory(m.getTypeUID());
-                    if (factory != null) {
-                        factory.ungetHandler(m, ruleUID, handler);
-                    }
-                    mm.setModuleHandler(null);
+            if (handler != null) {
+                ModuleHandlerFactory factory = getModuleHandlerFactory(m.getTypeUID());
+                if (factory != null) {
+                    factory.ungetHandler(m, ruleUID, handler);
                 }
+                mm.setModuleHandler(null);
             }
         }
     }
@@ -771,7 +763,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @param moduleTypeId the UID of the {@link ModuleType}.
      * @return the {@link ModuleHandlerFactory} responsible for the {@link ModuleType}.
      */
-    public ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId) {
+    public @Nullable ModuleHandlerFactory getModuleHandlerFactory(String moduleTypeId) {
         ModuleHandlerFactory mhf = null;
         synchronized (this) {
             mhf = moduleHandlerFactories.get(moduleTypeId);
@@ -1114,6 +1106,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      * @return copy of current context in rule engine
      */
     private Map<String, Object> getContext(String ruleUID, @Nullable Set<Connection> connections) {
+        @NonNullByDefault({})
         Map<String, Object> context = contextMap.get(ruleUID);
         if (context == null) {
             context = new HashMap<String, Object>();
@@ -1122,14 +1115,22 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         if (connections != null) {
             StringBuffer sb = new StringBuffer();
             for (Connection c : connections) {
-                String outputModuleId = c.getOuputModuleId();
+                String outputModuleId = c.getOutputModuleId();
                 if (outputModuleId != null) {
                     sb.append(outputModuleId).append(OUTPUT_SEPARATOR).append(c.getOutputName());
-                    context.put(c.getInputName(), context.get(sb.toString()));
+                    Object outputValue = context.get(sb.toString());
                     sb.setLength(0);
+                    if (outputValue != null) {
+                        if (c.getReference() == null) {
+                            context.put(c.getInputName(), outputValue);
+                        } else {
+                            context.put(c.getInputName(), ReferenceResolver.resolveComplexDataReference(outputValue,
+                                    ReferenceResolver.splitReferenceToTokens(c.getReference())));
+                        }
+                    }
                 } else {
                     // get reference from context
-                    String ref = c.getOutputName();
+                    String ref = c.getReference();
                     final Object value = ReferenceResolver.resolveReference(ref, context);
 
                     if (value != null) {
@@ -1397,7 +1398,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
             }
             if (!conflict && outputRef != null) {
                 currentConnections
-                        .add(new Connection(input.getName(), outputRef.getModuleId(), outputRef.getOutputName()));
+                        .add(new Connection(input.getName(), outputRef.getModuleId(), outputRef.getOutputName(), null));
                 result = true;
             }
         }
@@ -1431,7 +1432,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         Map<String, String> connectionMap = new HashMap<>();
         for (Connection connection : connections) {
             connectionMap.put(connection.getInputName(),
-                    connection.getOuputModuleId() + "." + connection.getOutputName());
+                    connection.getOutputModuleId() + "." + connection.getOutputName());
         }
         return connectionMap;
     }
@@ -1446,45 +1447,9 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
         Set<Connection> result = new HashSet<>(connections.size());
         for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
             Connection c = it.next();
-            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
+            result.add(new Connection(c.getInputName(), c.getOutputModuleId(), c.getOutputName(), c.getReference()));
         }
         return result;
-    }
-
-    /**
-     * This method is used for collecting connections of {@link Module}s.
-     *
-     * @param inputs The map of inputs of the module
-     * @return set of connections
-     */
-    public Set<Connection> resolveConnections(Map<String, String> inputs) {
-        final String REF_IDENTIFIER = "$";
-        Set<Connection> connections = new HashSet<>();
-        if (inputs != null) {
-            for (Entry<String, String> input : inputs.entrySet()) {
-                String inputName = input.getKey();
-                String outputName = null;
-
-                String output = input.getValue();
-                if (output.startsWith(REF_IDENTIFIER)) {
-                    outputName = output;
-                    Connection connection = new Connection(inputName, null, outputName);
-                    connections.add(connection);
-                } else {
-                    int index = output.indexOf('.');
-                    if (index != -1) {
-                        String outputId = output.substring(0, index);
-                        outputName = output.substring(index + 1);
-                        Connection connection = new Connection(inputName, outputId, outputName);
-                        connections.add(connection);
-                    } else {
-                        logger.error("Wrong format of Output : {}: {}", inputName, output);
-                        continue;
-                    }
-                }
-            }
-        }
-        return connections;
     }
 
     class OutputRef {

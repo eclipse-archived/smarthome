@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.automation.Action;
@@ -40,11 +41,15 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * @author Ana Dimova - Initial contribution and API
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Benedikt Niehues - validation of connection-types respects inheriting types
+ * @author Ana Dimova - new reference syntax: list[index], map["key"], bean.field
  *
  */
 public class ConnectionValidator {
 
-    public static final String REF_IDENTIFIER = "$";
+    public static final String CONFIG_REFERENCE_PATTERN = "\\${1}\\{{1}[A-Za-z0-9_-]+\\}{1}|\\${1}[A-Za-z0-9_-]+";
+    public static final String OUTPUT_REFERENCE_PATTERN = "(\\[{1}\\\"{1}.+\\\"{1}\\]{1}|\\[{1}\\d+\\]{1}|\\.{1}[^\\[\\]][A-Za-z0-9_-]+[^\\]\\[\\.])*";
+    public static final String MODULE_OUTPUT_PATTERN = "[A-Za-z0-9_-]+\\.{1}[A-Za-z0-9_-]+" + OUTPUT_REFERENCE_PATTERN;
+    public static final String CONNECTION_PATTERN = CONFIG_REFERENCE_PATTERN + "|" + MODULE_OUTPUT_PATTERN;
 
     /**
      * Validates connections between inputs and outputs of modules participated in rule. It compares data
@@ -55,7 +60,7 @@ public class ConnectionValidator {
      */
     public static void validateConnections(ModuleTypeRegistry mtRegistry, Rule r) {
         if (r == null) {
-            throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
+            throw new IllegalArgumentException("Validation of rule has failed! Rule must not be null!");
         }
         validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
     }
@@ -148,7 +153,7 @@ public class ConnectionValidator {
         for (Action a : actions) {
             actionsMap.put(a.getId(), a);
         }
-        String moduleId = connection.getOuputModuleId();
+        String moduleId = connection.getOutputModuleId();
         Action action = actionsMap.get(moduleId);
         String msg = " Invalid Connection \"" + connection.getInputName() + "\" : ";
         if (moduleId != null && action != null) {
@@ -225,7 +230,7 @@ public class ConnectionValidator {
         for (Trigger trigger : triggers) {
             triggersMap.put(trigger.getId(), trigger);
         }
-        String moduleId = connection.getOuputModuleId();
+        String moduleId = connection.getOutputModuleId();
         String msg = " Invalid Connection \"" + connection.getInputName() + "\" : ";
         if (moduleId != null) {
             Trigger trigger = triggersMap.get(moduleId);
@@ -253,6 +258,12 @@ public class ConnectionValidator {
      * @throws IllegalArgumentException when validation fails.
      */
     private static void checkCompatibility(String msg, Connection connection, Input input, List<Output> outputs) {
+        if (connection.getReference() != null) {
+            // we are referencing a value inside an existing data structure of the output and will not check if the
+            // property inside of it really exists and if its type is compatible, so the connection will be treated as
+            // valid
+            return;
+        }
         String outputName = connection.getOutputName();
         if (outputs != null && !outputs.isEmpty()) {
             for (Output output : outputs) {
@@ -281,39 +292,49 @@ public class ConnectionValidator {
                 }
             }
             throw new IllegalArgumentException(msg + " Output with name \"" + outputName
-                    + "\" not exists in the ModuleImpl with ID \"" + connection.getOuputModuleId() + "\"");
+                    + "\" not exists in the ModuleImpl with ID \"" + connection.getOutputModuleId() + "\"");
         }
     }
 
     /**
      * Collects the {@link Connection}s of {@link Module}s.
      *
-     * @param type specifies the type of the automation object - module type, rule or rule template.
-     * @param UID is the unique identifier of the automation object - module type, rule or rule template.
-     * @param jsonModule is a JSONObject representing the module.
-     * @param exceptions is a list used for collecting the exceptions occurred during {@link Module}s creation.
-     * @param log is used for logging of exceptions.
-     * @return collected Connections
+     * @param inputs the map of input references of the module.
+     * @return collected set of Connections.
+     * @throws IllegalArgumentException if there is a value in the {@code inputs} map with an invalid format for a
+     *             connection.
      */
     public static Set<Connection> getConnections(Map<String, String> inputs) {
         Set<Connection> connections = new HashSet<>();
         for (Entry<String, String> input : inputs.entrySet()) {
             String inputName = input.getKey();
-            String output = input.getValue();
-            String outputName = output;
-            String outputId = null;
-            if (!output.startsWith(REF_IDENTIFIER)) {
-                int index = output.indexOf('.');
-                if (index != -1) {
-                    outputId = output.substring(0, index);
-                    outputName = output.substring(index + 1);
-                } else {
-                    throw new IllegalArgumentException("Wrong format of Output : " + inputName + " : " + output);
-                }
-            }
-            Connection connection = new Connection(inputName, outputId, outputName);
+            String reference = input.getValue();
+            Connection connection = getConnection(inputName, reference);
             connections.add(connection);
         }
         return connections;
+    }
+
+    private static Connection getConnection(String inputName, String reference) {
+        if (reference == null || !Pattern.matches(CONNECTION_PATTERN, reference)) {
+            throw new IllegalArgumentException("Wrong format of Connection : " + inputName + ": " + reference);
+        }
+        if (Pattern.matches(CONFIG_REFERENCE_PATTERN, reference)) {
+            return new Connection(inputName, reference);
+        } else {
+            if (!Pattern.matches(MODULE_OUTPUT_PATTERN, reference)) {
+                throw new IllegalArgumentException("Wrong format of Connection : " + inputName + ": " + reference);
+            }
+            final Pattern pattern = Pattern.compile("\\.|\\[");
+            final String[] referenceTokens = pattern.split(reference, 3);
+            String outputModuleId = referenceTokens[0];
+            String outputName = referenceTokens[1];
+            if (referenceTokens.length == 3) {
+                return new Connection(inputName, outputModuleId, outputName,
+                        reference.substring(reference.indexOf(outputName) + outputName.length()));
+            } else {
+                return new Connection(inputName, outputModuleId, outputName, null);
+            }
+        }
     }
 }
