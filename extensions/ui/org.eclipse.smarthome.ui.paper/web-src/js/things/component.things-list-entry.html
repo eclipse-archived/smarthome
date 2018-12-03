@@ -10,8 +10,9 @@
 			<p>{{$ctrl.thing.UID}}</p>
 		</div>
 		<div class="actions">
-			<i class="material-icons" ng-click="$ctrl.navigateTo('edit/' + $ctrl.thing.UID)" aria-label="Edit">edit</i>
-			<i class="material-icons" ng-click="$ctrl.remove($ctrl.thing, $event)" aria-label="Delete">delete</i>
+			<i class="material-icons" ng-click="$ctrl.navigateTo('edit/' + $ctrl.thing.UID)" title="Edit Thing" aria-label="Edit">edit</i>
+			<i class="material-icons" ng-click="$ctrl.toggleEnable($event)" title="{{$ctrl.isEnabled() ? 'Disable Thing' : 'Enable Thing'}}" aria-label="Toggle Enable">{{$ctrl.isEnabled() ? "done" : "cancel"}}</i> 
+			<i class="material-icons" ng-click="$ctrl.remove($ctrl.thing, $event)" title="Delete Thing" aria-label="Delete">delete</i>
 		</div>
 	</div>
 	<hr class="border-line" ng-show="!$last" />
