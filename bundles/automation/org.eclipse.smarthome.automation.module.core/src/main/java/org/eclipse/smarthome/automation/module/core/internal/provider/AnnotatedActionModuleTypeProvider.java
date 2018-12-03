@@ -51,7 +51,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
  * @author Stefan Triller - initial contribution
  *
  */
-@Component(service = { ModuleTypeProvider.class, ModuleHandlerFactory.class })
+@Component(immediate = true, service = { ModuleTypeProvider.class, ModuleHandlerFactory.class })
 public class AnnotatedActionModuleTypeProvider extends BaseModuleHandlerFactory implements ModuleTypeProvider {
 
     private final Collection<ProviderChangeListener<ModuleType>> changeListeners = ConcurrentHashMap.newKeySet();
