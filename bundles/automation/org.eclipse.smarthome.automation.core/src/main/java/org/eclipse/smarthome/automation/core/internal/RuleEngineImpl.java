@@ -97,7 +97,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
  * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  * @author Markus Rathgeb - use a managed rule
- * @author Ana Dimova - new reference syntax: array[index], list[index], map["key"], bean.field
+ * @author Ana Dimova - new reference syntax: list[index], map["key"], bean.field
  */
 @Component(immediate = true)
 @NonNullByDefault
