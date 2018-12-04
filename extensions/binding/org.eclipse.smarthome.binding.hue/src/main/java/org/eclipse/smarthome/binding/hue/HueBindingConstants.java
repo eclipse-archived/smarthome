@@ -51,6 +51,7 @@ public class HueBindingConstants {
     public static final String CHANNEL_SWITCH = "switch";
 
     // Bridge config properties
+    public static final String UDN = "udn";
     public static final String HOST = "ipAddress";
     public static final String USER_NAME = "userName";
     public static final String POLLING_INTERVAL = "pollingInterval";

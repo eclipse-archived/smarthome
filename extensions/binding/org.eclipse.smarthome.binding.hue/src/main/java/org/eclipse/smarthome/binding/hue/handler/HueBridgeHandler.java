@@ -139,8 +139,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                             }
                         }
                     }
-                } catch (UnauthorizedException | IllegalStateException e) {
-                    if (isReachable(hueBridge.getIPAddress())) {
+                } catch (UnauthorizedException e) {
+                    hueBridge.resetAuthentification();
+                    if (hueBridge.isReachable()) {
                         lastBridgeConnectionState = false;
                         onNotAuthenticated();
                     } else {
@@ -152,7 +153,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                 } catch (Exception e) {
                     if (hueBridge != null) {
                         if (lastBridgeConnectionState) {
-                            logger.debug("Connection to Hue Bridge {} lost.", hueBridge.getIPAddress());
+                            logger.debug("Connection to Hue Bridge {} lost.", hueBridge.getAddress());
                             lastBridgeConnectionState = false;
                             onConnectionLost();
                         }
@@ -161,29 +162,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
             } catch (Throwable t) {
                 logger.error("An unexpected error occurred: {}", t.getMessage(), t);
             }
-        }
-
-        private boolean isReachable(String ipAddress) {
-            try {
-                // note that InetAddress.isReachable is unreliable, see
-                // http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
-                // That's why we do an HTTP access instead
-
-                // If there is no connection, this line will fail
-                hueBridge.authenticate("invalid");
-            } catch (IOException e) {
-                return false;
-            } catch (ApiException e) {
-                if (e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")
-                        || e.getMessage().contains("SocketException")
-                        || e.getMessage().contains("NoRouteToHostException")) {
-                    return false;
-                } else {
-                    // this seems to be only an authentication issue
-                    return true;
-                }
-            }
-            return true;
         }
     };
 
@@ -237,8 +215,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
     @Override
     public void dispose() {
         logger.debug("Handler disposed.");
-        if (pollingJob != null && !pollingJob.isCancelled()) {
-            pollingJob.cancel(true);
+        ScheduledFuture<?> job = pollingJob;
+        if (job != null && !job.isCancelled()) {
+            job.cancel(true);
             pollingJob = null;
         }
         if (hueBridge != null) {
@@ -264,7 +243,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
 
     private synchronized void onUpdate() {
         if (hueBridge != null) {
-            if (pollingJob == null || pollingJob.isCancelled()) {
+            ScheduledFuture<?> job = pollingJob;
+            if (job == null || job.isCancelled()) {
                 int pollingInterval = DEFAULT_POLLING_INTERVAL;
                 try {
                     Object pollingIntervalConfig = getConfig().get(POLLING_INTERVAL);
@@ -323,7 +303,7 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
      * @throws IOException if the physical device could not be reached
      */
     private boolean tryResumeBridgeConnection() throws IOException, ApiException {
-        logger.debug("Connection to Hue Bridge {} established.", hueBridge.getIPAddress());
+        logger.debug("Connection to Hue Bridge {} established.", hueBridge.getAddress());
         if (getConfig().get(USER_NAME) == null) {
             logger.warn("User name for Hue bridge authentication not available in configuration. "
                     + "Setting ThingStatus to offline.");

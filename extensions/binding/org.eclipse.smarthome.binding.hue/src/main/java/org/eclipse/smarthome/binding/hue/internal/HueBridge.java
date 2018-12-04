@@ -53,7 +53,7 @@ import com.google.gson.JsonParser;
 public class HueBridge {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
-    private final String ip;
+    private final String hostAndPort;
     private @Nullable String username;
 
     private final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
@@ -63,10 +63,10 @@ public class HueBridge {
     /**
      * Connect with a bridge as a new user.
      *
-     * @param ip ip address of bridge
+     * @param hostAndPort The address of the bridge (host:port)
      */
-    public HueBridge(String ip, ScheduledExecutorService scheduler) {
-        this.ip = ip;
+    public HueBridge(String hostAndPort, ScheduledExecutorService scheduler) {
+        this.hostAndPort = hostAndPort;
         this.scheduler = scheduler;
     }
 
@@ -81,7 +81,7 @@ public class HueBridge {
      * @param username username to authenticate with
      */
     public HueBridge(String ip, String username, ScheduledExecutorService scheduler) throws IOException, ApiException {
-        this.ip = ip;
+        this.hostAndPort = ip;
         this.scheduler = scheduler;
         authenticate(username);
     }
@@ -96,12 +96,12 @@ public class HueBridge {
     }
 
     /**
-     * Returns the IP address of the bridge.
+     * Returns the address of the bridge.
      *
-     * @return ip address of bridge
+     * @return address of bridge (host:port)
      */
-    public String getIPAddress() {
-        return ip;
+    public String getAddress() {
+        return hostAndPort;
     }
 
     /**
@@ -123,6 +123,27 @@ public class HueBridge {
     }
 
     /**
+     * Return true if a hue bridge is located at the configured address.
+     *
+     * A REST access to http://hue-bridge/api/config is performed. This URL
+     * does not require an authenticated user.
+     *
+     * @return True if the REST access was successful
+     */
+    public boolean isReachable() {
+        Result result;
+        try {
+            result = http.get(getAbsoluteURL("config"));
+        } catch (IOException e) {
+            return false;
+        }
+        if (result.getResponseCode() != 200) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Returns a list of lights known to the bridge.
      *
      * @return list of known lights
@@ -131,7 +152,7 @@ public class HueBridge {
     public List<Light> getLights() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("lights"));
+        Result result = http.get(getAbsoluteURL("lights"));
 
         handleErrors(result);
 
@@ -159,7 +180,7 @@ public class HueBridge {
     public @Nullable Date getLastSearch() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("lights/new"));
+        Result result = http.get(getAbsoluteURL("lights/new"));
 
         handleErrors(result);
 
@@ -188,7 +209,7 @@ public class HueBridge {
     public void startSearch() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.post(getRelativeURL("lights"), "");
+        Result result = http.post(getAbsoluteURL("lights"), "");
 
         handleErrors(result);
     }
@@ -204,7 +225,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = gson.toJson(new SearchForLightsRequest(serialNumbers));
-        Result result = http.post(getRelativeURL("lights"), body);
+        Result result = http.post(getAbsoluteURL("lights"), body);
 
         handleErrors(result);
     }
@@ -220,7 +241,7 @@ public class HueBridge {
     public FullLight getLight(Light light) throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("lights/" + enc(light.getId())));
+        Result result = http.get(getAbsoluteURL("lights/" + enc(light.getId())));
 
         handleErrors(result);
 
@@ -243,7 +264,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = gson.toJson(new SetAttributesRequest(name));
-        Result result = http.put(getRelativeURL("lights/" + enc(light.getId())), body);
+        Result result = http.put(getAbsoluteURL("lights/" + enc(light.getId())), body);
 
         handleErrors(result);
 
@@ -258,28 +279,20 @@ public class HueBridge {
      *
      * @param light light
      * @param update changes to the state
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified light no longer exists
-     * @throws DeviceOffException thrown if the specified light is turned off
-     * @throws IOException if the bridge cannot be reached
+     * @return Return a future that completes either with a HTTP result or exceptionally.
      */
     public CompletableFuture<Result> setLightState(Light light, StateUpdate update) {
-        requireAuthentication();
+        try {
+            requireAuthentication();
+        } catch (UnauthorizedException e) {
+            CompletableFuture<Result> c = new CompletableFuture<>();
+            c.completeExceptionally(e);
+            return c;
+        }
 
         String body = update.toJson();
-        return http.putAsync(getRelativeURL("lights/" + enc(light.getId()) + "/state"), body, update.getMessageDelay(),
+        return http.putAsync(getAbsoluteURL("lights/" + enc(light.getId()) + "/state"), body, update.getMessageDelay(),
                 scheduler);
-    }
-
-    /**
-     * Returns a group object representing all lights.
-     *
-     * @return all lights pseudo group
-     */
-    public Group getAllGroup() {
-        requireAuthentication();
-
-        return new Group();
     }
 
     /**
@@ -291,7 +304,7 @@ public class HueBridge {
     public List<Group> getGroups() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("groups"));
+        Result result = http.get(getAbsoluteURL("groups"));
 
         handleErrors(result);
 
@@ -325,7 +338,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = gson.toJson(new SetAttributesRequest(lights));
-        Result result = http.post(getRelativeURL("groups"), body);
+        Result result = http.post(getAbsoluteURL("groups"), body);
 
         handleErrors(result);
 
@@ -355,7 +368,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = gson.toJson(new SetAttributesRequest(name, lights));
-        Result result = http.post(getRelativeURL("groups"), body);
+        Result result = http.post(getAbsoluteURL("groups"), body);
 
         handleErrors(result);
 
@@ -379,7 +392,7 @@ public class HueBridge {
     public FullGroup getGroup(Group group) throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("groups/" + enc(group.getId())));
+        Result result = http.get(getAbsoluteURL("groups/" + enc(group.getId())));
 
         handleErrors(result);
 
@@ -406,7 +419,7 @@ public class HueBridge {
         }
 
         String body = gson.toJson(new SetAttributesRequest(name));
-        Result result = http.put(getRelativeURL("groups/" + enc(group.getId())), body);
+        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId())), body);
 
         handleErrors(result);
 
@@ -432,7 +445,7 @@ public class HueBridge {
         }
 
         String body = gson.toJson(new SetAttributesRequest(lights));
-        Result result = http.put(getRelativeURL("groups/" + enc(group.getId())), body);
+        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId())), body);
 
         handleErrors(result);
     }
@@ -455,7 +468,7 @@ public class HueBridge {
         }
 
         String body = gson.toJson(new SetAttributesRequest(name, lights));
-        Result result = http.put(getRelativeURL("groups/" + enc(group.getId())), body);
+        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId())), body);
 
         handleErrors(result);
 
@@ -477,7 +490,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = update.toJson();
-        Result result = http.put(getRelativeURL("groups/" + enc(group.getId()) + "/action"), body);
+        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId()) + "/action"), body);
 
         handleErrors(result);
     }
@@ -496,7 +509,7 @@ public class HueBridge {
             throw new IllegalArgumentException("Group cannot be modified");
         }
 
-        Result result = http.delete(getRelativeURL("groups/" + enc(group.getId())));
+        Result result = http.delete(getAbsoluteURL("groups/" + enc(group.getId())));
 
         handleErrors(result);
     }
@@ -510,7 +523,7 @@ public class HueBridge {
     public List<Schedule> getSchedules() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("schedules"));
+        Result result = http.get(getAbsoluteURL("schedules"));
 
         handleErrors(result);
 
@@ -587,7 +600,7 @@ public class HueBridge {
         handleCommandCallback(callback);
 
         String body = gson.toJson(new CreateScheduleRequest(name, description, scheduleCommand, time));
-        Result result = http.post(getRelativeURL("schedules"), body);
+        Result result = http.post(getAbsoluteURL("schedules"), body);
 
         handleErrors(result);
     }
@@ -603,7 +616,7 @@ public class HueBridge {
     public FullSchedule getSchedule(Schedule schedule) throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("schedules/" + enc(schedule.getId())));
+        Result result = http.get(getAbsoluteURL("schedules/" + enc(schedule.getId())));
 
         handleErrors(result);
 
@@ -624,7 +637,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = update.toJson();
-        Result result = http.put(getRelativeURL("schedules/" + enc(schedule.getId())), body);
+        Result result = http.put(getAbsoluteURL("schedules/" + enc(schedule.getId())), body);
 
         handleErrors(result);
     }
@@ -644,7 +657,7 @@ public class HueBridge {
         handleCommandCallback(callback);
 
         String body = gson.toJson(new CreateScheduleRequest(null, null, scheduleCommand, null));
-        Result result = http.put(getRelativeURL("schedules/" + enc(schedule.getId())), body);
+        Result result = http.put(getAbsoluteURL("schedules/" + enc(schedule.getId())), body);
 
         handleErrors(result);
     }
@@ -715,7 +728,7 @@ public class HueBridge {
     public void deleteSchedule(Schedule schedule) throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.delete(getRelativeURL("schedules/" + enc(schedule.getId())));
+        Result result = http.delete(getAbsoluteURL("schedules/" + enc(schedule.getId())));
 
         handleErrors(result);
     }
@@ -737,6 +750,14 @@ public class HueBridge {
             this.username = null;
             throw new UnauthorizedException(e.toString());
         }
+    }
+
+    /**
+     * Resets the REST API key. Call this whenever a method throws {@link UnauthorizedException}
+     * which usually means that the known API key is not whitelisted anymore.
+     */
+    public void resetAuthentification() {
+        this.username = null;
     }
 
     /**
@@ -768,7 +789,7 @@ public class HueBridge {
         }
 
         String body = gson.toJson(request);
-        Result result = http.post(getRelativeURL(""), body);
+        Result result = http.post(getAbsoluteURL(""), body);
 
         handleErrors(result);
 
@@ -788,7 +809,7 @@ public class HueBridge {
     public Config getConfig() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL("config"));
+        Result result = http.get(getAbsoluteURL("config"));
 
         handleErrors(result);
 
@@ -805,7 +826,7 @@ public class HueBridge {
         requireAuthentication();
 
         String body = update.toJson();
-        Result result = http.put(getRelativeURL("config"), body);
+        Result result = http.put(getAbsoluteURL("config"), body);
 
         handleErrors(result);
     }
@@ -818,7 +839,7 @@ public class HueBridge {
     public void unlink() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.delete(getRelativeURL("config/whitelist/" + enc(username)));
+        Result result = http.delete(getAbsoluteURL("config/whitelist/" + enc(username)));
 
         handleErrors(result);
     }
@@ -835,7 +856,7 @@ public class HueBridge {
     public FullConfig getFullConfig() throws IOException, ApiException {
         requireAuthentication();
 
-        Result result = http.get(getRelativeURL(""));
+        Result result = http.get(getAbsoluteURL(""));
 
         handleErrors(result);
 
@@ -843,9 +864,9 @@ public class HueBridge {
     }
 
     // Used as assert in requests that require authentication
-    private void requireAuthentication() {
+    private void requireAuthentication() throws UnauthorizedException {
         if (this.username == null) {
-            throw new IllegalStateException("linking is required before interacting with the bridge");
+            throw new UnauthorizedException("linking is required before interacting with the bridge");
         }
     }
 
@@ -920,8 +941,14 @@ public class HueBridge {
         }
     }
 
-    private String getRelativeURL(String path) {
-        String relativeUrl = "http://" + ip + "/api";
+    /**
+     * Construct a hue REST-API URL, including the hue API username if already authorized.
+     *
+     * @param path Relative path, can be empty for just an http://hue-address/api access.
+     * @return A hue REST API endpoint
+     */
+    private String getAbsoluteURL(String path) {
+        String relativeUrl = "http://" + hostAndPort + "/api";
         if (username != null) {
             relativeUrl += "/" + enc(username);
         }

@@ -63,9 +63,9 @@ public class HueBridgeDiscoveryParticipantOSGITest extends JavaOSGiTest {
             final RemoteService remoteService = null;
 
             hueDevice = new RemoteDevice(
-                    new RemoteDeviceIdentity(new UDN("123"), 60, new URL("http://hue"), null, null),
+                    new RemoteDeviceIdentity(new UDN("123"), 60, new URL("http://1.2.3.4:8080"), null, null),
                     new DeviceType("namespace", "type"),
-                    new DeviceDetails(new URL("http://1.2.3.4/"), "Hue Bridge", new ManufacturerDetails("Philips"),
+                    new DeviceDetails(new URL("http://1.2.3.4:8080/"), "Hue Bridge", new ManufacturerDetails("Philips"),
                             new ModelDetails("Philips hue bridge"), "serial123", "upc", null),
                     remoteService);
 
@@ -94,6 +94,7 @@ public class HueBridgeDiscoveryParticipantOSGITest extends JavaOSGiTest {
         assertThat(discoveryParticipant.getThingUID(hueDevice), is(new ThingUID("hue:bridge:serial123")));
     }
 
+    @SuppressWarnings("null")
     @Test
     public void validDiscoveryResult() {
         final DiscoveryResult result = discoveryParticipant.createResult(hueDevice);
@@ -101,7 +102,7 @@ public class HueBridgeDiscoveryParticipantOSGITest extends JavaOSGiTest {
         assertThat(result.getThingUID(), is(new ThingUID("hue:bridge:serial123")));
         assertThat(result.getThingTypeUID(), is(THING_TYPE_BRIDGE));
         assertThat(result.getBridgeUID(), is(nullValue()));
-        assertThat(result.getProperties().get(HOST), is("1.2.3.4"));
+        assertThat(result.getProperties().get(HOST), is("1.2.3.4:8080"));
         assertThat(result.getProperties().get(PROPERTY_SERIAL_NUMBER), is("serial123"));
         assertThat(result.getRepresentationProperty(), is(PROPERTY_SERIAL_NUMBER));
     }

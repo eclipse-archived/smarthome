@@ -13,12 +13,12 @@
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
-import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 
+import java.net.URL;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -33,8 +33,9 @@ import org.jupnp.model.meta.RemoteDevice;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * The {@link HueBridgeDiscoveryParticipant} is responsible for discovering new and
- * removed hue bridges. It uses the central {@link UpnpDiscoveryService}.
+ * The {@link HueBridgeDiscoveryParticipant} is responsible for discovering hue bridges via
+ * UPnP. Incoming devices are checked for their model name to start with "Philips hue bridge".
+ * This matches the old (round) and new (rectangle) hue bridge.
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Thomas Höfer - Added representation
@@ -42,7 +43,6 @@ import org.osgi.service.component.annotations.Component;
 @NonNullByDefault
 @Component(service = UpnpDiscoveryParticipant.class, immediate = true)
 public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
-
     @Override
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
         return Collections.singleton(THING_TYPE_BRIDGE);
@@ -51,18 +51,35 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
     @Override
     public @Nullable DiscoveryResult createResult(RemoteDevice device) {
         ThingUID uid = getThingUID(device);
-        if (uid != null) {
-            Map<String, Object> properties = new HashMap<>(2);
-            properties.put(HOST, device.getDetails().getBaseURL().getHost());
-            properties.put(PROPERTY_SERIAL_NUMBER, device.getDetails().getSerialNumber());
-
-            DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                    .withLabel(device.getDetails().getFriendlyName()).withRepresentationProperty(PROPERTY_SERIAL_NUMBER)
-                    .build();
-            return result;
-        } else {
+        if (uid == null) {
             return null;
         }
+        URL descriptorURL = device.getIdentity().getDescriptorURL();
+        // Either use the serial number or the upnp UDN. The UDN would
+        // be more unique but for the sake of backwards compatibility use
+        // the serial number for now.
+        String udn = device.getDetails().getSerialNumber(); // device.getIdentity().getUdn().getIdentifierString();
+
+        // Friendly name is like "name (host)"
+        String name = device.getDetails().getFriendlyName();
+        // Cut out the pure name
+        if (name.indexOf('(') - 1 > 0) {
+            name = name.substring(0, name.indexOf('(') - 1);
+        }
+        // Add host+port
+        String hostAndPort = descriptorURL.getHost();
+        if (descriptorURL.getPort() != -1) {
+            hostAndPort += ":" + String.valueOf(descriptorURL.getPort());
+        }
+        name = name + " (" + hostAndPort + ")";
+
+        Map<String, Object> properties = new TreeMap<>();
+
+        properties.put(HOST, hostAndPort);
+        properties.put(UDN, udn);
+
+        return DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(name).withTTL(MIN_MAX_AGE_SECS)
+                .withRepresentationProperty(UDN).build();
     }
 
     @Override
