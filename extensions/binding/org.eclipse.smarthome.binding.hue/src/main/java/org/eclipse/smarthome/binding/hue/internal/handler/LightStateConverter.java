@@ -75,7 +75,7 @@ public class LightStateConverter {
         StateUpdate stateUpdate = ColorMode.XY.equals(lightState.getColorMode()) ? toXYColorLightState(hsbType)
                 : toHSBColorLightState(hsbType);
 
-        int brightness = (int) Math.round(hsbType.getBrightness().doubleValue() * BRIGHTNESS_FACTOR);
+        int brightness = (int) Math.floor(hsbType.getBrightness().doubleValue() * BRIGHTNESS_FACTOR);
         if (brightness > 0) {
             stateUpdate.setBrightness(brightness);
         }
@@ -84,7 +84,7 @@ public class LightStateConverter {
 
     private static StateUpdate toHSBColorLightState(HSBType hsbType) {
         int hue = (int) Math.round(hsbType.getHue().doubleValue() * HUE_FACTOR);
-        int saturation = (int) Math.round(hsbType.getSaturation().doubleValue() * SATURATION_FACTOR);
+        int saturation = (int) Math.floor(hsbType.getSaturation().doubleValue() * SATURATION_FACTOR);
 
         return new StateUpdate().setHue(hue).setSat(saturation);
     }
@@ -119,7 +119,7 @@ public class LightStateConverter {
         boolean on = !percentType.equals(PercentType.ZERO);
         final StateUpdate stateUpdate = new StateUpdate().setOn(on);
 
-        int brightness = (int) Math.round(percentType.doubleValue() * BRIGHTNESS_FACTOR);
+        int brightness = (int) Math.floor(percentType.doubleValue() * BRIGHTNESS_FACTOR);
         if (brightness > 0) {
             stateUpdate.setBrightness(brightness);
         }
@@ -195,7 +195,7 @@ public class LightStateConverter {
      * @return percent type representing the brightness
      */
     public static PercentType toBrightnessPercentType(State lightState) {
-        int percent = (int) Math.round(lightState.getBrightness() / BRIGHTNESS_FACTOR);
+        int percent = (int) Math.ceil(lightState.getBrightness() / BRIGHTNESS_FACTOR);
         return new PercentType(restrictToBounds(percent));
     }
 
@@ -225,10 +225,10 @@ public class LightStateConverter {
     private static HSBType fromHSBtoHSBType(State lightState) {
         int hue = lightState.getHue();
 
-        int saturationInPercent = (int) Math.round(lightState.getSaturation() / SATURATION_FACTOR);
+        int saturationInPercent = (int) Math.ceil(lightState.getSaturation() / SATURATION_FACTOR);
         saturationInPercent = restrictToBounds(saturationInPercent);
 
-        int brightnessInPercent = (int) Math.round(lightState.getBrightness() / BRIGHTNESS_FACTOR);
+        int brightnessInPercent = (int) Math.ceil(lightState.getBrightness() / BRIGHTNESS_FACTOR);
         brightnessInPercent = restrictToBounds(brightnessInPercent);
 
         return new HSBType(new DecimalType(hue / HUE_FACTOR), new PercentType(saturationInPercent),
@@ -239,7 +239,7 @@ public class LightStateConverter {
         float[] xy = lightState.getXY();
         HSBType hsb = HSBType.fromXY(xy[0], xy[1]);
 
-        int brightnessInPercent = (int) Math.round(lightState.getBrightness() / BRIGHTNESS_FACTOR);
+        int brightnessInPercent = (int) Math.ceil(lightState.getBrightness() / BRIGHTNESS_FACTOR);
         brightnessInPercent = restrictToBounds(brightnessInPercent);
 
         return new HSBType(hsb.getHue(), hsb.getSaturation(), new PercentType(brightnessInPercent));

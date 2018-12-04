@@ -20,14 +20,14 @@ package org.eclipse.smarthome.binding.hue.internal;
  */
 public class State {
     private boolean on;
-    protected int bri;
+    int bri;
     private int hue;
-    private int sat;
+    int sat;
     private float[] xy;
     private int ct;
     private String alert;
     private String effect;
-    private String colormode;
+    String colormode;
     private boolean reachable;
 
     State() {
