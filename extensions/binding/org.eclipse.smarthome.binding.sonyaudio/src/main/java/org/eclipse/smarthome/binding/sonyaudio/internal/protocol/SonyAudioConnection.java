@@ -238,7 +238,7 @@ public class SonyAudioConnection implements SonyAudioClientSocketEventListener {
             }
             listener.updateConnectionState(true);
         } catch (IOException e) {
-            logger.error("Failed to setup connection");
+            logger.debug("Failed to setup connection");
             listener.updateConnectionState(false);
         }
     }
