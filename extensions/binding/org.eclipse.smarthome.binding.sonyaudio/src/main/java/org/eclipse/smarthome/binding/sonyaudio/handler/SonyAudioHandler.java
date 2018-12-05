@@ -463,7 +463,7 @@ abstract class SonyAudioHandler extends BaseThingHandler implements SonyAudioEve
 
     @Override
     public void updateConnectionState(boolean connected) {
-        logger.info("Changing connection status to {}", connected);
+        logger.debug("Changing connection status to {}", connected);
         if (connected) {
             updateStatus(ThingStatus.ONLINE);
         } else {
