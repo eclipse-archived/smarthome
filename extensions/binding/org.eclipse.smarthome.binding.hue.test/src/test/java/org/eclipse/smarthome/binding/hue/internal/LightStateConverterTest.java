@@ -20,21 +20,30 @@ import org.eclipse.smarthome.binding.hue.internal.handler.LightStateConverter;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.test.java.JavaOSGiTest;
 import org.junit.Test;
 
 /**
  *
- * @author Markus Bösling - initial contribution
+ * @author Markus Bösling - Initial contribution
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  * @author Markus Rathgeb - migrated to plain Java test
  */
-public class LightStateConverterOSGiTest extends JavaOSGiTest {
+public class LightStateConverterTest {
+
+    @Test
+    public void brightnessOfZeroIsZero() {
+        final State lightState = new State();
+        // 0 percent should not be sent to the Hue interface
+        StateUpdate stateUpdate = LightStateConverter.toBrightnessLightState(PercentType.ZERO);
+        assertThat(stateUpdate.commands.size(), is(1));
+        // a brightness of 0 should result in 0 percent
+        lightState.bri = 0;
+        assertThat(LightStateConverter.toBrightnessPercentType(lightState), is(PercentType.ZERO));
+    }
 
     @Test
     public void brightnessLightStateConverterConversionIsBijective() {
         final State lightState = new State();
-        // 0 is an edge case
         for (int percent = 1; percent <= 100; ++percent) {
             StateUpdate stateUpdate = LightStateConverter.toBrightnessLightState(new PercentType(percent));
             assertThat(stateUpdate.commands.size(), is(2));
@@ -47,19 +56,30 @@ public class LightStateConverterOSGiTest extends JavaOSGiTest {
     @Test
     public void brightnessAlwaysGreaterThanZero() {
         final State lightState = new State();
-        // 0 is an edge case
+        // a brightness greater than 1 should result in a percentage greater than 1
         for (int brightness = 1; brightness <= 254; ++brightness) {
             lightState.bri = brightness;
-            PercentType percent = LightStateConverter.toBrightnessPercentType(lightState);
-            assertTrue(percent.intValue() > 0);
+            assertTrue(LightStateConverter.toBrightnessPercentType(lightState).intValue() > 0);
         }
+    }
+
+    @Test
+    public void colorWithBightnessOfZeroIsZero() {
+        final State lightState = new State();
+        lightState.colormode = ColorMode.CT.toString();
+        // 0 percent should not be sent to the Hue interface
+        final HSBType hsbType = new HSBType(DecimalType.ZERO, PercentType.ZERO, PercentType.ZERO);
+        StateUpdate stateUpdate = LightStateConverter.toColorLightState(hsbType, lightState);
+        assertThat(stateUpdate.commands.size(), is(2));
+        // a brightness of 0 should result in 0 percent
+        lightState.bri = 0;
+        assertThat(LightStateConverter.toHSBType(lightState).getBrightness(), is(PercentType.ZERO));
     }
 
     @Test
     public void colorLightStateConverterForBrightnessConversionIsBijective() {
         final State lightState = new State();
         lightState.colormode = ColorMode.CT.toString();
-        // 0 is an edge case
         for (int percent = 1; percent <= 100; ++percent) {
             final HSBType hsbType = new HSBType(DecimalType.ZERO, PercentType.ZERO, new PercentType(percent));
             StateUpdate stateUpdate = LightStateConverter.toColorLightState(hsbType, lightState);
@@ -74,11 +94,10 @@ public class LightStateConverterOSGiTest extends JavaOSGiTest {
     public void hsbBrightnessAlwaysGreaterThanZero() {
         final State lightState = new State();
         lightState.colormode = ColorMode.CT.toString();
-        // 0 is an edge case
+        // a brightness greater than 1 should result in a percentage greater than 1
         for (int brightness = 1; brightness <= 254; ++brightness) {
             lightState.bri = brightness;
-            PercentType percent = LightStateConverter.toHSBType(lightState).getBrightness();
-            assertTrue(percent.intValue() > 0);
+            assertTrue(LightStateConverter.toHSBType(lightState).getBrightness().intValue() > 0);
         }
     }
 
@@ -86,8 +105,7 @@ public class LightStateConverterOSGiTest extends JavaOSGiTest {
     public void colorLightStateConverterForSaturationConversionIsBijective() {
         final State lightState = new State();
         lightState.colormode = ColorMode.CT.toString();
-        // 0 is an edge case
-        for (int percent = 1; percent <= 100; ++percent) {
+        for (int percent = 0; percent <= 100; ++percent) {
             final HSBType hsbType = new HSBType(DecimalType.ZERO, new PercentType(percent), PercentType.HUNDRED);
             StateUpdate stateUpdate = LightStateConverter.toColorLightState(hsbType, lightState);
             assertThat(stateUpdate.commands.size(), is(3));
@@ -101,11 +119,10 @@ public class LightStateConverterOSGiTest extends JavaOSGiTest {
     public void hsbSaturationAlwaysGreaterThanZero() {
         final State lightState = new State();
         lightState.colormode = ColorMode.CT.toString();
-        // 0 is an edge case
+        // a saturation greater than 1 should result in a percentage greater than 1
         for (int saturation = 1; saturation <= 254; ++saturation) {
             lightState.sat = saturation;
-            PercentType percent = LightStateConverter.toHSBType(lightState).getSaturation();
-            assertTrue(percent.intValue() > 0);
+            assertTrue(LightStateConverter.toHSBType(lightState).getSaturation().intValue() > 0);
         }
     }
 }
