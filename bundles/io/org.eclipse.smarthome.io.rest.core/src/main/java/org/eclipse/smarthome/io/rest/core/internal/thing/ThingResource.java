@@ -401,7 +401,7 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}/config")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Updates thing's configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Thing.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ThingDTO.class),
             @ApiResponse(code = 400, message = "Configuration of the thing is not valid."),
             @ApiResponse(code = 404, message = "Thing not found"),
             @ApiResponse(code = 409, message = "Thing could not be updated as it is not editable.") })
