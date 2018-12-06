@@ -28,7 +28,13 @@ import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 public interface ThingTracker {
 
     public enum ThingTrackerEvent {
-        THING_ADDED, THING_REMOVING, THING_REMOVED, THING_UPDATED, TRACKER_ADDED, TRACKER_REMOVED
+        THING_ADDED,
+        THING_ADDED_FINISHED,
+        THING_REMOVING,
+        THING_REMOVED,
+        THING_UPDATED,
+        TRACKER_ADDED,
+        TRACKER_REMOVED
     }
 
     /**
@@ -40,7 +46,18 @@ public interface ThingTracker {
     void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent);
 
     /**
-     * This method is called for every thing that is going to be removed from the {@link ThingRegistryImpl}. Moreover the method is
+     * This method is called after the thing was added and after further processing (like notifying listeners) happened.
+     * This method is called for every thing that exists in the {@link ThingRegistryImpl} and for every added thing.
+     *
+     * @param thing The thing which was added and can be safely post processed now.
+     */
+    default void thingAddedFinished(Thing thing, ThingTrackerEvent thingTrackerEvent) {
+
+    }
+
+    /**
+     * This method is called for every thing that is going to be removed from the {@link ThingRegistryImpl}. Moreover
+     * the method is
      * called for every thing,
      * that exists in the {@link ThingRegistryImpl}, when the tracker is
      * unregistered.

@@ -453,6 +453,10 @@ public class ThingManagerImpl
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
+    }
+
+    @Override
+    public void thingAddedFinished(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         if (!isHandlerRegistered(thing)) {
             registerAndInitializeHandler(thing, getThingHandlerFactory(thing));
         } else {

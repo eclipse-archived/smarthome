@@ -124,9 +124,14 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
 
     @Override
     protected void notifyListenersAboutAddedElement(Thing element) {
-        super.notifyListenersAboutAddedElement(element);
-        postEvent(ThingEventFactory.createAddedEvent(element));
+        // let the ThingManagerImpl know about the thing
         notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
+        // let all listeners process the added thing
+        super.notifyListenersAboutAddedElement(element);
+        // post event about the new thing
+        postEvent(ThingEventFactory.createAddedEvent(element));
+        // trigger ThingManager to create the handler and post thing status events
+        notifyTrackers(element, ThingTrackerEvent.THING_ADDED_FINISHED);
     }
 
     @Override
@@ -138,8 +143,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
 
     @Override
     protected void notifyListenersAboutUpdatedElement(Thing oldElement, Thing element) {
-        super.notifyListenersAboutUpdatedElement(oldElement, element);
         notifyTrackers(element, ThingTrackerEvent.THING_UPDATED);
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
         postEvent(ThingEventFactory.createUpdateEvent(element, oldElement));
     }
 
@@ -208,6 +213,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
                     case THING_ADDED:
                         thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
                         break;
+                    case THING_ADDED_FINISHED:
+                        thingTracker.thingAddedFinished(thing, ThingTrackerEvent.THING_ADDED_FINISHED);
+                        break;
                     case THING_REMOVING:
                         thingTracker.thingRemoving(thing, ThingTrackerEvent.THING_REMOVING);
                         break;
@@ -230,6 +238,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
     private void notifyTrackerAboutAllThingsAdded(ThingTracker thingTracker) {
         for (Thing thing : getAll()) {
             thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
+            thingTracker.thingAddedFinished(thing, ThingTrackerEvent.TRACKER_ADDED);
         }
     }
 
