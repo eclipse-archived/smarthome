@@ -78,10 +78,10 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
 
     private int minThreadsShared;
     private int maxThreadsShared;
-    private int keepAliveTimeoutShared;
+    private int keepAliveTimeoutShared; // in s
     private int minThreadsCustom;
     private int maxThreadsCustom;
-    private int keepAliveTimeoutCustom;
+    private int keepAliveTimeoutCustom; // in s
 
     @Activate
     protected void activate(Map<String, Object> parameters) {
@@ -172,10 +172,10 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
     private void getConfigParameters(Map<String, Object> parameters) {
         minThreadsShared = getConfigParameter(parameters, CONFIG_MIN_THREADS_SHARED, 10);
         maxThreadsShared = getConfigParameter(parameters, CONFIG_MAX_THREADS_SHARED, 40);
-        keepAliveTimeoutShared = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_SHARED, 60);
+        keepAliveTimeoutShared = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_SHARED, 10);
         minThreadsCustom = getConfigParameter(parameters, CONFIG_MIN_THREADS_CUSTOM, 5);
         maxThreadsCustom = getConfigParameter(parameters, CONFIG_MAX_THREADS_CUSTOM, 10);
-        keepAliveTimeoutCustom = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_CUSTOM, 60);
+        keepAliveTimeoutCustom = getConfigParameter(parameters, CONFIG_KEEP_ALIVE_CUSTOM, 10);
     }
 
     @SuppressWarnings({ "null", "unused" })
@@ -216,6 +216,11 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
 
                         if (commonHttpClient == null) {
                             commonHttpClient = createHttpClientInternal("common", null, true, threadPool);
+                            // we need to set the stop timeout AFTER the client has been started, because
+                            // otherwise the Jetty client sets it back to the default value.
+                            // We need the stop timeout in order to prevent blocking the deactivation of this
+                            // component, see https://github.com/eclipse/smarthome/issues/6632
+                            threadPool.setStopTimeout(0);
                             logger.debug("Jetty shared http client created");
                         }
 
@@ -245,7 +250,13 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HttpClient>() {
                 @Override
                 public HttpClient run() {
-                    logger.debug("creating http client for consumer {}, endpoint {}", consumerName, endpoint);
+                    if (logger.isDebugEnabled()) {
+                        if (endpoint == null) {
+                            logger.debug("creating http client for consumer {}", consumerName);
+                        } else {
+                            logger.debug("creating http client for consumer {}, endpoint {}", consumerName, endpoint);
+                        }
+                    }
 
                     HttpClient httpClient = new HttpClient(createSslContextFactory(endpoint));
                     httpClient.setMaxConnectionsPerDestination(2);
@@ -287,7 +298,14 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
             return AccessController.doPrivileged(new PrivilegedExceptionAction<WebSocketClient>() {
                 @Override
                 public WebSocketClient run() {
-                    logger.debug("creating web socket client for consumer {}, endpoint {}", consumerName, endpoint);
+                    if (logger.isDebugEnabled()) {
+                        if (endpoint == null) {
+                            logger.debug("creating web socket client for consumer {}", consumerName);
+                        } else {
+                            logger.debug("creating web socket client for consumer {}, endpoint {}", consumerName,
+                                    endpoint);
+                        }
+                    }
 
                     WebSocketClient webSocketClient = new WebSocketClient(createSslContextFactory(endpoint));
                     if (threadPool != null) {
@@ -323,8 +341,8 @@ public class WebClientFactoryImpl implements HttpClientFactory, WebSocketFactory
 
     private QueuedThreadPool createThreadPool(String consumerName, int minThreads, int maxThreads,
             int keepAliveTimeout) {
-        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(maxThreads, minThreads, keepAliveTimeout);
-        queuedThreadPool.setName(consumerName);
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(maxThreads, minThreads, keepAliveTimeout * 1000);
+        queuedThreadPool.setName("ESH-httpClient-" + consumerName);
         queuedThreadPool.setDaemon(true);
         return queuedThreadPool;
     }
