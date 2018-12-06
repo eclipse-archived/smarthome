@@ -144,7 +144,7 @@ if [ -n "${VERSION_NEW_QUALI}" ]; then
   esac
 else
   VERSION_NEW_QUALI=".qualifier"
-  VERSION_NEW="${VERSION_NEW_MMR}".{VERSION_NEW_QUALI}
+  VERSION_NEW="${VERSION_NEW_MMR}"
 fi
 
 #
