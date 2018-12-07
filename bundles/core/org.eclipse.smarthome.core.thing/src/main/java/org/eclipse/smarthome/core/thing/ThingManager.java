@@ -27,8 +27,6 @@ public interface ThingManager {
      * @param thingUID UID of the {@link Thing}.
      * @return {@code false} when the {@link Thing} has {@link ThingStatus} with {@link ThingStatusDetail#DISABLED}.
      *         Returns {@code true} in all other cases.
-     * @throws IllegalArgumentException if there is no Thing with thingUID as its UID and also there is no persisted
-     *             value in the storage for hat thingUID.
      */
     public boolean isEnabled(ThingUID thingUID);
 
