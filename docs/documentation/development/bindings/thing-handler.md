@@ -182,9 +182,12 @@ rate_limit=Device is blocked by remote service for {0} minutes. Maximum limit of
 
 ## Channel Links
 
-Some bindings might want to start specific functionality for a channel only if an item is linked to the channel. The `ThingHandler` has two callback methods `channelLinked(ChannelUID channelUID)` and `channelUnlinked(ChannelUID channelUID)`, which are called for every link that is added or removed to/from a channel. So please be aware of the fact that both methods can be called multiple times.
+Some bindings might want to start specific functionality for a channel only if an item is linked to the channel.
+The `ThingHandler` has two callback methods `channelLinked(ChannelUID channelUID)` and `channelUnlinked(ChannelUID channelUID)`, which are called for every link that is added or removed to/from a channel.
+So please be aware of the fact that both methods can be called multiple times.
 
-The `channelLinked` method is called, even if the link existed before the handler was initialized. It will be called only after the `initialized` method has been executed successfully and the handler was registered as OSGi service. To check if a channel is linked at the time when `channelLinked` or `channelUnlinked` is called, you can use the `isLinked(String channelID)` method from the `BaseThingHandler` class.
+The `channelLinked` method is only called, if the thing handler has been initialized (status ONLINE/OFFLINE/UNKNOWN).
+To actively check if a channel is linked, you can use the `isChannelLinked(ChannelUID channelUID)` method of the `ThingHandlerCallback`.
 
 ## Handling Thing Updates
 
