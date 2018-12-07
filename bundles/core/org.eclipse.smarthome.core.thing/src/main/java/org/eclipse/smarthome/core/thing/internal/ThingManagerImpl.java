@@ -1208,18 +1208,16 @@ public class ThingManagerImpl
     @Override
     public void setEnabled(ThingUID thingUID, boolean enabled) {
         Thing thing = getThing(thingUID);
-        
+
+        persistThingEnableStatus(thingUID, enabled);
+
         if (thing == null) {
-            throw new IllegalArgumentException(String.format("Thing with the UID '%s' is unknown, cannot set its enabled status.", thingUID));
+            logger.debug("Thing with the UID {} is unknown, cannot set its enabled status.", thingUID);
+            return;
         }
-        
+
         if (enabled) {
             // Enable a thing
-            // Clear the disabled thing storage. Otherwise the handler will NOT be initialized later.
-            if (storage != null) {
-                storage.remove(thingUID.getAsString());
-            }
-
             if (thing.getStatus().equals(ThingStatus.ONLINE)) {
                 logger.debug("Thing {} is already in the required state.", thingUID);
                 return;
@@ -1235,11 +1233,6 @@ public class ThingManagerImpl
                 registerAndInitializeHandler(thing, findThingHandlerFactory(thing.getThingTypeUID()));
             }
         } else {
-            // Mark the thing as disabled in the storage.
-            if (storage != null) {
-                storage.put(thingUID.getAsString(), enabled);
-            }
-
             if (!thing.isEnabled()) {
                 logger.debug("Thing {} is already in the required state.", thingUID);
                 return;
@@ -1258,14 +1251,31 @@ public class ThingManagerImpl
         }
     }
 
+    private void persistThingEnableStatus(ThingUID thingUID, boolean enabled) {
+        if (storage != null) {
+            logger.debug("Cannot persist thing enable status. Storage unavailable.");
+        }
+
+        logger.debug("Thing with UID {} will be persisted as {}.", thingUID, enabled?"enabled.":"disabled.");
+        if (enabled) {
+            // Clear the disabled thing storage. Otherwise the handler will NOT be initialized later.
+            storage.remove(thingUID.getAsString());
+        } else {
+            // Mark the thing as disabled in the storage.
+            storage.put(thingUID.getAsString(), enabled);
+        }
+
+    }
+
     @Override
     public boolean isEnabled(ThingUID thingUID) {
         Thing thing = getThing(thingUID);
 
         if (thing == null) {
-            throw new IllegalArgumentException(String.format("Thing with the UID '%s' is unknown, cannot get its enabled status.", thingUID));
+            throw new IllegalArgumentException(
+                    String.format("Thing with the UID '%s' is unknown, cannot get its enabled status.", thingUID));
         }
-        
+
         return thing.isEnabled();
     }
 

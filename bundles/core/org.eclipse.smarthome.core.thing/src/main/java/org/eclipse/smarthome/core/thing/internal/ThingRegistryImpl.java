@@ -124,9 +124,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
 
     @Override
     protected void notifyListenersAboutAddedElement(Thing element) {
+        super.notifyListenersAboutAddedElement(element);
         postEvent(ThingEventFactory.createAddedEvent(element));
         notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
-        super.notifyListenersAboutAddedElement(element);
     }
 
     @Override
@@ -138,9 +138,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID, ThingPr
 
     @Override
     protected void notifyListenersAboutUpdatedElement(Thing oldElement, Thing element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
         notifyTrackers(element, ThingTrackerEvent.THING_UPDATED);
         postEvent(ThingEventFactory.createUpdateEvent(element, oldElement));
-        super.notifyListenersAboutUpdatedElement(oldElement, element);
     }
 
     @Override
