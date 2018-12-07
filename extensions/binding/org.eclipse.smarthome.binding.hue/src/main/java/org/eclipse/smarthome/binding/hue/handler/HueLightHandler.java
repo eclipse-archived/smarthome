@@ -14,23 +14,23 @@ package org.eclipse.smarthome.binding.hue.handler;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.binding.hue.internal.HueBridge;
-import org.eclipse.smarthome.binding.hue.internal.State;
-import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
-import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.LightStateConverter;
+import org.eclipse.smarthome.binding.hue.internal.LightStatusListener;
+import org.eclipse.smarthome.binding.hue.internal.dto.Light;
+import org.eclipse.smarthome.binding.hue.internal.dto.LightState;
+import org.eclipse.smarthome.binding.hue.internal.dto.LightState.AlertMode;
+import org.eclipse.smarthome.binding.hue.internal.dto.LightState.ColorMode;
+import org.eclipse.smarthome.binding.hue.internal.dto.updates.LightStateUpdate;
+import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -41,70 +41,39 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueClient} to execute the actual
- * command.
+ * {@link HueLightHandler} is the handler for a hue light.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types, changed
- *         the initialization of properties
+ * @author Andre Fuechsel - switch off when brightness == 0, generic thing types, properties initialization
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
- * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
- *         bulbs
+ * @author Markus Mazurczak - code for command handling of OSRAM PAR16 50 bulbs
  * @author Yordan Zhelev - added alert and effect functions
  * @author Denis Dudnik - switched to internally integrated source of Jue library
  * @author Christoph Weitkamp - Added support for bulbs using CIE XY colormode only
  */
 @NonNullByDefault
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
-
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of(THING_TYPE_COLOR_LIGHT,
-            THING_TYPE_COLOR_TEMPERATURE_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_EXTENDED_COLOR_LIGHT,
-            THING_TYPE_ON_OFF_LIGHT, THING_TYPE_ON_OFF_PLUG, THING_TYPE_DIMMABLE_PLUG).collect(Collectors.toSet());
-
-    // @formatter:off
-    private static final Map<String, List<String>> VENDOR_MODEL_MAP = Stream.of(
-            new SimpleEntry<>("Philips",
-                    Arrays.asList("LCT001", "LCT002", "LCT003", "LCT007", "LLC001", "LLC006", "LLC007", "LLC010",
-                            "LLC011", "LLC012", "LLC013", "LLC020", "LST001", "LST002", "LWB004", "LWB006", "LWB007",
-                            "LWL001")),
-            new SimpleEntry<>("OSRAM",
-                    Arrays.asList("Classic_A60_RGBW", "PAR16_50_TW", "Surface_Light_TW", "Plug_01")))
-        .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
-    // @formatter:on
-
-    private static final String OSRAM_PAR16_50_TW_MODEL_ID = "PAR16_50_TW";
-
-    public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
-
-    @NonNullByDefault({})
-    private String lightId;
-
-    private @Nullable Integer lastSentColorTemp;
-    private @Nullable Integer lastSentBrightness;
-
     private final Logger logger = LoggerFactory.getLogger(HueLightHandler.class);
 
-    // Flag to indicate whether the bulb is of type Osram par16 50 TW or not
+    /** type Osram par16 50 TW */
     private boolean isOsramPar16 = false;
-
-    private boolean propertiesInitializedSuccessfully = false;
-
-    private @Nullable HueClient hueClient;
-
-    @Nullable
-    ScheduledFuture<?> scheduledFuture;
+    private @NonNullByDefault({}) HueBridge hueBridge;
+    protected @Nullable ScheduledFuture<?> scheduledFuture;
+    protected @Nullable Light light;
+    protected HueLightHandlerConfig config = new HueLightHandlerConfig();
+    protected @Nullable LightStateUpdate accumulatedLightState = null;
 
     public HueLightHandler(Thing hueLight) {
         super(hueLight);
@@ -112,356 +81,303 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public void initialize() {
-        logger.debug("Initializing hue light handler.");
+        config = getConfigAs(HueLightHandlerConfig.class);
         Bridge bridge = getBridge();
-        initializeThing((bridge == null) ? null : bridge.getStatus());
+        bridgeStatusChanged(
+                (bridge == null) ? new ThingStatusInfo(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE, null)
+                        : bridge.getStatusInfo());
     }
 
-    private void initializeThing(@Nullable ThingStatus bridgeStatus) {
-        logger.debug("initializeThing thing {} bridge status {}", getThing().getUID(), bridgeStatus);
-        final String configLightId = (String) getConfig().get(LIGHT_ID);
-        if (configLightId != null) {
-            lightId = configLightId;
-            // note: this call implicitly registers our handler as a listener on
-            // the bridge
-            if (getHueClient() != null) {
-                if (bridgeStatus == ThingStatus.ONLINE) {
-                    initializeProperties();
-                    updateStatus(ThingStatus.ONLINE);
-                } else {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
-                }
-            } else {
-                updateStatus(ThingStatus.OFFLINE);
-            }
-        } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-no-light-id");
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        if (bridgeStatusInfo.getStatus() != ThingStatus.ONLINE) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+            return;
         }
-    }
 
-    private synchronized void initializeProperties() {
-        if (!propertiesInitializedSuccessfully) {
-            FullLight fullLight = getLight();
-            if (fullLight != null) {
-                String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
-                updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
-                updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-                String vendor = getVendor(modelId);
-                if (vendor != null) {
-                    updateProperty(Thing.PROPERTY_VENDOR, vendor);
-                }
-                updateProperty(LIGHT_UNIQUE_ID, fullLight.getUniqueID());
-                isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
-                propertiesInitializedSuccessfully = true;
-            }
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            return;
         }
-    }
+        HueBridgeHandler handler = (HueBridgeHandler) bridge.getHandler();
+        if (handler == null) {
+            return;
+        }
+        this.hueBridge = handler.getHueBridge();
+        hueBridge.registerLightStatusListener(this);
 
-    private @Nullable String getVendor(String modelId) {
-        for (String vendor : VENDOR_MODEL_MAP.keySet()) {
-            if (VENDOR_MODEL_MAP.get(vendor).contains(modelId)) {
-                return vendor;
+        Light light = hueBridge.getLightById(config.lightId);
+        this.light = light;
+        if (light == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "@text/offline.light-removed");
+            return;
+        }
+
+        String modelId = light.modelid.replaceAll(HueBindingConstants.NORMALIZE_ID_REGEX, "_");
+        isOsramPar16 = HueBindingConstants.OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
+
+        Map<String, String> properties = editProperties();
+        properties.put(Thing.PROPERTY_MODEL_ID, modelId);
+        properties.put(Thing.PROPERTY_FIRMWARE_VERSION, light.swversion);
+        for (String vendor : HueBindingConstants.VENDOR_MODEL_MAP.keySet()) {
+            if (HueBindingConstants.VENDOR_MODEL_MAP.get(vendor).contains(modelId)) {
+                properties.put(Thing.PROPERTY_VENDOR, vendor);
+                break;
             }
         }
-        return null;
+        properties.put(HueLightHandlerConfig.LIGHT_UNIQUE_ID, light.uniqueid);
+        updateProperties(properties);
+
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
     public void dispose() {
-        logger.debug("Handler disposes. Unregistering listener.");
-        if (lightId != null) {
-            HueClient bridgeHandler = getHueClient();
-            if (bridgeHandler != null) {
-                bridgeHandler.unregisterLightStatusListener(this);
-                this.hueClient = null;
-            }
-            lightId = null;
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
         }
-    }
-
-    private @Nullable FullLight getLight() {
-        HueClient bridgeHandler = getHueClient();
-        if (bridgeHandler != null) {
-            return bridgeHandler.getLightById(lightId);
+        if (hueBridge != null) {
+            hueBridge.unregisterLightStatusListener(this);
         }
-        return null;
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        HueClient hueBridge = getHueClient();
-        if (hueBridge == null) {
-            logger.warn("hue bridge handler not found. Cannot handle command without bridge.");
-            return;
-        }
-
-        FullLight light = getLight();
+        final Light light = this.light;
         if (light == null) {
             logger.debug("hue light not known on bridge. Cannot handle command.");
             return;
         }
 
-        StateUpdate lightState = null;
+        if (command instanceof RefreshType) {
+            updateChannelsState(light);
+            return;
+        }
+
+        LightStateUpdate lightState = accumulatedLightState;
+        if (lightState == null) {
+            lightState = new LightStateUpdate();
+            this.accumulatedLightState = lightState;
+        }
+
         switch (channelUID.getId()) {
             case CHANNEL_COLORTEMPERATURE:
                 if (command instanceof PercentType) {
-                    lightState = LightStateConverter.toColorTemperatureLightState((PercentType) command);
+                    lightState = LightStateConverter.toColorTemperatureLightState(lightState, (PercentType) command);
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    if (isOsramPar16) {
-                        lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
-                    }
+                    lightState = osramWrap(LightStateConverter.toOnOffLightState(lightState, (OnOffType) command),
+                            command);
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof IncreaseDecreaseType) {
-                    lightState = convertColorTempChangeToStateUpdate((IncreaseDecreaseType) command, light);
+                    lightState.ct = LightStateConverter.toAdjustedColorTemp((IncreaseDecreaseType) command,
+                            light.state.ct);
+                    // Do not send this state update if light is off, accumulate with another command
+                    if (!light.state.on) {
+                        return;
+                    }
                 }
                 break;
             case CHANNEL_BRIGHTNESS:
                 if (command instanceof PercentType) {
-                    lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
+                    lightState = LightStateConverter.toBrightnessLightState(lightState, (PercentType) command);
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    if (isOsramPar16) {
-                        lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
-                    }
+                    lightState = osramWrap(LightStateConverter.toOnOffLightState(lightState, (OnOffType) command),
+                            command);
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof IncreaseDecreaseType) {
-                    lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
-                }
-                if (lightState != null && lastSentColorTemp != null) {
-                    // make sure that the light also has the latest color temp
-                    // this might not have been yet set in the light, if it was off
-                    lightState.setColorTemperature(lastSentColorTemp);
+                    lightState = LightStateConverter.toBrightnessLightStateRel(lightState,
+                            (IncreaseDecreaseType) command, light);
+                    updateLightState(lightState);
+                    return;
                 }
                 break;
             case CHANNEL_SWITCH:
-                logger.trace("CHANNEL_SWITCH handling command {}", command);
                 if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    if (isOsramPar16) {
-                        lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
-                    }
-                }
-                if (lightState != null && lastSentColorTemp != null) {
-                    // make sure that the light also has the latest color temp
-                    // this might not have been yet set in the light, if it was off
-                    lightState.setColorTemperature(lastSentColorTemp);
+                    lightState = osramWrap(LightStateConverter.toOnOffLightState(lightState, (OnOffType) command),
+                            command);
+                    updateLightState(lightState);
+                    return;
                 }
                 break;
             case CHANNEL_COLOR:
                 if (command instanceof HSBType) {
                     HSBType hsbCommand = (HSBType) command;
                     if (hsbCommand.getBrightness().intValue() == 0) {
-                        lightState = LightStateConverter.toOnOffLightState(OnOffType.OFF);
+                        lightState = LightStateConverter.toOnOffLightState(lightState, OnOffType.OFF);
                     } else {
-                        lightState = LightStateConverter.toColorLightState(hsbCommand, light.getState());
+                        lightState = LightStateConverter.toColorLightState(lightState, hsbCommand, light.state);
                     }
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof PercentType) {
-                    lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
+                    lightState = LightStateConverter.toBrightnessLightState(lightState, (PercentType) command);
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
+                    lightState = LightStateConverter.toOnOffLightState(lightState, (OnOffType) command);
+                    updateLightState(lightState);
+                    return;
                 } else if (command instanceof IncreaseDecreaseType) {
-                    lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
+                    lightState = LightStateConverter.toBrightnessLightStateRel(lightState,
+                            (IncreaseDecreaseType) command, light);
+                    updateLightState(lightState);
+                    return;
                 }
                 break;
             case CHANNEL_ALERT:
                 if (command instanceof StringType) {
-                    lightState = LightStateConverter.toAlertState((StringType) command);
-                    if (lightState == null) {
-                        // Unsupported StringType is passed. Log a warning
-                        // message and return.
+                    try {
+                        lightState = LightStateConverter.toAlertState(lightState, (StringType) command);
+                        scheduleAlertStateRestore(lightState.alert);
+                        updateLightState(lightState);
+                        return;
+                    } catch (IllegalStateException e) {
                         logger.warn("Unsupported String command: {}. Supported commands are: {}, {}, {} ", command,
                                 LightStateConverter.ALERT_MODE_NONE, LightStateConverter.ALERT_MODE_SELECT,
                                 LightStateConverter.ALERT_MODE_LONG_SELECT);
                         return;
-                    } else {
-                        scheduleAlertStateRestore(command);
                     }
                 }
                 break;
             case CHANNEL_EFFECT:
                 if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toOnOffEffectState((OnOffType) command);
+                    lightState = LightStateConverter.toOnOffEffectState(lightState, (OnOffType) command);
+                    updateLightState(lightState);
+                    return;
                 }
                 break;
+            default:
+                logger.warn("Command sent to an unknown channel id: {}", channelUID);
+                return;
         }
-        if (lightState != null) {
-            // Cache values which we have sent
-            Integer tmpBrightness = lightState.getBrightness();
-            if (tmpBrightness != null) {
-                lastSentBrightness = tmpBrightness;
-            }
-            Integer tmpColorTemp = lightState.getColorTemperature();
-            if (tmpColorTemp != null) {
-                lastSentColorTemp = tmpColorTemp;
-            }
-            hueBridge.updateLightState(light, lightState);
-        } else {
-            logger.warn("Command sent to an unknown channel id: {}", channelUID);
+        logger.warn("Command {} not applicable for channel id: {}", command, channelUID);
+    }
+
+    /**
+     * Performs a hue bridge API call to update the light state of this light.
+     *
+     * @param LightStateUpdate The light state updates
+     */
+    public void updateLightState(LightStateUpdate LightStateUpdate) {
+        Light light = this.light;
+        if (light == null) {
+            return;
         }
+        accumulatedLightState = null; // Light state send -> reset accumulation update state
+        hueBridge.setLightState(light, LightStateUpdate).exceptionally(e -> {
+            // Cannot apply value -> Device is off
+            if (e.getCause() instanceof DeviceOffException) {
+                // If there is only a change of the color temperature, we do not want the light
+                // to be turned on (i.e. change its brightness).
+                if (LightStateUpdate.ct != null && LightStateUpdate.bri == null && LightStateUpdate.on == null) {
+                    return null;
+                } else {
+                    return LightStateConverter.toOnOffLightState(LightStateUpdate, OnOffType.ON);
+                }
+            } else {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+                return null;
+            }
+        }).thenCompose(intermediateLightStateUpdate -> {
+            if (intermediateLightStateUpdate != null) {
+                // First turn on, then apply value
+                return hueBridge.setLightState(light, intermediateLightStateUpdate)
+                        .thenCompose(v -> hueBridge.setLightState(light, LightStateUpdate));
+            } else {
+                return CompletableFuture.completedFuture(null);
+            }
+        }).exceptionally(e -> {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            return null;
+        });
     }
 
     /*
-     * Applies additional {@link StateUpdate} commands as a workaround for Osram
+     * Applies additional {@link LightStateUpdate} commands as a workaround for Osram
      * Lightify PAR16 TW firmware bug. Also see
      * http://www.everyhue.com/vanilla/discussion/1756/solved-lightify-turning-off
      */
-    private StateUpdate addOsramSpecificCommands(StateUpdate lightState, OnOffType actionType) {
-        if (actionType.equals(OnOffType.ON)) {
-            lightState.setBrightness(254);
+    private LightStateUpdate osramWrap(LightStateUpdate lightState, Command actionType) {
+        if (!isOsramPar16) {
+            return lightState;
+        }
+
+        if (OnOffType.ON == (OnOffType) actionType) {
+            lightState.bri = 254;
         } else {
-            lightState.setTransitionTime(0);
+            lightState.transitiontime = 0;
         }
         return lightState;
     }
 
-    private @Nullable StateUpdate convertColorTempChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
-        StateUpdate stateUpdate = null;
-        Integer currentColorTemp = getCurrentColorTemp(light.getState());
-        if (currentColorTemp != null) {
-            int newColorTemp = LightStateConverter.toAdjustedColorTemp(command, currentColorTemp);
-            stateUpdate = new StateUpdate().setColorTemperature(newColorTemp);
-        }
-        return stateUpdate;
-    }
-
-    private @Nullable Integer getCurrentColorTemp(@Nullable State lightState) {
-        Integer colorTemp = lastSentColorTemp;
-        if (colorTemp == null && lightState != null) {
-            colorTemp = lightState.getColorTemperature();
-        }
-        return colorTemp;
-    }
-
-    private @Nullable StateUpdate convertBrightnessChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
-        StateUpdate stateUpdate = null;
-        Integer currentBrightness = getCurrentBrightness(light.getState());
-        if (currentBrightness != null) {
-            int newBrightness = LightStateConverter.toAdjustedBrightness(command, currentBrightness);
-            stateUpdate = createBrightnessStateUpdate(currentBrightness, newBrightness);
-        }
-        return stateUpdate;
-    }
-
-    private @Nullable Integer getCurrentBrightness(@Nullable State lightState) {
-        Integer brightness = lastSentBrightness;
-        if (brightness == null && lightState != null) {
-            if (!lightState.isOn()) {
-                brightness = 0;
-            } else {
-                brightness = lightState.getBrightness();
-            }
-        }
-        return brightness;
-    }
-
-    private StateUpdate createBrightnessStateUpdate(int currentBrightness, int newBrightness) {
-        StateUpdate lightUpdate = new StateUpdate();
-        if (newBrightness == 0) {
-            lightUpdate.turnOff();
-        } else {
-            lightUpdate.setBrightness(newBrightness);
-            if (currentBrightness == 0) {
-                lightUpdate.turnOn();
-            }
-        }
-        return lightUpdate;
-    }
-
-    protected synchronized @Nullable HueClient getHueClient() {
-        if (this.hueClient == null) {
-            Bridge bridge = getBridge();
-            if (bridge == null) {
-                return null;
-            }
-            ThingHandler handler = bridge.getHandler();
-            if (handler instanceof HueClient) {
-                this.hueClient = (HueClient) handler;
-                this.hueClient.registerLightStatusListener(this);
-            } else {
-                return null;
-            }
-        }
-        return this.hueClient;
-    }
-
     @Override
-    public void onLightStateChanged(@Nullable HueBridge bridge, FullLight fullLight) {
-        logger.trace("onLightStateChanged() was called");
-
-        if (!fullLight.getId().equals(lightId)) {
-            logger.trace("Received state change for another handler's light ({}). Will be ignored.", fullLight.getId());
+    public void onLightStateChanged(Light newLightValue) {
+        if (!newLightValue.id.equals(config.lightId)) {
             return;
         }
-
-        initializeProperties();
-
-        lastSentColorTemp = null;
-        lastSentBrightness = null;
-
-        // update status (ONLINE, OFFLINE)
-        if (fullLight.getState().isReachable()) {
-            updateStatus(ThingStatus.ONLINE);
-        } else {
-            // we assume OFFLINE without any error (NONE), as this is an
-            // expected state (when bulb powered off)
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.light-not-reachable");
-        }
-
-        HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
-        if (!fullLight.getState().isOn()) {
-            hsbType = new HSBType(hsbType.getHue(), hsbType.getSaturation(), new PercentType(0));
-        }
-        updateState(CHANNEL_COLOR, hsbType);
-
-        ColorMode colorMode = fullLight.getState().getColorMode();
-        if (ColorMode.CT.equals(colorMode)) {
-            PercentType colorTempPercentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
-            updateState(CHANNEL_COLORTEMPERATURE, colorTempPercentType);
-        } else {
-            updateState(CHANNEL_COLORTEMPERATURE, UnDefType.NULL);
-        }
-
-        PercentType brightnessPercentType = LightStateConverter.toBrightnessPercentType(fullLight.getState());
-        if (!fullLight.getState().isOn()) {
-            brightnessPercentType = new PercentType(0);
-        }
-        updateState(CHANNEL_BRIGHTNESS, brightnessPercentType);
-
-        if (fullLight.getState().isOn()) {
-            updateState(CHANNEL_SWITCH, OnOffType.ON);
-        } else {
-            updateState(CHANNEL_SWITCH, OnOffType.OFF);
-        }
-
-        StringType stringType = LightStateConverter.toAlertStringType(fullLight.getState());
-        if (!stringType.toString().equals("NULL")) {
-            updateState(CHANNEL_ALERT, stringType);
-            scheduleAlertStateRestore(stringType);
-        }
+        updateChannelsState(newLightValue);
     }
 
     @Override
-    public void channelLinked(ChannelUID channelUID) {
-        HueClient handler = getHueClient();
-        if (handler != null) {
-            FullLight light = handler.getLightById(lightId);
-            if (light != null) {
-                onLightStateChanged(null, light);
-            }
-        }
-    }
-
-    @Override
-    public void onLightRemoved(@Nullable HueBridge bridge, FullLight light) {
-        if (light.getId().equals(lightId)) {
+    public void onLightRemoved(Light light) {
+        if (light.id.equals(config.lightId)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "offline.light-removed");
         }
     }
 
     @Override
-    public void onLightAdded(@Nullable HueBridge bridge, FullLight light) {
-        if (light.getId().equals(lightId)) {
-            onLightStateChanged(bridge, light);
+    public void onLightAdded(Light light) {
+        if (light.id.equals(config.lightId)) {
+            updateChannelsState(light);
+        }
+    }
+
+    private void updateChannelsState(Light newLightValue) {
+        this.light = newLightValue;
+        this.accumulatedLightState = null;
+        final LightState state = newLightValue.state;
+
+        if (state.reachable) {
+            updateStatus(ThingStatus.ONLINE);
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.light-not-reachable");
+        }
+
+        HSBType hsbType = LightStateConverter.toHSBType(state);
+        if (!state.on) {
+            hsbType = new HSBType(hsbType.getHue(), hsbType.getSaturation(), new PercentType(0));
+        }
+        updateState(CHANNEL_COLOR, hsbType);
+
+        ColorMode colorMode = state.colormode;
+        if (ColorMode.ct.equals(colorMode)) {
+            PercentType colorTempPercentType = LightStateConverter.toColorTemperaturePercentType(state);
+            updateState(CHANNEL_COLORTEMPERATURE, colorTempPercentType);
+        } else {
+            updateState(CHANNEL_COLORTEMPERATURE, UnDefType.NULL);
+        }
+
+        PercentType brightnessPercentType = LightStateConverter.toBrightnessPercentType(state);
+        if (!state.on) {
+            brightnessPercentType = new PercentType(0);
+        }
+        updateState(CHANNEL_BRIGHTNESS, brightnessPercentType);
+
+        if (state.on) {
+            updateState(CHANNEL_SWITCH, OnOffType.ON);
+        } else {
+            updateState(CHANNEL_SWITCH, OnOffType.OFF);
+        }
+
+        if (state.alert != null) {
+            updateState(CHANNEL_ALERT, new StringType(state.alert.name()));
+            scheduleAlertStateRestore(state.alert);
         }
     }
 
@@ -470,62 +386,23 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
      * <br>
      * Based on the initial command:
      * <ul>
-     * <li>For {@link LightStateConverter#ALERT_MODE_SELECT} restoration will be triggered after <strong>2
-     * seconds</strong>.
-     * <li>For {@link LightStateConverter#ALERT_MODE_LONG_SELECT} restoration will be triggered after <strong>15
-     * seconds</strong>.
+     * <li>For "select" restoration will be triggered after <strong>2 seconds</strong>.
+     * <li>For "lselect" restoration will be triggered after <strong>15 seconds</strong>.
      * </ul>
      * This method also cancels any previously scheduled restoration.
      *
-     * @param command The {@link Command} sent to the item
+     * @param alert The {@link Command} sent to the item
      */
-    private void scheduleAlertStateRestore(Command command) {
-        cancelScheduledFuture();
-        int delay = getAlertDuration(command);
-
-        if (delay > 0) {
-            scheduledFuture = scheduler.schedule(() -> {
-                updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE));
-            }, delay, TimeUnit.MILLISECONDS);
-        }
-    }
-
-    /**
-     * This method will cancel previously scheduled alert item state
-     * restoration.
-     */
-    private void cancelScheduledFuture() {
+    private void scheduleAlertStateRestore(@Nullable AlertMode alert) {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
-    }
+        int delay = LightState.getAlertDuration(alert);
 
-    /**
-     * This method returns the time in <strong>milliseconds</strong> after
-     * which, the state of the alert item has to be restored to {@link LightStateConverter#ALERT_MODE_NONE}.
-     *
-     * @param command The initial command sent to the alert item.
-     * @return Based on the initial command will return:
-     *         <ul>
-     *         <li><strong>2000</strong> for {@link LightStateConverter#ALERT_MODE_SELECT}.
-     *         <li><strong>15000</strong> for {@link LightStateConverter#ALERT_MODE_LONG_SELECT}.
-     *         <li><strong>-1</strong> for any command different from the previous two.
-     *         </ul>
-     */
-    private int getAlertDuration(Command command) {
-        int delay;
-        switch (command.toString()) {
-            case LightStateConverter.ALERT_MODE_LONG_SELECT:
-                delay = 15000;
-                break;
-            case LightStateConverter.ALERT_MODE_SELECT:
-                delay = 2000;
-                break;
-            default:
-                delay = -1;
-                break;
+        if (delay > 0) {
+            scheduledFuture = scheduler.schedule(
+                    () -> updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE)), delay,
+                    TimeUnit.MILLISECONDS);
         }
-
-        return delay;
     }
 }

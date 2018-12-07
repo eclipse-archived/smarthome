@@ -12,7 +12,8 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_BRIDGE;
+import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 
 import java.net.URL;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.TreeMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandlerConfig;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.upnp.UpnpDiscoveryParticipant;
@@ -75,11 +77,11 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
         Map<String, Object> properties = new TreeMap<>();
 
-        properties.put(HOST, hostAndPort);
-        properties.put(UDN, udn);
+        properties.put(HueBridgeHandlerConfig.HOST, hostAndPort);
+        properties.put(PROPERTY_SERIAL_NUMBER, udn);
 
         return DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(name).withTTL(MIN_MAX_AGE_SECS)
-                .withRepresentationProperty(UDN).build();
+                .withRepresentationProperty(PROPERTY_SERIAL_NUMBER).build();
     }
 
     @Override

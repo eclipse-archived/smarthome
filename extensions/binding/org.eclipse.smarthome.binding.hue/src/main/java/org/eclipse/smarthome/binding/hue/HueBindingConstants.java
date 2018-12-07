@@ -12,6 +12,14 @@
  */
 package org.eclipse.smarthome.binding.hue;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -50,15 +58,25 @@ public class HueBindingConstants {
     public static final String CHANNEL_EFFECT = "effect";
     public static final String CHANNEL_SWITCH = "switch";
 
-    // Bridge config properties
     public static final String UDN = "udn";
-    public static final String HOST = "ipAddress";
-    public static final String USER_NAME = "userName";
-    public static final String POLLING_INTERVAL = "pollingInterval";
 
-    // Light config properties
-    public static final String LIGHT_ID = "lightId";
-    public static final String LIGHT_UNIQUE_ID = "uniqueId";
-    public static final String MODEL_ID = "modelId";
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Stream.of(THING_TYPE_COLOR_LIGHT,
+            THING_TYPE_COLOR_TEMPERATURE_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_EXTENDED_COLOR_LIGHT,
+            THING_TYPE_ON_OFF_LIGHT, THING_TYPE_ON_OFF_PLUG, THING_TYPE_DIMMABLE_PLUG).collect(Collectors.toSet());
+
+    // @formatter:off
+    public static final Map<String, List<String>> VENDOR_MODEL_MAP = Stream.of(
+            new SimpleEntry<>("Philips",
+                    Arrays.asList("LCT001", "LCT002", "LCT003", "LCT007", "LLC001", "LLC006", "LLC007", "LLC010",
+                            "LLC011", "LLC012", "LLC013", "LLC020", "LST001", "LST002", "LWB004", "LWB006", "LWB007",
+                            "LWL001")),
+            new SimpleEntry<>("OSRAM",
+                    Arrays.asList("Classic_A60_RGBW", "PAR16_50_TW", "Surface_Light_TW", "Plug_01")))
+        .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
+    // @formatter:on
+
+    public static final String OSRAM_PAR16_50_TW_MODEL_ID = "PAR16_50_TW";
+
+    public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
 
 }

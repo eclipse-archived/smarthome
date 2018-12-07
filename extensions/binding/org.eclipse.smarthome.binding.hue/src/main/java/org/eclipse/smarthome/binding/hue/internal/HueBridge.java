@@ -13,21 +13,32 @@
 package org.eclipse.smarthome.binding.hue.internal;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
-import java.net.URLEncoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.CompletionException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.hue.internal.HttpClient.Result;
+import org.eclipse.smarthome.binding.hue.internal.dto.CreateUserRequest;
+import org.eclipse.smarthome.binding.hue.internal.dto.Datastore;
+import org.eclipse.smarthome.binding.hue.internal.dto.ErrorResponse;
+import org.eclipse.smarthome.binding.hue.internal.dto.Group;
+import org.eclipse.smarthome.binding.hue.internal.dto.HueConfig;
+import org.eclipse.smarthome.binding.hue.internal.dto.Light;
+import org.eclipse.smarthome.binding.hue.internal.dto.LightState;
+import org.eclipse.smarthome.binding.hue.internal.dto.NewLights;
+import org.eclipse.smarthome.binding.hue.internal.dto.Schedule;
+import org.eclipse.smarthome.binding.hue.internal.dto.SearchForLightsRequest;
+import org.eclipse.smarthome.binding.hue.internal.dto.SuccessResponse;
+import org.eclipse.smarthome.binding.hue.internal.dto.updates.ConfigUpdate;
+import org.eclipse.smarthome.binding.hue.internal.dto.updates.GroupUpdateOrCreate;
+import org.eclipse.smarthome.binding.hue.internal.dto.updates.LightStateUpdate;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.DeviceOffException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.EntityNotAvailableException;
@@ -35,64 +46,53 @@ import org.eclipse.smarthome.binding.hue.internal.exceptions.GroupTableFullExcep
 import org.eclipse.smarthome.binding.hue.internal.exceptions.InvalidCommandException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
+import org.eclipse.smarthome.binding.hue.internal.utils.AsyncHttpClient;
+import org.eclipse.smarthome.binding.hue.internal.utils.AsyncHttpClient.Result;
+import org.eclipse.smarthome.binding.hue.internal.utils.Util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 
 /**
- * Representation of a connection with a Hue bridge.
+ * A connection to a Hue bridge. You can also register for light changes on this class.
  *
  * @author Q42, standalone Jue library (https://github.com/Q42/Jue)
  * @author Andre Fuechsel - search for lights with given serial number added
  * @author Denis Dudnik - moved Jue library source code inside the smarthome Hue binding, minor code cleanup
+ * @author David Graeff - Rewritten
  */
 @NonNullByDefault
 public class HueBridge {
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
-    private final String hostAndPort;
-    private @Nullable String username;
+    protected String hostAndPort = "";
+    protected String username = "";
+    protected Datastore ds = new Datastore();
 
-    private final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
-    private HttpClient http = new HttpClient();
-    private ScheduledExecutorService scheduler;
+    protected final Set<LightStatusListener> lightStatusListeners = new HashSet<>();
+    protected final Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
+    protected AsyncHttpClient http; // not final for test mock injection
 
     /**
-     * Connect with a bridge as a new user.
+     * Create a hue bridge object. You need to configure/initialize this object by
+     * calling {@link #initialize(String, String)}.
      *
-     * @param hostAndPort The address of the bridge (host:port)
+     * @param httpClient The http client for communication
      */
-    public HueBridge(String hostAndPort, ScheduledExecutorService scheduler) {
+    public HueBridge(AsyncHttpClient httpClient) {
+        this.http = httpClient;
+    }
+
+    /**
+     * The username may change on a call to {@link #link(String)} or {@link #removeApiKey()}
+     *
+     * @param hostAndPort ip address of bridge
+     * @param username username to authenticate with or null if none so far
+     */
+    public void initialize(String hostAndPort, @Nullable String username) {
         this.hostAndPort = hostAndPort;
-        this.scheduler = scheduler;
-    }
-
-    /**
-     * Connect with a bridge as an existing user.
-     *
-     * The username is verified by requesting the list of lights.
-     * Use the ip only constructor and authenticate() function if
-     * you don't want to connect right now.
-     *
-     * @param ip ip address of bridge
-     * @param username username to authenticate with
-     */
-    public HueBridge(String ip, String username, ScheduledExecutorService scheduler) throws IOException, ApiException {
-        this.hostAndPort = ip;
-        this.scheduler = scheduler;
-        authenticate(username);
-    }
-
-    /**
-     * Set the connect and read timeout for HTTP requests.
-     *
-     * @param timeout timeout in milliseconds or 0 for indefinitely
-     */
-    public void setTimeout(int timeout) {
-        http.setTimeout(timeout);
+        this.username = Util.enc(username);
     }
 
     /**
@@ -105,21 +105,12 @@ public class HueBridge {
     }
 
     /**
-     * Returns the username currently authenticated with or null if there isn't one.
-     *
-     * @return username or null
+     * Returns the username that will be used for bridge authentication or an empty string if there isn't one.
+     * If a REST API call results in a 405 Forbidden response, the username will be reset to null
+     * automatically.
      */
-    public @Nullable String getUsername() {
+    public String getUsername() {
         return username;
-    }
-
-    /**
-     * Returns if authentication was successful on the bridge.
-     *
-     * @return true if authenticated on the bridge, false otherwise
-     */
-    public boolean isAuthenticated() {
-        return getUsername() != null;
     }
 
     /**
@@ -130,43 +121,15 @@ public class HueBridge {
      *
      * @return True if the REST access was successful
      */
-    public boolean isReachable() {
-        Result result;
+    public boolean isHueBridgeAndReachable() {
         try {
-            result = http.get(getAbsoluteURL("config"));
+            if (http.get("http://" + hostAndPort + "/api/config").getResponseCode() != 200) {
+                return false;
+            }
         } catch (IOException e) {
             return false;
         }
-        if (result.getResponseCode() != 200) {
-            return false;
-        }
         return true;
-    }
-
-    /**
-     * Returns a list of lights known to the bridge.
-     *
-     * @return list of known lights
-     * @throws UnauthorizedException thrown if the user no longer exists
-     */
-    public List<Light> getLights() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("lights"));
-
-        handleErrors(result);
-
-        Map<String, Light> lightMap = safeFromJson(result.getBody(), Light.GSON_TYPE);
-
-        ArrayList<Light> lightList = new ArrayList<>();
-
-        for (String id : lightMap.keySet()) {
-            Light light = lightMap.get(id);
-            light.setId(id);
-            lightList.add(light);
-        }
-
-        return lightList;
     }
 
     /**
@@ -178,76 +141,22 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      */
     public @Nullable Date getLastSearch() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("lights/new"));
-
+        AsyncHttpClient.Result result = http.get(getAbsoluteURL("lights/new"));
         handleErrors(result);
-
-        String lastScan = safeFromJson(result.getBody(), NewLightsResponse.class).lastscan;
-
-        switch (lastScan) {
-            case "none":
-                return null;
-            case "active":
-                return new Date();
-            default:
-                try {
-                    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(lastScan);
-                } catch (ParseException e) {
-                    return null;
-                }
-        }
+        return gson.fromJson(result.getBody(), NewLights.class).getLastScan();
     }
 
     /**
      * Start searching for new lights for 1 minute.
      * A maximum amount of 15 new lights will be added.
      *
+     * @param serialNumbers Optional list of serial numbers
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public void startSearch() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.post(getAbsoluteURL("lights"), "");
-
+    public void startSearch(@Nullable List<String> serialNumbers) throws IOException, ApiException {
+        String body = serialNumbers == null ? "" : gson.toJson(new SearchForLightsRequest(serialNumbers));
+        AsyncHttpClient.Result result = http.post(getAbsoluteURL("lights"), body);
         handleErrors(result);
-    }
-
-    /**
-     * Start searching for new lights with given serial numbers for 1 minute.
-     * A maximum amount of 15 new lights will be added.
-     *
-     * @param serialNumbers list of serial numbers
-     * @throws UnauthorizedException thrown if the user no longer exists
-     */
-    public void startSearch(List<String> serialNumbers) throws IOException, ApiException {
-        requireAuthentication();
-
-        String body = gson.toJson(new SearchForLightsRequest(serialNumbers));
-        Result result = http.post(getAbsoluteURL("lights"), body);
-
-        handleErrors(result);
-    }
-
-    /**
-     * Returns detailed information for the given light.
-     *
-     * @param light light
-     * @return detailed light information
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if a light with the given id doesn't exist
-     */
-    public FullLight getLight(Light light) throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("lights/" + enc(light.getId())));
-
-        handleErrors(result);
-
-        FullLight fullLight = safeFromJson(result.getBody(), FullLight.class);
-        fullLight.setId(light.getId());
-        return fullLight;
     }
 
     /**
@@ -261,17 +170,15 @@ public class HueBridge {
      * @throws EntityNotAvailableException thrown if the specified light no longer exists
      */
     public String setLightName(Light light, String name) throws IOException, ApiException {
-        requireAuthentication();
-
-        String body = gson.toJson(new SetAttributesRequest(name));
-        Result result = http.put(getAbsoluteURL("lights/" + enc(light.getId())), body);
+        String body = gson.toJson(new GroupUpdateOrCreate(name));
+        AsyncHttpClient.Result result = http.put(getAbsoluteURL("lights/" + Util.enc(light.id)), body);
 
         handleErrors(result);
 
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
+        List<SuccessResponse> entries = gson.fromJson(result.getBody(), SuccessResponse.GSON_TYPE);
         SuccessResponse response = entries.get(0);
 
-        return (String) response.success.get("/lights/" + enc(light.getId()) + "/name");
+        return (String) response.success.get("/lights/" + Util.enc(light.id) + "/name");
     }
 
     /**
@@ -279,20 +186,30 @@ public class HueBridge {
      *
      * @param light light
      * @param update changes to the state
-     * @return Return a future that completes either with a HTTP result or exceptionally.
+     * @return Return a future that completes either with null on success, with an {@link UnauthorizedException} if no
+     *         apiKey is setup yet, with an {@link IOException} on any IO error or with an {@link ApiException} on
+     *         errors reported by the bridge.
      */
-    public CompletableFuture<Result> setLightState(Light light, StateUpdate update) {
-        try {
-            requireAuthentication();
-        } catch (UnauthorizedException e) {
-            CompletableFuture<Result> c = new CompletableFuture<>();
-            c.completeExceptionally(e);
-            return c;
+    public CompletableFuture<@Nullable LightStateUpdate> setLightState(Light light, @Nullable LightStateUpdate update) {
+        if (update == null) {
+            return CompletableFuture.completedFuture(null);
         }
+        return wrap(http.put(getAbsoluteURLnoExcept("lights/" + light.id + "/state"), gson.toJson(update), 2000));
+    }
 
-        String body = update.toJson();
-        return http.putAsync(getAbsoluteURL("lights/" + enc(light.getId()) + "/state"), body, update.getMessageDelay(),
-                scheduler);
+    /**
+     * Returns a list of lights known to the bridge.
+     *
+     * @return list of known lights
+     * @throws UnauthorizedException thrown if the user no longer exists
+     */
+    public List<Light> updateLights() throws IOException, ApiException {
+        AsyncHttpClient.Result result = http.get(getAbsoluteURL("lights"));
+        handleErrors(result);
+        Map<String, Light> copy = new HashMap<>(ds.lights);
+        ds.lights = gson.fromJson(result.getBody(), Light.GSON_TYPE);
+        notifyLightStatusListeners(copy);
+        return ds.getLights();
     }
 
     /**
@@ -301,217 +218,11 @@ public class HueBridge {
      * @return list of groups
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public List<Group> getGroups() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("groups"));
-
+    public List<Group> updateGroups() throws IOException, ApiException {
+        AsyncHttpClient.Result result = http.get(getAbsoluteURL("groups"));
         handleErrors(result);
-
-        Map<String, Group> groupMap = safeFromJson(result.getBody(), Group.GSON_TYPE);
-        ArrayList<Group> groupList = new ArrayList<>();
-
-        groupList.add(new Group());
-
-        for (String id : groupMap.keySet()) {
-            Group group = groupMap.get(id);
-            group.setId(id);
-            groupList.add(group);
-        }
-
-        return groupList;
-    }
-
-    /**
-     * Creates a new group and returns it.
-     * Due to API limitations, the name of the returned object
-     * will simply be "Group". The bridge will append a number to this
-     * name if it's a duplicate. To get the final name, call getGroup
-     * with the returned object.
-     *
-     * @param lights lights in group
-     * @return object representing new group
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws GroupTableFullException thrown if the group limit has been reached
-     */
-    public Group createGroup(List<Light> lights) throws IOException, ApiException {
-        requireAuthentication();
-
-        String body = gson.toJson(new SetAttributesRequest(lights));
-        Result result = http.post(getAbsoluteURL("groups"), body);
-
-        handleErrors(result);
-
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
-        SuccessResponse response = entries.get(0);
-
-        Group group = new Group();
-        group.setName("Group");
-        group.setId(Util.quickMatch("^/groups/([0-9]+)$", (String) response.success.values().toArray()[0]));
-        return group;
-    }
-
-    /**
-     * Creates a new group and returns it.
-     * Due to API limitations, the name of the returned object
-     * will simply be the same as the name parameter. The bridge will
-     * append a number to the name if it's a duplicate. To get the final
-     * name, call getGroup with the returned object.
-     *
-     * @param name new group name
-     * @param lights lights in group
-     * @return object representing new group
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws GroupTableFullException thrown if the group limit has been reached
-     */
-    public Group createGroup(String name, List<Light> lights) throws IOException, ApiException {
-        requireAuthentication();
-
-        String body = gson.toJson(new SetAttributesRequest(name, lights));
-        Result result = http.post(getAbsoluteURL("groups"), body);
-
-        handleErrors(result);
-
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
-        SuccessResponse response = entries.get(0);
-
-        Group group = new Group();
-        group.setName(name);
-        group.setId(Util.quickMatch("^/groups/([0-9]+)$", (String) response.success.values().toArray()[0]));
-        return group;
-    }
-
-    /**
-     * Returns detailed information for the given group.
-     *
-     * @param group group
-     * @return detailed group information
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if a group with the given id doesn't exist
-     */
-    public FullGroup getGroup(Group group) throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("groups/" + enc(group.getId())));
-
-        handleErrors(result);
-
-        FullGroup fullGroup = safeFromJson(result.getBody(), FullGroup.class);
-        fullGroup.setId(group.getId());
-        return fullGroup;
-    }
-
-    /**
-     * Changes the name of the group and returns the new name.
-     * A number will be appended to duplicate names, which may result in a new name exceeding 32 characters.
-     *
-     * @param group group
-     * @param name new name [0..32]
-     * @return new name
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified group no longer exists
-     */
-    public String setGroupName(Group group, String name) throws IOException, ApiException {
-        requireAuthentication();
-
-        if (!group.isModifiable()) {
-            throw new IllegalArgumentException("Group cannot be modified");
-        }
-
-        String body = gson.toJson(new SetAttributesRequest(name));
-        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId())), body);
-
-        handleErrors(result);
-
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
-        SuccessResponse response = entries.get(0);
-
-        return (String) response.success.get("/groups/" + enc(group.getId()) + "/name");
-    }
-
-    /**
-     * Changes the lights in the group.
-     *
-     * @param group group
-     * @param lights new lights [1..16]
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified group no longer exists
-     */
-    public void setGroupLights(Group group, List<Light> lights) throws IOException, ApiException {
-        requireAuthentication();
-
-        if (!group.isModifiable()) {
-            throw new IllegalArgumentException("Group cannot be modified");
-        }
-
-        String body = gson.toJson(new SetAttributesRequest(lights));
-        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId())), body);
-
-        handleErrors(result);
-    }
-
-    /**
-     * Changes the name and the lights of a group and returns the new name.
-     *
-     * @param group group
-     * @param name new name [0..32]
-     * @param lights [1..16]
-     * @return new name
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified group no longer exists
-     */
-    public String setGroupAttributes(Group group, String name, List<Light> lights) throws IOException, ApiException {
-        requireAuthentication();
-
-        if (!group.isModifiable()) {
-            throw new IllegalArgumentException("Group cannot be modified");
-        }
-
-        String body = gson.toJson(new SetAttributesRequest(name, lights));
-        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId())), body);
-
-        handleErrors(result);
-
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
-        SuccessResponse response = entries.get(0);
-
-        return (String) response.success.get("/groups/" + enc(group.getId()) + "/name");
-    }
-
-    /**
-     * Changes the state of a group.
-     *
-     * @param group group
-     * @param update changes to the state
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified group no longer exists
-     */
-    public void setGroupState(Group group, StateUpdate update) throws IOException, ApiException {
-        requireAuthentication();
-
-        String body = update.toJson();
-        Result result = http.put(getAbsoluteURL("groups/" + enc(group.getId()) + "/action"), body);
-
-        handleErrors(result);
-    }
-
-    /**
-     * Delete a group.
-     *
-     * @param group group
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified group no longer exists
-     */
-    public void deleteGroup(Group group) throws IOException, ApiException {
-        requireAuthentication();
-
-        if (!group.isModifiable()) {
-            throw new IllegalArgumentException("Group cannot be modified");
-        }
-
-        Result result = http.delete(getAbsoluteURL("groups/" + enc(group.getId())));
-
-        handleErrors(result);
+        ds.groups = gson.fromJson(result.getBody(), Group.GSON_TYPE);
+        return ds.getGroups();
     }
 
     /**
@@ -520,300 +231,45 @@ public class HueBridge {
      * @return schedules
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public List<Schedule> getSchedules() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("schedules"));
-
+    public List<Schedule> updateSchedules() throws IOException, ApiException {
+        AsyncHttpClient.Result result = http.get(getAbsoluteURL("schedules"));
         handleErrors(result);
-
-        Map<String, Schedule> scheduleMap = safeFromJson(result.getBody(), Schedule.GSON_TYPE);
-
-        ArrayList<Schedule> scheduleList = new ArrayList<>();
-
-        for (String id : scheduleMap.keySet()) {
-            Schedule schedule = scheduleMap.get(id);
-            schedule.setId(id);
-            scheduleList.add(schedule);
-        }
-
-        return scheduleList;
+        ds.schedules = gson.fromJson(result.getBody(), Schedule.GSON_TYPE);
+        return ds.getSchedules();
     }
 
     /**
-     * Schedules a new command to be run at the specified time.
-     * To select the command for the new schedule, simply run it
-     * as you normally would in the callback. Instead of it running
-     * immediately, it will be scheduled to run at the specified time.
-     * It will automatically fail with an IOException, because there
-     * will be no response. Note that GET methods cannot be scheduled,
-     * so those will still run and return results immediately.
+     * Updates and returns bridge configuration.
      *
-     * @param time time to run command
-     * @param callback callback in which the command is specified
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws InvalidCommandException thrown if the scheduled command is larger than 90 bytes or otherwise invalid
-     */
-    public void createSchedule(Date time, ScheduleCallback callback) throws IOException, ApiException {
-        createSchedule(null, null, time, callback);
-    }
-
-    /**
-     * Schedules a new command to be run at the specified time.
-     * To select the command for the new schedule, simply run it
-     * as you normally would in the callback. Instead of it running
-     * immediately, it will be scheduled to run at the specified time.
-     * It will automatically fail with an IOException, because there
-     * will be no response. Note that GET methods cannot be scheduled,
-     * so those will still run and return results immediately.
-     *
-     * @param name name [0..32]
-     * @param time time to run command
-     * @param callback callback in which the command is specified
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws InvalidCommandException thrown if the scheduled command is larger than 90 bytes or otherwise invalid
-     */
-    public void createSchedule(String name, Date time, ScheduleCallback callback) throws IOException, ApiException {
-        createSchedule(name, null, time, callback);
-    }
-
-    /**
-     * Schedules a new command to be run at the specified time.
-     * To select the command for the new schedule, simply run it
-     * as you normally would in the callback. Instead of it running
-     * immediately, it will be scheduled to run at the specified time.
-     * It will automatically fail with an IOException, because there
-     * will be no response. Note that GET methods cannot be scheduled,
-     * so those will still run and return results immediately.
-     *
-     * @param name name [0..32]
-     * @param description description [0..64]
-     * @param time time to run command
-     * @param callback callback in which the command is specified
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws InvalidCommandException thrown if the scheduled command is larger than 90 bytes or otherwise invalid
-     */
-    public void createSchedule(@Nullable String name, @Nullable String description, Date time,
-            ScheduleCallback callback) throws IOException, ApiException {
-        requireAuthentication();
-
-        handleCommandCallback(callback);
-
-        String body = gson.toJson(new CreateScheduleRequest(name, description, scheduleCommand, time));
-        Result result = http.post(getAbsoluteURL("schedules"), body);
-
-        handleErrors(result);
-    }
-
-    /**
-     * Returns detailed information for the given schedule.
-     *
-     * @param schedule schedule
-     * @return detailed schedule information
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified schedule no longer exists
-     */
-    public FullSchedule getSchedule(Schedule schedule) throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("schedules/" + enc(schedule.getId())));
-
-        handleErrors(result);
-
-        FullSchedule fullSchedule = safeFromJson(result.getBody(), FullSchedule.class);
-        fullSchedule.setId(schedule.getId());
-        return fullSchedule;
-    }
-
-    /**
-     * Changes a schedule.
-     *
-     * @param schedule schedule
-     * @param update changes
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the specified schedule no longer exists
-     */
-    public void setSchedule(Schedule schedule, ScheduleUpdate update) throws IOException, ApiException {
-        requireAuthentication();
-
-        String body = update.toJson();
-        Result result = http.put(getAbsoluteURL("schedules/" + enc(schedule.getId())), body);
-
-        handleErrors(result);
-    }
-
-    /**
-     * Changes the command of a schedule.
-     *
-     * @param schedule schedule
-     * @param callback callback for new command
-     * @see #createSchedule(String, String, Date, ScheduleCallback)
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws InvalidCommandException thrown if the scheduled command is larger than 90 bytes or otherwise invalid
-     */
-    public void setScheduleCommand(Schedule schedule, ScheduleCallback callback) throws IOException, ApiException {
-        requireAuthentication();
-
-        handleCommandCallback(callback);
-
-        String body = gson.toJson(new CreateScheduleRequest(null, null, scheduleCommand, null));
-        Result result = http.put(getAbsoluteURL("schedules/" + enc(schedule.getId())), body);
-
-        handleErrors(result);
-    }
-
-    /**
-     * Callback to specify a schedule command.
-     */
-    public interface ScheduleCallback {
-        /**
-         * Run the command you want to schedule as if you're executing
-         * it normally. The request will automatically fail to produce
-         * a result by throwing an IOException. Requests that only
-         * get data (e.g. getGroups) will still execute immediately,
-         * because those cannot be scheduled.
-         *
-         * @param bridge this bridge for convenience
-         * @throws IOException always thrown right after executing a command
-         */
-        public void onScheduleCommand(HueBridge bridge) throws IOException, ApiException;
-    }
-
-    private @Nullable ScheduleCommand scheduleCommand = null;
-
-    private @Nullable ScheduleCommand handleCommandCallback(ScheduleCallback callback) throws ApiException {
-        // Temporarily reroute requests to a fake HTTP client
-        HttpClient realClient = http;
-        http = new HttpClient() {
-            @Override
-            protected Result doNetwork(String address, String requestMethod, @Nullable String body) throws IOException {
-                // GET requests cannot be scheduled, so will continue working normally for convenience
-                if (requestMethod.equals("GET")) {
-                    return super.doNetwork(address, requestMethod, body);
-                } else {
-                    String extractedAddress = Util.quickMatch("^http://[^/]+(.+)$", address);
-                    JsonElement commandBody = new JsonParser().parse(body);
-                    scheduleCommand = new ScheduleCommand(extractedAddress, requestMethod, commandBody);
-
-                    // Return a fake result that will cause an exception and the callback to end
-                    return new Result("", 405);
-                }
-            }
-        };
-
-        // Run command
-        try {
-            scheduleCommand = null;
-            callback.onScheduleCommand(this);
-        } catch (IOException | RuntimeException e) {
-            // Command will automatically fail to return a result because of deferred execution
-        }
-        if (scheduleCommand != null && Util.stringSize(scheduleCommand.getBody()) > 90) {
-            throw new InvalidCommandException("Commmand body is larger than 90 bytes");
-        }
-
-        // Restore HTTP client
-        http = realClient;
-
-        return scheduleCommand;
-    }
-
-    /**
-     * Delete a schedule.
-     *
-     * @param schedule schedule
-     * @throws UnauthorizedException thrown if the user no longer exists
-     * @throws EntityNotAvailableException thrown if the schedule no longer exists
-     */
-    public void deleteSchedule(Schedule schedule) throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.delete(getAbsoluteURL("schedules/" + enc(schedule.getId())));
-
-        handleErrors(result);
-    }
-
-    /**
-     * Authenticate on the bridge as the specified user.
-     * This function verifies that the specified username is valid and will use
-     * it for subsequent requests if it is, otherwise an UnauthorizedException
-     * is thrown and the internal username is not changed.
-     *
-     * @param username username to authenticate
-     * @throws UnauthorizedException thrown if authentication failed
-     */
-    public void authenticate(String username) throws IOException, ApiException {
-        try {
-            this.username = username;
-            getLights();
-        } catch (Exception e) {
-            this.username = null;
-            throw new UnauthorizedException(e.toString());
-        }
-    }
-
-    /**
-     * Resets the REST API key. Call this whenever a method throws {@link UnauthorizedException}
-     * which usually means that the known API key is not whitelisted anymore.
-     */
-    public void resetAuthentification() {
-        this.username = null;
-    }
-
-    /**
-     * Link with bridge using the specified username and device type.
-     *
-     * @param username username for new user [10..40]
-     * @param devicetype identifier of application [0..40]
-     * @throws LinkButtonException thrown if the bridge button has not been pressed
-     */
-    public void link(String username, String devicetype) throws IOException, ApiException {
-        this.username = link(new CreateUserRequest(username, devicetype));
-    }
-
-    /**
-     * Link with bridge using the specified device type. A random valid username will be generated by the bridge and
-     * returned.
-     *
-     * @return new random username generated by bridge
-     * @param devicetype identifier of application [0..40]
-     * @throws LinkButtonException thrown if the bridge button has not been pressed
-     */
-    public String link(String devicetype) throws IOException, ApiException {
-        return (this.username = link(new CreateUserRequest(devicetype)));
-    }
-
-    private String link(CreateUserRequest request) throws IOException, ApiException {
-        if (this.username != null) {
-            throw new IllegalStateException("already linked");
-        }
-
-        String body = gson.toJson(request);
-        Result result = http.post(getAbsoluteURL(""), body);
-
-        handleErrors(result);
-
-        List<SuccessResponse> entries = safeFromJson(result.getBody(), SuccessResponse.GSON_TYPE);
-        SuccessResponse response = entries.get(0);
-
-        return (String) response.success.get("username");
-    }
-
-    /**
-     * Returns bridge configuration.
-     *
-     * @see Config
+     * @see HueConfig
      * @return bridge configuration
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public Config getConfig() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL("config"));
-
+    public HueConfig updateConfig() throws IOException, ApiException {
+        AsyncHttpClient.Result result = http.get(getAbsoluteURL("config"));
         handleErrors(result);
+        ds.config = gson.fromJson(result.getBody(), HueConfig.class);
+        return ds.config;
+    }
 
-        return safeFromJson(result.getBody(), Config.class);
+    /**
+     * Updates and returns the entire bridge datastore.
+     *
+     * <p>
+     * To conserve bandwidth, prefer using the more specific API endpoint methods
+     * like {@link #updateLights()}, {@link #updateGroups()} and so on.
+     * </p>
+     *
+     * @return full bridge configuration
+     * @throws UnauthorizedException thrown if the user no longer exists
+     */
+    public Datastore updateDataStore() throws IOException, ApiException {
+        AsyncHttpClient.Result result = http.get(getAbsoluteURL(""));
+        handleErrors(result);
+        Map<String, Light> copy = new HashMap<>(ds.lights);
+        ds = gson.fromJson(result.getBody(), Datastore.class);
+        notifyLightStatusListeners(copy);
+        return ds;
     }
 
     /**
@@ -823,12 +279,40 @@ public class HueBridge {
      * @throws UnauthorizedException thrown if the user no longer exists
      */
     public void setConfig(ConfigUpdate update) throws IOException, ApiException {
-        requireAuthentication();
+        AsyncHttpClient.Result result = http.put(getAbsoluteURL("config"), gson.toJson(update));
+        handleErrors(result);
+    }
 
-        String body = update.toJson();
-        Result result = http.put(getAbsoluteURL("config"), body);
+    /**
+     * Resets the REST API key. Call this whenever a method throws {@link UnauthorizedException}
+     * which usually means that the known API key is not whitelisted anymore.
+     */
+    public void resetAuthentification() {
+        this.username = "";
+    }
+
+    /**
+     * Link with bridge using the specified username and device type.
+     *
+     * @param username username for new user [10..40]. Can be null for a new random username generated by bridge.
+     * @param devicetype identifier of application [0..40]
+     * @throws LinkButtonException thrown if the bridge button has not been pressed
+     */
+    public String createApiKey(@Nullable String username, String label) throws IOException, ApiException {
+        CreateUserRequest request = new CreateUserRequest(username != null && !username.isEmpty() ? username : null,
+                label);
+
+        String body = gson.toJson(request);
+        AsyncHttpClient.Result result = http.post("http://" + hostAndPort + "/api", body);
 
         handleErrors(result);
+
+        List<SuccessResponse> entries = gson.fromJson(result.getBody(), SuccessResponse.GSON_TYPE);
+        SuccessResponse response = entries.get(0);
+
+        String newUsername = (String) response.success.get("username");
+        this.username = newUsername;
+        return newUsername;
     }
 
     /**
@@ -836,61 +320,29 @@ public class HueBridge {
      *
      * @throws UnauthorizedException thrown if the user no longer exists
      */
-    public void unlink() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.delete(getAbsoluteURL("config/whitelist/" + enc(username)));
-
+    public void removeApiKey() throws IOException, ApiException {
+        AsyncHttpClient.Result result = http.delete(getAbsoluteURL("config/whitelist/" + Util.enc(username)));
         handleErrors(result);
     }
 
     /**
-     * Returns the entire bridge configuration.
-     * This request is rather resource intensive for the bridge,
-     * don't use it more often than necessary. Prefer using requests for
-     * specific information your app needs.
+     * Converts the result into an {@link ApiException} if there is an error.
+     * A huge bridge may report multiple errors, only the first one is considered.
      *
-     * @return full bridge configuration
-     * @throws UnauthorizedException thrown if the user no longer exists
+     * @param result The HTTP result
+     * @throws ApiException An exception if there was any error
      */
-    public FullConfig getFullConfig() throws IOException, ApiException {
-        requireAuthentication();
-
-        Result result = http.get(getAbsoluteURL(""));
-
-        handleErrors(result);
-
-        return gson.fromJson(result.getBody(), FullConfig.class);
-    }
-
-    // Used as assert in requests that require authentication
-    private void requireAuthentication() throws UnauthorizedException {
-        if (this.username == null) {
-            throw new UnauthorizedException("linking is required before interacting with the bridge");
-        }
-    }
-
-    // Methods that convert gson exceptions into ApiExceptions
-    private <T> T safeFromJson(String json, Type typeOfT) throws ApiException {
-        try {
-            return gson.fromJson(json, typeOfT);
-        } catch (JsonParseException e) {
-            throw new ApiException("API returned unexpected result: " + e.getMessage());
-        }
-    }
-
-    private <T> T safeFromJson(String json, Class<T> classOfT) throws ApiException {
-        try {
-            return gson.fromJson(json, classOfT);
-        } catch (JsonParseException e) {
-            throw new ApiException("API returned unexpected result: " + e.getMessage());
-        }
-    }
-
-    // Used as assert in all requests to elegantly catch common errors
-    public void handleErrors(Result result) throws IOException, ApiException {
-        if (result.getResponseCode() != 200) {
-            throw new IOException();
+    public void handleErrors(AsyncHttpClient.Result result) throws ApiException {
+        if (result.getBody().isEmpty()) {
+            if (result.getResponseCode() == 403) {
+                username = "";
+                throw new UnauthorizedException();
+            } else if (result.getResponseCode() == 404) {
+                throw new EntityNotAvailableException("HTTP Error 404: " + result.getRequestURL());
+            }
+            if (result.getResponseCode() != 200) {
+                throw new ApiException();
+            }
         } else {
             try {
                 List<ErrorResponse> errors = gson.fromJson(result.getBody(), ErrorResponse.GSON_TYPE);
@@ -905,7 +357,7 @@ public class HueBridge {
 
                     switch (error.getType()) {
                         case 1:
-                            username = null;
+                            username = "";
                             throw new UnauthorizedException(error.getDescription());
                         case 3:
                             throw new EntityNotAvailableException(error.getDescription());
@@ -927,34 +379,81 @@ public class HueBridge {
         }
     }
 
-    // UTF-8 URL encode
-    private String enc(@Nullable String str) {
-        try {
-            if (str != null) {
-                return URLEncoder.encode(str, "utf-8");
+    /**
+     * Construct a hue REST-API URL, including the hue API username.
+     *
+     * @param path Relative path, can be empty for just the root endpoint at http://hue-address/api/[user-name].
+     * @return A hue REST API endpoint
+     * @throws UnauthorizedException If no username is set yet, throws this exception.
+     */
+    String getAbsoluteURL(String path) throws UnauthorizedException {
+        if (username.isEmpty()) {
+            throw new UnauthorizedException("linking is required before interacting with the bridge");
+        }
+        return "http://" + hostAndPort + "/api/" + username + (path.isEmpty() ? "" : "/" + path);
+    }
+
+    private String getAbsoluteURLnoExcept(String path) {
+        return "http://" + hostAndPort + "/api/" + username + (path.isEmpty() ? "" : "/" + path);
+    }
+
+    public @Nullable Light getLightById(String lightId) {
+        return ds.lights.get(lightId);
+    }
+
+    public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
+        boolean result = lightStatusListeners.add(lightStatusListener);
+        if (result) {
+            ds.lights.values().forEach(light -> lightStatusListener.onLightAdded(light));
+        }
+        return result;
+    }
+
+    public boolean unregisterLightStatusListener(LightStatusListener lightStatusListener) {
+        return lightStatusListeners.remove(lightStatusListener);
+    }
+
+    /**
+     * Computes the added, modified and removed lights and notify all listeners.
+     * This method need to be called whenever the datastore or the datastore.lights field is updated.
+     *
+     * @param lastLightStateCopy A copy of the hue datastore lights, e.g. new HashMap<>(ds.lights)
+     */
+    private void notifyLightStatusListeners(Map<String, Light> lastLightStateCopy) {
+        for (final Light fullLight : ds.lights.values()) {
+            final String lightId = fullLight.id;
+            if (lastLightStateCopy.containsKey(lightId)) {
+                final Light lastFullLight = lastLightStateCopy.remove(lightId);
+                final LightState lastFullLightState = lastFullLight.state;
+
+                if (!lastFullLightState.equals(fullLight.state)) {
+                    lightStatusListeners.forEach(l -> l.onLightStateChanged(fullLight));
+                }
             } else {
-                return "";
+                lightStatusListeners.forEach(l -> l.onLightAdded(fullLight));
             }
-        } catch (UnsupportedEncodingException e) {
-            // throw new EndOfTheWorldException()
-            throw new UnsupportedOperationException("UTF-8 not supported");
+        }
+        // Notify about removed lights
+        for (Entry<String, Light> fullLightEntry : lastLightStateCopy.entrySet()) {
+            lightStatusListeners.forEach(l -> l.onLightRemoved(fullLightEntry.getValue()));
         }
     }
 
     /**
-     * Construct a hue REST-API URL, including the hue API username if already authorized.
+     * Wraps a CompletableFuture network result. Any bridge error (analyzed via {@link #handleErrors(Result)})
+     * leads to an exceptional complete on the returned future.
      *
-     * @param path Relative path, can be empty for just an http://hue-address/api access.
-     * @return A hue REST API endpoint
+     * @param o The original future
+     * @return The future that will fail exceptionally if the bridge reports an error.
      */
-    private String getAbsoluteURL(String path) {
-        String relativeUrl = "http://" + hostAndPort + "/api";
-        if (username != null) {
-            relativeUrl += "/" + enc(username);
-        }
-        if (!path.isEmpty()) {
-            relativeUrl += "/" + path;
-        }
-        return relativeUrl;
+    private CompletableFuture<@Nullable LightStateUpdate> wrap(CompletableFuture<Result> o) {
+        return o.thenApply(r -> {
+            try {
+                handleErrors(r);
+            } catch (ApiException e) {
+                throw new CompletionException(e);
+            }
+            return null;
+        });
     }
 }

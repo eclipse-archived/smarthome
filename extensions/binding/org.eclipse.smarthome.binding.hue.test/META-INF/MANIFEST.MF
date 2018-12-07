@@ -30,5 +30,8 @@ Import-Package:
  org.jupnp.model.types,
  org.mockito,
  org.mockito.stubbing,
+ org.mockito.invocation,
+ org.mockito.verification,
+ org.osgi.service.component,
  org.osgi.service.device
 Automatic-Module-Name: org.eclipse.smarthome.binding.hue.test
