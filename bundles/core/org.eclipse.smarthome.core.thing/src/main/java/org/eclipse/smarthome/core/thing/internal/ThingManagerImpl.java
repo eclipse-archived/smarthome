@@ -1252,8 +1252,9 @@ public class ThingManagerImpl
     }
 
     private void persistThingEnableStatus(ThingUID thingUID, boolean enabled) {
-        if (storage != null) {
+        if (storage == null) {
             logger.debug("Cannot persist thing enable status. Storage unavailable.");
+            return;
         }
 
         logger.debug("Thing with UID {} will be persisted as {}.", thingUID, enabled?"enabled.":"disabled.");
@@ -1269,14 +1270,11 @@ public class ThingManagerImpl
 
     @Override
     public boolean isEnabled(ThingUID thingUID) {
-        Thing thing = getThing(thingUID);
-
-        if (thing == null) {
+        if (storage == null) {
             throw new IllegalArgumentException(
-                    String.format("Thing with the UID '%s' is unknown, cannot get its enabled status.", thingUID));
+                    String.format("Thing with UID {} is unknown, cannot get its enabled status.", thingUID));
         }
-
-        return thing.isEnabled();
+        return storage.get(thingUID.getAsString());
     }
 
     private boolean isDisabledByStorage(ThingUID thingUID) {
