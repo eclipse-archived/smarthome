@@ -1253,11 +1253,11 @@ public class ThingManagerImpl
 
     private void persistThingEnableStatus(ThingUID thingUID, boolean enabled) {
         if (storage == null) {
-            logger.debug("Cannot persist thing enable status. Storage unavailable.");
+            logger.debug("Cannot persist enable status of thing with UID {}. Persistent storage unavailable.", thingUID);
             return;
         }
 
-        logger.debug("Thing with UID {} will be persisted as {}.", thingUID, enabled?"enabled.":"disabled.");
+        logger.debug("Thing with UID {} will be persisted as {}.", thingUID, enabled ? "enabled." : "disabled.");
         if (enabled) {
             // Clear the disabled thing storage. Otherwise the handler will NOT be initialized later.
             storage.remove(thingUID.getAsString());
@@ -1265,16 +1265,21 @@ public class ThingManagerImpl
             // Mark the thing as disabled in the storage.
             storage.put(thingUID.getAsString(), enabled);
         }
-
     }
 
     @Override
     public boolean isEnabled(ThingUID thingUID) {
-        if (storage == null) {
-            throw new IllegalArgumentException(
-                    String.format("Thing with UID {} is unknown, cannot get its enabled status.", thingUID));
+        Thing thing = getThing(thingUID);
+        if (thing != null) {
+            return thing.isEnabled();
         }
-        return storage.get(thingUID.getAsString());
+
+        logger.debug("Thing with UID {} is unknown. Will try to get the enabled status from the persistent storage.");
+        if (storage != null) {
+            return storage.get(thingUID.getAsString());
+        }
+        throw new IllegalArgumentException(
+                String.format("Cannot get the enabled status of thing with UID '%s'.", thingUID)) ;
     }
 
     private boolean isDisabledByStorage(ThingUID thingUID) {
