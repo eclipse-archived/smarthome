@@ -12,19 +12,25 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import org.eclipse.smarthome.core.service.ReadyService;
+import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.util.BundleResolver;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -43,6 +49,9 @@ public class ThingManagerTest {
     private @Mock ComponentContext mockComponentContext;
     private @Mock ReadyService mockReadyService;
     private @Mock Thing mockThing;
+
+    private @Mock StorageService mockStorageService;
+    private @Mock Storage<Object> mockStorage;
 
     private final ThingRegistryImpl thingRegistry = new ThingRegistryImpl();
 
@@ -76,12 +85,18 @@ public class ThingManagerTest {
         verify(mockFactory2, atLeastOnce()).supportsThingType(any());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCallSetEnabledWithUnknownThingUID() throws Exception {
         ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
         ThingManagerImpl thingManager = new ThingManagerImpl();
 
+        when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(mockStorage);
+        thingManager.setStorageService(mockStorageService);
         thingManager.setEnabled(unknownUID, true);
+        verify(mockStorage).remove(eq(unknownUID.getAsString()));
+
+        thingManager.setEnabled(unknownUID, false);
+        verify(mockStorage).put(eq(unknownUID.getAsString()), eq(false));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -89,7 +104,36 @@ public class ThingManagerTest {
         ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
         ThingManagerImpl thingManager = new ThingManagerImpl();
 
+        when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(mockStorage);
+        verify(mockStorage).remove(eq(unknownUID.getAsString()));
         thingManager.isEnabled(unknownUID);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCallIsEnabledWithUnknownThingUIDAndNullStorage() throws Exception {
+        ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
+        ThingManagerImpl thingManager = new ThingManagerImpl();
+
+        when(mockStorage.get(unknownUID.getAsString())).thenReturn(true);
+        when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(null);
+
+        thingManager.setStorageService(mockStorageService);
+        thingManager.isEnabled(unknownUID);
+    }
+
+    @Test
+    public void testCallIsEnabledWithUnknownThingUIDAndNonNullStorage() throws Exception {
+        ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
+        ThingManagerImpl thingManager = new ThingManagerImpl();
+
+        when(mockStorage.get(unknownUID.getAsString())).thenReturn(true);
+        when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(mockStorage);
+        thingManager.setStorageService(mockStorageService);
+        assertEquals(thingManager.isEnabled(unknownUID), true);
+
+        when(mockStorage.get(unknownUID.getAsString())).thenReturn(false);
+        when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(mockStorage);
+        thingManager.setStorageService(mockStorageService);
+        assertEquals(thingManager.isEnabled(unknownUID), false);
+    }
 }
