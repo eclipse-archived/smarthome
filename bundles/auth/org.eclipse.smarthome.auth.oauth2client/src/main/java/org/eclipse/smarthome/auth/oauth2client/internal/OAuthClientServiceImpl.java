@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.eclipse.smarthome.core.auth.client.oauth2.AccessTokenRefreshListener;
 import org.eclipse.smarthome.core.auth.client.oauth2.AccessTokenResponse;
@@ -143,7 +144,6 @@ public class OAuthClientServiceImpl implements OAuthClientService {
         String scopeToUse = scope == null ? persistedParams.scope : scope;
         // keep it to check against redirectUri in #getAccessTokenResponseByAuthorizationCode
         persistedParams.redirectUri = redirectURI;
-
         String authorizationUrl = persistedParams.authorizationUrl;
         if (authorizationUrl == null) {
             throw new OAuthException("Missing authorization url");
@@ -154,7 +154,6 @@ public class OAuthClientServiceImpl implements OAuthClientService {
         }
 
         OAuthConnector connector = new OAuthConnector(httpClientFactory);
-
         return connector.getAuthorizationUrl(authorizationUrl, clientId, redirectURI, persistedParams.state,
                 scopeToUse);
     }
@@ -194,15 +193,12 @@ public class OAuthClientServiceImpl implements OAuthClientService {
             throw new OAuthException(EXCEPTION_MESSAGE_CLOSED);
         }
 
-        OAuthConnector connector = new OAuthConnector(httpClientFactory);
-
         if (persistedParams.redirectUri != null && !persistedParams.redirectUri.equals(redirectURI)) {
             // check parameter redirectURI in #getAuthorizationUrl are the same as given
             throw new OAuthException(String.format(
                     "redirectURI should be the same from previous call #getAuthorizationUrl.  Expected: %s Found: %s",
                     persistedParams.redirectUri, redirectURI));
         }
-
         String tokenUrl = persistedParams.tokenUrl;
         if (tokenUrl == null) {
             throw new OAuthException("Missing token url");
@@ -212,6 +208,7 @@ public class OAuthClientServiceImpl implements OAuthClientService {
             throw new OAuthException("Missing client ID");
         }
 
+        OAuthConnector connector = new OAuthConnector(httpClientFactory);
         AccessTokenResponse accessTokenResponse = connector.grantTypeAuthorizationCode(tokenUrl, authorizationCode,
                 clientId, persistedParams.clientSecret, redirectURI,
                 Boolean.TRUE.equals(persistedParams.supportsBasicAuth));
@@ -239,14 +236,12 @@ public class OAuthClientServiceImpl implements OAuthClientService {
         if (isClosed()) {
             throw new OAuthException(EXCEPTION_MESSAGE_CLOSED);
         }
-
-        OAuthConnector connector = new OAuthConnector(httpClientFactory);
-
         String tokenUrl = persistedParams.tokenUrl;
         if (tokenUrl == null) {
             throw new OAuthException("Missing token url");
         }
 
+        OAuthConnector connector = new OAuthConnector(httpClientFactory);
         AccessTokenResponse accessTokenResponse = connector.grantTypePassword(tokenUrl, username, password,
                 persistedParams.clientId, persistedParams.clientSecret, scope,
                 Boolean.TRUE.equals(persistedParams.supportsBasicAuth));
@@ -263,22 +258,16 @@ public class OAuthClientServiceImpl implements OAuthClientService {
         if (isClosed()) {
             throw new OAuthException(EXCEPTION_MESSAGE_CLOSED);
         }
-
-        if (persistedParams.tokenUrl == null) {
-            throw new IllegalStateException("bull shit");
-        }
-        OAuthConnector connector = new OAuthConnector(httpClientFactory);
-
         String tokenUrl = persistedParams.tokenUrl;
         if (tokenUrl == null) {
             throw new OAuthException("Missing token url");
         }
-
         String clientId = persistedParams.clientId;
         if (clientId == null) {
             throw new OAuthException("Missing client ID");
         }
 
+        OAuthConnector connector = new OAuthConnector(httpClientFactory);
         // depending on usage, cannot guarantee every parameter is not null at the beginning
         AccessTokenResponse accessTokenResponse = connector.grantTypeClientCredentials(tokenUrl, clientId,
                 persistedParams.clientSecret, scope, Boolean.TRUE.equals(persistedParams.supportsBasicAuth));
@@ -318,6 +307,10 @@ public class OAuthClientServiceImpl implements OAuthClientService {
                 lastAccessToken.getRefreshToken(), persistedParams.clientId, persistedParams.clientSecret,
                 persistedParams.scope, Boolean.TRUE.equals(persistedParams.supportsBasicAuth));
 
+        // The service may not return the refresh token so use the last refresh token otherwise it's not stored.
+        if (StringUtil.isBlank(accessTokenResponse.getRefreshToken())) {
+            accessTokenResponse.setRefreshToken(lastAccessToken.getRefreshToken());
+        }
         // store it
         storeHandler.saveAccessTokenResponse(handle, accessTokenResponse);
         accessTokenRefreshListeners.forEach(l -> l.onAccessTokenResponse(accessTokenResponse));
