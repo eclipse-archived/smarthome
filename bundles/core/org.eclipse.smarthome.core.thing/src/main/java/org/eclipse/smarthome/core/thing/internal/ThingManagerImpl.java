@@ -1276,7 +1276,7 @@ public class ThingManagerImpl
 
         logger.debug("Thing with UID {} is unknown. Will try to get the enabled status from the persistent storage.");
         if (storage != null) {
-            return storage.get(thingUID.getAsString());
+            return !Boolean.FALSE.equals(storage.get(thingUID.getAsString()));
         }
         throw new IllegalArgumentException(
                 String.format("Cannot get the enabled status of thing with UID '%s'.", thingUID)) ;
