@@ -13,6 +13,9 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -43,6 +46,8 @@ public class ColorValue implements Value {
     private final boolean isRGB;
     private final String onValue;
     private final String offValue;
+    private List<Class<? extends Command>> commandTypes = Stream.of(OnOffType.class, HSBType.class, StringType.class)
+            .collect(Collectors.toList());
 
     /**
      * Creates a non initialized color value.
@@ -99,15 +104,21 @@ public class ColorValue implements Value {
         } else if (command instanceof HSBType) {
             colorValue = (HSBType) command;
         } else if (command instanceof StringType) {
-            if (isRGB) {
-                String[] split = command.toString().split(",");
+            final String updatedValue = command.toString();
+            if (onValue.equals(updatedValue)) {
+                PercentType minOn = new PercentType(Math.max(colorValue.getBrightness().intValue(), 10));
+                colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), minOn);
+            } else if (offValue.equals(updatedValue)) {
+                colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(0));
+            } else if (isRGB) {
+                String[] split = updatedValue.split(",");
                 if (split.length != 3) {
-                    throw new IllegalArgumentException(command.toString() + " is not a valid RGB syntax");
+                    throw new IllegalArgumentException(updatedValue + " is not a valid RGB syntax");
                 }
                 colorValue = HSBType.fromRGB(Integer.parseInt(split[0]), Integer.parseInt(split[1]),
                         Integer.parseInt(split[2]));
             } else {
-                colorValue = new HSBType(command.toString());
+                colorValue = new HSBType(updatedValue);
 
             }
         } else {
@@ -121,43 +132,6 @@ public class ColorValue implements Value {
         }
     }
 
-    /**
-     * Updates the color value.
-     *
-     * @param updatedValue Expects hue,saturation,brightness as comma separated string.
-     *            hue is in the range [0,360], saturation and brightness are in [0,100].
-     *            If rgb is enabled, a string red,green,blue is expected. red,green,blue are within [0,255].
-     *            ON/OFF (case insensitive) are also accepted to set the brightness to full and off.
-     *            If a single integer value is received, it is interpreted as a brightness value.
-     * @return Returns the color value as HSB/HSV string (hue, saturation, brightness) eg. "60, 100, 100".
-     *         If rgb is enabled, an RGB string (red,green,blue) will be returned instead. red,green,blue are within
-     *         [0,255].
-     */
-    @Override
-    public State update(String updatedValue) throws IllegalArgumentException {
-        if (onValue.equals(updatedValue)) {
-            PercentType minOn = new PercentType(Math.max(colorValue.getBrightness().intValue(), 10));
-            colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), minOn);
-        } else if (offValue.equals(updatedValue)) {
-            colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(0));
-        } else if (updatedValue.indexOf(',') > 0) {
-            if (isRGB) {
-                String[] split = updatedValue.toString().split(",");
-                if (split.length != 3) {
-                    throw new IllegalArgumentException(updatedValue + " is not a valid RGB syntax");
-                }
-                colorValue = HSBType.fromRGB(Integer.parseInt(split[0]), Integer.parseInt(split[1]),
-                        Integer.parseInt(split[2]));
-            } else {
-                colorValue = new HSBType(updatedValue);
-            }
-        } else { // single integer value
-            colorValue = new HSBType(colorValue.getHue(), colorValue.getSaturation(), new PercentType(updatedValue));
-        }
-        state = colorValue;
-        return colorValue;
-    }
-
     @Override
     public String getItemType() {
         return CoreItemFactory.COLOR;
@@ -167,6 +141,11 @@ public class ColorValue implements Value {
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), readOnly,
                 Collections.emptyList());
+    }
+
+    @Override
+    public List<Class<? extends Command>> getSupportedCommandTypes() {
+        return commandTypes;
     }
 
     @Override

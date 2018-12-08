@@ -12,6 +12,8 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
+import java.util.List;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
@@ -38,6 +40,15 @@ public interface Value {
     String getItemType();
 
     /**
+     * Return a list of supported command types. The order of the list is important.
+     * <p>
+     * The framework will try to parse an incoming string into one of those command types,
+     * starting with the first and continue until it succeeds.
+     * </p>
+     */
+    List<Class<? extends Command>> getSupportedCommandTypes();
+
+    /**
      * Returns the current value state.
      */
     State getValue();
@@ -50,18 +61,6 @@ public interface Value {
      * @exception IllegalArgumentException Thrown if for example a text is assigned to a number type.
      */
     String update(Command command) throws IllegalArgumentException;
-
-    /**
-     * Updates the internal value with the received MQTT value.
-     *
-     * An implementation may through any form of an {@link IllegalArgumentException}
-     * if the given value does not match the internal type.
-     *
-     * @param updatedValue A string representation of the value to be send to MQTT.
-     * @return An updated value state. The same as if {@link #getValue()} is called.
-     * @exception IllegalArgumentException Thrown if for example a text is assigned to a number type.
-     */
-    State update(String updatedValue) throws IllegalArgumentException;
 
     /**
      * If the MQTT connection is not yet initialised or no values have

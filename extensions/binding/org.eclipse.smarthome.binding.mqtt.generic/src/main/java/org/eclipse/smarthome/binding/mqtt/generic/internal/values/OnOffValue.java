@@ -13,6 +13,9 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,6 +38,8 @@ public class OnOffValue implements Value {
     private OnOffType onOffValue;
     private final String onString;
     private final String offString;
+    private List<Class<? extends Command>> commandTypes = Stream.of(OnOffType.class, StringType.class)
+            .collect(Collectors.toList());
 
     /**
      * Creates a switch On/Off type, that accepts "ON", "1" for on and "OFF","0" for off.
@@ -67,7 +72,16 @@ public class OnOffValue implements Value {
         if (command instanceof OnOffType) {
             onOffValue = ((OnOffType) command);
         } else if (command instanceof StringType) {
-            onOffValue = (OnOffType) update(command.toString());
+            final String updatedValue = command.toString();
+            final String upperCase = updatedValue.toUpperCase();
+            if (onString.equals(updatedValue) || OnOffType.ON.name().equals(upperCase)) {
+                onOffValue = OnOffType.ON;
+            } else if (offString.equals(updatedValue) || OnOffType.OFF.name().equals(upperCase)) {
+                onOffValue = OnOffType.OFF;
+            } else {
+                throw new IllegalArgumentException("Didn't recognise the on/off value " + updatedValue);
+            }
+
         } else {
             throw new IllegalArgumentException(
                     "Type " + command.getClass().getName() + " not supported for OnOffValue");
@@ -75,21 +89,6 @@ public class OnOffValue implements Value {
 
         state = onOffValue;
         return (onOffValue == OnOffType.ON) ? onString : offString;
-    }
-
-    @Override
-    public State update(String updatedValue) throws IllegalArgumentException {
-        final String upperCase = updatedValue.toUpperCase();
-        if (onString.equals(updatedValue) || OnOffType.ON.name().equals(upperCase)) {
-            onOffValue = OnOffType.ON;
-        } else if (offString.equals(updatedValue) || OnOffType.OFF.name().equals(upperCase)) {
-            onOffValue = OnOffType.OFF;
-        } else {
-            throw new IllegalArgumentException("Didn't recognise the on/off value " + updatedValue);
-        }
-
-        state = onOffValue;
-        return onOffValue;
     }
 
     @Override
@@ -101,6 +100,11 @@ public class OnOffValue implements Value {
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), readOnly,
                 Collections.emptyList());
+    }
+
+    @Override
+    public List<Class<? extends Command>> getSupportedCommandTypes() {
+        return commandTypes;
     }
 
     @Override

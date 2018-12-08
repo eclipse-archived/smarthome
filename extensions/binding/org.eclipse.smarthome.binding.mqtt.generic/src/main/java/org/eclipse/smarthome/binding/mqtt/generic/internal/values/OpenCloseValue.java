@@ -13,6 +13,9 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -35,6 +38,8 @@ public class OpenCloseValue implements Value {
     private OpenClosedType boolValue;
     private final String openString;
     private final String closeString;
+    private List<Class<? extends Command>> commandTypes = Stream.of(OpenClosedType.class, StringType.class)
+            .collect(Collectors.toList());
 
     /**
      * Creates a contact Open/Close type.
@@ -67,7 +72,15 @@ public class OpenCloseValue implements Value {
         if (command instanceof OpenClosedType) {
             boolValue = ((OpenClosedType) command);
         } else if (command instanceof StringType) {
-            boolValue = (OpenClosedType) update(command.toString());
+            final String updatedValue = ((StringType) command).toString();
+            final String upperCase = updatedValue.toUpperCase();
+            if (openString.equals(updatedValue) || OpenClosedType.OPEN.name().equals(upperCase)) {
+                boolValue = OpenClosedType.OPEN;
+            } else if (closeString.equals(updatedValue) || OpenClosedType.CLOSED.name().equals(upperCase)) {
+                boolValue = OpenClosedType.CLOSED;
+            } else {
+                throw new IllegalArgumentException("Didn't recognise the open/closed value " + updatedValue);
+            }
         } else {
             throw new IllegalArgumentException(
                     "Type " + command.getClass().getName() + " not supported for OpenCloseValue");
@@ -75,21 +88,6 @@ public class OpenCloseValue implements Value {
 
         state = boolValue;
         return (boolValue == OpenClosedType.OPEN) ? openString : closeString;
-    }
-
-    @Override
-    public State update(String updatedValue) throws IllegalArgumentException {
-        final String upperCase = updatedValue.toUpperCase();
-        if (openString.equals(updatedValue) || OpenClosedType.OPEN.name().equals(upperCase)) {
-            boolValue = OpenClosedType.OPEN;
-        } else if (closeString.equals(updatedValue) || OpenClosedType.CLOSED.name().equals(upperCase)) {
-            boolValue = OpenClosedType.CLOSED;
-        } else {
-            throw new IllegalArgumentException("Didn't recognise the open/closed value " + updatedValue);
-        }
-
-        state = boolValue;
-        return boolValue;
     }
 
     @Override
@@ -101,6 +99,11 @@ public class OpenCloseValue implements Value {
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), readOnly,
                 Collections.emptyList());
+    }
+
+    @Override
+    public List<Class<? extends Command>> getSupportedCommandTypes() {
+        return commandTypes;
     }
 
     @Override

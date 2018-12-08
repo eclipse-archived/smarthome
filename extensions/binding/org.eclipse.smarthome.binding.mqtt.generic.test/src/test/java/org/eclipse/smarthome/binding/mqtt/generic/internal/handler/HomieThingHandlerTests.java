@@ -47,6 +47,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttA
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.SubscribeFieldToMQTTtopic;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.DelayedBatchProcessing;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -58,7 +59,9 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
+import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
+import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.junit.Before;
 import org.junit.Test;
@@ -264,7 +267,9 @@ public class HomieThingHandlerTests {
         property.attributes.settable = false;
         property.attributesReceived();
         // Assign old value
-        property.getChannelState().getValue().update("OLDVALUE");
+        Value value = property.getChannelState().getValue();
+        Command command = TypeParser.parseCommand(value.getSupportedCommandTypes(), "OLDVALUE");
+        property.getChannelState().getValue().update(command);
         // Try to update with new value
         updateValue = new StringType("SOMETHINGNEW");
         thingHandler.handleCommand(property.channelUID, updateValue);
