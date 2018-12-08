@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import javax.net.ssl.X509ExtendedTrustManager;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.eclipse.smarthome.io.net.http.TlsTrustManagerProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,9 @@ public class ExtensibleTrustManagerTest {
 
     @Mock
     private X509ExtendedTrustManager trustmanager;
+
+    @Mock
+    private X509ExtendedTrustManager defaultTrustManager;
 
     @Mock
     private X509Certificate topOfChain;
@@ -91,20 +95,34 @@ public class ExtensibleTrustManagerTest {
         verifyNoMoreInteractions(trustmanager);
     }
 
-    @Test(expected = CertificateException.class)
-    public void shouldNotForwardCallsToMockForDifferentCN() throws CertificateException {
+    @Test
+    public void shouldBeResilientAgainstNullSubjectAlternativeNames()
+            throws CertificateException, IllegalAccessException {
+        FieldUtils.writeField(subject, "defaultTrustManager", defaultTrustManager, true);
+
+        when(topOfChain.getSubjectX500Principal())
+                .thenReturn(new X500Principal("CN=example.com, OU=Smarthome, O=Eclipse, C=DE"));
+        when(topOfChain.getSubjectAlternativeNames()).thenReturn(null);
+
+        subject.checkClientTrusted(chain, "just");
+
+        verify(defaultTrustManager).checkClientTrusted(chain, "just", (Socket) null);
+        verifyNoMoreInteractions(trustmanager);
+    }
+
+    @Test
+    public void shouldNotForwardCallsToMockForDifferentCN() throws CertificateException, IllegalAccessException {
+        FieldUtils.writeField(subject, "defaultTrustManager", defaultTrustManager, true);
         mockSubjectForCertificate(topOfChain, "CN=example.com, OU=Smarthome, O=Eclipse, C=DE");
         mockIssuerForCertificate(topOfChain, "CN=Eclipse, OU=Smarthome, O=Eclipse, C=DE");
         mockSubjectForCertificate(bottomOfChain, "CN=Eclipse, OU=Smarthome, O=Eclipse, C=DE");
         mockIssuerForCertificate(bottomOfChain, "");
         when(topOfChain.getEncoded()).thenReturn(new byte[0]);
 
-        try {
-            subject.checkServerTrusted(chain, "just");
-        } finally {
-            // note that it ends up in the standard TrustManager but lets not build our tests based on that
-            verifyZeroInteractions(trustmanager);
-        }
+        subject.checkServerTrusted(chain, "just");
+
+        verify(defaultTrustManager).checkServerTrusted(chain, "just", (Socket) null);
+        verifyZeroInteractions(trustmanager);
     }
 
     private Collection<List<?>> constructAlternativeNames(String... alternatives) {

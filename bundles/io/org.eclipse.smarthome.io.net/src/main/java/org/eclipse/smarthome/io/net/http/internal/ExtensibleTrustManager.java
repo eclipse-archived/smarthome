@@ -131,6 +131,11 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
 
             logger.trace("Searching trustManager by Subject Alternative Names: {}",
                     chain[0].getSubjectAlternativeNames());
+
+            if (chain[0].getSubjectAlternativeNames() == null) {
+                return null;
+            }
+
             // @formatter:off
             return chain[0].getSubjectAlternativeNames().stream()
                     .map(e -> e.get(1))
