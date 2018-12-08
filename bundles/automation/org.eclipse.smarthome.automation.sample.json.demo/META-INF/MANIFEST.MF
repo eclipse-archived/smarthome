@@ -9,3 +9,4 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Import-Package: org.eclipse.jdt.annotation;resolution:=optional
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.automation.sample.json.demo

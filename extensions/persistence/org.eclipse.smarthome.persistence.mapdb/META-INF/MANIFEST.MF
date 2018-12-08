@@ -21,3 +21,4 @@ Import-Package: com.google.gson,
  org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.smarthome.persistence.mapdb
