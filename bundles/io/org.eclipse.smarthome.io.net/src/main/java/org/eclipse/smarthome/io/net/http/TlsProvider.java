@@ -17,17 +17,24 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 /**
  * Provides some TLS validation implementation for the given host name
  *
- * Normally you would implement one of children of this interface, in order to request the framework to use a specific
+ * You should implement one of children of this interface, in order to request the framework to use a specific
  * implementation for the given host.
+ *
+ * NOTE: implementations of this interface should be immutable, to guarantee efficient and correct functionality
  *
  * @author Martin van Wingerden - Initial Contribution
  */
 @NonNullByDefault
 public interface TlsProvider {
+
     /**
-     * Host name for which this tls-provider is intended
+     * Host name for which this tls-provider is intended.
      *
-     * @return a host name in string format, eg: www.eclipse.org
+     * It can either be matched on common-name (from the certificate) or peer-host / peer-port based on the actual
+     * ssl-connection. Both options can be used without further configuration.
+     *
+     * @return a host name in string format, eg: www.eclipse.org (based on certificate common-name) or
+     *         www.eclipse.org:443 (based on peer host/port)
      */
     String getHostName();
 }

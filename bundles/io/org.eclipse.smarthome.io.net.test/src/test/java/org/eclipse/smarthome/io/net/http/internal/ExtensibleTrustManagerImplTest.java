@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedTrustManager;
 import javax.security.auth.x500.X500Principal;
 
@@ -35,21 +36,30 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 /**
- * Tests which validate the behaviour of the ExtensibleTrustManager
+ * Tests which validate the behavior of the ExtensibleTrustManager
  *
  * @author Martin van Wingerden - Initial contribution
  */
-public class ExtensibleTrustManagerTest {
-    private ExtensibleTrustManager subject;
+public class ExtensibleTrustManagerImplTest {
+    private ExtensibleTrustManagerImpl subject;
 
     @Mock
     private TlsTrustManagerProvider trustmanagerProvider;
 
     @Mock
+    private TlsTrustManagerProvider trustmanagerProviderHostPort;
+
+    @Mock
     private X509ExtendedTrustManager trustmanager;
 
     @Mock
+    private X509ExtendedTrustManager trustmanager2;
+
+    @Mock
     private X509ExtendedTrustManager defaultTrustManager;
+
+    @Mock
+    private SSLEngine sslEngine;
 
     @Mock
     private X509Certificate topOfChain;
@@ -66,8 +76,12 @@ public class ExtensibleTrustManagerTest {
         when(trustmanagerProvider.getHostName()).thenReturn("example.org");
         when(trustmanagerProvider.getTrustManager()).thenReturn(trustmanager);
 
-        subject = new ExtensibleTrustManager();
+        when(trustmanagerProviderHostPort.getHostName()).thenReturn("example.org:443");
+        when(trustmanagerProviderHostPort.getTrustManager()).thenReturn(trustmanager2);
+
+        subject = new ExtensibleTrustManagerImpl();
         subject.addTlsTrustManagerProvider(trustmanagerProvider);
+        subject.addTlsTrustManagerProvider(trustmanagerProviderHostPort);
 
         chain = new X509Certificate[] { topOfChain, bottomOfChain };
     }
@@ -80,7 +94,18 @@ public class ExtensibleTrustManagerTest {
         subject.checkServerTrusted(chain, "just");
 
         verify(trustmanager).checkServerTrusted(chain, "just", (Socket) null);
-        verifyNoMoreInteractions(trustmanager);
+        verifyNoMoreInteractions(trustmanager, trustmanager2);
+    }
+
+    @Test
+    public void shouldForwardCallsToMockForMatchingHost() throws CertificateException {
+        when(sslEngine.getPeerHost()).thenReturn("example.org");
+        when(sslEngine.getPeerPort()).thenReturn(443);
+
+        subject.checkServerTrusted(chain, "just", sslEngine);
+
+        verify(trustmanager2).checkServerTrusted(chain, "just", sslEngine);
+        verifyNoMoreInteractions(trustmanager, trustmanager2);
     }
 
     @Test
