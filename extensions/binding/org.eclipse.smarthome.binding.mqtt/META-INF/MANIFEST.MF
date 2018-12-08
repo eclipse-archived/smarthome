@@ -12,7 +12,7 @@ Import-Package:
  org.apache.commons.lang,
  org.apache.commons.net.util,
  org.eclipse.jdt.annotation;resolution:=optional,
- org.eclipse.smarthome.automation.annotation,
+ org.eclipse.smarthome.automation.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.mqtt,
  org.eclipse.smarthome.binding.mqtt.handler,
  org.eclipse.smarthome.config.core,
@@ -34,5 +34,6 @@ Import-Package:
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.binding.mqtt,
+ org.eclipse.smarthome.binding.mqtt.action,
  org.eclipse.smarthome.binding.mqtt.discovery,
  org.eclipse.smarthome.binding.mqtt.handler

@@ -48,9 +48,16 @@ import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This is a default scope provider for stuff that is of general interest in an ESH-based solution.
@@ -60,6 +67,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author Simon Merschjohann - refactored to be an ScriptExtensionProvider
  *
  */
+@Component(immediate = true)
 public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
 
     private Map<String, Object> elements;
@@ -72,8 +80,11 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
 
     private ScriptBusEvent busEvent;
 
+    private ScriptThingActions thingActions;
+
     private RuleRegistry ruleRegistry;
 
+    @Reference
     protected void setRuleRegistry(RuleRegistry ruleRegistry) {
         this.ruleRegistry = ruleRegistry;
     }
@@ -82,6 +93,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         this.ruleRegistry = null;
     }
 
+    @Reference
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -90,6 +102,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         this.thingRegistry = null;
     }
 
+    @Reference
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
@@ -98,6 +111,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         this.itemRegistry = null;
     }
 
+    @Reference
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -106,8 +120,21 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         this.eventPublisher = null;
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    void addThingActions(ThingActions thingActions) {
+        this.thingActions.addThingActions(thingActions);
+        elements.put(thingActions.getClass().getSimpleName(), thingActions.getClass());
+    }
+
+    protected void removeThingActions(ThingActions thingActions) {
+        elements.remove(thingActions.getClass().getSimpleName());
+        this.thingActions.removeThingActions(thingActions);
+    }
+
+    @Activate
     protected void activate() {
         busEvent = new ScriptBusEvent(itemRegistry, eventPublisher);
+        thingActions = new ScriptThingActions(thingRegistry);
 
         elements = new HashMap<>();
         elements.put("State", State.class);
@@ -177,11 +204,15 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements.put("things", thingRegistry);
         elements.put("events", busEvent);
         elements.put("rules", ruleRegistry);
+        elements.put("actions", thingActions);
     }
 
+    @Deactivate
     protected void deactivate() {
         busEvent.dispose();
         busEvent = null;
+        thingActions.dispose();
+        thingActions = null;
         elements = null;
     }
 

@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
 import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
+import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.eclipse.smarthome.model.script.actions.Audio;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
@@ -30,9 +31,10 @@ import org.eclipse.smarthome.model.script.actions.HTTP;
 import org.eclipse.smarthome.model.script.actions.LogAction;
 import org.eclipse.smarthome.model.script.actions.Ping;
 import org.eclipse.smarthome.model.script.actions.ScriptExecution;
-import org.eclipse.smarthome.model.script.actions.ThingAction;
+import org.eclipse.smarthome.model.script.actions.Things;
 import org.eclipse.smarthome.model.script.actions.Voice;
 import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
+import org.eclipse.smarthome.model.script.engine.IThingActionsProvider;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
@@ -60,6 +62,9 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
     @Inject
     IActionServiceProvider actionServiceProvider;
 
+    @Inject
+    IThingActionsProvider thingActionsProvider;
+
     @Override
     protected List<Class<?>> getExtensionClasses() {
         List<Class<?>> result = super.getExtensionClasses();
@@ -79,7 +84,9 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(Ping.class);
         result.add(Audio.class);
         result.add(Voice.class);
-        result.add(ThingAction.class);
+        result.add(Things.class);
+
+        result.addAll(getActionClasses());
         return result;
     }
 
@@ -94,7 +101,7 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
         result.add(LogAction.class);
         result.add(Audio.class);
         result.add(Voice.class);
-        result.add(ThingAction.class);
+        result.add(Things.class);
 
         result.add(ImperialUnits.class);
         result.add(SIUnits.class);
@@ -109,14 +116,23 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
 
     protected List<Class<?>> getActionClasses() {
 
+        List<Class<?>> localActionClasses = new ArrayList<Class<?>>();
+
         List<ActionService> services = actionServiceProvider.get();
         if (services != null) {
-            List<Class<?>> localActionClasses = new ArrayList<Class<?>>();
             for (ActionService actionService : services) {
                 localActionClasses.add(actionService.getActionClass());
             }
-            actionClasses = localActionClasses;
         }
+
+        List<ThingActions> actions = thingActionsProvider.get();
+        if (actions != null) {
+            for (ThingActions thingActions : actions) {
+                localActionClasses.add(thingActions.getClass());
+            }
+        }
+
+        actionClasses = localActionClasses;
         return actionClasses;
     }
 }

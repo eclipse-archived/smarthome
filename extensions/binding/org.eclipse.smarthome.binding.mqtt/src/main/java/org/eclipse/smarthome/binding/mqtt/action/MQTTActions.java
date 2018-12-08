@@ -10,15 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.binding.mqtt.internal;
+package org.eclipse.smarthome.binding.mqtt.action;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.automation.annotation.ActionInput;
-import org.eclipse.smarthome.automation.annotation.ActionScope;
 import org.eclipse.smarthome.automation.annotation.RuleAction;
 import org.eclipse.smarthome.binding.mqtt.handler.AbstractBrokerHandler;
-import org.eclipse.smarthome.core.thing.binding.AnnotatedActionThingHandlerService;
+import org.eclipse.smarthome.core.thing.binding.ThingActionsScope;
+import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.osgi.service.component.annotations.Component;
@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author David Graeff - Initial contribution
  */
-@ActionScope(name = "binding.mqtt")
-@Component(immediate = false, service = { AnnotatedActionThingHandlerService.class })
+@ThingActionsScope(name = "mqtt")
+@Component
 @NonNullByDefault
-public class ActionService implements AnnotatedActionThingHandlerService {
-    private final Logger logger = LoggerFactory.getLogger(ActionService.class);
+public class MQTTActions implements ThingActions {
+    private final Logger logger = LoggerFactory.getLogger(MQTTActions.class);
     private @Nullable AbstractBrokerHandler handler;
 
     @Override
@@ -68,5 +68,13 @@ public class ActionService implements AnnotatedActionThingHandlerService {
             logger.warn("MQTT publish to {} failed!", topic);
             return null;
         });
+    }
+
+    public static void publishMQTT(ThingActions actions, String topic, String value) {
+        if (actions instanceof MQTTActions) {
+            ((MQTTActions) actions).publishMQTT(topic, value);
+        } else {
+            throw new IllegalArgumentException("Instance is not an MQTTActions class.");
+        }
     }
 }

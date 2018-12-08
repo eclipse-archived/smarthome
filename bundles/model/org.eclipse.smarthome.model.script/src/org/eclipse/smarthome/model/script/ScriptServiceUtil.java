@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
@@ -55,7 +56,9 @@ public class ScriptServiceUtil {
 
     private final AtomicReference<ScriptEngine> scriptEngine = new AtomicReference<>();
 
-    public List<ActionService> actionServices = new CopyOnWriteArrayList<ActionService>();
+    public List<ActionService> actionServices = new CopyOnWriteArrayList<>();
+
+    public List<ThingActions> thingActions = new CopyOnWriteArrayList<>();
 
     @Activate
     public void activate(final BundleContext bc) {
@@ -108,8 +111,16 @@ public class ScriptServiceUtil {
         return getInstance().actionServices;
     }
 
+    public static List<ThingActions> getThingActions() {
+        return getInstance().thingActions;
+    }
+
     public List<ActionService> getActionServiceInstances() {
         return actionServices;
+    }
+
+    public List<ThingActions> getThingActionsInstances() {
+        return thingActions;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -119,6 +130,15 @@ public class ScriptServiceUtil {
 
     public void removeActionService(ActionService actionService) {
         this.actionServices.remove(actionService);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addThingActions(ThingActions thingActions) {
+        this.thingActions.add(thingActions);
+    }
+
+    public void removeThingActions(ThingActions thingActions) {
+        this.thingActions.remove(thingActions);
     }
 
     @Reference

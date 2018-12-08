@@ -12,12 +12,20 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * Marker interface for Automation Actions with access to a ThingHandler
+ * Scope definition for a thing action class
  *
- * @author Stefan Triller - initial contribution
- *
+ * @author Kai Kreuzer - initial contribution
  */
-public interface AnnotatedActionThingHandlerService extends ThingHandlerService {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ThingActionsScope {
+
+    String name();
 
 }

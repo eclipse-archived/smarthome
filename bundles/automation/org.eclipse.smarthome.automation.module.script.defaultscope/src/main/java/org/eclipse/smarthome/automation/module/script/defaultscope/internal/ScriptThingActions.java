@@ -10,69 +10,52 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.eclipse.smarthome.model.script.internal.engine.action;
+package org.eclipse.smarthome.automation.module.script.defaultscope.internal;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.thing.binding.ThingActionsScope;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.model.script.actions.Things;
-import org.eclipse.smarthome.model.script.engine.action.ActionService;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
- * This class provides methods for interacting with Things in scripts.
+ * The methods of this class are made available as functions in the scripts.
  *
- * @author Maoliang Huang - Initial contribution
- * @author Kai Kreuzer - Extended for general thing access
+ * Note: This class is a copy from the {@link ThingActions} class, which resides in the model.script bundle.
+ *
+ * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@Component(immediate = true)
-public class ThingActionService implements ActionService {
+public class ScriptThingActions {
 
-    private static ThingRegistry thingRegistry;
     private static final Map<String, ThingActions> thingActionsMap = new HashMap<>();
 
-    @Override
-    public String getActionClassName() {
-        return Things.class.getCanonicalName();
+    ScriptThingActions(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
     }
 
-    @Override
-    public Class<?> getActionClass() {
-        return Things.class;
+    private ThingRegistry thingRegistry;
+
+    public void dispose() {
+        this.thingRegistry = null;
     }
 
-    @Reference
-    public void setThingRegistry(ThingRegistry thingRegistry) {
-        ThingActionService.thingRegistry = thingRegistry;
-    }
-
-    public void unsetThingRegistry(ThingRegistry thingRegistry) {
-        ThingActionService.thingRegistry = null;
-    }
-
-    public static ThingStatusInfo getThingStatusInfo(String thingUid) {
-        ThingUID uid = new ThingUID(thingUid);
-        Thing thing = thingRegistry.get(uid);
-
-        if (thing != null) {
-            return thing.getStatusInfo();
-        } else {
-            return null;
-        }
-    }
-
-    public static ThingActions getActions(String scope, String thingUid) {
+    /**
+     * Gets an actions instance of a certain scope for a given thing UID
+     *
+     * @param scope the action scope
+     * @param thingUid the UID of the thing
+     *
+     * @return actions the actions instance or null, if not available
+     */
+    public ThingActions get(String scope, String thingUid) {
         ThingUID uid = new ThingUID(thingUid);
         Thing thing = thingRegistry.get(uid);
         if (thing != null) {
@@ -89,12 +72,12 @@ public class ThingActionService implements ActionService {
     }
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public void addThingActions(ThingActions thingActions) {
+    void addThingActions(ThingActions thingActions) {
         String scope = getScope(thingActions);
         thingActionsMap.put(scope, thingActions);
     }
 
-    public void removeThingActions(ThingActions thingActions) {
+    void removeThingActions(ThingActions thingActions) {
         String scope = getScope(thingActions);
         thingActionsMap.remove(scope);
     }
@@ -103,4 +86,5 @@ public class ThingActionService implements ActionService {
         ThingActionsScope scopeAnnotation = actions.getClass().getAnnotation(ThingActionsScope.class);
         return scopeAnnotation.name();
     }
+
 }
