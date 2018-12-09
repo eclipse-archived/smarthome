@@ -19,3 +19,4 @@ Import-Package:
  org.junit,
  org.junit.rules,
  org.osgi.service.cm
+Automatic-Module-Name: org.eclipse.smarthome.persistence.mapdb.test

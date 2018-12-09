@@ -18,3 +18,4 @@ Import-Package: org.eclipse.smarthome.binding.meteoblue,
  org.osgi.service.device,
  org.osgi.framework
 Export-Package: org.eclipse.smarthome.binding.meteoblue;uses:="org.eclipse.smarthome.test"
+Automatic-Module-Name: org.eclipse.smarthome.binding.meteoblue.test
