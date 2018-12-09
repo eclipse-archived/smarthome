@@ -37,7 +37,6 @@
     <module>org.eclipse.smarthome.binding.lifx</module>
     <module>org.eclipse.smarthome.binding.lirc</module>
     <module>org.eclipse.smarthome.binding.meteoblue</module>
-    <module>org.eclipse.smarthome.binding.meteoblue.test</module>
     <module>org.eclipse.smarthome.binding.mqtt</module>
     <module>org.eclipse.smarthome.binding.mqtt.test</module>
     <module>org.eclipse.smarthome.binding.mqtt.generic</module>
