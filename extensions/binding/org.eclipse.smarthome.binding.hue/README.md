@@ -65,7 +65,7 @@ The thing type is the second string behind the first colon and in this example i
 
 The Hue bridge is discovered through UPnP in the local network.
 Once it is added as a Thing, its authentication button (in the middle) needs to be pressed in order to authorize the binding to access it.
-Once the binding is authorized, it automatically reads all devices that are set up on the Hue bridge and puts them in the Inbox.
+Once the binding is authorized, it automatically reads all devices that are set up on the Hue bridge and puts them into the Inbox.
 
 ## Thing Configuration
 
@@ -84,12 +84,26 @@ The user name can be set using the `userName` configuration value, e.g.:
 ```
 Bridge hue:bridge:1 [ ipAddress="192.168.0.64", userName="qwertzuiopasdfghjklyxcvbnm1234" ]
 ```
+| Parameter             | Description                                                                                                                                                                                                                              |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ipAddress             | Network address of the Hue bridge. **Mandatory**                                                                                                                                                                                         |
+| userName              | Name of a registered Hue bridge user, that allows to access the API. **Mandatory**                                                                                                                                                       |
+| pollingInterval       | Seconds between fetching light values from the Hue bridge. Optional, the default value is 10 (min="1", step="1").                                                                                                                        |
+| sensorPollingInterval | Milliseconds between fetching sensor-values from the Hue bridge. A higher value means more delay for the sensor values, but a too low value can cause congestion on the bridge. Optional, the default value is 500 (min="50", step="1"). |
+
+### Devices
 
 The devices are identified by the number that the Hue bridge assigns to them (also shown in the Hue App as an identifier).
 Thus, all it needs for manual configuration is this single value like
 
 ```
 0210 bulb1 [ lightId="1" ]
+```
+
+or
+
+```
+0107 motion-sensor [ sensorId="4" ]
 ```
 
 ## Channels
@@ -146,7 +160,7 @@ The event can trigger one of the following events:
 
 ## Full Example
 
-In this example **Bulb1** is a standard Philips HUE bulb (LCT001) which supports `color` and `color_temperature`.
+In this example **Bulb1** is a standard Philips Hue bulb (LCT001) which supports `color` and `color_temperature`.
 Therefore it is a thing of type **0210**.
 **Bulb2** is an OSRAM tunable white bulb (PAR16 50 TW) supporting `color_temperature` and so the type is **0220**.
 
