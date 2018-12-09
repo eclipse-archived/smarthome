@@ -7,6 +7,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Fragment-Host: org.eclipse.smarthome.io.net
 Import-Package: 
+ org.apache.commons.lang.reflect,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.java,
