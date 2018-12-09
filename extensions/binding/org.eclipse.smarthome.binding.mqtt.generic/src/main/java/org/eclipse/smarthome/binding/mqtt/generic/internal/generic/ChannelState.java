@@ -29,6 +29,7 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttMessageSubscriber;
 import org.slf4j.Logger;
@@ -139,7 +140,12 @@ public class ChannelState implements MqttMessageSubscriber {
             channelStateUpdateListener.triggerChannel(channelUID, strvalue);
         } else {
             try {
-                final State updatedState = value.update(strvalue);
+                Command command = TypeParser.parseCommand(value.getSupportedCommandTypes(), strvalue);
+                if (command == null) {
+                    throw new IllegalArgumentException("TypeParser failed");
+                }
+                value.update(command);
+                final State updatedState = value.getValue();
                 if (config.postCommand) {
                     channelStateUpdateListener.postChannelState(channelUID, (Command) updatedState);
                 } else {
@@ -239,9 +245,9 @@ public class ChannelState implements MqttMessageSubscriber {
         if (hasSubscribed) {
             return CompletableFuture.completedFuture(null);
         }
-        
+
         this.connection = connection;
-        
+
         if (StringUtils.isBlank(config.stateTopic)) {
             return CompletableFuture.completedFuture(null);
         }

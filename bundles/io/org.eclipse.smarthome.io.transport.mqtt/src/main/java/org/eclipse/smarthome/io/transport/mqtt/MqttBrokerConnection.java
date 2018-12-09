@@ -827,7 +827,11 @@ public class MqttBrokerConnection {
             // We need to thread change here. Because paho does not allow to disconnect within a callback method
             unsubscribeAll().thenRunAsync(() -> {
                 try {
-                    client.disconnect(100, future, actionCallback);
+                    client.disconnect(100).waitForCompletion(100);
+                    if (client.isConnected()) {
+                        client.disconnectForcibly();
+                    }
+                    future.complete(true);
                 } catch (org.eclipse.paho.client.mqttv3.MqttException e) {
                     logger.debug("Error while closing connection to broker", e);
                     future.complete(false);

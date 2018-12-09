@@ -14,6 +14,9 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -41,6 +44,9 @@ public class NumberValue implements Value {
     private final double step;
     private final Boolean isDecimal;
     private final boolean isPercent;
+    private List<Class<? extends Command>> commandTypes = Stream
+            .of(PercentType.class, DecimalType.class, IncreaseDecreaseType.class, UpDownType.class, StringType.class)
+            .collect(Collectors.toList());
 
     private DecimalType numberValue;
 
@@ -142,13 +148,6 @@ public class NumberValue implements Value {
     }
 
     @Override
-    public State update(String updatedValue) throws IllegalArgumentException {
-        numberValue = DecimalType.valueOf(updatedValue);
-        state = numberValue;
-        return numberValue;
-    }
-
-    @Override
     public String getItemType() {
         return isPercent ? CoreItemFactory.DIMMER : CoreItemFactory.NUMBER;
     }
@@ -157,6 +156,11 @@ public class NumberValue implements Value {
     public StateDescription createStateDescription(String unit, boolean readOnly) {
         return new StateDescription(new BigDecimal(min), new BigDecimal(max), new BigDecimal(step),
                 "%s " + unit.replace("%", "%%"), readOnly, Collections.emptyList());
+    }
+
+    @Override
+    public List<Class<? extends Command>> getSupportedCommandTypes() {
+        return commandTypes;
     }
 
     @Override

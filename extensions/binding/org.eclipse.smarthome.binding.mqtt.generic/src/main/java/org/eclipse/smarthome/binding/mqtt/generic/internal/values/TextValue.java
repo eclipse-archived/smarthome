@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,17 +80,6 @@ public class TextValue implements Value {
     }
 
     @Override
-    public State update(String value) throws IllegalArgumentException {
-        final Set<String> states = this.states;
-        if (states != null && !states.contains(value)) {
-            throw new IllegalArgumentException("Value " + value + " not within range");
-        }
-        strValue = new StringType(value);
-        state = strValue;
-        return strValue;
-    }
-
-    @Override
     public String getItemType() {
         return CoreItemFactory.STRING;
     }
@@ -116,5 +106,10 @@ public class TextValue implements Value {
     @Override
     public void resetState() {
         state = UnDefType.UNDEF;
+    }
+
+    @Override
+    public List<Class<? extends Command>> getSupportedCommandTypes() {
+        return Collections.singletonList(StringType.class);
     }
 }

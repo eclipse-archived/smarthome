@@ -23,6 +23,8 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.TypeParser;
 import org.junit.Test;
 
 /**
@@ -36,34 +38,42 @@ import org.junit.Test;
  * @author David Graeff - Initial contribution
  */
 public class ValueTests {
+    Command p(Value v, String str) {
+        return TypeParser.parseCommand(v.getSupportedCommandTypes(), str);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void illegalTextStateUpdate() {
         TextValue v = new TextValue("one,two".split(","));
-        v.update("three");
+        v.update(p(v, "three"));
     }
 
     public void textStateUpdate() {
         TextValue v = new TextValue("one,two".split(","));
-        v.update("one");
+        v.update(p(v, "one"));
     }
 
     public void colorUpdate() {
         ColorValue v = new ColorValue(true, null, null);
-        v.update("255, 255, 255");
+        v.update(p(v, "255, 255, 255"));
 
-        assertThat(((HSBType) v.update("OFF")).getBrightness().intValue(), is(0));
+        v.update(p(v, "OFF"));
+        assertThat(((HSBType) v.getValue()).getBrightness().intValue(), is(0));
         // Minimum brightness setting after brightness 0 is 10 for ON command
-        assertThat(((HSBType) v.update("ON")).getBrightness().intValue(), is(10));
+        v.update(p(v, "ON"));
+        assertThat(((HSBType) v.getValue()).getBrightness().intValue(), is(10));
 
-        assertThat(((HSBType) v.update("0")).getBrightness().intValue(), is(0));
+        v.update(p(v, "0"));
+        assertThat(((HSBType) v.getValue()).getBrightness().intValue(), is(0));
         // Minimum brightness setting after brightness 0 is 10 for ON command
-        assertThat(((HSBType) v.update("1")).getBrightness().intValue(), is(10));
+        v.update(p(v, "1"));
+        assertThat(((HSBType) v.getValue()).getBrightness().intValue(), is(10));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void illegalColorUpdate() {
         ColorValue v = new ColorValue(true, null, null);
-        v.update("255,255,abc");
+        v.update(p(v, "255,255,abc"));
     }
 
     @Test(expected = IllegalArgumentException.class)
