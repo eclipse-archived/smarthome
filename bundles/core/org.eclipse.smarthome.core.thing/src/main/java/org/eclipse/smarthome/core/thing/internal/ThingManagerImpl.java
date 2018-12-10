@@ -158,7 +158,7 @@ public class ThingManagerImpl
     private SafeCaller safeCaller;
     private volatile boolean active = false;
     private StorageService storageService;
-    private Storage<Boolean> storage;
+    private Storage<String> storage;
 
     private final ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
@@ -1263,7 +1263,7 @@ public class ThingManagerImpl
             storage.remove(thingUID.getAsString());
         } else {
             // Mark the thing as disabled in the storage.
-            storage.put(thingUID.getAsString(), enabled);
+            storage.put(thingUID.getAsString(), "false");
         }
     }
 
@@ -1279,7 +1279,7 @@ public class ThingManagerImpl
     }
 
     private boolean isDisabledByStorage(ThingUID thingUID) {
-        return storage != null && Boolean.FALSE.equals(storage.get(thingUID.getAsString()));
+        return storage != null && storage.containsKey(thingUID.getAsString());
     }
 
     @Reference
