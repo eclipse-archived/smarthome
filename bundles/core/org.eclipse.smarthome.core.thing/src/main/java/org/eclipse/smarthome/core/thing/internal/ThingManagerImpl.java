@@ -1263,7 +1263,7 @@ public class ThingManagerImpl
             storage.remove(thingUID.getAsString());
         } else {
             // Mark the thing as disabled in the storage.
-            storage.put(thingUID.getAsString(), "false");
+            storage.put(thingUID.getAsString(), "");
         }
     }
 

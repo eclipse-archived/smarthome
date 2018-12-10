@@ -94,7 +94,7 @@ public class ThingManagerTest {
         verify(mockStorage).remove(eq(unknownUID.getAsString()));
 
         thingManager.setEnabled(unknownUID, false);
-        verify(mockStorage).put(eq(unknownUID.getAsString()), eq(false));
+        verify(mockStorage).put(eq(unknownUID.getAsString()), eq(""));
     }
 
     @Test
@@ -113,12 +113,12 @@ public class ThingManagerTest {
         ThingUID unknownUID = new ThingUID("someBundle", "someType", "someID");
         ThingManagerImpl thingManager = new ThingManagerImpl();
 
-        when(mockStorage.get(unknownUID.getAsString())).thenReturn(true);
+        when(mockStorage.containsKey(unknownUID.getAsString())).thenReturn(false);
         when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(mockStorage);
         thingManager.setStorageService(mockStorageService);
         assertEquals(thingManager.isEnabled(unknownUID), true);
 
-        when(mockStorage.get(unknownUID.getAsString())).thenReturn(false);
+        when(mockStorage.containsKey(unknownUID.getAsString())).thenReturn(true);
         when(mockStorageService.getStorage(eq("thing_status_storage"), any(ClassLoader.class))).thenReturn(mockStorage);
         thingManager.setStorageService(mockStorageService);
         assertEquals(thingManager.isEnabled(unknownUID), false);
