@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.ui.internal.chart;
 
 import java.awt.image.BufferedImage;
+import java.io.EOFException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,8 +44,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This servlet generates time-series charts for a given set of items. It
@@ -341,7 +340,7 @@ public class ChartServlet extends SmartHomeServlet {
         } catch (IllegalArgumentException e) {
             logger.warn("Illegal argument in chart: {}", e.getMessage());
             res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Illegal argument in chart: " + e.getMessage());
-        } catch (IIOException e) {
+        } catch (IIOException | EOFException e) {
             // this can happen if the request is terminated while the image is streamed, see
             // https://github.com/openhab/openhab-distro/issues/684
             logger.debug("Failed writing image to response stream", e);
