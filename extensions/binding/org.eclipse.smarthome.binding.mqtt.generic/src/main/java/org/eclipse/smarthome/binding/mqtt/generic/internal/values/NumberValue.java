@@ -45,8 +45,7 @@ public class NumberValue implements Value {
     private final Boolean isDecimal;
     private final boolean isPercent;
     private List<Class<? extends Command>> commandTypes = Stream
-            .of(PercentType.class, DecimalType.class, IncreaseDecreaseType.class, UpDownType.class, StringType.class)
-            .collect(Collectors.toList());
+            .of(DecimalType.class, IncreaseDecreaseType.class, UpDownType.class).collect(Collectors.toList());
 
     private DecimalType numberValue;
 
@@ -71,13 +70,7 @@ public class NumberValue implements Value {
     @Override
     public String update(Command command) throws IllegalArgumentException {
         if (isPercent) {
-            if (command instanceof StringType) {
-                double v = Double.valueOf(((StringType) command).toString());
-                v = (v - min) * 100.0 / (max - min);
-                numberValue = new PercentType(new BigDecimal(v));
-            } else if (command instanceof PercentType) {
-                numberValue = ((PercentType) command);
-            } else if (command instanceof DecimalType) {
+            if (command instanceof DecimalType) {
                 double v = ((DecimalType) command).doubleValue();
                 v = (v - min) * 100.0 / (max - min);
                 numberValue = new PercentType(new BigDecimal(v));
@@ -110,12 +103,8 @@ public class NumberValue implements Value {
                 return String.valueOf(numberValue.intValue());
             }
         } else {
-            if (command instanceof StringType) {
-                numberValue = DecimalType.valueOf(((StringType) command).toString());
-            } else if (command instanceof DecimalType) {
+            if (command instanceof DecimalType) {
                 numberValue = (DecimalType) command;
-            } else if (command instanceof PercentType) {
-                numberValue = ((PercentType) command);
             } else if (command instanceof IncreaseDecreaseType) {
                 double v;
                 if (((IncreaseDecreaseType) command) == IncreaseDecreaseType.INCREASE) {
