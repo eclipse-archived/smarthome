@@ -141,6 +141,10 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void enableThing(Console console, ThingUID thingUID, boolean isEnabled) {
+        if (thingRegistry.get(thingUID) == null) {
+            console.println("unknown thing for thingUID '" + thingUID.getAsString() + "'.");
+            return;
+        }
         thingManager.setEnabled(thingUID, isEnabled);
         String command = isEnabled ? "enabled" : "disabled";
         console.println(thingUID.getAsString() + " successfully " + command + ".");
