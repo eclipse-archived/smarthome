@@ -53,11 +53,11 @@ You can manually add the following channels:
 * **image**: This channel handles binary images in common java supported formats (bmp,jpg,png).
 * **datetime**: This channel handles date/time values.
 
-## Thing and Channel configuration
+## Thing and Channel Configuration
 
 All things require a configured broker.
 
-### Common channel configuration parameters
+### Common Channel Configuration Parameters
 
 * __stateTopic__: The MQTT topic that represents the state of the thing. This can be empty, the thing channel will be a state-less trigger then. You can use a wildcard topic like "sensors/+/event" to retrieve state from multiple MQTT topics. 
 * __transformationPattern__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2).
@@ -139,13 +139,29 @@ for example 2018-01-01T12:14:00. If you require another format, please use the f
 
 The channel expects values on the corresponding MQTT topic to be in this format as well. 
 
+## Rule Actions
+
+This binding includes a rule action, which allows to publish MQTT messages from within rules.
+There is a separate instance for each MQTT broker (i.e. bridge), which can be retrieved through
+
+```
+val mqttActions = getActions("mqtt","mqtt:systemBroker:embedded-mqtt-broker")
+```
+
+where the first parameter always has to be `mqtt` and the second (`mqtt:systemBroker:embedded-mqtt-broker`) is the Thing UID of the broker that should be used.
+Once this action instance is retrieved, you can invoke the `publishMQTT(String topic, String value)` method on it:
+
+```
+mqttActions.publishMQTT("mytopic","myvalue")
+```
+
 ## Limitations
 
 * This binding does not support Homie Node Instances.
 * Homie Device Statistics (except from "interval") are not supported.
 * The following HomeAssistant MQTT Components are not implemented: Camera, Climate, Fan, Cover. The light component only supports a on/off switch and no color or brightness changes.
 
-## Incoming value transformation
+## Incoming Value Transformation
 
 All mentioned channels can have a configured optional transformation for an incoming MQTT topic value.
 
@@ -202,4 +218,16 @@ demo.items:
 ```xtend
 Switch Kitchen_Light "Kitchen Light" {channel="mqtt:mybroker:topic:mything:lamp" }
 Rollershutter shutter "Blind" {channel="mqtt:mybroker:topic:mything:blind" }
+```
+
+demo.rules:
+
+```xtend
+rule "Send startup message"
+when
+  System started
+then
+  val actions = getActions("mqtt","mqtt:broker:myUnsecureBroker")
+  actions.publishMQTT("system/started","true")    
+end
 ```
