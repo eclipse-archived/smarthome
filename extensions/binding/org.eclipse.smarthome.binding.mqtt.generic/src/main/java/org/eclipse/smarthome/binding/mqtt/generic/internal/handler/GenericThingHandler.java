@@ -94,7 +94,7 @@ public class GenericThingHandler extends AbstractMQTTThingHandler implements Cha
 
     @Override
     protected void stop() {
-        channelStateByChannelUID.values().forEach(c -> c.getValue().resetState());
+        channelStateByChannelUID.values().forEach(c -> c.getCache().resetState());
     }
 
     @Override

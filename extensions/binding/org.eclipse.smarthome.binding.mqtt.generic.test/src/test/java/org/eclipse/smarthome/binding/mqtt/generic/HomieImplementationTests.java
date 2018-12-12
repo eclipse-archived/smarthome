@@ -176,7 +176,7 @@ public class HomieImplementationTests extends JavaOSGiTest {
         CountDownLatch c = new CountDownLatch(registeredTopics);
         connection.subscribe(deviceTopic + "/#", (topic, payload) -> c.countDown()).get(200, TimeUnit.MILLISECONDS);
         assertTrue("Connection " + connection.getClientId() + " not retrieving all topics",
-                c.await(200, TimeUnit.MILLISECONDS));
+                c.await(1000, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -217,7 +217,7 @@ public class HomieImplementationTests extends JavaOSGiTest {
         verify(channelState).processMessage(any(), any());
         verify(callback).updateChannelState(any(), any());
 
-        assertThat(property.getChannelState().getValue().getValue(), is(new DecimalType(10)));
+        assertThat(property.getChannelState().getCache().getChannelState(), is(new DecimalType(10)));
 
         property.stop().get();
         assertThat(connection.hasSubscribers(), is(false));
@@ -307,17 +307,17 @@ public class HomieImplementationTests extends JavaOSGiTest {
         // The device->node->property tree is ready. Now subscribe to property values.
         device.startChannels(connection, scheduler, 50, handler).get();
         assertThat(propertyBell.getChannelState().isStateful(), is(false));
-        assertThat(propertyBell.getChannelState().getValue().getValue(), is(UnDefType.UNDEF));
-        assertThat(property.getChannelState().getValue().getValue(), is(new DecimalType(10)));
+        assertThat(propertyBell.getChannelState().getCache().getChannelState(), is(UnDefType.UNDEF));
+        assertThat(property.getChannelState().getCache().getChannelState(), is(new DecimalType(10)));
 
         property = node.properties.get("testRetain");
         WaitForTopicValue watcher = new WaitForTopicValue(embeddedConnection, propertyTestTopic + "/set");
         // Watch the topic. Publish a retain=false value to MQTT
-        property.getChannelState().setValue(OnOffType.OFF).get();
+        property.getChannelState().publishValue(OnOffType.OFF).get();
         assertThat(watcher.waitForTopicValue(50), is("false"));
 
         // Publish a retain=false value to MQTT.
-        property.getChannelState().setValue(OnOffType.ON).get();
+        property.getChannelState().publishValue(OnOffType.ON).get();
         // This test is flaky if the MQTT broker does not get a time to "forget" this non-retained value
         Thread.sleep(50);
         // No value is expected to be retained on this MQTT topic

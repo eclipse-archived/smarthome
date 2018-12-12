@@ -112,11 +112,11 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
         }
 
         if (command instanceof RefreshType || data.isReadOnly()) {
-            updateState(channelUID.getId(), data.getValue().getValue());
+            updateState(channelUID.getId(), data.getCache().getChannelState());
             return;
         }
 
-        final CompletableFuture<@Nullable Void> future = data.setValue(command);
+        final CompletableFuture<@Nullable Void> future = data.publishValue(command);
         future.exceptionally(e -> {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());
             return null;

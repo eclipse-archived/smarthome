@@ -174,7 +174,7 @@ public abstract class AbstractComponent {
      * to the MQTT broker got lost.
      */
     public void resetState() {
-        channels.values().forEach(c -> c.channelState.getValue().resetState());
+        channels.values().forEach(c -> c.channelState.getCache().resetState());
     }
 
 }

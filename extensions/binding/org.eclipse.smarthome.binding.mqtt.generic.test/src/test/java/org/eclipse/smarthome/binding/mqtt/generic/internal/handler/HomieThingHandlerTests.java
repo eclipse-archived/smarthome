@@ -230,7 +230,7 @@ public class HomieThingHandlerTests {
         thingHandler.handleCommand(property.channelUID, RefreshType.REFRESH);
 
         verify(callback).stateUpdated(argThat(arg -> property.channelUID.equals(arg)),
-                argThat(arg -> property.getChannelState().getValue().getValue().equals(arg)));
+                argThat(arg -> property.getChannelState().getCache().getChannelState().equals(arg)));
     }
 
     @SuppressWarnings("null")
@@ -260,21 +260,21 @@ public class HomieThingHandlerTests {
         StringType updateValue = new StringType("UPDATE");
         thingHandler.handleCommand(property.channelUID, updateValue);
 
-        assertThat(property.getChannelState().getValue().getValue().toString(), is("UPDATE"));
+        assertThat(property.getChannelState().getCache().getChannelState().toString(), is("UPDATE"));
         verify(connection, times(1)).publish(any(), any(), anyInt(), anyBoolean());
 
         // Check non writable property
         property.attributes.settable = false;
         property.attributesReceived();
         // Assign old value
-        Value value = property.getChannelState().getValue();
+        Value value = property.getChannelState().getCache();
         Command command = TypeParser.parseCommand(value.getSupportedCommandTypes(), "OLDVALUE");
-        property.getChannelState().getValue().update(command);
+        property.getChannelState().getCache().update(command);
         // Try to update with new value
         updateValue = new StringType("SOMETHINGNEW");
         thingHandler.handleCommand(property.channelUID, updateValue);
         // Expect old value and no MQTT publish
-        assertThat(property.getChannelState().getValue().getValue().toString(), is("OLDVALUE"));
+        assertThat(property.getChannelState().getCache().getChannelState().toString(), is("OLDVALUE"));
         verify(connection, times(1)).publish(any(), any(), anyInt(), anyBoolean());
     }
 

@@ -25,10 +25,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateOption;
-import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * Implements a text/string value. Allows to restrict the incoming value to a set of states.
@@ -36,9 +34,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class TextValue implements Value {
-    private State state = UnDefType.UNDEF;
-    private StringType strValue;
+public class TextValue extends Value {
     private final @Nullable Set<String> states;
 
     /**
@@ -48,7 +44,7 @@ public class TextValue implements Value {
      *            will be allowed.
      */
     public TextValue(String[] states) {
-        strValue = new StringType();
+        super(CoreItemFactory.STRING, Collections.singletonList(StringType.class));
         Set<String> s = Stream.of(states).filter(e -> StringUtils.isNotBlank(e)).collect(Collectors.toSet());
         if (s.size() > 0) {
             this.states = s;
@@ -58,30 +54,18 @@ public class TextValue implements Value {
     }
 
     public TextValue() {
-        strValue = new StringType();
+        super(CoreItemFactory.STRING, Collections.singletonList(StringType.class));
         this.states = null;
     }
 
     @Override
-    public State getValue() {
-        return state;
-    }
-
-    @Override
-    public String update(Command command) throws IllegalArgumentException {
+    public void update(Command command) throws IllegalArgumentException {
         final Set<String> states = this.states;
-        String value = command.toString();
-        if (states != null && !states.contains(value)) {
-            throw new IllegalArgumentException("Value " + value + " not within range");
+        String valueStr = command.toString();
+        if (states != null && !states.contains(valueStr)) {
+            throw new IllegalArgumentException("Value " + valueStr + " not within range");
         }
-        strValue = new StringType(value);
-        state = strValue;
-        return value;
-    }
-
-    @Override
-    public String getItemType() {
-        return CoreItemFactory.STRING;
+        state = new StringType(valueStr);
     }
 
     /**
@@ -101,15 +85,5 @@ public class TextValue implements Value {
             }
         }
         return new StateDescription(null, null, null, "%s " + unit.replace("%", "%%"), readOnly, stateOptions);
-    }
-
-    @Override
-    public void resetState() {
-        state = UnDefType.UNDEF;
-    }
-
-    @Override
-    public List<Class<? extends Command>> getSupportedCommandTypes() {
-        return Collections.singletonList(StringType.class);
     }
 }

@@ -14,7 +14,6 @@ package org.eclipse.smarthome.binding.mqtt.generic.internal.values;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,137 +22,52 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
-import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
- * Implements a percentage value. Minimum and maximum are definable.
+ * Implements a number value.
+ *
+ * <p>
+ * Accepts user updates and MQTT state updates from a DecimalType, IncreaseDecreaseType and UpDownType.
+ * </p>
  *
  * @author David Graeff - Initial contribution
  */
 @NonNullByDefault
-public class NumberValue implements Value {
-    private State state = UnDefType.UNDEF;
-    private final double min;
-    private final double max;
-    private final double step;
-    private final Boolean isDecimal;
-    private final boolean isPercent;
-    private List<Class<? extends Command>> commandTypes = Stream
-            .of(DecimalType.class, IncreaseDecreaseType.class, UpDownType.class).collect(Collectors.toList());
+public class NumberValue extends Value {
+    private final @Nullable BigDecimal min;
+    private final @Nullable BigDecimal max;
+    private final BigDecimal step;
 
-    private DecimalType numberValue;
-
-    public NumberValue(@Nullable Boolean isDecimal, @Nullable BigDecimal min, @Nullable BigDecimal max,
-            @Nullable BigDecimal step, boolean isPercent) {
-        this.isDecimal = isDecimal == null ? false : isDecimal;
-        this.min = min == null ? 0.0 : min.doubleValue();
-        this.max = max == null ? 100.0 : max.doubleValue();
-        if (isPercent && this.min >= this.max) {
-            throw new IllegalArgumentException("Min need to be smaller than max!");
-        }
-        this.step = step == null ? 1.0 : step.doubleValue();
-        this.isPercent = isPercent;
-        numberValue = new DecimalType();
+    public NumberValue(@Nullable BigDecimal min, @Nullable BigDecimal max, @Nullable BigDecimal step) {
+        super(CoreItemFactory.NUMBER, Stream.of(DecimalType.class, IncreaseDecreaseType.class, UpDownType.class)
+                .collect(Collectors.toList()));
+        this.min = min;
+        this.max = max;
+        this.step = step == null ? new BigDecimal(1.0) : step;
     }
 
     @Override
-    public State getValue() {
-        return state;
-    }
-
-    @Override
-    public String update(Command command) throws IllegalArgumentException {
-        if (isPercent) {
-            if (command instanceof DecimalType) {
-                double v = ((DecimalType) command).doubleValue();
-                v = (v - min) * 100.0 / (max - min);
-                numberValue = new PercentType(new BigDecimal(v));
-            } else if (command instanceof IncreaseDecreaseType) {
-                if (((IncreaseDecreaseType) command) == IncreaseDecreaseType.INCREASE) {
-                    final double v = numberValue.doubleValue() + step;
-                    numberValue = new PercentType(new BigDecimal(v <= max ? v : max));
-                } else {
-                    double v = numberValue.doubleValue() - step;
-                    numberValue = new PercentType(new BigDecimal(v >= min ? v : min));
-                }
-            } else if (command instanceof UpDownType) {
-                if (((UpDownType) command) == UpDownType.UP) {
-                    final double v = numberValue.doubleValue() + step;
-                    numberValue = new PercentType(new BigDecimal(v <= max ? v : max));
-                } else {
-                    final double v = numberValue.doubleValue() - step;
-                    numberValue = new PercentType(new BigDecimal(v >= min ? v : min));
-                }
+    public void update(Command command) throws IllegalArgumentException {
+        DecimalType oldvalue = (state == UnDefType.UNDEF) ? new DecimalType() : (DecimalType) state;
+        if (command instanceof DecimalType) {
+            state = (DecimalType) command;
+        } else if (command instanceof IncreaseDecreaseType || command instanceof UpDownType) {
+            if (command == IncreaseDecreaseType.INCREASE || command == UpDownType.UP) {
+                state = new DecimalType(oldvalue.toBigDecimal().add(step));
             } else {
-                throw new IllegalArgumentException(
-                        "Type " + command.getClass().getName() + " not supported for PercentValue");
-            }
-
-            if (isDecimal) {
-                state = numberValue;
-                return numberValue.toString();
-            } else {
-                state = numberValue;
-                return String.valueOf(numberValue.intValue());
+                state = new DecimalType(oldvalue.toBigDecimal().subtract(step));
             }
         } else {
-            if (command instanceof DecimalType) {
-                numberValue = (DecimalType) command;
-            } else if (command instanceof IncreaseDecreaseType) {
-                double v;
-                if (((IncreaseDecreaseType) command) == IncreaseDecreaseType.INCREASE) {
-                    v = numberValue.doubleValue() + step;
-                } else {
-                    v = numberValue.doubleValue() - step;
-                }
-                numberValue = new DecimalType(v);
-            } else if (command instanceof UpDownType) {
-                double v;
-                if (((UpDownType) command) == UpDownType.UP) {
-                    v = numberValue.doubleValue() + step;
-                } else {
-                    v = numberValue.doubleValue() - step;
-                }
-                numberValue = new DecimalType(v);
-            } else {
-                throw new IllegalArgumentException(
-                        "Type " + command.getClass().getName() + " not supported for NumberValue");
-            }
-
-            if (isDecimal) {
-                state = numberValue;
-                return numberValue.toString();
-            } else {
-                state = numberValue;
-                return String.valueOf(numberValue.intValue());
-            }
+            state = DecimalType.valueOf(command.toString());
         }
-    }
-
-    @Override
-    public String getItemType() {
-        return isPercent ? CoreItemFactory.DIMMER : CoreItemFactory.NUMBER;
     }
 
     @Override
     public StateDescription createStateDescription(String unit, boolean readOnly) {
-        return new StateDescription(new BigDecimal(min), new BigDecimal(max), new BigDecimal(step),
-                "%s " + unit.replace("%", "%%"), readOnly, Collections.emptyList());
-    }
-
-    @Override
-    public List<Class<? extends Command>> getSupportedCommandTypes() {
-        return commandTypes;
-    }
-
-    @Override
-    public void resetState() {
-        state = UnDefType.UNDEF;
+        return new StateDescription(min, max, step, "%s " + unit.replace("%", "%%"), readOnly, Collections.emptyList());
     }
 }

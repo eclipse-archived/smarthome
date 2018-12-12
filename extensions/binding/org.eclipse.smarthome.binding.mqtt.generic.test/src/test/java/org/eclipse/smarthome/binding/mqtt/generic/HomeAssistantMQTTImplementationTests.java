@@ -36,12 +36,12 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassist
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.ComponentSwitch;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.DiscoverComponents.ComponentDiscovered;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HaID;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.MqttChannelTypeProvider;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant.HaID;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.ThingChannelConstants;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
@@ -126,7 +126,7 @@ public class HomeAssistantMQTTImplementationTests extends JavaOSGiTest {
     public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
         if (connection != null) {
             connection.removeConnectionObserver(failIfChange);
-            connection.stop().get(500, TimeUnit.MILLISECONDS);
+            connection.stop().get(1000, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -190,9 +190,9 @@ public class HomeAssistantMQTTImplementationTests extends JavaOSGiTest {
         verify(channelTypeProvider, times(1)).setChannelType(any(), any());
 
         // We expect a switch component with an OnOff channel with the initial value UNDEF:
-        OnOffValue value = (OnOffValue) haComponents.get(haID.getChannelGroupID()).channelTypes()
-                .get(ComponentSwitch.switchChannelID).channelState.getValue();
-        assertThat(value.getValue(), is(UnDefType.UNDEF));
+        State value = haComponents.get(haID.getChannelGroupID()).channelTypes()
+                .get(ComponentSwitch.switchChannelID).channelState.getCache().getChannelState();
+        assertThat(value, is(UnDefType.UNDEF));
 
         haComponents.values().stream().map(e -> e.start(connection, scheduler, 100))
                 .reduce(CompletableFuture.completedFuture(null), (a, v) -> a.thenCompose(b -> v)).exceptionally(e -> {
@@ -204,9 +204,9 @@ public class HomeAssistantMQTTImplementationTests extends JavaOSGiTest {
         verify(channelStateUpdateListener, times(1)).updateChannelState(any(), any());
 
         // Value should be ON now.
-        value = (OnOffValue) haComponents.get(haID.getChannelGroupID()).channelTypes()
-                .get(ComponentSwitch.switchChannelID).channelState.getValue();
-        assertThat(value.getValue(), is(OnOffType.ON));
+        value = haComponents.get(haID.getChannelGroupID()).channelTypes()
+                .get(ComponentSwitch.switchChannelID).channelState.getCache().getChannelState();
+        assertThat(value, is(OnOffType.ON));
 
     }
 }

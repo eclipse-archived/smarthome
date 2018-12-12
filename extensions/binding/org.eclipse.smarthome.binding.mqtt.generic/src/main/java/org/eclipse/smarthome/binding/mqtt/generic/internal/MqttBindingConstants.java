@@ -35,11 +35,13 @@ public class MqttBindingConstants {
     public static final String COLOR_RGB = "colorRGB";
     public static final String COLOR_HSB = "colorHSB";
     public static final String CONTACT = "contact";
-    public static final String DATETIME = "dateTime";
     public static final String DIMMER = "dimmer";
     public static final String NUMBER = "number";
     public static final String STRING = "string";
     public static final String SWITCH = "switch";
+    public static final String IMAGE = "image";
+    public static final String LOCATION = "location";
+    public static final String DATETIME = "datetime";
 
     public static final String CONFIG_HA_CHANNEL = "mqtt:ha_channel";
     public static final String CONFIG_HOMIE_CHANNEL = "mqtt:homie_channel";

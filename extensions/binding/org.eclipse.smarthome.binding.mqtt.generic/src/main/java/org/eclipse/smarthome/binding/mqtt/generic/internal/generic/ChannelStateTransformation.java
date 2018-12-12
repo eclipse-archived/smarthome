@@ -45,7 +45,7 @@ public class ChannelStateTransformation {
      *            temperature: 23.2 }}}.
      * @param channelUID The channel UID, used in processMessage() to inform the respective channel
      *            of an update.
-     * @param value A value object
+     * @param cachedValue A value object
      * @param provider The transformation service provider
      */
     public ChannelStateTransformation(String pattern, TransformationServiceProvider provider) {

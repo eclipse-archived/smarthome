@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.Value;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.eclipse.smarthome.io.transport.mqtt.MqttMessageSubscriber;
@@ -51,7 +50,7 @@ public class ChannelState implements MqttMessageSubscriber {
     protected final ChannelConfig config;
 
     /** Channel value **/
-    protected final Value value;
+    protected final Value cachedValue;
 
     // Runtime variables
 
@@ -67,15 +66,16 @@ public class ChannelState implements MqttMessageSubscriber {
      *
      * @param config The channel configuration
      * @param channelUID The channelUID is used for the {@link ChannelStateUpdateListener} to notify about value changes
-     * @param value The channel state value.
+     * @param cachedValue MQTT only notifies us once about a value, during the subscribe. The channel state therefore
+     *            needs a cache for the current value.
      * @param channelStateUpdateListener A channel state update listener
      */
-    public ChannelState(ChannelConfig config, ChannelUID channelUID, Value value,
+    public ChannelState(ChannelConfig config, ChannelUID channelUID, Value cachedValue,
             @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
         this.config = config;
         this.channelStateUpdateListener = channelStateUpdateListener;
         this.channelUID = channelUID;
-        this.value = value;
+        this.cachedValue = cachedValue;
         this.readOnly = StringUtils.isBlank(config.commandTopic);
     }
 
@@ -101,10 +101,15 @@ public class ChannelState implements MqttMessageSubscriber {
     }
 
     /**
-     * Returns the value state object of this message subscriber.
+     * Returns the cached value state object of this message subscriber.
+     * <p>
+     * MQTT only notifies us once about a value, during the subscribe.
+     * The channel state therefore needs a cache for the current value.
+     * If MQTT has not yet published a value, the cache might still be in UNDEF state.
+     * </p>
      */
-    public Value getValue() {
-        return value;
+    public Value getCache() {
+        return cachedValue;
     }
 
     /**
@@ -118,9 +123,7 @@ public class ChannelState implements MqttMessageSubscriber {
      * Incoming message from the MqttBrokerConnection
      *
      * @param topic The topic. Is the same as the field stateTopic.
-     * @param payload The byte payload. Must be UTF8 encoded text.
-     *            Some clients may decide to encode their own binary number or struct types.
-     *            We do not and cannot support those here though.
+     * @param payload The byte payload. Must be UTF8 encoded text or binary data.
      */
     @Override
     public void processMessage(String topic, byte[] payload) {
@@ -130,33 +133,49 @@ public class ChannelState implements MqttMessageSubscriber {
             return;
         }
 
-        // Apply transformations
+        if (cachedValue.isBinary()) {
+            cachedValue.update(payload);
+            channelStateUpdateListener.updateChannelState(channelUID, cachedValue.getChannelState());
+            receivedOrTimeout();
+            return;
+        }
+
+        // String value: Apply transformations
         String strvalue = new String(payload, StandardCharsets.UTF_8);
         for (ChannelStateTransformation t : transformations) {
             strvalue = t.processValue(strvalue);
         }
 
+        // Is trigger?: Special handling
         if (config.trigger) {
             channelStateUpdateListener.triggerChannel(channelUID, strvalue);
-        } else {
-            try {
-                Command command = TypeParser.parseCommand(value.getSupportedCommandTypes(), strvalue);
-                if (command == null) {
-                    throw new IllegalArgumentException("TypeParser failed");
-                }
-                value.update(command);
-                final State updatedState = value.getValue();
-                if (config.postCommand) {
-                    channelStateUpdateListener.postChannelState(channelUID, (Command) updatedState);
-                } else {
-                    channelStateUpdateListener.updateChannelState(channelUID, updatedState);
-                }
-            } catch (IllegalArgumentException e) {
-                logger.warn("Incoming payload '{}' not supported by type '{}': {}", strvalue,
-                        value.getClass().getSimpleName(), e.getMessage());
-            }
+            receivedOrTimeout();
+            return;
         }
 
+        Command command = TypeParser.parseCommand(cachedValue.getSupportedCommandTypes(), strvalue);
+        if (command == null) {
+            logger.warn("Incoming payload '{}' not supported by type '{}'", strvalue,
+                    cachedValue.getClass().getSimpleName());
+            receivedOrTimeout();
+            return;
+        }
+
+        // Map the string to an ESH command, update the cached value and post the command to the framework
+        try {
+            cachedValue.update(command);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            logger.warn("Command '{}' not supported by type '{}': {}", strvalue, cachedValue.getClass().getSimpleName(),
+                    e.getMessage());
+            receivedOrTimeout();
+            return;
+        }
+
+        if (config.postCommand) {
+            channelStateUpdateListener.postChannelState(channelUID, (Command) cachedValue.getChannelState());
+        } else {
+            channelStateUpdateListener.updateChannelState(channelUID, cachedValue.getChannelState());
+        }
         receivedOrTimeout();
     }
 
@@ -178,7 +197,7 @@ public class ChannelState implements MqttMessageSubscriber {
      * Returns the channelType ID which also happens to be an item-type
      */
     public String getItemType() {
-        return value.getItemType();
+        return cachedValue.getItemType();
     }
 
     /**
@@ -208,7 +227,7 @@ public class ChannelState implements MqttMessageSubscriber {
         this.connection = null;
         this.channelStateUpdateListener = null;
         hasSubscribed = false;
-        value.resetState();
+        cachedValue.resetState();
     }
 
     private void receivedOrTimeout() {
@@ -279,8 +298,10 @@ public class ChannelState implements MqttMessageSubscriber {
      * @param command The command to send
      * @return A future that completes with true if the publishing worked and false and/or exceptionally otherwise.
      */
-    public CompletableFuture<@Nullable Void> setValue(Command command) {
-        String mqttCommandValue = getValue().update(command);
+    public CompletableFuture<@Nullable Void> publishValue(Command command) {
+        cachedValue.update(command);
+
+        String mqttCommandValue = cachedValue.getMQTTpublishValue();
 
         final MqttBrokerConnection connection = this.connection;
 
