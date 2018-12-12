@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.model.script.scoping;
 
+import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
 
@@ -37,6 +38,11 @@ final public class ActionClassLoader extends ClassLoader {
             for (ActionService actionService : ScriptServiceUtil.getActionServices()) {
                 if (actionService.getActionClassName().equals(name)) {
                     return actionService.getActionClass();
+                }
+            }
+            for (ThingActions actions : ScriptServiceUtil.getThingActions()) {
+                if (actions.getClass().getName().equals(name)) {
+                    return actions.getClass();
                 }
             }
         }

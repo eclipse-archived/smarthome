@@ -19,7 +19,7 @@ import org.eclipse.smarthome.automation.annotation.ActionInput;
 import org.eclipse.smarthome.automation.annotation.ActionOutput;
 import org.eclipse.smarthome.automation.annotation.ActionScope;
 import org.eclipse.smarthome.automation.annotation.RuleAction;
-import org.eclipse.smarthome.core.thing.binding.AnnotatedActionThingHandlerService;
+import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.magic.binding.handler.MagicActionModuleThingHandler;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @ActionScope(name = "magic")
-public class MagicThingActionsService implements AnnotatedActionThingHandlerService {
+public class MagicThingActionsService implements ThingActions {
 
     private final Logger logger = LoggerFactory.getLogger(MagicThingActionsService.class);
 

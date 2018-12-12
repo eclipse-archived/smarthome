@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.binding.mqtt.internal.ActionService;
+import org.eclipse.smarthome.binding.mqtt.action.MQTTActions;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -58,7 +58,7 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
 
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
-        return Collections.singleton(ActionService.class);
+        return Collections.singleton(MQTTActions.class);
     }
 
     /**

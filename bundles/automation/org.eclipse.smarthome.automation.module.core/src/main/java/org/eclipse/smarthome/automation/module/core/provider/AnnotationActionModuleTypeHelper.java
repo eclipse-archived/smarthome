@@ -59,32 +59,37 @@ public class AnnotationActionModuleTypeHelper {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Collection<ModuleInformation> parseAnnotations(Object actionProvider) {
-        Collection<ModuleInformation> moduleInformation = new ArrayList<>();
-
         Class clazz = actionProvider.getClass();
         if (clazz.isAnnotationPresent(ActionScope.class)) {
             ActionScope scope = (ActionScope) clazz.getAnnotation(ActionScope.class);
+            return parseAnnotations(scope.name(), actionProvider);
+        }
+        return Collections.emptyList();
+    }
 
-            Method[] methods = clazz.getDeclaredMethods();
-            for (Method method : methods) {
-                if (method.isAnnotationPresent(RuleAction.class)) {
-                    List<Input> inputs = getInputsFromAction(method);
-                    List<Output> outputs = getOutputsFromMethod(method);
+    @SuppressWarnings({ "rawtypes" })
+    public Collection<ModuleInformation> parseAnnotations(String name, Object actionProvider) {
+        Collection<ModuleInformation> moduleInformation = new ArrayList<>();
+        Class clazz = actionProvider.getClass();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(RuleAction.class)) {
+                List<Input> inputs = getInputsFromAction(method);
+                List<Output> outputs = getOutputsFromMethod(method);
 
-                    RuleAction ruleAction = method.getAnnotation(RuleAction.class);
-                    String uid = scope.name() + "." + method.getName();
-                    Set<String> tags = new HashSet<>(Arrays.asList(ruleAction.tags()));
+                RuleAction ruleAction = method.getAnnotation(RuleAction.class);
+                String uid = name + "." + method.getName();
+                Set<String> tags = new HashSet<>(Arrays.asList(ruleAction.tags()));
 
-                    ModuleInformation mi = new ModuleInformation(uid, actionProvider, method);
-                    mi.setLabel(ruleAction.label());
-                    mi.setDescription(ruleAction.description());
-                    mi.setVisibility(ruleAction.visibility());
-                    mi.setInputs(inputs);
-                    mi.setOutputs(outputs);
-                    mi.setTags(tags);
+                ModuleInformation mi = new ModuleInformation(uid, actionProvider, method);
+                mi.setLabel(ruleAction.label());
+                mi.setDescription(ruleAction.description());
+                mi.setVisibility(ruleAction.visibility());
+                mi.setInputs(inputs);
+                mi.setOutputs(outputs);
+                mi.setTags(tags);
 
-                    moduleInformation.add(mi);
-                }
+                moduleInformation.add(mi);
             }
         }
         return moduleInformation;
