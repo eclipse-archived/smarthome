@@ -37,11 +37,20 @@ public class ValueFactory {
                 value = StringUtils.isBlank(config.allowedStates) ? new TextValue()
                         : new TextValue(config.allowedStates.split(","));
                 break;
+            case MqttBindingConstants.DATETIME:
+                value = new DateTimeValue();
+                break;
+            case MqttBindingConstants.IMAGE:
+                value = new ImageValue();
+                break;
+            case MqttBindingConstants.LOCATION:
+                value = new LocationValue();
+                break;
             case MqttBindingConstants.NUMBER:
-                value = new NumberValue(config.isDecimal, config.min, config.max, config.step, false);
+                value = new NumberValue(config.min, config.max, config.step);
                 break;
             case MqttBindingConstants.DIMMER:
-                value = new NumberValue(config.isDecimal, config.min, config.max, config.step, true);
+                value = new PercentageValue(config.min, config.max, config.step);
                 break;
             case MqttBindingConstants.COLOR_RGB:
                 value = new ColorValue(true, config.on, config.off);

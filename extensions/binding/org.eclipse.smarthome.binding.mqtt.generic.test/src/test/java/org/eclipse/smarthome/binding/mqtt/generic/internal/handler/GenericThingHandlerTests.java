@@ -132,11 +132,11 @@ public class GenericThingHandlerTests {
         thingHandler.initialize();
 
         TextValue value = spy(new TextValue());
-        doReturn(value).when(channelConfig).getValue();
+        doReturn(value).when(channelConfig).getCache();
         thingHandler.connection = connection;
 
         thingHandler.handleCommand(textChannelUID, RefreshType.REFRESH);
-        verify(value).getValue();
+        verify(value).getChannelState();
     }
 
     @Test
@@ -152,7 +152,7 @@ public class GenericThingHandlerTests {
         StringType updateValue = new StringType("UPDATE");
         thingHandler.handleCommand(textChannelUID, updateValue);
         verify(value).update(eq(updateValue));
-        assertThat(channelConfig.getValue().getValue().toString(), is("UPDATE"));
+        assertThat(channelConfig.getCache().getChannelState().toString(), is("UPDATE"));
     }
 
     @Test
@@ -169,7 +169,7 @@ public class GenericThingHandlerTests {
         thingHandler.handleCommand(textChannelUID, updateValue);
 
         verify(value).update(eq(updateValue));
-        assertThat(channelConfig.getValue().getValue(), is(OnOffType.ON));
+        assertThat(channelConfig.getCache().getChannelState(), is(OnOffType.ON));
     }
 
     @Test
@@ -187,6 +187,6 @@ public class GenericThingHandlerTests {
         verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
 
         verify(callback).stateUpdated(eq(textChannelUID), argThat(arg -> "UPDATE".equals(arg.toString())));
-        assertThat(textValue.getValue().toString(), is("UPDATE"));
+        assertThat(textValue.getChannelState().toString(), is("UPDATE"));
     }
 }

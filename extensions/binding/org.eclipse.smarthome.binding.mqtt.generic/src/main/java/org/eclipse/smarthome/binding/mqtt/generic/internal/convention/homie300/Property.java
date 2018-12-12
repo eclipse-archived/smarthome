@@ -135,7 +135,7 @@ public class Property implements AttributeChanged {
             return ChannelTypeBuilder.state(channelTypeUID, attributes.name, channelState.getItemType())
                     .withConfigDescriptionURI(URI.create(MqttBindingConstants.CONFIG_HOMIE_CHANNEL))
                     .withStateDescription(
-                            channelState.getValue().createStateDescription(attributes.unit, !attributes.settable))
+                            channelState.getCache().createStateDescription(attributes.unit, !attributes.settable))
                     .build();
         } else {
             if (attributes.datatype.equals(DataTypeEnum.enum_)) {
@@ -159,6 +159,7 @@ public class Property implements AttributeChanged {
         final String stateTopic = topic;
 
         Value value;
+        Boolean isDecimal = null;
         switch (attributes.datatype) {
             case boolean_:
                 value = new OnOffValue("true", "false");
@@ -172,7 +173,7 @@ public class Property implements AttributeChanged {
                 break;
             case float_:
             case integer_:
-                boolean isDecimal = attributes.datatype == DataTypeEnum.float_;
+                isDecimal = attributes.datatype == DataTypeEnum.float_;
                 String s[] = attributes.format.split("\\:");
                 BigDecimal min = s.length == 2 ? convertFromString(s[0]) : null;
                 BigDecimal max = s.length == 2 ? convertFromString(s[1]) : null;
@@ -183,7 +184,7 @@ public class Property implements AttributeChanged {
                     step = new BigDecimal(1);
                 }
 
-                value = new NumberValue(isDecimal, min, max, step, false);
+                value = new NumberValue(min, max, step);
                 break;
             case string_:
             case unknown:
@@ -194,6 +195,10 @@ public class Property implements AttributeChanged {
 
         ChannelConfigBuilder b = ChannelConfigBuilder.create().makeTrigger(!attributes.retained)
                 .withStateTopic(stateTopic);
+
+        if (isDecimal != null && !isDecimal) {
+            b = b.withFormatter("%d"); // Apply formatter to only publish integers
+        }
 
         if (attributes.settable) {
             b = b.withCommandTopic(commandTopic);

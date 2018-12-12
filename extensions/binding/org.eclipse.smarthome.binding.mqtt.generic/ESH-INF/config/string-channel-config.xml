@@ -4,14 +4,14 @@
 	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-	<config-description uri="thing-type:mqtt:number_channel">
+	<config-description uri="thing-type:mqtt:string_channel">
 		<parameter name="stateTopic" type="text">
 			<label>MQTT state topic</label>
-			<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less then and will publish values non-retained.</description>
+			<description>An MQTT topic that this thing will subscribe to, to receive the state. This can be left empty, the channel will be state-less command-only channel.</description>
 		</parameter>
 		<parameter name="commandTopic" type="text">
 			<label>MQTT command topic</label>
-			<description>An MQTT topic that this thing will send a command to. This can be left empty</description>
+			<description>An MQTT topic that this thing will send a command to. If not set, this will be a read-only channel.</description>
 		</parameter>
 		<parameter name="transformationPattern" type="text">
 			<label>Incoming value transformation</label>
@@ -30,19 +30,16 @@
 			<default>false</default>
 			<advanced>true</advanced>
 		</parameter>
+		<parameter name="postCommand" type="boolean">
+			<label>Is command</label>
+			<description>If the received MQTT value should not only update the state of linked items, but command them, enable this option.</description>
+			<default>false</default>
+			<advanced>true</advanced>
+		</parameter>
 
-		<parameter name="min" type="decimal">
-			<label>Absolute minimum</label>
-			<description>This configuration represents the minimum of the allowed range. For a percentage channel that equals zero percent.</description>
-		</parameter>
-		<parameter name="max" type="decimal">
-			<label>Absolute maximum</label>
-			<description>This configuration represents the maximum of the allowed range. For a percentage channel that equals one-hundred percent.</description>
-		</parameter>
-		<parameter name="step" type="decimal">
-			<label>Delta value</label>
-			<description>A number/dimmer channel can receive Increase/Decrease commands and computes the target number by adding or subtracting this delta value.</description>
-			<default>1.0</default>
+		<parameter name="allowedStates" type="text">
+			<label>Allowed states</label>
+			<description>If your MQTT topic is limited to a set of one or more specific commands or specific states, define those states here. Separate multiple states with commas. An example for a light bulb state set: ON,DIMMED,OFF</description>
 			<advanced>true</advanced>
 		</parameter>
 	</config-description>

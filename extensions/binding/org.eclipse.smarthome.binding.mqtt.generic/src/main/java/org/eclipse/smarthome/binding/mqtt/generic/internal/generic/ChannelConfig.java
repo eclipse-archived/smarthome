@@ -47,7 +47,6 @@ public class ChannelConfig {
     public @Nullable BigDecimal min;
     public @Nullable BigDecimal max;
     public @Nullable BigDecimal step;
-    public boolean isDecimal = false;
     public @Nullable String on;
     public @Nullable String off;
 }

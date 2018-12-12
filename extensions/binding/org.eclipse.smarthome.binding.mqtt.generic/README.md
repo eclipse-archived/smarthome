@@ -49,6 +49,9 @@ You can manually add the following channels:
 * **switch**: This channel represents a on/off state of a given topic and can send an on/off value to a given topic.
 * **colorRGB**: This channel handles color values in RGB format.
 * **colorHSB**: This channel handles color values in HSB format.
+* **location**: This channel handles a location.
+* **image**: This channel handles binary images in common java supported formats (bmp,jpg,png).
+* **datetime**: This channel handles date/time values.
 
 ## Thing and Channel configuration
 
@@ -68,13 +71,13 @@ All things require a configured broker.
 You can connect this channel to a String item.
 
 ### Channel Type "number"
- 
-* __min__: An optional minimum value
-* __max__: An optional maximum value
-* __step__: For decrease, increase commands the step needs to be known
-* __isDecimal__: If set to true the value is send as a decimal value, otherwise it is send as integer.
 
-If any of the parameters is a float/double (has a decimal point value), then a float value is send to the MQTT topic otherwise an int value is send.
+* __min__: An optional minimum value.
+* __max__: An optional maximum value.
+* __step__: For decrease, increase commands the step needs to be known
+
+A decimal value (like 0.2) is send to the MQTT topic if the number has a fractional part.
+If you always require an integer, please use the formatter.
 
 You can connect this channel to a Number item.
 
@@ -85,6 +88,8 @@ You can connect this channel to a Number item.
 * __step__: For decrease, increase commands the step needs to be known
 
 The value is internally stored as a percentage for a value between **min** and **max**.
+
+The channel will publish a value between 0 and 100.
 
 You can connect this channel to a Rollershutter or Dimmer item.
 
@@ -106,6 +111,31 @@ You can connect this channel to a Color item.
 
 This channel will publish the color as comma separated list to the MQTT broker,
 e.g. "112,54,123" for an RGB channel (0-255 per component) and "360,100,100" for a HSB channel (0-359 for hue and 0-100 for saturation and brightness).
+
+The channel expects values on the corresponding MQTT topic to be in this format as well. 
+
+### Channel Type "location"
+
+You can connect this channel to a Location item.
+
+The channel will publish the location as comma separated list to the MQTT broker,
+e.g. "112,54,123" for latitude, longitude, altitude. The altitude is optional. 
+
+The channel expects values on the corresponding MQTT topic to be in this format as well. 
+
+### Channel Type "image"
+
+You can connect this channel to an Image item. This is a read-only channel.
+
+The channel expects values on the corresponding MQTT topic to contain the binary
+data of a bmp, jpg, png or any other format that the installed java runtime supports. 
+
+### Channel Type "datetime"
+
+You can connect this channel to a DateTime item.
+
+The channel will publish the date/time in the format "yyyy-MM-dd'T'HH:mm"
+for example 2018-01-01T12:14:00. If you require another format, please use the formatter.
 
 The channel expects values on the corresponding MQTT topic to be in this format as well. 
 

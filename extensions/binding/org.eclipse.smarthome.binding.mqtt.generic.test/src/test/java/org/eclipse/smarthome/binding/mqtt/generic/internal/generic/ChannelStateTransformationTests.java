@@ -126,6 +126,6 @@ public class ChannelStateTransformationTests {
         channelConfig.processMessage(channelConfig.getStateTopic(), payload);
 
         verify(callback).stateUpdated(eq(textChannelUID), argThat(arg -> "23.2".equals(arg.toString())));
-        assertThat(channelConfig.getValue().getValue().toString(), is("23.2"));
+        assertThat(channelConfig.getCache().getChannelState().toString(), is("23.2"));
     }
 }

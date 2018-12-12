@@ -40,6 +40,11 @@ public class ChannelConfigBuilder {
         return config;
     }
 
+    public ChannelConfigBuilder withFormatter(String formatter) {
+        config.formatBeforePublish = formatter;
+        return this;
+    }
+
     public ChannelConfigBuilder withStateTopic(@Nullable String topic) {
         if (topic != null) {
             config.stateTopic = topic;
