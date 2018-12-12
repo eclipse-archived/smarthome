@@ -50,33 +50,36 @@ public class BlukiiHandler extends BeaconBluetoothHandler implements BluetoothDe
 
     @Override
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
-        final BlukiiData blukiiData = decoder.decode(scanNotification.getManufacturerData());
-        if (blukiiData != null) {
-            updateState(BlukiiBindingConstants.CHANNEL_ID_BATTERY, new DecimalType(blukiiData.battery));
-            blukiiData.environment.ifPresent(environment -> {
-                updateState(BlukiiBindingConstants.CHANNEL_ID_TEMPERATURE,
-                        new QuantityType<Temperature>(environment.temperature, SIUnits.CELSIUS));
-                updateState(BlukiiBindingConstants.CHANNEL_ID_HUMIDITY,
-                        new QuantityType<Dimensionless>(environment.humidity, SmartHomeUnits.PERCENT));
-                updateState(BlukiiBindingConstants.CHANNEL_ID_PRESSURE,
-                        new QuantityType<Pressure>(environment.pressure, MetricPrefix.HECTO(SIUnits.PASCAL)));
-                updateState(BlukiiBindingConstants.CHANNEL_ID_LUMINANCE,
-                        new QuantityType<Illuminance>(environment.luminance, SmartHomeUnits.LUX));
-            });
-            blukiiData.accelerometer.ifPresent(accelerometer -> {
-                updateState(BlukiiBindingConstants.CHANNEL_ID_TILTX,
-                        new QuantityType<Angle>(accelerometer.tiltX, SmartHomeUnits.DEGREE_ANGLE));
-                updateState(BlukiiBindingConstants.CHANNEL_ID_TILTY,
-                        new QuantityType<Angle>(accelerometer.tiltY, SmartHomeUnits.DEGREE_ANGLE));
-                updateState(BlukiiBindingConstants.CHANNEL_ID_TILTZ,
-                        new QuantityType<Angle>(accelerometer.tiltZ, SmartHomeUnits.DEGREE_ANGLE));
-            });
-            blukiiData.magnetometer.ifPresent(magnetometer -> {
-                // It isn't easy to get a heading from these values without any calibration, so we ignore those right
-                // now.
-            });
+        final byte[] manufacturerData = scanNotification.getManufacturerData();
+        if (manufacturerData != null) {
+            final BlukiiData blukiiData = decoder.decode(manufacturerData);
+            if (blukiiData != null) {
+                updateState(BlukiiBindingConstants.CHANNEL_ID_BATTERY, new DecimalType(blukiiData.battery));
+                blukiiData.environment.ifPresent(environment -> {
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_TEMPERATURE,
+                            new QuantityType<Temperature>(environment.temperature, SIUnits.CELSIUS));
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_HUMIDITY,
+                            new QuantityType<Dimensionless>(environment.humidity, SmartHomeUnits.PERCENT));
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_PRESSURE,
+                            new QuantityType<Pressure>(environment.pressure, MetricPrefix.HECTO(SIUnits.PASCAL)));
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_LUMINANCE,
+                            new QuantityType<Illuminance>(environment.luminance, SmartHomeUnits.LUX));
+                });
+                blukiiData.accelerometer.ifPresent(accelerometer -> {
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_TILTX,
+                            new QuantityType<Angle>(accelerometer.tiltX, SmartHomeUnits.DEGREE_ANGLE));
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_TILTY,
+                            new QuantityType<Angle>(accelerometer.tiltY, SmartHomeUnits.DEGREE_ANGLE));
+                    updateState(BlukiiBindingConstants.CHANNEL_ID_TILTZ,
+                            new QuantityType<Angle>(accelerometer.tiltZ, SmartHomeUnits.DEGREE_ANGLE));
+                });
+                blukiiData.magnetometer.ifPresent(magnetometer -> {
+                    // It isn't easy to get a heading from these values without any calibration, so we ignore those
+                    // right
+                    // now.
+                });
+            }
         }
-
         super.onScanRecordReceived(scanNotification);
     }
 
