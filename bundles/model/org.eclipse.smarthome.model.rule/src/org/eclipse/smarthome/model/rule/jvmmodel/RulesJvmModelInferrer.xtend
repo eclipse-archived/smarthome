@@ -114,7 +114,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
                     logger.warn("Duplicate field: '{}'. Ignoring '{}'.", name, type.class.name)
                 }
             ]
-            
+
             itemRegistry?.items?.forEach [ item |
                 val name = item.name
                 if (fieldNames.add(name)) {
