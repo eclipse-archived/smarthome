@@ -32,6 +32,11 @@ public class BlukiiDataDecoder {
     private final Logger logger = LoggerFactory.getLogger(BlukiiDataDecoder.class);
 
     public @Nullable BlukiiData decode(final byte[] data) {
+        if (data.length < 22) {
+            logger.debug("Blukii data length to short (skip decoding): {}", HexUtils.bytesToHex(data, " "));
+            return null;
+        }
+
         if (data[0] != 0x4F) {
             return null;
         }
