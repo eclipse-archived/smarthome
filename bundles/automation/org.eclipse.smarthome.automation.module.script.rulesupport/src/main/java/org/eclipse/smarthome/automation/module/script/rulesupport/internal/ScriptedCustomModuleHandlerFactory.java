@@ -18,6 +18,7 @@ import java.util.HashMap;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link ScriptedCustomModuleHandlerFactory} is used in combination with the
@@ -30,6 +31,7 @@ import org.eclipse.smarthome.automation.module.script.rulesupport.shared.Scripte
  * @author Simon Merschjohann
  *
  */
+@Component(immediate = true, service = ScriptedCustomModuleHandlerFactory.class)
 public class ScriptedCustomModuleHandlerFactory extends AbstractScriptedModuleHandlerFactory {
     private final HashMap<String, ScriptedHandler> typesHandlers = new HashMap<>();
 

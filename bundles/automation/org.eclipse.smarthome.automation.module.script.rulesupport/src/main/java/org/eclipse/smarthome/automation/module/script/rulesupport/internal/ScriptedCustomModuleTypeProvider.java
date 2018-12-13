@@ -20,6 +20,7 @@ import java.util.Locale;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * The {@link ScriptedCustomModuleTypeProvider} is used in combination with the
@@ -29,6 +30,7 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  * @author Simon Merschjohann - initial contribution
  *
  */
+@Component(immediate = true, service = { ScriptedCustomModuleTypeProvider.class, ModuleTypeProvider.class })
 public class ScriptedCustomModuleTypeProvider implements ModuleTypeProvider {
     private final HashMap<String, ModuleType> modulesTypes = new HashMap<>();
 

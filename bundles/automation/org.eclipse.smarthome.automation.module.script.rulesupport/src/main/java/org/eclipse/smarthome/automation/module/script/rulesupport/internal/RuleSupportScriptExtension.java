@@ -46,6 +46,8 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * This Script-Extension provides types and presets to support writing Rules using a ScriptEngine.
@@ -54,6 +56,7 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Simon Merschjohann
  *
  */
+@Component(immediate = true)
 public class RuleSupportScriptExtension implements ScriptExtensionProvider {
     private static final String RULE_SUPPORT = "RuleSupport";
     private static final String RULE_REGISTRY = "ruleRegistry";
@@ -110,22 +113,27 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
                         "ConfigDescriptionParameter", "ModuleType", "ActionType", "Visibility"));
     }
 
+    @Reference
     public void setRuleRegistry(RuleRegistry ruleRegistry) {
         this.ruleRegistry = ruleRegistry;
     }
 
+    @Reference
     public void setRuleProvider(ScriptedRuleProvider ruleProvider) {
         this.ruleProvider = ruleProvider;
     }
 
+    @Reference
     public void setScriptedCustomModuleHandlerFactory(ScriptedCustomModuleHandlerFactory factory) {
         this.scriptedCustomModuleHandlerFactory = factory;
     }
 
+    @Reference
     public void setScriptedCustomModuleTypeProvider(ScriptedCustomModuleTypeProvider scriptedCustomModuleTypeProvider) {
         this.scriptedCustomModuleTypeProvider = scriptedCustomModuleTypeProvider;
     }
 
+    @Reference
     public void setScriptedPrivateModuleHandlerFactory(ScriptedPrivateModuleHandlerFactory factory) {
         this.scriptedPrivateModuleHandlerFactory = factory;
     }

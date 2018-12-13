@@ -18,7 +18,9 @@ import java.util.HashMap;
 
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.script.rulesupport.shared.ScriptedHandler;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Simon Merschjohann
  *
  */
+@Component(immediate = true, service = { ScriptedPrivateModuleHandlerFactory.class, ModuleHandlerFactory.class })
 public class ScriptedPrivateModuleHandlerFactory extends AbstractScriptedModuleHandlerFactory {
     private static final String PRIV_ID = "privId";
     private static final Collection<String> TYPES = Arrays.asList("jsr223.ScriptedAction", "jsr223.ScriptedCondition",
