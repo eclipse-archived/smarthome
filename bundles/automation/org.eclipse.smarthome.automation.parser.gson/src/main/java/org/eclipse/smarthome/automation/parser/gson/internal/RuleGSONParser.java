@@ -22,8 +22,10 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.core.dto.RuleDTOMapper;
 import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
+import org.osgi.service.component.annotations.Component;
 
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -35,6 +37,7 @@ import com.google.gson.stream.JsonToken;
  * @author Kai Kreuzer - Initial Contribution
  *
  */
+@Component(immediate = true, service = Parser.class, property = { "parser.type=parser.rule", "format=json" })
 public class RuleGSONParser extends AbstractGSONParser<Rule> {
 
     @Override
