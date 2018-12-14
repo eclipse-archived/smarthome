@@ -46,23 +46,23 @@ import com.google.gson.reflect.TypeToken;
 public class SonyAudioConnection implements SonyAudioClientSocketEventListener {
     private final Logger logger = LoggerFactory.getLogger(SonyAudioConnection.class);
 
-    private String host;
-    private int port;
-    private String path;
-    private URI base_uri;
+    private final String host;
+    private final int port;
+    private final String path;
+    private final URI base_uri;
 
-    private WebSocketClient webSocketClient;
+    private final WebSocketClient webSocketClient;
 
     private SonyAudioClientSocket avContentSocket;
     private SonyAudioClientSocket audioSocket;
     private SonyAudioClientSocket systemSocket;
 
-    private SonyAudioEventListener listener;
+    private final SonyAudioEventListener listener;
 
     private int min_volume = 0;
-    private int max_volume = 100;
+    private int max_volume = 50;
 
-    private Gson gson;
+    private final Gson gson;
 
     public SonyAudioConnection(String host, int port, String path, SonyAudioEventListener listener,
             ScheduledExecutorService scheduler, WebSocketClient webSocketClient) throws URISyntaxException {
