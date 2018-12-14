@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Alex Tugarev - Added getStorage for name only
  * @author Markus Rathgeb - Use {@link DeletableStorageService}
  */
-@Component(immediate = true, service = { StorageService.class,
+@Component(name = "org.eclipse.smarthome.storage.mapdb", immediate = true, service = { StorageService.class,
         DeletableStorageService.class }, property = "storage.format=mapdb")
 public class MapDbStorageService implements DeletableStorageService {
 
