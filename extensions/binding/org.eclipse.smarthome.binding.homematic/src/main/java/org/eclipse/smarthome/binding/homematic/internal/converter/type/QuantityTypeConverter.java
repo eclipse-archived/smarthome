@@ -26,7 +26,6 @@ import javax.measure.quantity.Power;
 import javax.measure.quantity.Pressure;
 import javax.measure.quantity.Speed;
 import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Time;
 import javax.measure.quantity.Volume;
 
 import org.eclipse.smarthome.binding.homematic.internal.converter.ConverterException;
@@ -37,6 +36,8 @@ import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Converts between a Homematic datapoint value and a {@link DecimalType}.
@@ -44,6 +45,8 @@ import org.eclipse.smarthome.core.types.Type;
  * @author Michael Reitler - Initial contribution
  */
 public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? extends Quantity<?>>> {
+    private final Logger logger = LoggerFactory.getLogger(QuantityTypeConverter.class);
+
     @Override
     protected boolean toBindingValidation(HmDatapoint dp, Class<? extends Type> typeClass) {
         return dp.isNumberType() && typeClass.isAssignableFrom(QuantityType.class);
@@ -68,22 +71,25 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
 
         // convert the given QuantityType to a QuantityType with the unit of the target datapoint
         switch (dp.getUnit()) {
-            case "minutes":
-                return type.toUnit(SmartHomeUnits.MINUTE);
-            case "day":
-                return type.toUnit(SmartHomeUnits.DAY);
-            case "month":
-                return type.toUnit(SmartHomeUnits.YEAR.divide(12));
-            case "year":
-                return type.toUnit(SmartHomeUnits.YEAR);
             case "Lux":
                 return type.toUnit(SmartHomeUnits.LUX);
             case "degree":
                 return type.toUnit(SmartHomeUnits.DEGREE_ANGLE);
+            case "100%":
+                return type.toUnit(SmartHomeUnits.ONE);
+            case "Â°C":
+                return type.toUnit(SIUnits.CELSIUS);
+            case "minutes":
+            case "day":
+            case "month":
+            case "year":
+            case "":
+                return type;
+            default:
+                // According to datapoint documentation, the following values are remaining
+                // °C, V, %, s, min, mHz, Hz, hPa, km/h, mm, W, m3
+                return type.toUnit(dp.getUnit());
         }
-        // According to datapoint documentation, the following values are remaining
-        // °C, V, %, s, min, mHz, Hz, hPa, km/h, mm, W, m3
-        return type.toUnit(dp.getUnit());
     }
 
     @Override
@@ -103,23 +109,13 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
         // create a QuantityType from the datapoint's value based on the datapoint's unit
         String unit = dp.getUnit() != null ? dp.getUnit() : "";
         switch (unit) {
+            case "Â°C":
             case "°C":
                 return new QuantityType<Temperature>(number, SIUnits.CELSIUS);
             case "V":
                 return new QuantityType<ElectricPotential>(number, SmartHomeUnits.VOLT);
             case "%":
                 return new QuantityType<Dimensionless>(number, SmartHomeUnits.PERCENT);
-            case "s":
-                return new QuantityType<Time>(number, SmartHomeUnits.SECOND);
-            case "min":
-            case "minutes":
-                return new QuantityType<Time>(number, SmartHomeUnits.MINUTE);
-            case "day":
-                return new QuantityType<Time>(number, SmartHomeUnits.DAY);
-            case "month":
-                return new QuantityType<Time>(number, SmartHomeUnits.YEAR.divide(12));
-            case "year":
-                return new QuantityType<Time>(number, SmartHomeUnits.YEAR);
             case "mHz":
                 return new QuantityType<Frequency>(number, MetricPrefix.MILLI(SmartHomeUnits.HERTZ));
             case "Hz":
@@ -140,8 +136,25 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
                 return new QuantityType<Energy>(number, SmartHomeUnits.WATT_HOUR);
             case "m3":
                 return new QuantityType<Volume>(number, SIUnits.CUBIC_METRE);
+            case "100%":
+                // "100%" is a commonly used "unit" in datapoints. Generated channel-type
+                // is of DecimalType, but clients may define a QuantityType if preferred
+                return new QuantityType<Dimensionless>(number.doubleValue() * 100.0, SmartHomeUnits.PERCENT);
+            case "s":
+            case "min":
+            case "minutes":
+            case "day":
+            case "month":
+            case "year":
+            case "":
+            default:
+                return new QuantityType<Dimensionless>(number, SmartHomeUnits.ONE);
         }
-        return new QuantityType<Dimensionless>(number, SmartHomeUnits.ONE);
+    }
+
+    @Override
+    protected void logTraceOrDebug(String format, Object... arguments) {
+        logger.debug(format, arguments);
     }
 
 }

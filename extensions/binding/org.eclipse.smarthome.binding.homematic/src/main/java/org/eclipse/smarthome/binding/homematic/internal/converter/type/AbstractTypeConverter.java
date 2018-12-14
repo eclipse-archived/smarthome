@@ -81,11 +81,9 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
     @SuppressWarnings("unchecked")
     @Override
     public Object convertToBinding(Type type, HmDatapoint dp) throws ConverterException {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Converting type {} with value '{}' to {} value with {} for '{}'",
-                    type.getClass().getSimpleName(), type.toString(), dp.getType(), this.getClass().getSimpleName(),
-                    new HmDatapointInfo(dp));
-        }
+        logTraceOrDebug("Converting type {} with value '{}' using {} to datapoint '{}' (dpType='{}', dpUnit='{}')",
+                type.getClass().getSimpleName(), type.toString(), this.getClass().getSimpleName(),
+                new HmDatapointInfo(dp), dp.getType(), dp.getUnit());
 
         if (type == UnDefType.NULL) {
             return null;
@@ -105,10 +103,8 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
     @SuppressWarnings("unchecked")
     @Override
     public T convertFromBinding(HmDatapoint dp) throws ConverterException {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Converting {} value '{}' with {} for '{}'", dp.getType(), dp.getValue(),
-                    this.getClass().getSimpleName(), new HmDatapointInfo(dp));
-        }
+        logTraceOrDebug("Converting datapoint '{}' (dpType='{}', dpUnit='{}', dpValue='{}') with {}",
+                new HmDatapointInfo(dp), dp.getType(), dp.getUnit(), dp.getValue(), this.getClass().getSimpleName());
 
         if (dp.getValue() == null) {
             return (T) UnDefType.NULL;
@@ -119,6 +115,12 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
         }
 
         return fromBinding(dp);
+    }
+
+    protected void logTraceOrDebug(String format, Object... arguments) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(format, arguments);
+        }
     }
 
     /**
