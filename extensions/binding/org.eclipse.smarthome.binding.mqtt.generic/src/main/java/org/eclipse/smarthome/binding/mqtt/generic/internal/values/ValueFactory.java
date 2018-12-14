@@ -53,16 +53,19 @@ public class ValueFactory {
                 value = new PercentageValue(config.min, config.max, config.step);
                 break;
             case MqttBindingConstants.COLOR_RGB:
-                value = new ColorValue(true, config.on, config.off);
+                value = new ColorValue(true, config.on, config.off, config.onBrightness);
                 break;
             case MqttBindingConstants.COLOR_HSB:
-                value = new ColorValue(false, config.on, config.off);
+                value = new ColorValue(false, config.on, config.off, config.onBrightness);
                 break;
             case MqttBindingConstants.SWITCH:
                 value = new OnOffValue(config.on, config.off);
                 break;
             case MqttBindingConstants.CONTACT:
                 value = new OpenCloseValue(config.on, config.off);
+                break;
+            case MqttBindingConstants.ROLLERSHUTTER:
+                value = new RollershutterValue(config.on, config.off, config.stop);
                 break;
             default:
                 throw new IllegalArgumentException("ChannelTypeUID not recognised: " + channelTypeID);

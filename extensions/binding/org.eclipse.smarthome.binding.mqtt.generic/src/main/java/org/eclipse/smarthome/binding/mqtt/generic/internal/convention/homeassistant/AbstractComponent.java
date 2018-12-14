@@ -32,6 +32,8 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 
+import com.google.gson.Gson;
+
 /**
  * A HomeAssistant component is comparable to an ESH channel group.
  * It has a name and consists of multiple channels.
@@ -51,6 +53,7 @@ public abstract class AbstractComponent {
     // Used to determine if a component has changed.
     protected final int configHash;
     protected final String configJson;
+    private final Gson gson;
 
     /**
      * Provide a thingUID and HomeAssistant topic ID to determine the ESH channel group UID and type.
@@ -58,8 +61,9 @@ public abstract class AbstractComponent {
      * @param thing A ThingUID
      * @param haID A HomeAssistant topic ID
      * @param configJson The configuration string
+     * @param gson A Gson instance
      */
-    public AbstractComponent(ThingUID thing, HaID haID, String configJson) {
+    public AbstractComponent(ThingUID thing, HaID haID, String configJson, Gson gson) {
         this.channelGroupTypeUID = new ChannelGroupTypeUID(MqttBindingConstants.BINDING_ID,
                 haID.getChannelGroupTypeID());
         this.channelGroupUID = new ChannelGroupUID(thing, haID.getChannelGroupID());
@@ -67,6 +71,8 @@ public abstract class AbstractComponent {
 
         this.configJson = configJson;
         this.configHash = configJson.hashCode();
+
+        this.gson = gson;
     }
 
     /**
@@ -163,7 +169,7 @@ public abstract class AbstractComponent {
      */
     public ChannelGroupType type() {
         final List<ChannelDefinition> channelDefinitions = channels.values().stream()
-                .map(c -> new ChannelDefinitionBuilder(c.channelID, c.channelTypeUID).build())
+                .map(c -> new ChannelDefinitionBuilder(c.channelUID.getId(), c.channelTypeUID).build())
                 .collect(Collectors.toList());
         return ChannelGroupTypeBuilder.instance(channelGroupTypeUID, name()).withChannelDefinitions(channelDefinitions)
                 .build();

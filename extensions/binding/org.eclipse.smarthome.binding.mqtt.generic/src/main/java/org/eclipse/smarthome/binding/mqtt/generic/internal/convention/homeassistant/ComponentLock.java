@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.OnOffValue;
@@ -25,6 +26,7 @@ import com.google.gson.Gson;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class ComponentLock extends AbstractComponent {
     public static final String switchChannelID = "lock"; // Randomly chosen channel "ID"
 
@@ -54,9 +56,9 @@ public class ComponentLock extends AbstractComponent {
     protected Config config = new Config();
 
     public ComponentLock(ThingUID thing, HaID haID, String configJSON,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
-        super(thing, haID, configJSON);
-        config = new Gson().fromJson(configJSON, Config.class);
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener, Gson gson) {
+        super(thing, haID, configJSON, gson);
+        config = gson.fromJson(configJSON, Config.class);
 
         // We do not support all HomeAssistant quirks
         if (config.optimistic && StringUtils.isNotBlank(config.state_topic)) {

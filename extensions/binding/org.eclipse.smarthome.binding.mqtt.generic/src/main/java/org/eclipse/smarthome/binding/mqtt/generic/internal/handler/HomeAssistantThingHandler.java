@@ -43,6 +43,8 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
 /**
  * Handles HomeAssistant MQTT object things. Such an HA Object can have multiple HA Components with different instances
  * of those Components. This handler auto-discovers all available Components and Component Instances and
@@ -63,13 +65,16 @@ import org.slf4j.LoggerFactory;
 public class HomeAssistantThingHandler extends AbstractMQTTThingHandler
         implements ComponentDiscovered, Consumer<List<AbstractComponent>> {
     private final Logger logger = LoggerFactory.getLogger(HomeAssistantThingHandler.class);
-    /** The timeout per attribute field subscription */
-    public final int attributeReceiveTimeout;
+
     protected final MqttChannelTypeProvider channelTypeProvider;
-    protected HandlerConfiguration config = new HandlerConfiguration();
-    protected final Map<String, AbstractComponent> haComponents = new HashMap<String, AbstractComponent>();
-    protected final DiscoverComponents discoverComponents = new DiscoverComponents(thing.getUID(), scheduler, this);
+    public final int attributeReceiveTimeout;
     protected final DelayedBatchProcessing<AbstractComponent> delayedProcessing;
+    protected final DiscoverComponents discoverComponents;
+
+    private final Gson gson = new Gson();
+    protected final Map<String, AbstractComponent> haComponents = new HashMap<String, AbstractComponent>();
+
+    protected HandlerConfiguration config = new HandlerConfiguration();
     private HaID discoveryHomeAssistantID = new HaID("", "", "", "");
 
     /**
@@ -87,6 +92,7 @@ public class HomeAssistantThingHandler extends AbstractMQTTThingHandler
         this.channelTypeProvider = channelTypeProvider;
         this.attributeReceiveTimeout = attributeReceiveTimeout;
         this.delayedProcessing = new DelayedBatchProcessing<>(attributeReceiveTimeout, this, scheduler);
+        this.discoverComponents = new DiscoverComponents(thing.getUID(), scheduler, this, gson);
     }
 
     @SuppressWarnings({ "null", "unused" })
@@ -111,7 +117,7 @@ public class HomeAssistantThingHandler extends AbstractMQTTThingHandler
             if (component != null) {
                 continue;
             } else {
-                component = CFactory.createComponent(config.basetopic, channel, this);
+                component = CFactory.createComponent(config.basetopic, channel, this, gson);
             }
             if (component != null) {
                 haComponents.put(component.uid().getId(), component);

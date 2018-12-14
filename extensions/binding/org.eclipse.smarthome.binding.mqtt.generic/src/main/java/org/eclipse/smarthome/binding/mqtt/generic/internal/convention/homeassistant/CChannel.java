@@ -47,7 +47,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
  */
 @NonNullByDefault
 public class CChannel {
-    public final String channelID; // Channel ID
+    public final ChannelUID channelUID;
     public final ChannelState channelState; // Channel state (value)
     public final Channel channel; // ESH Channel
     public final ChannelType type;
@@ -67,8 +67,7 @@ public class CChannel {
     public CChannel(AbstractComponent component, String channelID, Value valueState, @Nullable String state_topic,
             @Nullable String command_topic, String label, String unit,
             @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
-        this.channelID = channelID;
-        final ChannelUID channelUID = new ChannelUID(component.channelGroupUID, channelID);
+        this.channelUID = new ChannelUID(component.channelGroupUID, channelID);
         channelTypeUID = component.haID.getChannelTypeID(channelID);
         channelState = new ChannelState(ChannelConfigBuilder.create().withRetain(true).withStateTopic(state_topic)
                 .withCommandTopic(command_topic).build(), channelUID, valueState, channelStateUpdateListener);

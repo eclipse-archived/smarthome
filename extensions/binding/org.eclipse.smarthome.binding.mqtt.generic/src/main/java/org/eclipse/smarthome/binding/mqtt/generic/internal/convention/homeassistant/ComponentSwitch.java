@@ -58,9 +58,9 @@ public class ComponentSwitch extends AbstractComponent {
     protected Config config = new Config();
 
     public ComponentSwitch(ThingUID thing, HaID haID, String configJSON,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
-        super(thing, haID, configJSON);
-        config = new Gson().fromJson(configJSON, Config.class);
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener, Gson gson) {
+        super(thing, haID, configJSON, gson);
+        config = gson.fromJson(configJSON, Config.class);
 
         // We do not support all HomeAssistant quirks
         if (config.optimistic && StringUtils.isNotBlank(config.state_topic)) {

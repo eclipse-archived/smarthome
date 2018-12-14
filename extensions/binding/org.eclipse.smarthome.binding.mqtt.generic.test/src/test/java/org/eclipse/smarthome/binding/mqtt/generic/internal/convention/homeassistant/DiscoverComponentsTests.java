@@ -31,6 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.google.gson.Gson;
+
 /**
  * Tests the {@link DiscoverComponents} class.
  *
@@ -62,7 +64,7 @@ public class DiscoverComponentsTests extends JavaOSGiTest {
         ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
 
         DiscoverComponents discover = spy(
-                new DiscoverComponents(ThingChannelConstants.testHomeAssistantThing, scheduler, null));
+                new DiscoverComponents(ThingChannelConstants.testHomeAssistantThing, scheduler, null, new Gson()));
 
         discover.startDiscovery(connection, 50, new HaID("homeassistant", "object", "node", "component"), discovered)
                 .get(100, TimeUnit.MILLISECONDS);

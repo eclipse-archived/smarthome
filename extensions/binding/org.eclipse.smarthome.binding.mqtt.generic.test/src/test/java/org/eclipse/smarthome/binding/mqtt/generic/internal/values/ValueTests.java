@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.junit.Test;
@@ -54,25 +55,23 @@ public class ValueTests {
     }
 
     public void colorUpdate() {
-        ColorValue v = new ColorValue(true, null, null);
+        ColorValue v = new ColorValue(true, "fancyON", "fancyOFF", 77);
         v.update(p(v, "255, 255, 255"));
 
         v.update(p(v, "OFF"));
         assertThat(((HSBType) v.getChannelState()).getBrightness().intValue(), is(0));
-        // Minimum brightness setting after brightness 0 is 10 for ON command
         v.update(p(v, "ON"));
-        assertThat(((HSBType) v.getChannelState()).getBrightness().intValue(), is(10));
+        assertThat(((HSBType) v.getChannelState()).getBrightness().intValue(), is(77));
 
         v.update(p(v, "0"));
         assertThat(((HSBType) v.getChannelState()).getBrightness().intValue(), is(0));
-        // Minimum brightness setting after brightness 0 is 10 for ON command
         v.update(p(v, "1"));
-        assertThat(((HSBType) v.getChannelState()).getBrightness().intValue(), is(10));
+        assertThat(((HSBType) v.getChannelState()).getBrightness().intValue(), is(1));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void illegalColorUpdate() {
-        ColorValue v = new ColorValue(true, null, null);
+        ColorValue v = new ColorValue(true, null, null, 10);
         v.update(p(v, "255,255,abc"));
     }
 
@@ -154,6 +153,29 @@ public class ValueTests {
         v.update(new StringType("fancyON"));
         assertThat(v.getMQTTpublishValue(), is("fancyON"));
         assertThat(v.getChannelState(), is(OpenClosedType.OPEN));
+    }
+
+    @Test
+    public void rollershutterUpdate() {
+        RollershutterValue v = new RollershutterValue("fancyON", "fancyOff", "fancyStop");
+        // Test with command
+        v.update(UpDownType.UP);
+        assertThat(v.getMQTTpublishValue(), is("0"));
+        assertThat(v.getChannelState(), is(PercentType.ZERO));
+        v.update(UpDownType.DOWN);
+        assertThat(v.getMQTTpublishValue(), is("100"));
+        assertThat(v.getChannelState(), is(PercentType.HUNDRED));
+
+        // Test with custom string
+        v.update(new StringType("fancyON"));
+        assertThat(v.getMQTTpublishValue(), is("0"));
+        assertThat(v.getChannelState(), is(PercentType.ZERO));
+        v.update(new StringType("fancyOff"));
+        assertThat(v.getMQTTpublishValue(), is("100"));
+        assertThat(v.getChannelState(), is(PercentType.HUNDRED));
+        v.update(new StringType("27"));
+        assertThat(v.getMQTTpublishValue(), is("27"));
+        assertThat(v.getChannelState(), is(new PercentType(27)));
     }
 
     @Test

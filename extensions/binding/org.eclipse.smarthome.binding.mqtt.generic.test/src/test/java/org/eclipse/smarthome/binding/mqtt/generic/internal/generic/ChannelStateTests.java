@@ -211,17 +211,21 @@ public class ChannelStateTests {
 
     @Test
     public void receiveRGBColorTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ColorValue value = new ColorValue(true, "FON", "FOFF");
+        ColorValue value = new ColorValue(true, "FON", "FOFF", 10);
         ChannelState c = spy(new ChannelState(config, channelUID, value, channelStateUpdateListener));
         c.start(connection, mock(ScheduledExecutorService.class), 100);
 
-        c.processMessage("state", "ON".getBytes());
+        c.processMessage("state", "ON".getBytes()); // Normal on state
         assertThat(value.getChannelState().toString(), is("0,0,10"));
         assertThat(value.getMQTTpublishValue().toString(), is("25,25,25"));
 
-        c.processMessage("state", "FOFF".getBytes());
+        c.processMessage("state", "FOFF".getBytes()); // Custom off state
         assertThat(value.getChannelState().toString(), is("0,0,0"));
         assertThat(value.getMQTTpublishValue().toString(), is("0,0,0"));
+
+        c.processMessage("state", "10".getBytes()); // Brightness only
+        assertThat(value.getChannelState().toString(), is("0,0,10"));
+        assertThat(value.getMQTTpublishValue().toString(), is("25,25,25"));
 
         HSBType t = HSBType.fromRGB(12, 18, 231);
 
@@ -233,17 +237,21 @@ public class ChannelStateTests {
 
     @Test
     public void receiveHSBColorTest() throws InterruptedException, ExecutionException, TimeoutException {
-        ColorValue value = new ColorValue(false, "FON", "FOFF");
+        ColorValue value = new ColorValue(false, "FON", "FOFF", 10);
         ChannelState c = spy(new ChannelState(config, channelUID, value, channelStateUpdateListener));
         c.start(connection, mock(ScheduledExecutorService.class), 100);
 
-        c.processMessage("state", "ON".getBytes()); // Minimum brightness is 10
+        c.processMessage("state", "ON".getBytes()); // Normal on state
         assertThat(value.getChannelState().toString(), is("0,0,10"));
         assertThat(value.getMQTTpublishValue().toString(), is("0,0,10"));
 
-        c.processMessage("state", "FOFF".getBytes());
+        c.processMessage("state", "FOFF".getBytes()); // Custom off state
         assertThat(value.getChannelState().toString(), is("0,0,0"));
         assertThat(value.getMQTTpublishValue().toString(), is("0,0,0"));
+
+        c.processMessage("state", "10".getBytes()); // Brightness only
+        assertThat(value.getChannelState().toString(), is("0,0,10"));
+        assertThat(value.getMQTTpublishValue().toString(), is("0,0,10"));
 
         c.processMessage("state", "12,18,100".getBytes());
         assertThat(value.getChannelState().toString(), is("12,18,100"));

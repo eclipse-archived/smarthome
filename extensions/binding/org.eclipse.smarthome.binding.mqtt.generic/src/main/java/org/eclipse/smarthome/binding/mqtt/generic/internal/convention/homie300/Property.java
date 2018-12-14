@@ -165,7 +165,7 @@ public class Property implements AttributeChanged {
                 value = new OnOffValue("true", "false");
                 break;
             case color_:
-                value = new ColorValue(attributes.format.contains("rgb"), null, null);
+                value = new ColorValue(attributes.format.contains("rgb"), null, null, 100);
                 break;
             case enum_:
                 String enumValues[] = attributes.format.split(",");
