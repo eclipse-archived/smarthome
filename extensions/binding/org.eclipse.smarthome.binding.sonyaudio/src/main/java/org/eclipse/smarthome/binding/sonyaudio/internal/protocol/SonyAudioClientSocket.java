@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -55,7 +56,7 @@ public class SonyAudioClientSocket {
 
     private boolean connected = false;
 
-    private URI uri;
+    private final URI uri;
     private Session session;
 
     private final JsonParser parser = new JsonParser();
@@ -82,7 +83,11 @@ public class SonyAudioClientSocket {
             SonyAudioWebSocketListener socket = new SonyAudioWebSocketListener();
             ClientUpgradeRequest request = new ClientUpgradeRequest();
 
-            webSocketClient.connect(socket, uri, request);
+            try {
+                webSocketClient.connect(socket, uri, request).get(1, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                logger.debug("Could not establish websocket within a second.");
+            }
         } catch (Exception e) {
             logger.debug("Exception then trying to start the websocket {}", e.getMessage(), e);
         }

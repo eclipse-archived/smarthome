@@ -423,8 +423,8 @@ abstract class SonyAudioHandler extends BaseThingHandler implements SonyAudioEve
             Runnable connectionChecker = () -> {
                 try {
                     if (!connection.checkConnection()) {
-                        if (getThing().getStatusInfo().getStatus() != ThingStatus.OFFLINE) {
-                            logger.info("Lost connection");
+                        if (getThing().getStatus() != ThingStatus.OFFLINE) {
+                            logger.debug("Lost connection");
                             updateStatus(ThingStatus.OFFLINE);
                         }
                     }
