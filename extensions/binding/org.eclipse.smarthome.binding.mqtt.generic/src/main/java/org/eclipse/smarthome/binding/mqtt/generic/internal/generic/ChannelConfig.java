@@ -49,4 +49,7 @@ public class ChannelConfig {
     public @Nullable BigDecimal step;
     public @Nullable String on;
     public @Nullable String off;
+    public @Nullable String stop;
+
+    public int onBrightness = 10;
 }

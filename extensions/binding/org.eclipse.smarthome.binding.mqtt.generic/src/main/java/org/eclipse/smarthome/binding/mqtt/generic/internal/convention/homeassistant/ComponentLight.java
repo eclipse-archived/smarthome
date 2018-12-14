@@ -13,22 +13,32 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ColorValue;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
 
 import com.google.gson.Gson;
 
 /**
  * A MQTT light, following the https://www.home-assistant.io/components/light.mqtt/ specification.
  *
- * This is a reduced functionality implementation, which only allows to turn a light on and off.
+ * This class condenses the three state/command topics (for ON/OFF, Brightness, Color) to one
+ * color channel.
  *
  * @author David Graeff - Initial contribution
  */
-public class ComponentLight extends AbstractComponent {
+@NonNullByDefault
+public class ComponentLight extends AbstractComponent implements ChannelStateUpdateListener {
     public static final String switchChannelID = "light"; // Randomly chosen channel "ID"
     public static final String brightnessChannelID = "brightness"; // Randomly chosen channel "ID"
     public static final String colorChannelID = "color"; // Randomly chosen channel "ID"
@@ -45,7 +55,7 @@ public class ComponentLight extends AbstractComponent {
 
         protected int brightness_scale = 255;
         protected boolean optimistic = false;
-        protected List<String> effect_list;
+        protected @Nullable List<String> effect_list;
 
         // Defines when on the payload_on is sent. Using last (the default) will send any style (brightness, color, etc)
         // topics first and then a payload_on to the command_topic. Using first will send the payload_on and then any
@@ -91,19 +101,80 @@ public class ComponentLight extends AbstractComponent {
     };
 
     protected Config config = new Config();
+    protected CChannel colorChannel;
+    protected CChannel switchChannel;
+    protected CChannel brightnessChannel;
+    private final @Nullable ChannelStateUpdateListener channelStateUpdateListener;
 
     public ComponentLight(ThingUID thing, HaID haID, String configJSON,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
-        super(thing, haID, configJSON);
-        config = new Gson().fromJson(configJSON, Config.class);
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener, Gson gson) {
+        super(thing, haID, configJSON, gson);
+        this.channelStateUpdateListener = channelStateUpdateListener;
+        config = gson.fromJson(configJSON, Config.class);
 
-        channels.put(switchChannelID,
-                new CChannel(this, switchChannelID, new ColorValue(true, config.payload_on, config.payload_off),
-                        config.state_topic, config.command_topic, config.name, "", channelStateUpdateListener));
+        ColorValue value = new ColorValue(true, config.payload_on, config.payload_off, 100);
+
+        // Create three MQTT subscriptions and use this class object as update listener
+        switchChannel = new CChannel(this, switchChannelID, value, //
+                config.state_topic, config.command_topic, config.name, "", this);
+        colorChannel = new CChannel(this, colorChannelID, value, //
+                config.rgb_state_topic, config.rgb_command_topic, config.name, "", this);
+        brightnessChannel = new CChannel(this, brightnessChannelID, value, //
+                config.brightness_state_topic, config.brightness_command_topic, config.name, "", this);
+
+        channels.put(switchChannelID, colorChannel);
+    }
+
+    @Override
+    public CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection, ScheduledExecutorService scheduler,
+            int timeout) {
+        return Stream.of(switchChannel, brightnessChannel, colorChannel) //
+                .map(v -> v.channelState.start(connection, scheduler, timeout)) //
+                .reduce(CompletableFuture.completedFuture(null), (f, v) -> f.thenCompose(b -> v));
+    }
+
+    @Override
+    public CompletableFuture<@Nullable Void> stop() {
+        return Stream.of(switchChannel, brightnessChannel, colorChannel) //
+                .map(v -> v.channelState.stop()) //
+                .reduce(CompletableFuture.completedFuture(null), (f, v) -> f.thenCompose(b -> v));
     }
 
     @Override
     public String name() {
         return config.name;
+    }
+
+    /**
+     * Proxy method to condense all three MQTT subscriptions to one channel
+     */
+    @Override
+    public void updateChannelState(ChannelUID channelUID, State value) {
+        ChannelStateUpdateListener listener = channelStateUpdateListener;
+        if (listener != null) {
+            listener.updateChannelState(colorChannel.channelUID, value);
+        }
+    }
+
+    /**
+     * Proxy method to condense all three MQTT subscriptions to one channel
+     */
+    @Override
+    public void postChannelState(ChannelUID channelUID, Command value) {
+        ChannelStateUpdateListener listener = channelStateUpdateListener;
+        if (listener != null) {
+            listener.postChannelState(colorChannel.channelUID, value);
+        }
+    }
+
+    /**
+     * Proxy method to condense all three MQTT subscriptions to one channel
+     */
+    @Override
+    public void triggerChannel(ChannelUID channelUID, String eventPayload) {
+        ChannelStateUpdateListener listener = channelStateUpdateListener;
+        if (listener != null) {
+            listener.triggerChannel(colorChannel.channelUID, eventPayload);
+        }
     }
 }

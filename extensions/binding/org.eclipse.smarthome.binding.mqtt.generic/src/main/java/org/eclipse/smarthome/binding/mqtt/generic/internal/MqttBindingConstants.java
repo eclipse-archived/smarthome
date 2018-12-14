@@ -42,6 +42,7 @@ public class MqttBindingConstants {
     public static final String IMAGE = "image";
     public static final String LOCATION = "location";
     public static final String DATETIME = "datetime";
+    public static final String ROLLERSHUTTER = "rollershutter";
 
     public static final String CONFIG_HA_CHANNEL = "mqtt:ha_channel";
     public static final String CONFIG_HOMIE_CHANNEL = "mqtt:homie_channel";

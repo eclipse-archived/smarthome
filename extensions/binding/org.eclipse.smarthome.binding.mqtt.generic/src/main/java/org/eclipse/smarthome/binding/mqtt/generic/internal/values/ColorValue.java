@@ -43,18 +43,28 @@ public class ColorValue extends Value {
     private final boolean isRGB;
     private final String onValue;
     private final String offValue;
+    private final int onBrightness;
 
     /**
      * Creates a non initialized color value.
      *
+     * @param isRGB True if this is an RGB color value instead of a HSB one.
      * @param onValue The ON value string. This will be compared to MQTT messages.
      * @param offValue The OFF value string. This will be compared to MQTT messages.
+     * @param onBrightness When receiving a ON command, the brightness percentage is set to this value
      */
-    public ColorValue(boolean isRGB, @Nullable String onValue, @Nullable String offValue) {
-        super(CoreItemFactory.COLOR, Stream.of(OnOffType.class, StringType.class).collect(Collectors.toList()));
+    public ColorValue(boolean isRGB, @Nullable String onValue, @Nullable String offValue, int onBrightness) {
+        super(CoreItemFactory.COLOR,
+                Stream.of(OnOffType.class, PercentType.class, StringType.class).collect(Collectors.toList()));
+
+        if (onBrightness > 100) {
+            throw new IllegalArgumentException("Brightness parameter must be <= 100");
+        }
+
         this.isRGB = isRGB;
         this.onValue = onValue == null ? "ON" : onValue;
         this.offValue = offValue == null ? "OFF" : offValue;
+        this.onBrightness = onBrightness;
     }
 
     /**
@@ -71,13 +81,15 @@ public class ColorValue extends Value {
             state = (HSBType) command;
         } else if (command instanceof OnOffType) {
             OnOffType boolValue = ((OnOffType) command);
-            PercentType minOn = new PercentType(Math.max(oldvalue.getBrightness().intValue(), 10));
+            PercentType minOn = new PercentType(Math.max(oldvalue.getBrightness().intValue(), onBrightness));
             state = new HSBType(oldvalue.getHue(), oldvalue.getSaturation(),
                     boolValue == OnOffType.ON ? minOn : new PercentType(0));
+        } else if (command instanceof PercentType) {
+            state = new HSBType(oldvalue.getHue(), oldvalue.getSaturation(), (PercentType) command);
         } else {
             final String updatedValue = command.toString();
             if (onValue.equals(updatedValue)) {
-                PercentType minOn = new PercentType(Math.max(oldvalue.getBrightness().intValue(), 10));
+                PercentType minOn = new PercentType(Math.max(oldvalue.getBrightness().intValue(), onBrightness));
                 state = new HSBType(oldvalue.getHue(), oldvalue.getSaturation(), minOn);
             } else if (offValue.equals(updatedValue)) {
                 state = new HSBType(oldvalue.getHue(), oldvalue.getSaturation(), new PercentType(0));

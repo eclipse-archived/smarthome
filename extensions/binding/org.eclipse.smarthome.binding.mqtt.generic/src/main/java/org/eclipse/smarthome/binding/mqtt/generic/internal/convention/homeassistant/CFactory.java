@@ -20,6 +20,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
 /**
  * A factory to create HomeAssistant MQTT components. Those components are specified at:
  * https://www.home-assistant.io/docs/mqtt/discovery/
@@ -38,33 +40,33 @@ public class CFactory {
      *            component-id.
      * @param configJSON Most components expect a "name", a "state_topic" and "command_topic" like with
      *            "{name:'Name',state_topic:'homeassistant/switch/0/object/state',command_topic:'homeassistant/switch/0/object/set'".
-     * @param channelStateUpdateListener A channel state update listener
+     * @param updateListener A channel state update listener
      * @return A HA MQTT Component
      */
     public static @Nullable AbstractComponent createComponent(ThingUID thingUID, HaID haID, String configJSON,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+            @Nullable ChannelStateUpdateListener updateListener, Gson gson) {
         try {
             switch (haID.component) {
                 case "alarm_control_panel":
-                    return new ComponentAlarmControlPanel(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentAlarmControlPanel(thingUID, haID, configJSON, updateListener, gson);
                 case "binary_sensor":
-                    return new ComponentBinarySensor(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentBinarySensor(thingUID, haID, configJSON, updateListener, gson);
                 case "camera":
-                    return new ComponentCamera(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentCamera(thingUID, haID, configJSON, updateListener, gson);
                 case "cover":
-                    return new ComponentCover(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentCover(thingUID, haID, configJSON, updateListener, gson);
                 case "fan":
-                    return new ComponentFan(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentFan(thingUID, haID, configJSON, updateListener, gson);
                 case "climate":
-                    return new ComponentClimate(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentClimate(thingUID, haID, configJSON, updateListener, gson);
                 case "light":
-                    return new ComponentLight(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentLight(thingUID, haID, configJSON, updateListener, gson);
                 case "lock":
-                    return new ComponentLock(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentLock(thingUID, haID, configJSON, updateListener, gson);
                 case "sensor":
-                    return new ComponentSensor(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentSensor(thingUID, haID, configJSON, updateListener, gson);
                 case "switch":
-                    return new ComponentSwitch(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentSwitch(thingUID, haID, configJSON, updateListener, gson);
             }
         } catch (UnsupportedOperationException e) {
             logger.warn("Not supported", e);
@@ -77,11 +79,11 @@ public class CFactory {
      *
      * @param basetopic The MQTT base topic, usually "homeassistant"
      * @param channel A channel with the JSON configuration embedded as configuration (key: 'config')
-     * @param channelStateUpdateListener A channel state update listener
+     * @param updateListener A channel state update listener
      * @return A HA MQTT Component
      */
     public static @Nullable AbstractComponent createComponent(String basetopic, Channel channel,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+            @Nullable ChannelStateUpdateListener updateListener, Gson gson) {
         HaID haID = new HaID(basetopic, channel.getUID());
         ThingUID thingUID = channel.getUID().getThingUID();
         String configJSON = (String) channel.getConfiguration().get("config");
@@ -92,25 +94,25 @@ public class CFactory {
         try {
             switch (haID.component) {
                 case "alarm_control_panel":
-                    return new ComponentAlarmControlPanel(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentAlarmControlPanel(thingUID, haID, configJSON, updateListener, gson);
                 case "binary_sensor":
-                    return new ComponentBinarySensor(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentBinarySensor(thingUID, haID, configJSON, updateListener, gson);
                 case "camera":
-                    return new ComponentCamera(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentCamera(thingUID, haID, configJSON, updateListener, gson);
                 case "cover":
-                    return new ComponentCover(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentCover(thingUID, haID, configJSON, updateListener, gson);
                 case "fan":
-                    return new ComponentFan(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentFan(thingUID, haID, configJSON, updateListener, gson);
                 case "climate":
-                    return new ComponentClimate(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentClimate(thingUID, haID, configJSON, updateListener, gson);
                 case "light":
-                    return new ComponentLight(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentLight(thingUID, haID, configJSON, updateListener, gson);
                 case "lock":
-                    return new ComponentLock(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentLock(thingUID, haID, configJSON, updateListener, gson);
                 case "sensor":
-                    return new ComponentSensor(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentSensor(thingUID, haID, configJSON, updateListener, gson);
                 case "switch":
-                    return new ComponentSwitch(thingUID, haID, configJSON, channelStateUpdateListener);
+                    return new ComponentSwitch(thingUID, haID, configJSON, updateListener, gson);
             }
         } catch (UnsupportedOperationException e) {
             logger.warn("Not supported", e);

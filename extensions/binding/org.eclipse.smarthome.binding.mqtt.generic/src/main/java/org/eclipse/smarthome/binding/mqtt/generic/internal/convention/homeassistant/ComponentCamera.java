@@ -12,11 +12,13 @@
  */
 package org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homeassistant;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.generic.ChannelStateUpdateListener;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.values.ImageValue;
 import org.eclipse.smarthome.core.thing.ThingUID;
+
+import com.google.gson.Gson;
 
 /**
  * A MQTT camera, following the https://www.home-assistant.io/components/camera.mqtt/ specification.
@@ -27,14 +29,35 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  */
 @NonNullByDefault
 public class ComponentCamera extends AbstractComponent {
+    public static final String cameraChannelID = "camera"; // Randomly chosen channel "ID"
+
+    /**
+     * Configuration class for MQTT component
+     */
+    static class Config {
+        protected String name = "MQTT Camera";
+        protected String icon = "";
+        protected int qos = 1;
+        protected boolean retain = true;
+        protected @Nullable String unique_id;
+
+        protected String topic = "";
+    };
+
+    protected Config config = new Config();
+
     public ComponentCamera(ThingUID thing, HaID haID, String configJSON,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
-        super(thing, haID, configJSON);
-        throw new UnsupportedOperationException("Component:Camera not supported yet");
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener, Gson gson) {
+        super(thing, haID, configJSON, gson);
+        config = gson.fromJson(configJSON, Config.class);
+
+        ImageValue value = new ImageValue();
+        channels.put(cameraChannelID, new CChannel(this, cameraChannelID, value, //
+                config.topic, null, config.name, "", channelStateUpdateListener));
     }
 
     @Override
-    public @NonNull String name() {
-        return "Camera";
+    public String name() {
+        return config.name;
     }
 }

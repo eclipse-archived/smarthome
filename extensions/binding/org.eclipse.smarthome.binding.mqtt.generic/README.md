@@ -52,6 +52,7 @@ You can manually add the following channels:
 * **location**: This channel handles a location.
 * **image**: This channel handles binary images in common java supported formats (bmp,jpg,png).
 * **datetime**: This channel handles date/time values.
+* **rollershutter**: This channel is for rollershutters.
 
 ## Thing and Channel Configuration
 
@@ -95,8 +96,8 @@ You can connect this channel to a Rollershutter or Dimmer item.
 
 ### Channel Type "contact", "switch"
 
-* __on__: A number (like 1, 10) or a string (like "ON"/"Open") that is recognised as on/open state.
-* __off__: A number (like 0, -10) or a string (like "OFF"/"Close") that is recognised as off/closed state.
+* __on__: A optional number (like 1, 10) or a string (like "ON"/"Open") that is recognised as on/open state.
+* __off__: A optional number (like 0, -10) or a string (like "OFF"/"Close") that is recognised as off/closed state.
 
 The contact channel by default recognises `"OPEN"` and `"CLOSED"`. You can connect this channel to a Contact item.
 The switch channel by default recognises `"ON"` and `"OFF"`. You can connect this channel to a Switch item.
@@ -107,12 +108,18 @@ You can connect this channel to a Contact or Switch item.
 
 ### Channel Type "colorRGB", "colorHSB"
 
-You can connect this channel to a Color item.
+* __on__: An optional string (like "BRIGHT") that is recognised as on state. (ON will always be recognised.)
+* __off__: An optional string (like "DARK") that is recognised as off state. (OFF will always be recognised.)
+* __onBrightness__: If you connect this channel to a Switch item and turn it on,
+color and saturation are preserved from the last state, but
+the brightness will be set to this configured initial brightness (default: 10%).
+
+You can connect this channel to a Color, Dimmer and Switch item.
 
 This channel will publish the color as comma separated list to the MQTT broker,
 e.g. "112,54,123" for an RGB channel (0-255 per component) and "360,100,100" for a HSB channel (0-359 for hue and 0-100 for saturation and brightness).
 
-The channel expects values on the corresponding MQTT topic to be in this format as well. 
+The channel expects values on the corresponding MQTT topic to be in this format as well.
 
 ### Channel Type "location"
 
@@ -139,6 +146,14 @@ for example 2018-01-01T12:14:00. If you require another format, please use the f
 
 The channel expects values on the corresponding MQTT topic to be in this format as well. 
 
+### Channel Type "rollershutter"
+
+* __on__: An optional string (like "Open") that is recognised as UP state.
+* __off__: An optional string (like "Close") that is recognised as DOWN state.
+* __stop__: An optional string (like "Stop") that is recognised as STOP state.
+
+You can connect this channel to a Rollershutter or Dimmer item.
+
 ## Rule Actions
 
 This binding includes a rule action, which allows to publish MQTT messages from within rules.
@@ -159,7 +174,10 @@ mqttActions.publishMQTT("mytopic","myvalue")
 
 * This binding does not support Homie Node Instances.
 * Homie Device Statistics (except from "interval") are not supported.
-* The following HomeAssistant MQTT Components are not implemented: Camera, Climate, Fan, Cover. The light component only supports a on/off switch and no color or brightness changes.
+* The HomeAssistant Fan Components only support ON/OFF.
+* The HomeAssistant Cover Components only support OPEN/CLOSE/STOP.
+* The HomeAssistant Light Component does not support XY color changes.
+* The HomeAssistant Climate Components is not yet supported.
 
 ## Incoming Value Transformation
 

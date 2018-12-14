@@ -69,9 +69,9 @@ public class ComponentAlarmControlPanel extends AbstractComponent {
     protected Config config = new Config();
 
     public ComponentAlarmControlPanel(ThingUID thing, HaID haID, String configJSON,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
-        super(thing, haID, configJSON);
-        config = new Gson().fromJson(configJSON, Config.class);
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener, Gson gson) {
+        super(thing, haID, configJSON, gson);
+        config = gson.fromJson(configJSON, Config.class);
 
         final String[] state_enum = { config.state_disarmed, config.state_armed_home, config.state_armed_away,
                 config.state_pending, config.state_triggered };

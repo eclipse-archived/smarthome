@@ -27,6 +27,8 @@ import org.eclipse.smarthome.io.transport.mqtt.MqttMessageSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
 /**
  * Responsible for subscribing to the HomeAssistant MQTT components wildcard topic, either
  * in a time limited discovery mode or as a background discovery.
@@ -37,14 +39,15 @@ import org.slf4j.LoggerFactory;
 public class DiscoverComponents implements MqttMessageSubscriber {
     private final Logger logger = LoggerFactory.getLogger(DiscoverComponents.class);
     private final ThingUID thingUID;
-    protected @Nullable HaID topicDescription;
     private final ScheduledExecutorService scheduler;
-    private @Nullable ScheduledFuture<?> scheduledFuture;
-    private WeakReference<@Nullable MqttBrokerConnection> connectionRef = new WeakReference<>(null);
+    private final @Nullable ChannelStateUpdateListener updateListener;
+
     protected final CompletableFuture<@Nullable Void> discoverFinishedFuture = new CompletableFuture<>();
-    protected ComponentDiscovered componentsDiscoveredListener = (t, c) -> {
-    };
-    private final @Nullable ChannelStateUpdateListener channelStateUpdateListener;
+    private final Gson gson;
+
+    private @Nullable ScheduledFuture<?> stopDiscoveryFuture;
+    private WeakReference<@Nullable MqttBrokerConnection> connectionRef = new WeakReference<>(null);
+    protected @NonNullByDefault({}) ComponentDiscovered discoveredListener;
     private int discoverTime;
     private String topicWithNode = "";
     private String topic = "";
@@ -64,10 +67,11 @@ public class DiscoverComponents implements MqttMessageSubscriber {
      * @param channelStateUpdateListener Channel update listener. Usually the handler.
      */
     public DiscoverComponents(ThingUID thingUID, ScheduledExecutorService scheduler,
-            @Nullable ChannelStateUpdateListener channelStateUpdateListener) {
+            @Nullable ChannelStateUpdateListener channelStateUpdateListener, Gson gson) {
         this.thingUID = thingUID;
         this.scheduler = scheduler;
-        this.channelStateUpdateListener = channelStateUpdateListener;
+        this.updateListener = channelStateUpdateListener;
+        this.gson = gson;
     }
 
     @Override
@@ -75,13 +79,14 @@ public class DiscoverComponents implements MqttMessageSubscriber {
         if (!topic.endsWith("/config")) {
             return;
         }
-        final HaID haID = new HaID(topic);
-        final String config = new String(payload);
-        final AbstractComponent component = CFactory.createComponent(thingUID, haID, config,
-                channelStateUpdateListener);
+        HaID haID = new HaID(topic);
+        String config = new String(payload);
+        AbstractComponent component = CFactory.createComponent(thingUID, haID, config, updateListener, gson);
         if (component != null) {
             logger.trace("Found HomeAssistant thing {} component {}", haID.objectID, haID.component);
-            componentsDiscoveredListener.componentDiscovered(haID, component);
+            if (discoveredListener != null) {
+                discoveredListener.componentDiscovered(haID, component);
+            }
         } else {
             logger.debug("Configuration of HomeAssistant thing {} invalid: {}", haID.objectID, config);
         }
@@ -109,7 +114,7 @@ public class DiscoverComponents implements MqttMessageSubscriber {
         this.topicWithNode = topicDescription.baseTopic + "/+/+/" + topicDescription.objectID + "/config";
         this.topic = topicDescription.baseTopic + "/+/" + topicDescription.objectID + "/config";
         this.discoverTime = discoverTime;
-        this.componentsDiscoveredListener = componentsDiscoveredListener;
+        this.discoveredListener = componentsDiscoveredListener;
         this.connectionRef = new WeakReference<>(connection);
 
         // Subscribe to the wildcard topics and start receive MQTT retained topics
@@ -123,12 +128,11 @@ public class DiscoverComponents implements MqttMessageSubscriber {
         final MqttBrokerConnection connection = connectionRef.get();
         // Set up a scheduled future that will stop the discovery after the given time
         if (connection != null && discoverTime > 0) {
-            this.scheduledFuture = scheduler.schedule(() -> {
-                this.scheduledFuture = null;
+            this.stopDiscoveryFuture = scheduler.schedule(() -> {
+                this.stopDiscoveryFuture = null;
                 connection.unsubscribe(topicWithNode, this);
                 connection.unsubscribe(topic, this);
-                this.componentsDiscoveredListener = (t, c) -> {
-                };
+                this.discoveredListener = null;
                 discoverFinishedFuture.complete(null);
             }, discoverTime, TimeUnit.MILLISECONDS);
         } else {
@@ -138,13 +142,12 @@ public class DiscoverComponents implements MqttMessageSubscriber {
     }
 
     private @Nullable Void subscribeFail(Throwable e) {
-        final ScheduledFuture<?> scheduledFuture = this.scheduledFuture;
+        final ScheduledFuture<?> scheduledFuture = this.stopDiscoveryFuture;
         if (scheduledFuture != null) { // Cancel timeout
             scheduledFuture.cancel(false);
-            this.scheduledFuture = null;
+            this.stopDiscoveryFuture = null;
         }
-        this.componentsDiscoveredListener = (t, c) -> {
-        };
+        this.discoveredListener = null;
         final MqttBrokerConnection connection = connectionRef.get();
         if (connection != null) {
             connection.unsubscribe(topicWithNode, this);
