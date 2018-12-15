@@ -204,6 +204,24 @@ The next `ON` command uses these values instead of the default (or configuration
 
 *Note:* the string send to the control channel of chaser things has to be formatted like the `steps` configuration of the chaser thing. If the new string is invalid, the old configuration will be used.
 
+## Rule Actions
+
+This binding includes a rule action, which allows to immediately change DMX channels from within rules.
+There is a separate instance for each bridge, which can be retrieved e.g. through
+
+```
+val dmxActions = getActions("dmx","dmx:sacn-bridge:mydmxbridge")
+```
+
+where the first parameter always has to be `dmx` and the second is the full Thing UID of the bridge that should be used.
+Once this action instance is retrieved, you can invoke the `sendFade(String channels, String fade, Boolean resumeAfter)` method on it:
+
+```
+dmxActions.sendFade("1:41/3","10000:255,255,255:-1", false)
+```
+
+The parameters are the same as in a chaser thing configuration.
+
 ## Full Example
 
 This example defines a sACN/E1.31 bridge in unicast mode which transmits universe 2 and three things: a three channel dimmer used to control a RGB light, which takes 1s to fade from one color to another and 10s from 0-100% on incremental dim commands, a single channel dimmer which will turn on only to 90% if it receives a ON command and does not fully switch off (to 10%) if it receives an OFF command and chaser which changes the colors like a traffic light.

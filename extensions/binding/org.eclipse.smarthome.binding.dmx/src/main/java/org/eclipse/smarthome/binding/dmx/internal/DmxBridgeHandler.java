@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.binding.dmx.action.DmxActions;
 import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
 import org.eclipse.smarthome.binding.dmx.internal.action.ResumeAction;
-import org.eclipse.smarthome.binding.dmx.internal.automation.DmxBridgeActionService;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
@@ -288,6 +288,6 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
 
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
-        return Collections.singletonList(DmxBridgeActionService.class);
+        return Collections.singletonList(DmxActions.class);
     }
 }

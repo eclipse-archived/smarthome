@@ -10,11 +10,12 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.binding.dmx,
- org.eclipse.smarthome.binding.dmx.handler
+ org.eclipse.smarthome.binding.dmx.handler,
+ org.eclipse.smarthome.binding.dmx.action
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.automation,
- org.eclipse.smarthome.automation.annotation,
+ org.eclipse.smarthome.automation.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.dmx,
  org.eclipse.smarthome.binding.dmx.handler,
  org.eclipse.smarthome.config.core,
