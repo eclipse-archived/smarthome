@@ -1,7 +1,7 @@
 # MQTT Binding
 
-    MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol.
-    It was designed as an extremely lightweight publish/subscribe messaging transport.
+> MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol.
+> It was designed as an extremely lightweight publish/subscribe messaging transport.
 
 MQTT is a server/client architecture.
 A server, also called broker is not provided within this binding,
