@@ -182,7 +182,6 @@ public class HueBridge {
         handleErrors(result);
 
         Map<String, T> lightMap = safeFromJson(result.getBody(), gsonType);
-
         ArrayList<T> lightList = new ArrayList<>();
 
         for (String id : lightMap.keySet()) {
@@ -198,13 +197,14 @@ public class HueBridge {
      * Returns a list of sensors known to the bridge
      *
      * @return list of sensors
-     * @throws IOException
-     * @throws ApiException
+     * @throws UnauthorizedException thrown if the user no longer exists
      */
     public List<FullSensor> getSensors() throws IOException, ApiException {
         requireAuthentication();
 
         Result result = http.get(getRelativeURL("sensors"));
+
+        handleErrors(result);
 
         Map<String, FullSensor> sensorMap = safeFromJson(result.getBody(), FullSensor.GSON_TYPE);
         ArrayList<FullSensor> sensorList = new ArrayList<>();
@@ -216,7 +216,6 @@ public class HueBridge {
         }
 
         return sensorList;
-
     }
 
     /**

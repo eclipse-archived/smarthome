@@ -91,6 +91,10 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                 pollingLock.lock();
                 try {
                     if (!lastBridgeConnectionState) {
+                        // if user is not set in configuration try to create a new user on Hue bridge
+                        if (hueBridgeConfig.getUserName() == null) {
+                            hueBridge.getFullConfig();
+                        }
                         lastBridgeConnectionState = tryResumeBridgeConnection();
                     }
                     if (lastBridgeConnectionState) {
@@ -432,8 +436,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
     private boolean tryResumeBridgeConnection() throws IOException, ApiException {
         logger.debug("Connection to Hue Bridge {} established.", hueBridge.getIPAddress());
         if (hueBridgeConfig.getUserName() == null) {
-            logger.warn("User name for Hue bridge authentication not available in configuration. "
-                    + "Setting ThingStatus to offline.");
+            logger.warn(
+                    "User name for Hue bridge authentication not available in configuration. Setting ThingStatus to OFFLINE.");
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "@text/offline.conf-error-no-username");
             return false;
@@ -495,7 +499,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
         config.put(USER_NAME, userName);
         try {
             updateConfiguration(config);
-            logger.debug("Updated configuration parameter {} to '{}'", USER_NAME, userName);
+            logger.debug("Updated configuration parameter '{}' to '{}'", USER_NAME, userName);
+            hueBridgeConfig = getConfigAs(HueBridgeConfig.class);
         } catch (IllegalStateException e) {
             logger.trace("Configuration update failed.", e);
             logger.warn("Unable to update configuration of Hue bridge.");
