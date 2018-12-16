@@ -1,10 +1,10 @@
-# MQTT Thing Binding
+# MQTT Generic Thing Binding
 
-    MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol. It was designed as an extremely lightweight publish/subscribe messaging transport.
+> MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol. It was designed as an extremely lightweight publish/subscribe messaging transport.
 
 This binding allows to link MQTT topics to Things.
 
-## Supported Thing
+## Supported Things
 
 The MQTT [Homie convention](https://homieiot.github.io/) version 3.x is supported by this binding.
 It allows to automatically discover devices that follow the "Homie" convention and present them as Things.
@@ -218,15 +218,15 @@ Here are a few examples:
 demo.Things:
 
 ```xtend
-Bridge mqtt:broker:myUnsecureBroker [ host="192.168.0.42",secure="OFF" ]
+Bridge mqtt:broker:myUnsecureBroker [ host="192.168.0.42", secure=false ]
 {
     Thing mqtt:topic:mything {
     Channels:
-        Type switch : lamp "Kitchen Lamp" [ mqttstate="lamp/enabled", mqttcommand="lamp/enabled/set" ]
-        Type switch : fancylamp "Fancy Lamp" [ mqttstate="fancy/lamp/state", mqttcommand="fancy/lamp/command", on="i-am-on", off="i-am-off" ]
-        Type string : alarmpanel "Alarm system" [ mqttstate="alarm/panel/state", mqttcommand="alarm/panel/set", allowedStates="ARMED_HOME,ARMED_AWAY,UNARMED" ]
-        Type color : lampcolor "Kitchen Lamp color" [ mqttstate="lamp/color", mqttcommand="lamp/color/set", rgb=true ]
-        Type dimmer : blind "Blind" [ mqttstate="blind/state", mqttcommand="blind/set", min=0, max=5, step=1 ]
+        Type switch : lamp "Kitchen Lamp" [ stateTopic="lamp/enabled", commandTopic="lamp/enabled/set" ]
+        Type switch : fancylamp "Fancy Lamp" [ stateTopic="fancy/lamp/state", commandTopic="fancy/lamp/command", on="i-am-on", off="i-am-off" ]
+        Type string : alarmpanel "Alarm system" [ stateTopic="alarm/panel/state", commandTopic="alarm/panel/set", allowedStates="ARMED_HOME,ARMED_AWAY,UNARMED" ]
+        Type color : lampcolor "Kitchen Lamp color" [ stateTopic="lamp/color", commandTopic="lamp/color/set", rgb=true ]
+        Type dimmer : blind "Blind" [ stateTopic="blind/state", commandTopic="blind/set", min=0, max=5, step=1 ]
     }
 }
 ```
