@@ -1,10 +1,10 @@
-# MQTT Thing Binding
+# MQTT Generic Thing Binding
 
 > MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol. It was designed as an extremely lightweight publish/subscribe messaging transport.
 
 This binding allows to link MQTT topics to Things.
 
-## Supported Thing
+## Supported Things
 
 The MQTT [Homie convention](https://homieiot.github.io/) version 3.x is supported by this binding.
 It allows to automatically discover devices that follow the "Homie" convention and present them as Things.
