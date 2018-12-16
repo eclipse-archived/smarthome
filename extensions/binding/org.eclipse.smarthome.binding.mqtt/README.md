@@ -1,12 +1,16 @@
 # MQTT Binding
 
-    MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol.
-    It was designed as an extremely lightweight publish/subscribe messaging transport.
+> MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol.
+> It was designed as an extremely lightweight publish/subscribe messaging transport.
 
 MQTT is a server/client architecture.
 A server, also called broker is not provided within this binding,
 but it allows to detect running brokers and to manage connections.
 The hereby configured broker connections make it possible to link MQTT topics to Things and Channels.
+
+It has the following extensions:
+
+<!--list-subs-->
 
 ## Supported Bridges
 
@@ -78,11 +82,11 @@ in [Java MessageDigest Algorithms](https://docs.oracle.com/javase/9/docs/specs/s
 `mqttConnections.things`:
 
 ```xtend
-mqtt:broker:mySecureBroker [ host="192.168.0.41",secure="ON", certificatepin=true, publickeypin=true ]
-mqtt:broker:myUnsecureBroker [ host="192.168.0.42",secure="OFF" ]
+mqtt:broker:mySecureBroker [ host="192.168.0.41", secure=true, certificatepin=true, publickeypin=true ]
+mqtt:broker:myUnsecureBroker [ host="192.168.0.42",secure=false ]
 
-mqtt:broker:myAuthentificatedBroker [ host="192.168.0.43", username="user", password="password" ]
+mqtt:broker:myAuthentificatedBroker [ host="192.168.0.43", secure=true, username="user", password="password" ]
 
-mqtt:broker:pinToPublicKey [ host="192.168.0.44", publickeypin=true, publickey="SHA-256:9a6f30e67ae9723579da2575c35daf7da3b370b04ac0bde031f5e1f5e4617eb8" ]
+mqtt:broker:pinToPublicKey [ host="192.168.0.44", secure=true, publickeypin=true, publickey="SHA-256:9a6f30e67ae9723579da2575c35daf7da3b370b04ac0bde031f5e1f5e4617eb8" ]
 
 ```
