@@ -17,6 +17,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.net.Socket;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,6 +104,33 @@ public class ExtensibleTrustManagerTest {
         when(topOfChain.getSubjectX500Principal())
                 .thenReturn(new X500Principal("CN=example.com, OU=Smarthome, O=Eclipse, C=DE"));
         when(topOfChain.getSubjectAlternativeNames()).thenReturn(null);
+
+        subject.checkClientTrusted(chain, "just");
+
+        verify(defaultTrustManager).checkClientTrusted(chain, "just", (Socket) null);
+        verifyNoMoreInteractions(trustmanager);
+    }
+
+    @Test
+    public void shouldBeResilientAgainstMissingCommonNames() throws CertificateException, IllegalAccessException {
+        FieldUtils.writeField(subject, "defaultTrustManager", defaultTrustManager, true);
+
+        when(topOfChain.getSubjectX500Principal()).thenReturn(new X500Principal("OU=Smarthome, O=Eclipse, C=DE"));
+
+        subject.checkClientTrusted(chain, "just");
+
+        verify(defaultTrustManager).checkClientTrusted(chain, "just", (Socket) null);
+        verifyNoMoreInteractions(trustmanager);
+    }
+
+    @Test
+    public void shouldBeResilientAgainstInvalidCertificates() throws CertificateException, IllegalAccessException {
+        FieldUtils.writeField(subject, "defaultTrustManager", defaultTrustManager, true);
+
+        when(topOfChain.getSubjectX500Principal())
+                .thenReturn(new X500Principal("CN=example.com, OU=Smarthome, O=Eclipse, C=DE"));
+        when(topOfChain.getSubjectAlternativeNames())
+                .thenThrow(new CertificateParsingException("Invalid certificate!!!"));
 
         subject.checkClientTrusted(chain, "just");
 

@@ -16,6 +16,9 @@ import java.net.Socket;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
@@ -129,15 +132,12 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
                 return trustManager;
             }
 
-            logger.trace("Searching trustManager by Subject Alternative Names: {}",
-                    chain[0].getSubjectAlternativeNames());
+            Collection<List<?>> subjectAlternatives = getSubjectAlternatives(chain);
 
-            if (chain[0].getSubjectAlternativeNames() == null) {
-                return null;
-            }
+            logger.trace("Searching trustManager by Subject Alternative Names: {}", subjectAlternatives);
 
             // @formatter:off
-            return chain[0].getSubjectAlternativeNames().stream()
+            return subjectAlternatives.stream()
                     .map(e -> e.get(1))
                     .map(Object::toString)
                     .map(linkedTrustManager::get)
@@ -147,9 +147,19 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
                     .findFirst()
                     .orElse(null);
             // @formatter:on
+        } catch (CommonNameNotFoundException e) {
+            logger.debug("CN not found", e.getMessage());
+            return null;
         } catch (CertificateParsingException e) {
-            throw new IllegalStateException("Problem while parsing certificate", e);
+            logger.debug("Problem while parsing certificate", e);
+            return null;
         }
+    }
+
+    private Collection<List<?>> getSubjectAlternatives(X509Certificate[] chain) throws CertificateParsingException {
+        Collection<List<?>> subjectAlternativeNames = chain[0].getSubjectAlternativeNames();
+
+        return (subjectAlternativeNames != null) ? subjectAlternativeNames : Collections.emptyList();
     }
 
     private String getCommonName(X509Certificate x509Certificate) {
@@ -159,7 +169,7 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
                 return group.trim().replace("CN=", "");
             }
         }
-        throw new IllegalStateException("No Common Name found");
+        throw new CommonNameNotFoundException("No Common Name found in: '" + dn + "'");
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -191,4 +201,15 @@ public class ExtensibleTrustManager extends X509ExtendedTrustManager {
     private void removeLinkedTrustManager(String hostName, X509ExtendedTrustManager trustManager) {
         linkedTrustManager.computeIfAbsent(hostName, h -> new ConcurrentLinkedQueue<>()).remove(trustManager);
     }
+
+    private static class CommonNameNotFoundException extends RuntimeException {
+
+        private static final long serialVersionUID = -5861764697217665026L;
+
+        public CommonNameNotFoundException(String message) {
+            super(message);
+        }
+
+    }
+
 }
