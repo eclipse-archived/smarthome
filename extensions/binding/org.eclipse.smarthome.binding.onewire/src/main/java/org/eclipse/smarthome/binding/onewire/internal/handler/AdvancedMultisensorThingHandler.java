@@ -283,7 +283,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
 
     @Override
     protected void updateSensorProperties() {
-        logger.info("updating sensor properties of {}", thing.getLabel());
+        logger.debug("updating sensor properties of {}", thing.getLabel());
         Map<String, String> properties = editProperties();
 
         Bridge bridge = getBridge();
@@ -315,7 +315,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
             properties.put(PROPERTY_HW_REVISION, ds2438configuration.getHardwareRevision());
 
         } catch (OwException e) {
-            logger.info("updating thing properties failed: {}", e.getMessage());
+            logger.debug("updating thing properties failed: {}", e.getMessage());
             scheduler.schedule(() -> {
                 updateSensorProperties();
             }, 5000, TimeUnit.MILLISECONDS);
