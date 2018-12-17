@@ -50,7 +50,7 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
 
     @NonNullByDefault({})
     protected MqttBrokerConnection connection;
-    protected final CompletableFuture<MqttBrokerConnection> connectionFuture = new CompletableFuture<>();
+    protected CompletableFuture<MqttBrokerConnection> connectionFuture = new CompletableFuture<>();
 
     public AbstractBrokerHandler(Bridge thing) {
         super(thing);
@@ -140,6 +140,7 @@ public abstract class AbstractBrokerHandler extends BaseBridgeHandler implements
         channelStateByChannelUID.clear();
         connection.removeConnectionObserver(this);
         this.connection = null;
+        connectionFuture = new CompletableFuture<>();
         super.dispose();
     }
 }
