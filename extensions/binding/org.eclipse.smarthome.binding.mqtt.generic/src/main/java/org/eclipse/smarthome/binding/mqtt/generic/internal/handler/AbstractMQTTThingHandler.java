@@ -39,19 +39,23 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base class for MQTT thing handlers. If you are going to implement an MQTT convention, you probably
- * want to inherit from here.<br>
+ * want to inherit from here.
  *
+ * <p>
  * This base class will make sure you get a working {@link MqttBrokerConnection}, you will be informed
  * when to start your subscriptions ({@link #start(MqttBrokerConnection)}) and when to free your resources
- * because of a lost connection ({@link AbstractMQTTThingHandler#stop()}).<br>
+ * because of a lost connection ({@link AbstractMQTTThingHandler#stop()}).
  *
+ * <p>
  * If you inherit from this base class, you must use {@link ChannelState} to (a) keep a cached channel value,
  * (b) to link a MQTT topic value to a channel value ("MQTT state topic") and (c) to have a secondary MQTT topic
- * where any changes to the {@link ChannelState} are send to ("MQTT command topic").<br>
+ * where any changes to the {@link ChannelState} are send to ("MQTT command topic").
  *
+ * <p>
  * You are expected to keep your channel data structure organized in a way, to resolve a {@link ChannelUID} to
- * the corresponding {@link ChannelState} in {@link #getChannelState(ChannelUID)}.<br>
+ * the corresponding {@link ChannelState} in {@link #getChannelState(ChannelUID)}.
  *
+ * <p>
  * To inform the framework of changed values, received via MQTT, a {@link ChannelState} calls a listener callback.
  * While setting up your {@link ChannelState} you would set the callback to your thing handler,
  * because this base class implements {@link ChannelStateUpdateListener}.
