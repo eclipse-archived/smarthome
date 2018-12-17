@@ -17,6 +17,7 @@ import static org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchBinding
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchConfiguration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.mdns.MDNSDiscoveryParticipant;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Component;
@@ -91,7 +93,13 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
 
             properties.put(BoseSoundTouchConfiguration.HOST, addrs[0].getHostAddress());
             if (getMacAddress(info) != null) {
-                properties.put(BoseSoundTouchConfiguration.MAC_ADDRESS, new String(getMacAddress(info)));
+                properties.put(BoseSoundTouchConfiguration.MAC_ADDRESS, new String(getMacAddress(info), StandardCharsets.UTF_8));
+            }
+            
+            // Set manufacturer as thing property (if available)
+            byte[] manufacturer = info.getPropertyBytes("MANUFACTURER");
+            if (manufacturer != null) {
+                properties.put(Thing.PROPERTY_VENDOR, new String(manufacturer, StandardCharsets.UTF_8));
             }
             return DiscoveryResultBuilder.create(uid).withProperties(properties).withLabel(label).withTTL(600).build();
         }
@@ -108,7 +116,7 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
                     logger.trace("Discovered a Bose SoundTouch thing with name '{}'", info.getName());
                     byte[] mac = getMacAddress(info);
                     if (mac != null) {
-                        return new ThingUID(typeUID, new String(mac));
+                        return new ThingUID(typeUID, new String(mac, StandardCharsets.UTF_8));
                     } else {
                         return null;
                     }
@@ -130,7 +138,7 @@ public class SoundTouchDiscoveryParticipant implements MDNSDiscoveryParticipant 
             String deviceId = null;
             byte[] mac = getMacAddress(info);
             if (mac != null) {
-                deviceId = new String(mac);
+                deviceId = new String(mac, StandardCharsets.UTF_8);
             }
             String deviceType;
             try {
