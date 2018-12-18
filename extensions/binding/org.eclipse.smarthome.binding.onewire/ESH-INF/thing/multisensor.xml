@@ -28,7 +28,7 @@
 			</parameter>
 		</config-description>
 	</thing-type>
-	<thing-type id="ms-th">
+	<thing-type id="ms-th" listed="false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="owserver" />
 		</supported-bridge-type-refs>
@@ -59,7 +59,7 @@
 			</parameter>
 		</config-description>
 	</thing-type>
-	<thing-type id="ms-tv">
+	<thing-type id="ms-tv" listed = "false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="owserver" />
 		</supported-bridge-type-refs>
