@@ -23,7 +23,6 @@ import org.eclipse.smarthome.core.transform.TransformationService;
  */
 @NonNullByDefault
 public interface TransformationServiceProvider {
-
     /**
      * Provide a {@link TransformationService} matching the given type.
      *
@@ -32,5 +31,4 @@ public interface TransformationServiceProvider {
      */
     @Nullable
     TransformationService getTransformationService(String type);
-
 }

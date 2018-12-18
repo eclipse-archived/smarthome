@@ -160,10 +160,10 @@ public class ComponentLight extends AbstractComponent implements ChannelStateUpd
      * Proxy method to condense all three MQTT subscriptions to one channel
      */
     @Override
-    public void postChannelState(ChannelUID channelUID, Command value) {
+    public void postChannelCommand(ChannelUID channelUID, Command value) {
         ChannelStateUpdateListener listener = channelStateUpdateListener;
         if (listener != null) {
-            listener.postChannelState(colorChannel.channelUID, value);
+            listener.postChannelCommand(colorChannel.channelUID, value);
         }
     }
 

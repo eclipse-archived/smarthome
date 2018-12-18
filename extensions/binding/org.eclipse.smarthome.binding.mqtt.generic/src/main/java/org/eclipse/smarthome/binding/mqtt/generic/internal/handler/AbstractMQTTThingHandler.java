@@ -225,7 +225,7 @@ public abstract class AbstractMQTTThingHandler extends BaseThingHandler implemen
     }
 
     @Override
-    public void postChannelState(ChannelUID channelUID, Command command) {
+    public void postChannelCommand(ChannelUID channelUID, Command command) {
         postCommand(channelUID, command);
     }
 }

@@ -6,10 +6,15 @@ This binding allows to link MQTT topics to Things.
 
 ## Supported Things
 
-The MQTT [Homie convention](https://homieiot.github.io/) version 3.x is supported by this binding.
-It allows to automatically discover devices that follow the "Homie" convention and present them as Things.
-Your Homie base topic needs to be **homie**. The mapping is structured like this:
+There a few Things dedicated to MQTT conventions available and a Generic MQTT Thing.
+The last one is comparable to what was found in the mqtt 1.x binding. 
 
+### Homie Thing
+
+Devices that follow the [Homie convention](https://homieiot.github.io/) 3.x and better
+are auto-discovered and represented by this Homie Thing.
+
+Find the next table to understand the topology mapping from Homie to the Framework: 
 
 | Homie    | Framework     | Example MQTT topic                 |
 |----------|---------------|------------------------------------|
@@ -17,14 +22,14 @@ Your Homie base topic needs to be **homie**. The mapping is structured like this
 | Node     | Channel Group | homie/super-car/engine             |
 | Property | Channel       | homie/super-car/engine/temperature |
 
-System trigger channels are supported using non-retained properties, with enum datatype and with the following formats:
+System trigger channels are supported using non-retained properties, with *enum* data type and with the following formats:
 * Format: "PRESSED,RELEASED" -> system.rawbutton
 * Format: "SHORT\_PRESSED,DOUBLE\_PRESSED,LONG\_PRESSED" -> system.button
 * Format: "DIR1\_PRESSED,DIR1\_RELEASED,DIR2\_PRESSED,DIR2\_RELEASED" -> system.rawrocker
 
----
+### HomeAssistant Thing
 
-HomeAssistant MQTT Components are recognized as well. The base topic needs to be **homeassistant**. 
+HomeAssistant MQTT Components are recognised as well. The base topic needs to be **homeassistant**. 
 The mapping is structured like this:
 
 
@@ -34,13 +39,13 @@ The mapping is structured like this:
 | Component+Node        | Channel Group | homeassistant/component/node/object|
 | -> Component Features | Channel       | state/topic/defined/in/comp/config |
 
----
+### Generic MQTT Thing
 
-There is also a generic "topic" thing available.
+A generic MQTT Thing has no configuration and is a pure shell for channels that you add yourself.
 
 You can manually add the following channels:
 
-## Supported Channels
+#### Supported Channels
 
 * **string**: This channel can show the received text on the given topic and can send text to a given topic.
 * **number**: This channel can show the received number on the given topic and can send a number to a given topic. It can have a min, max and step values.
@@ -61,7 +66,8 @@ All things require a configured broker.
 ### Common Channel Configuration Parameters
 
 * __stateTopic__: The MQTT topic that represents the state of the thing. This can be empty, the thing channel will be a state-less trigger then. You can use a wildcard topic like "sensors/+/event" to retrieve state from multiple MQTT topics. 
-* __transformationPattern__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2).
+* __transformationPattern__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2) that is applied to all incoming MQTT values.
+* __transformationPatternOut__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2) that is applied before publishing a value to MQTT.
 * __commandTopic__: The MQTT topic that commands are send to. This can be empty, the thing channel will be read-only then. Transformations are not applied for sending data.
 * __formatBeforePublish__: Format a value before it is published to the MQTT broker. The default is to just pass the channel/item state. If you want to apply a prefix, say "MYCOLOR,", you would use "MYCOLOR,%s". If you want to adjust the precision of a number to for example 4 digits, you would use "%.4f".
 
@@ -84,13 +90,15 @@ You can connect this channel to a Number item.
 
 ### Channel Type "dimmer"
  
+* __on__: A optional string (like "ON"/"Open") that is recognised as minimum.
+* __off__: A optional string (like "OFF"/"Close") that is recognised as maximum.
 * __min__: A required minimum value.
 * __max__: A required maximum value.
 * __step__: For decrease, increase commands the step needs to be known
 
 The value is internally stored as a percentage for a value between **min** and **max**.
 
-The channel will publish a value between 0 and 100.
+The channel will publish a value between `min` and `max`.
 
 You can connect this channel to a Rollershutter or Dimmer item.
 
@@ -172,8 +180,6 @@ mqttActions.publishMQTT("mytopic","myvalue")
 
 ## Limitations
 
-* This binding does not support Homie Node Instances.
-* Homie Device Statistics (except from "interval") are not supported.
 * The HomeAssistant Fan Components only support ON/OFF.
 * The HomeAssistant Cover Components only support OPEN/CLOSE/STOP.
 * The HomeAssistant Light Component does not support XY color changes.
@@ -181,7 +187,7 @@ mqttActions.publishMQTT("mytopic","myvalue")
 
 ## Incoming Value Transformation
 
-All mentioned channels can have a configured optional transformation for an incoming MQTT topic value.
+All mentioned channels allow an optional transformation for incoming MQTT topic values.
 
 This is required if your received value is wrapped in a JSON or XML response.
 
@@ -192,6 +198,13 @@ Here are a few examples to unwrap a value from a complex response:
 | `{device: {status: { temperature: 23.2 }}}`                         | JSONPATH    | `JSONPATH:$.device.status.temperature`    |
 | `<device><status><temperature>23.2</temperature></status></device>` | XPath       | `XPath:/device/status/temperature/text()` |
 | `THEVALUE:23.2°C`                                                   | REGEX       | `REGEX::(.*?)°`                           |
+
+Transformations can be chained by separating them with the mathematical intersection character "∩".
+
+## Outgoing Value Transformation
+
+All mentioned channels allow an optional transformation for outgoing values.
+Please prefer formatting as described in the next section whenever possible.
 
 ## Format before Publish
 
@@ -213,7 +226,11 @@ Here are a few examples:
   - For an output of *23.05.1995* use "%1$**td**.%1$**tm**.%1$**tY**".
   - For an output of *23:15* use "%1$**tH**:%1$**tM**".
 
-## Full Example
+## Examples
+
+Have a look at the following textual examples.
+
+### A broker Thing with a Generic MQTT Thing and a few channels 
 
 demo.Things:
 
@@ -238,7 +255,9 @@ Switch Kitchen_Light "Kitchen Light" { channel="mqtt:topic:myUnsecureBroker:myth
 Rollershutter shutter "Blind" { channel="mqtt:topic:myUnsecureBroker:mything:blind" }
 ```
 
-demo.rules:
+### Publish an MQTT value on startup
+
+An example "demo.rules" rule to publish to `system/started` with the value `true` on every start:
 
 ```xtend
 rule "Send startup message"
@@ -248,4 +267,72 @@ then
   val actions = getActions("mqtt","mqtt:broker:myUnsecureBroker")
   actions.publishMQTT("system/started","true")    
 end
+```
+
+### Synchronise two instances
+
+Define a broker and a trigger channel on that broker in a "demo.Things" file:
+
+```xtend
+Bridge mqtt:broker:myUnsecureBroker [ host="192.168.0.42", secure=false ]
+{
+    Channels:
+        Type publishTrigger : myTriggerChannel "Receive everything" [ stateTopic="allItems/#", separator="#" ]
+}
+```
+
+If you want to publish all item changes to an MQTT topic "allItems/",
+group items into a `myGroupOfItems` and do this in a "publishAll.rules" file:
+
+```xtend
+rule "Publish all"
+when 
+      Member of myGroupOfItems changed
+then
+   val actions = getActions("mqtt","mqtt:broker:myUnsecureBroker")
+   actions.publishMQTT("allItems/"+triggeringItem.name,triggeringItem.state)
+end
+```
+
+If you want to receive all item changes from an MQTT topic "allItems/",
+do this in a "ReceiveAll.rules" file:
+
+```xtend
+rule "Publish all"
+when 
+      Channel "mqtt:broker:myUnsecureBroker:myTriggerChannel" triggered
+then
+   // TODO
+end
+```
+
+## Converting an MQTT1 installation
+
+The conversion is straight forward, but need to be done for each item.
+You do not need to convert everything in one go. MQTT1 and MQTT2 can coexist.
+
+Assume you have this item:
+
+```xtend
+Switch ExampleItem "Heatpump Power" { mqtt=">[mosquitto:heatpump/set:command:*:DEFAULT)],<[mosquitto:heatpump:state:JSONPATH($.power)]" }
+```
+
+This converts to an entry in your *.things file with a **Broker Thing** and a **Generic MQTT Thing** that uses the bridge:
+
+```xtend
+Bridge mqtt:broker:myUnsecureBroker [ host="192.168.0.42", secure=false ]
+{
+    Thing mqtt:topic:mything {
+    Channels:
+        Type switch : heatpumpChannel "Heatpump Power" [ stateTopic="heatpump", commandTopic="heatpump/set" transformationPattern="JSONPATH:$.power" ]
+    }
+}
+```
+
+Add as many channels as you have items and add the *stateTopic* and *commandTopic* accordingly. 
+
+Your items change to:
+
+```xtend
+Switch ExampleItem "Heatpump Power" { channel="mqtt:myUnsecureBroker:topic:mything:heatpumpChannel" }
 ```

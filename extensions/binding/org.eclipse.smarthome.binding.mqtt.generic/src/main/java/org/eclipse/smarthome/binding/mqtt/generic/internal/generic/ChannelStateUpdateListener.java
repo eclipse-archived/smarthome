@@ -37,7 +37,7 @@ public interface ChannelStateUpdateListener {
      * @param channelUID The channel uid
      * @param value The new value. Doesn't necessarily need to be different than the value before.
      */
-    void postChannelState(ChannelUID channelUID, Command value);
+    void postChannelCommand(ChannelUID channelUID, Command value);
 
     /**
      * A new value got published on a configured MQTT topic associated with the given channel uid.

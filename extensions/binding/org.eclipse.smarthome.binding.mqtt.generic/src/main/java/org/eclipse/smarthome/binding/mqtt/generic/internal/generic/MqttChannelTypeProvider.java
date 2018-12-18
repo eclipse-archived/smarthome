@@ -21,6 +21,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttThingHandlerFactory;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomeAssistantThingHandler;
+import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomieThingHandler;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -33,7 +35,7 @@ import org.osgi.service.component.annotations.Component;
  * If the user configures a channel and defines for example minimum/maximum values, we need a specific
  * channel type provider. This one is started on-demand only, as soon as {@link MqttThingHandlerFactory} requires it.
  *
- * It is filled with types within the different handlers ({@link HomieThingHandler, @link HomeAssistantThingHandler}
+ * It is filled with types within the different handlers ({@link HomieThingHandler}, {@link HomeAssistantThingHandler})
  * on-demand.
  *
  * @author David Graeff - Initial contribution

@@ -55,7 +55,8 @@ public class ChannelState implements MqttMessageSubscriber {
     // Runtime variables
 
     protected @Nullable MqttBrokerConnection connection;
-    protected final List<ChannelStateTransformation> transformations = new ArrayList<>();
+    protected final List<ChannelStateTransformation> transformationsIn = new ArrayList<>();
+    protected final List<ChannelStateTransformation> transformationsOut = new ArrayList<>();
     private @Nullable ChannelStateUpdateListener channelStateUpdateListener;
     protected boolean hasSubscribed = false;
     private @Nullable ScheduledFuture<?> scheduledFuture;
@@ -90,14 +91,25 @@ public class ChannelState implements MqttMessageSubscriber {
      * @param transformation A transformation
      */
     public void addTransformation(ChannelStateTransformation transformation) {
-        transformations.add(transformation);
+        transformationsIn.add(transformation);
+    }
+
+    /**
+     * Add a transformation that is applied for each value to be published.
+     * The transformations are executed in order.
+     *
+     * @param transformation A transformation
+     */
+    public void addTransformationOut(ChannelStateTransformation transformation) {
+        transformationsOut.add(transformation);
     }
 
     /**
      * Clear transformations
      */
     public void clearTransformations() {
-        transformations.clear();
+        transformationsIn.clear();
+        transformationsOut.clear();
     }
 
     /**
@@ -142,7 +154,7 @@ public class ChannelState implements MqttMessageSubscriber {
 
         // String value: Apply transformations
         String strvalue = new String(payload, StandardCharsets.UTF_8);
-        for (ChannelStateTransformation t : transformations) {
+        for (ChannelStateTransformation t : transformationsIn) {
             strvalue = t.processValue(strvalue);
         }
 
@@ -161,6 +173,13 @@ public class ChannelState implements MqttMessageSubscriber {
             return;
         }
 
+        Command postOnlyCommand = cachedValue.isPostOnly(command);
+        if (postOnlyCommand != null) {
+            channelStateUpdateListener.postChannelCommand(channelUID, postOnlyCommand);
+            receivedOrTimeout();
+            return;
+        }
+
         // Map the string to an ESH command, update the cached value and post the command to the framework
         try {
             cachedValue.update(command);
@@ -172,7 +191,7 @@ public class ChannelState implements MqttMessageSubscriber {
         }
 
         if (config.postCommand) {
-            channelStateUpdateListener.postChannelState(channelUID, (Command) cachedValue.getChannelState());
+            channelStateUpdateListener.postChannelCommand(channelUID, (Command) cachedValue.getChannelState());
         } else {
             channelStateUpdateListener.updateChannelState(channelUID, cachedValue.getChannelState());
         }
@@ -314,6 +333,10 @@ public class ChannelState implements MqttMessageSubscriber {
                 } catch (IllegalFormatException e) {
                     logger.debug("Format pattern incorrect for {}", channelUID, e);
                 }
+            }
+            // Outgoing transformations
+            for (ChannelStateTransformation t : transformationsOut) {
+                mqttCommandValue = t.processValue(mqttCommandValue);
             }
             // Send retained messages if this is a stateful channel
             return connection.publish(config.commandTopic, mqttCommandValue.getBytes(), 1, config.retained)
