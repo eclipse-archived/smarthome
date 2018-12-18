@@ -17,6 +17,7 @@
   <modules>
     <module>org.eclipse.smarthome.auth.jaas</module>
     <module>org.eclipse.smarthome.auth.oauth2client</module>
+    <module>org.eclipse.smarthome.auth.oauth2client.test</module>
   </modules>
 
 </project>
