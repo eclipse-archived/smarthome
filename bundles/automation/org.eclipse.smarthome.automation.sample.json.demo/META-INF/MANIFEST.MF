@@ -6,6 +6,6 @@ Bundle-Name: Eclipse SmartHome Automation Json Demo
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.json.demo
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.10.0
 Import-Package: org.eclipse.jdt.annotation;resolution:=optional
 Service-Component: OSGI-INF/*.xml

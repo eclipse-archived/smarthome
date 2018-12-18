@@ -7,12 +7,12 @@
 	<parent>
 		<groupId>org.eclipse.smarthome.binding</groupId>
 		<artifactId>pom</artifactId>
-		<version>0.10.0-SNAPSHOT</version>
+		<version>0.10.0</version>
 	</parent>
 
 	<groupId>org.eclipse.smarthome.binding</groupId>
 	<artifactId>org.eclipse.smarthome.binding.onewire</artifactId>
-	<version>0.10.0-SNAPSHOT</version>
+	<version>0.10.0</version>
 
 	<name>Eclipse SmartHome OneWire Binding</name>
 	<packaging>eclipse-plugin</packaging>

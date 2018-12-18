@@ -6,11 +6,11 @@
   <parent>
     <groupId>org.eclipse.smarthome.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
+    <version>0.10.0</version>
   </parent>
 
   <artifactId>org.eclipse.smarthome.binding.tradfri</artifactId>
-  <version>0.10.0-SNAPSHOT</version>
+  <version>0.10.0</version>
   <packaging>eclipse-plugin</packaging>
 
   <name>Eclipse SmartHome TRÅDFRI Binding</name>
