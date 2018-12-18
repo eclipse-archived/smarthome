@@ -38,6 +38,8 @@ import org.eclipse.smarthome.automation.module.script.ScriptEngineContainer;
 import org.eclipse.smarthome.automation.module.script.ScriptEngineManager;
 import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.service.AbstractWatchService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link ScriptFileWatcher} watches the jsr223 directory for files. If a new/modified file is detected, the script
@@ -47,25 +49,31 @@ import org.eclipse.smarthome.core.service.AbstractWatchService;
  * @author Kai Kreuzer - improved logging and removed thread pool
  *
  */
+@Component(immediate = true)
 public class ScriptFileWatcher extends AbstractWatchService {
     private static final String FILE_DIRECTORY = "automation" + File.separator + "jsr223";
     private static final long INITIAL_DELAY = 25;
     private static final long RECHECK_INTERVAL = 20;
 
-    private long earliestStart = System.currentTimeMillis() + INITIAL_DELAY * 1000;
+    private final long earliestStart = System.currentTimeMillis() + INITIAL_DELAY * 1000;
 
     private ScriptEngineManager manager;
     ScheduledExecutorService scheduler;
 
-    private Map<String, Set<URL>> urlsByScriptExtension = new ConcurrentHashMap<>();
-    private Set<URL> loaded = new HashSet<>();
+    private final Map<String, Set<URL>> urlsByScriptExtension = new ConcurrentHashMap<>();
+    private final Set<URL> loaded = new HashSet<>();
 
     public ScriptFileWatcher() {
         super(ConfigConstants.getConfigFolder() + File.separator + FILE_DIRECTORY);
     }
 
+    @Reference
     public void setScriptEngineManager(ScriptEngineManager manager) {
         this.manager = manager;
+    }
+
+    public void unsetScriptEngineManager(ScriptEngineManager manager) {
+        this.manager = null;
     }
 
     @Override

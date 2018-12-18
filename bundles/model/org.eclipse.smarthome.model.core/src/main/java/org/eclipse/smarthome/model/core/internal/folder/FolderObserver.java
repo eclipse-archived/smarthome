@@ -41,6 +41,13 @@ import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This class is able to observe multiple folders for changes and notifies the
@@ -51,6 +58,7 @@ import org.osgi.service.component.ComponentContext;
  * @author Ana Dimova - reduce to a single watch thread for all class instances
  *
  */
+@Component(name = "org.eclipse.smarthome.folder", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class FolderObserver extends AbstractWatchService {
 
     public FolderObserver() {
@@ -70,6 +78,7 @@ public class FolderObserver extends AbstractWatchService {
     private final Set<File> ignoredFiles = new HashSet<>();
     private final Map<String, File> nameFileMap = new HashMap<>();
 
+    @Reference
     public void setModelRepository(ModelRepository modelRepo) {
         this.modelRepo = modelRepo;
     }
@@ -78,6 +87,7 @@ public class FolderObserver extends AbstractWatchService {
         this.modelRepo = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC)
     protected void addModelParser(ModelParser modelParser) {
         parsers.add(modelParser.getExtension());
 
@@ -92,6 +102,7 @@ public class FolderObserver extends AbstractWatchService {
         ignoredFiles.addAll(removed.stream().map(name -> nameFileMap.get(name)).collect(Collectors.toSet()));
     }
 
+    @Activate
     public void activate(ComponentContext ctx) {
         Dictionary<String, Object> config = ctx.getProperties();
 
@@ -121,6 +132,7 @@ public class FolderObserver extends AbstractWatchService {
     }
 
     @Override
+    @Deactivate
     public void deactivate() {
         super.deactivate();
         deleteModelsFromRepo();

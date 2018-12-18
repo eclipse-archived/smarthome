@@ -17,3 +17,4 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.component
 Automatic-Module-Name: org.eclipse.smarthome.config.dispatch.test
+Bundle-ActivationPolicy: lazy

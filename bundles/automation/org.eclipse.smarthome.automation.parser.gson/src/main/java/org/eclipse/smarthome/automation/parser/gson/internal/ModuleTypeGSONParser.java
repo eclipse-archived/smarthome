@@ -28,12 +28,14 @@ import org.eclipse.smarthome.automation.dto.CompositeActionTypeDTO;
 import org.eclipse.smarthome.automation.dto.CompositeConditionTypeDTO;
 import org.eclipse.smarthome.automation.dto.CompositeTriggerTypeDTO;
 import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
+import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * This class can parse and serialize sets of {@link ModuleType}.
@@ -41,6 +43,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * @author Kai Kreuzer - Initial Contribution
  *
  */
+@Component(immediate = true, service = Parser.class, property = { "parser.type=parser.module.type", "format=json" })
 public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
 
     public ModuleTypeGSONParser() {

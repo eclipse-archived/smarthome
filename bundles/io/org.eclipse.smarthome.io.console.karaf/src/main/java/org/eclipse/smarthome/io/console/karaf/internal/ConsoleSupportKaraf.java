@@ -21,6 +21,10 @@ import org.apache.karaf.shell.api.action.lifecycle.Manager;
 import org.apache.karaf.shell.api.console.Registry;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +34,10 @@ import org.slf4j.LoggerFactory;
  * @author Markus Rathgeb - Initial contribution and API
  *
  */
+@Component(immediate = true)
 public class ConsoleSupportKaraf {
 
-    private Logger logger = LoggerFactory.getLogger(ConsoleSupportKaraf.class);
+    private final Logger logger = LoggerFactory.getLogger(ConsoleSupportKaraf.class);
 
     private SessionFactory sessionFactory;
 
@@ -44,6 +49,7 @@ public class ConsoleSupportKaraf {
 
     private Manager manager;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         manager = sessionFactory.getRegistry().getService(Manager.class);
@@ -61,6 +67,7 @@ public class ConsoleSupportKaraf {
         }
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConsoleCommandExtension(final ConsoleCommandExtension consoleCommandExtension) {
         commands.add(consoleCommandExtension);
         if (sessionFactory != null) {

@@ -405,6 +405,15 @@
                 <exclude>.gitignore</exclude>
               </excludes>
             </fileset>
+            <fileset>
+              <directory>${basedir}/OSGI-INF</directory>
+              <includes>
+                <include>**</include>
+              </includes>
+              <excludes>
+                <exclude>.gitignore</exclude>
+              </excludes>
+            </fileset>
           </filesets>
         </configuration>
       </plugin>

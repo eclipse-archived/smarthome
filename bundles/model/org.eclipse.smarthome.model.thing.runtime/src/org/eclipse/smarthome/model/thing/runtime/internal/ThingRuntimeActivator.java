@@ -14,9 +14,11 @@ package org.eclipse.smarthome.model.thing.runtime.internal;
 
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.thing.ThingStandaloneSetup;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Component(immediate = true)
 public class ThingRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(ThingRuntimeActivator.class);

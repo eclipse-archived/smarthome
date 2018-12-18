@@ -12,7 +12,16 @@
  */
 package org.eclipse.smarthome.automation.internal.provider.file;
 
+import java.util.Map;
+
+import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.RuleTemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * This class is a wrapper of multiple {@link TemplateProvider}s, responsible for initializing the WatchService.
@@ -20,6 +29,7 @@ import org.eclipse.smarthome.automation.template.TemplateProvider;
  * @author Ana Dimova - Initial Contribution
  *
  */
+@Component(immediate = true, service = RuleTemplateProvider.class)
 public class TemplateFileProviderWatcher extends TemplateFileProvider {
 
     @Override
@@ -30,6 +40,17 @@ public class TemplateFileProviderWatcher extends TemplateFileProvider {
     @Override
     protected void deactivateWatchService(String watchingDir) {
         WatchServiceUtil.deactivateWatchService(watchingDir, this);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, policy = ReferencePolicy.DYNAMIC, target = "(parser.type=parser.template)")
+    @Override
+    public void addParser(Parser<RuleTemplate> parser, Map<String, String> properties) {
+        super.addParser(parser, properties);
+    }
+
+    @Override
+    public void removeParser(Parser<RuleTemplate> parser, Map<String, String> properties) {
+        super.removeParser(parser, properties);
     }
 
 }

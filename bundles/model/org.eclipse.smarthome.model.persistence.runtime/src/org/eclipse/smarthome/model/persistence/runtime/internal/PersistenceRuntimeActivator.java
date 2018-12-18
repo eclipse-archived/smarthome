@@ -14,9 +14,11 @@ package org.eclipse.smarthome.model.persistence.runtime.internal;
 
 import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.persistence.PersistenceStandaloneSetup;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Component(immediate = true)
 public class PersistenceRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceRuntimeActivator.class);
