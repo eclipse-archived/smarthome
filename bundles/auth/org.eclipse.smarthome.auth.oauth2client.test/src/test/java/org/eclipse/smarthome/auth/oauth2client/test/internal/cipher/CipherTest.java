@@ -49,13 +49,14 @@ public class CipherTest {
             throws IOException, InvalidSyntaxException, NoSuchAlgorithmException {
         spySymmetricKeyCipher = spy(SymmetricKeyCipher.class);
         spySymmetricKeyCipher.setConfigurationAdmin(mockConfigurationAdmin());
-        spySymmetricKeyCipher.activate(); // generate encryptoin key
+        spySymmetricKeyCipher.activate(); // generate encryption key
         return spySymmetricKeyCipher;
     }
 
     private ConfigurationAdmin mockConfigurationAdmin() throws IOException {
         ConfigurationAdmin configurationAdmin = mock(ConfigurationAdmin.class);
-        when(configurationAdmin.getConfiguration(anyString())).thenReturn(mockConfiguration());
+        Configuration configuration = mockConfiguration();
+        when(configurationAdmin.getConfiguration(anyString())).thenReturn(configuration);
         return configurationAdmin;
     }
 

@@ -14,7 +14,7 @@
 	<artifactId>org.eclipse.smarthome.auth.oauth2client.test</artifactId>
 
 	<name>Eclipse SmartHome OAuth2Client Tests</name>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>eclipse-test-plugin</packaging>
 
 
 </project>

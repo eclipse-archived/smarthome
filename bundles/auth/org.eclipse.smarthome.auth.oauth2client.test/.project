@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.smarthome.auth.oauth2.client.test</name>
+	<name>org.eclipse.smarthome.auth.oauth2client.test</name>
 	<comment></comment>
 	<projects>
 	</projects>
