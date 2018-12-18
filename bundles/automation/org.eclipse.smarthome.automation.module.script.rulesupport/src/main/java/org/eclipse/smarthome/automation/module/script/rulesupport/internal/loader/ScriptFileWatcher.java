@@ -72,6 +72,10 @@ public class ScriptFileWatcher extends AbstractWatchService {
         this.manager = manager;
     }
 
+    public void unsetScriptEngineManager(ScriptEngineManager manager) {
+        this.manager = null;
+    }
+
     @Override
     public void activate() {
         super.activate();

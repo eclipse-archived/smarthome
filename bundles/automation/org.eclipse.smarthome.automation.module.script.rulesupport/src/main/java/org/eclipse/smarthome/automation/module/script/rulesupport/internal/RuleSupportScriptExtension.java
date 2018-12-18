@@ -118,9 +118,17 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
         this.ruleRegistry = ruleRegistry;
     }
 
+    public void unsetRuleRegistry(RuleRegistry ruleRegistry) {
+        this.ruleRegistry = null;
+    }
+
     @Reference
     public void setRuleProvider(ScriptedRuleProvider ruleProvider) {
         this.ruleProvider = ruleProvider;
+    }
+
+    public void unsetRuleProvider(ScriptedRuleProvider ruleProvider) {
+        this.ruleProvider = null;
     }
 
     @Reference
@@ -128,14 +136,27 @@ public class RuleSupportScriptExtension implements ScriptExtensionProvider {
         this.scriptedCustomModuleHandlerFactory = factory;
     }
 
+    public void unsetScriptedCustomModuleHandlerFactory(ScriptedCustomModuleHandlerFactory factory) {
+        this.scriptedCustomModuleHandlerFactory = null;
+    }
+
     @Reference
     public void setScriptedCustomModuleTypeProvider(ScriptedCustomModuleTypeProvider scriptedCustomModuleTypeProvider) {
         this.scriptedCustomModuleTypeProvider = scriptedCustomModuleTypeProvider;
     }
 
+    public void unsetScriptedCustomModuleTypeProvider(
+            ScriptedCustomModuleTypeProvider scriptedCustomModuleTypeProvider) {
+        this.scriptedCustomModuleTypeProvider = null;
+    }
+
     @Reference
     public void setScriptedPrivateModuleHandlerFactory(ScriptedPrivateModuleHandlerFactory factory) {
         this.scriptedPrivateModuleHandlerFactory = factory;
+    }
+
+    public void unsetScriptedPrivateModuleHandlerFactory(ScriptedPrivateModuleHandlerFactory factory) {
+        this.scriptedPrivateModuleHandlerFactory = null;
     }
 
     @Override
