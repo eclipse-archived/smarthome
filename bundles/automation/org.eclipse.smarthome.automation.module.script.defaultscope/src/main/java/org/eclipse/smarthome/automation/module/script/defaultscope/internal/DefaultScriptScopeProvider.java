@@ -204,7 +204,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements.put("things", thingRegistry);
         elements.put("events", busEvent);
         elements.put("rules", ruleRegistry);
-        elements.put("actions", thingActions);
+        elements.put("thingActions", thingActions);
     }
 
     @Deactivate
