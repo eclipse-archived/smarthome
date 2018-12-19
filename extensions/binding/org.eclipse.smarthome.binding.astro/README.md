@@ -201,3 +201,5 @@ Do not worry if for example the "astro dawn" is undefined at your location.
 The reason might be that you live in a northern country and it is summer, such that the sun is not 18 degrees below the horizon in the morning.
 For details see [this Wikipedia article](https://en.wikipedia.org/wiki/Dawn).
 The "civil dawn" event might often be the better choice.
+
+Sunrise is equivalent to the START of "daylight" and sunset is equivalent to the END of "daylight".
