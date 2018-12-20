@@ -6,7 +6,7 @@ Bundle-Name: Eclipse SmartHome Automation Sample REST API
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.rest.api
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: 
  javax.servlet,
  javax.servlet.http,

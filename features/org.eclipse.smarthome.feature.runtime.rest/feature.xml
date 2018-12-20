@@ -16,7 +16,7 @@
 <feature
       id="org.eclipse.smarthome.feature.runtime.rest"
       label="Eclipse SmartHome REST Support"
-      version="0.10.0.qualifier"
+      version="0.11.0.qualifier"
       provider-name="Eclipse.org/SmartHome">
 
    <description>

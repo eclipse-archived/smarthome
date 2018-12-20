@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Configuration Discovery USB-Serial Linux Sysfs Te
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs.test;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Fragment-Host: org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs
 Import-Package:  
  org.eclipse.jdt.annotation;resolution:=optional,

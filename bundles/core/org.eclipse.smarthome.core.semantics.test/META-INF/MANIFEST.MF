@@ -4,8 +4,8 @@ Bundle-Name: Eclipse SmartHome Core Semantics Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.core.semantics.test
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
-Fragment-Host: org.eclipse.smarthome.core.semantics;bundle-version="0.10.0.qualifier"
+Bundle-Version: 0.11.0.qualifier
+Fragment-Host: org.eclipse.smarthome.core.semantics;bundle-version="0.11.0.qualifier"
 Import-Package: 
  javax.measure.quantity,
  org.eclipse.jdt.annotation;resolution:=optional,

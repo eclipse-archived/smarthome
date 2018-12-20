@@ -6,7 +6,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.serial.rxtx;si
  ngleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: gnu.io,
  org.eclipse.jdt.annotation;resolution:=optional,
  org.eclipse.smarthome.io.transport.serial,

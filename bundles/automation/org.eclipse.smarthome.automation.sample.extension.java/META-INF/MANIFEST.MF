@@ -9,7 +9,7 @@ Bundle-SymbolicName:
 Bundle-Activator: 
  org.eclipse.smarthome.automation
  .sample.extension.java.internal.Activator
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: 
  org.apache.commons.lang,
  org.eclipse.jdt.annotation;resolution:=optional,

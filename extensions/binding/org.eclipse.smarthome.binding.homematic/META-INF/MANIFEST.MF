@@ -6,7 +6,7 @@ Bundle-Name: Eclipse SmartHome Homematic Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.homematic;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Bundle-ClassPath: .
 Export-Package: 
  org.eclipse.smarthome.binding.homematic,

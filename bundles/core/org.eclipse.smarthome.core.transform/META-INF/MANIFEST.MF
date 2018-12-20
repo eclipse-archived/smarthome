@@ -8,7 +8,7 @@ Bundle-Name: Eclipse SmartHome Transformation Service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.core.transform
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.transform.actions

@@ -5,7 +5,7 @@ Bundle-Name: Eclipse SmartHome Config XML
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.config.xml
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Export-Package: 
  com.thoughtworks.xstream,
  com.thoughtworks.xstream.annotations,

@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome UI Icons Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.ui.icon.test
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Fragment-Host: org.eclipse.smarthome.ui.icon
 Import-Package: 
  javax.servlet;version="[3.1,4)",

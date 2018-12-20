@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome FSInternetRadio Binding Test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio.test
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Fragment-Host: org.eclipse.smarthome.binding.fsinternetradio
 Import-Package: javax.servlet,
  javax.servlet.http,

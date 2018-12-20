@@ -5,7 +5,7 @@ Bundle-Name: Eclipse SmartHome Monitor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.io.monitor
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Ignore-Package: org.eclipse.smarthome.core.monitor.internal
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,

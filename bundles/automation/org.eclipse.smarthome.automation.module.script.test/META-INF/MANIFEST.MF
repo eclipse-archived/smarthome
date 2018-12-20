@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome JSR233 Automation Module Tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.test
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Fragment-Host: org.eclipse.smarthome.automation.module.script
 Import-Package: 
  org.apache.commons.io,

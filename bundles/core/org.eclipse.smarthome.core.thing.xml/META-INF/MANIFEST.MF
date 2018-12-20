@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Core Thing XML
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.core.thing.xml
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: 
  com.thoughtworks.xstream,
  com.thoughtworks.xstream.converters,

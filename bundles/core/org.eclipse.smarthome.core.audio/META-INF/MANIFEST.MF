@@ -6,7 +6,7 @@ Bundle-Name: Eclipse SmartHome Core Audio
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.core.audio
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.core.audio,
  org.eclipse.smarthome.core.audio.utils

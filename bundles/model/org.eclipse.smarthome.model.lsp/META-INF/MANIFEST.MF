@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Language Server
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.lsp;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: com.google.inject,
  javax.inject,
  org.eclipse.emf.common.util,

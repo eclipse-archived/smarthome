@@ -16,7 +16,7 @@
 <feature
       id="org.eclipse.smarthome.feature.test"
       label="Eclipse SmartHome Test Bundles"
-      version="0.10.0.qualifier"
+      version="0.11.0.qualifier"
       provider-name="Eclipse.org">
 
    <description>
