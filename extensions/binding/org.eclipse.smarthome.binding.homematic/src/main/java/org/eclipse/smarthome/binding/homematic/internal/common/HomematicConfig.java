@@ -356,7 +356,7 @@ public class HomematicConfig {
     }
 
     /**
-     * Returns the encoding of a Homematic gateway.
+     * Returns the encoding that is suitable on requests to & responds from the Homematic gateway.
      */
     public String getEncoding() {
         if (gatewayInfo != null && gatewayInfo.isHomegear()) {

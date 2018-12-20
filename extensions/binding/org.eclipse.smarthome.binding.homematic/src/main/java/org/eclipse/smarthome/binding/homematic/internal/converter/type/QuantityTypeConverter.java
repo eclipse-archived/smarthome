@@ -36,8 +36,6 @@ import org.eclipse.smarthome.core.library.unit.MetricPrefix;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.types.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Converts between a Homematic datapoint value and a {@link DecimalType}.
@@ -45,7 +43,13 @@ import org.slf4j.LoggerFactory;
  * @author Michael Reitler - Initial contribution
  */
 public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? extends Quantity<?>>> {
-    private final Logger logger = LoggerFactory.getLogger(QuantityTypeConverter.class);
+
+    // this literal is required because some gateway types are mixing up encodings in their XML-RPC responses
+    private final String UNCORRECT_ENCODED_CELSIUS = "Â°C";
+
+    // "100%" is a commonly used "unit" in datapoints. Generated channel-type is of DecimalType,
+    // but clients may define a QuantityType if preferred
+    private final String HUNDRED_PERCENT = "100%";
 
     @Override
     protected boolean toBindingValidation(HmDatapoint dp, Class<? extends Type> typeClass) {
@@ -75,10 +79,11 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
                 return type.toUnit(SmartHomeUnits.LUX);
             case "degree":
                 return type.toUnit(SmartHomeUnits.DEGREE_ANGLE);
-            case "100%":
+            case HUNDRED_PERCENT:
                 return type.toUnit(SmartHomeUnits.ONE);
-            case "Â°C":
+            case UNCORRECT_ENCODED_CELSIUS:
                 return type.toUnit(SIUnits.CELSIUS);
+            case "dBm":
             case "minutes":
             case "day":
             case "month":
@@ -109,7 +114,7 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
         // create a QuantityType from the datapoint's value based on the datapoint's unit
         String unit = dp.getUnit() != null ? dp.getUnit() : "";
         switch (unit) {
-            case "Â°C":
+            case UNCORRECT_ENCODED_CELSIUS:
             case "°C":
                 return new QuantityType<Temperature>(number, SIUnits.CELSIUS);
             case "V":
@@ -136,10 +141,9 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
                 return new QuantityType<Energy>(number, SmartHomeUnits.WATT_HOUR);
             case "m3":
                 return new QuantityType<Volume>(number, SIUnits.CUBIC_METRE);
-            case "100%":
-                // "100%" is a commonly used "unit" in datapoints. Generated channel-type
-                // is of DecimalType, but clients may define a QuantityType if preferred
+            case HUNDRED_PERCENT:
                 return new QuantityType<Dimensionless>(number.doubleValue() * 100.0, SmartHomeUnits.PERCENT);
+            case "dBm":
             case "s":
             case "min":
             case "minutes":
@@ -153,8 +157,9 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
     }
 
     @Override
-    protected void logTraceOrDebug(String format, Object... arguments) {
-        logger.debug(format, arguments);
+    protected LogLevel getDefaultLogLevelForTypeConverter() {
+        // increase logging verbosity for this type of converter
+        return LogLevel.DEBUG;
     }
 
 }
