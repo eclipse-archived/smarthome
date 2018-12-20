@@ -261,6 +261,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
         }
 
         updateProperties(properties);
+        initialize();
     }
 
     /**
