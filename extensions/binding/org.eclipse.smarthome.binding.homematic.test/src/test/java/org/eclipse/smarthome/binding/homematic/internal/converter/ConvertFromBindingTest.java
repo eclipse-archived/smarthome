@@ -17,8 +17,6 @@ import static org.junit.Assert.assertThat;
 
 import org.eclipse.smarthome.binding.homematic.internal.converter.type.AbstractTypeConverter;
 import org.eclipse.smarthome.binding.homematic.internal.model.HmDatapoint;
-import org.eclipse.smarthome.binding.homematic.internal.model.HmParamsetType;
-import org.eclipse.smarthome.binding.homematic.internal.model.HmValueType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.ImperialUnits;
@@ -35,21 +33,15 @@ import tec.uom.se.quantity.QuantityDimension;
  * @author Michael Reitler - Initial Contribution
  *
  */
-public class ConvertFromBindingTest {
-
-    private final HmDatapoint floatDp = new HmDatapoint("floatDp", "", HmValueType.FLOAT, null, false,
-            HmParamsetType.VALUES);
-    private final HmDatapoint integerDp = new HmDatapoint("integerDp", "", HmValueType.INTEGER, null, false,
-            HmParamsetType.VALUES);
-    private final HmDatapoint floatQuantityDp = new HmDatapoint("floatQuantityDp", "", HmValueType.FLOAT, null, false,
-            HmParamsetType.VALUES);
-    private final HmDatapoint integerQuantityDp = new HmDatapoint("floatIntegerDp", "", HmValueType.INTEGER, null,
-            false, HmParamsetType.VALUES);
+public class ConvertFromBindingTest extends BaseConverterTest {
 
     @Test
     public void testDecimalTypeConverter() throws ConverterException {
         State convertedState;
         TypeConverter<?> decimalConverter = ConverterFactory.createConverter("Number");
+
+        // the binding is backwards compatible, so clients may still use DecimalType, even if a unit is used
+        floatDp.setUnit("%");
 
         floatDp.setValue(99.9);
         convertedState = decimalConverter.convertFromBinding(floatDp);
@@ -88,6 +80,10 @@ public class ConvertFromBindingTest {
         assertThat(((QuantityType<?>) convertedState).doubleValue(), is(10.5));
         assertThat(((QuantityType<?>) convertedState).toUnit(ImperialUnits.FAHRENHEIT).doubleValue(), is(50.9));
 
+        floatQuantityDp.setUnit("Â°C");
+        assertThat(((QuantityType<?>) convertedState).getDimension(), is(QuantityDimension.TEMPERATURE));
+        assertThat(((QuantityType<?>) convertedState).doubleValue(), is(10.5));
+
         integerQuantityDp.setValue(50000);
         integerQuantityDp.setUnit("mHz");
         convertedState = frequencyConverter.convertFromBinding(integerQuantityDp);
@@ -97,13 +93,14 @@ public class ConvertFromBindingTest {
         assertThat(((QuantityType<?>) convertedState).intValue(), is(50000));
         assertThat(((QuantityType<?>) convertedState).toUnit(SIUnits.HERTZ).intValue(), is(50));
 
-        floatQuantityDp.setValue(12);
-        floatQuantityDp.setUnit("month");
+        floatQuantityDp.setValue(0.7);
+        floatQuantityDp.setUnit("100%");
         convertedState = timeConverter.convertFromBinding(floatQuantityDp);
         assertThat(convertedState, instanceOf(QuantityType.class));
-        assertThat(((QuantityType<?>) convertedState).getDimension(), is(QuantityDimension.TIME));
-        assertThat(((QuantityType<?>) convertedState).doubleValue(), is(12.0));
-        assertThat(((QuantityType<?>) convertedState).toUnit(SmartHomeUnits.YEAR).doubleValue(), is(1.0));
+        assertThat(((QuantityType<?>) convertedState).getDimension(), is(QuantityDimension.NONE));
+        assertThat(((QuantityType<?>) convertedState).doubleValue(), is(70.0));
+        assertThat(((QuantityType<?>) convertedState).getUnit(), is(SmartHomeUnits.PERCENT));
+        assertThat(((QuantityType<?>) convertedState).toUnit(SmartHomeUnits.ONE).doubleValue(), is(0.7));
 
     }
 

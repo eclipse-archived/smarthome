@@ -83,12 +83,12 @@ public class XmlRpcClient extends RpcClient<String> {
                     .timeout(config.getTimeout(), TimeUnit.SECONDS)
                     .header(HttpHeader.CONTENT_TYPE, "text/xml;charset=" + config.getEncoding()).send();
 
-            String result = new String(response.getContent(), config.getEncoding());
             if (logger.isTraceEnabled()) {
+                String result = new String(response.getContent(), config.getEncoding());
                 logger.trace("Client XmlRpcResponse (port {}):\n{}", port, result);
             }
 
-            Object[] data = new XmlRpcResponse(new ByteArrayInputStream(result.getBytes(config.getEncoding())),
+            Object[] data = new XmlRpcResponse(new ByteArrayInputStream(response.getContent()),
                     config.getEncoding()).getResponseData();
             return new RpcResponseParser(request).parse(data);
         } catch (UnknownRpcFailureException | UnknownParameterSetException ex) {
