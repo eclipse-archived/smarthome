@@ -71,7 +71,7 @@ Be aware that if your brokers certificate changes, you need to remove the connec
 
 The second connection is a plain, unsecured one. Use this only for local MQTT Brokers.
 
-A third connection uses a username and password for authentication.
+A third connection uses a username and password for authentication. Secure is set to false as the username and password is requested by the broker.
 The credentials are plain values on the wire, therefore you should only use this on a secure connection.
 
 In a forth connection, the public key pinning is enabled again.
@@ -85,7 +85,7 @@ in [Java MessageDigest Algorithms](https://docs.oracle.com/javase/9/docs/specs/s
 mqtt:broker:mySecureBroker [ host="192.168.0.41", secure=true, certificatepin=true, publickeypin=true ]
 mqtt:broker:myUnsecureBroker [ host="192.168.0.42",secure=false ]
 
-mqtt:broker:myAuthentificatedBroker [ host="192.168.0.43", secure=true, username="user", password="password" ]
+mqtt:broker:myAuthentificatedBroker [ host="192.168.0.43", secure=false, username="user", password="password" ]
 
 mqtt:broker:pinToPublicKey [ host="192.168.0.44", secure=true, publickeypin=true, publickey="SHA-256:9a6f30e67ae9723579da2575c35daf7da3b370b04ac0bde031f5e1f5e4617eb8" ]
 
