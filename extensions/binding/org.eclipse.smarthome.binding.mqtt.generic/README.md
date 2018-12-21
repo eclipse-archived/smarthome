@@ -234,9 +234,10 @@ Bridge mqtt:broker:myUnsecureBroker [ host="192.168.0.42", secure=false ]
 demo.items:
 
 ```xtend
-Switch Kitchen_Light "Kitchen Light" {channel="mqtt:mybroker:topic:mything:lamp" }
-Rollershutter shutter "Blind" {channel="mqtt:mybroker:topic:mything:blind" }
+Switch Kitchen_Light "Kitchen Light" {channel="mqtt:topic:mybroker:mything:lamp" }
+Rollershutter shutter "Blind" {channel="mqtt:topic:mybroker:mything:blind" }
 ```
+Note: The channel syntax is a bit different if the things (broker and thing) are created via PaperUI. In this case the "mybroker" is ommitted. The actually correct syntax can be copied from PaperUI in any case! 
 
 demo.rules:
 
