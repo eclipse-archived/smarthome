@@ -1,6 +1,6 @@
 {
   "name": "org.eclipse.smarthome.ui.basic",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Eclipse SmartHome Basic UI",
   "scripts": {
     "build": "gulp default"

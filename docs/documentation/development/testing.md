@@ -17,7 +17,7 @@ In general tests are implemented in a separate fragment bundle, which host is th
     Bundle-ManifestVersion: 2
     Bundle-Name: Tests for the Eclipse SmartHome Core
     Bundle-SymbolicName: org.eclipse.smarthome.core.test
-    Bundle-Version: 0.10.0.qualifier
+    Bundle-Version: 0.11.0.qualifier
     Bundle-Vendor: Eclipse.org/SmartHome
     Fragment-Host: org.eclipse.smarthome.core
     Bundle-RequiredExecutionEnvironment: JavaSE-1.8
