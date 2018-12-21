@@ -14,7 +14,6 @@ Export-Package:
  org.eclipse.smarthome.binding.dmx.action
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
- org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.dmx,
  org.eclipse.smarthome.binding.dmx.handler,
