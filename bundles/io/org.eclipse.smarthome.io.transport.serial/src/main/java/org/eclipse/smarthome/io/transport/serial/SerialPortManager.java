@@ -38,7 +38,6 @@ public interface SerialPortManager {
         } else {
             return null;
         }
-        // return getIdentifiers().filter(id -> id.getName().equals(name)).findFirst().orElse(null);
     }
 
     /**
