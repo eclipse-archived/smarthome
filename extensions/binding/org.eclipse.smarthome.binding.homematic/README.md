@@ -98,6 +98,9 @@ Hint for the binding to identify the gateway type (auto|ccu|noccu) (default = au
 -   **callbackHost**
 Callback network address of the system runtime, default is auto-discovery
 
+-   **bindAddress**
+The address the XML-/BINRPC server binds to, default is callbackHost
+
 -   **callbackPort DEPRECATED, use binCallbackPort and xmlCallbackPort**
 Callback port of the binding's server, default is 9125 and counts up for each additional bridge
 
