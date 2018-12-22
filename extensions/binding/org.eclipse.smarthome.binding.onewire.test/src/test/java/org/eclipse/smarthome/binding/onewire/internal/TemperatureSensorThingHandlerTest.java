@@ -84,6 +84,8 @@ public class TemperatureSensorThingHandlerTest extends AbstractThingHandlerTest 
     @Test
     public void testRefresh() {
         thingHandler.initialize();
+        waitForAssert(() -> assertEquals(ThingStatus.UNKNOWN, thing.getStatusInfo().getStatus()));
+
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
         try {
             inOrder.verify(bridgeHandler, times(1)).checkPresence(TEST_ID);
