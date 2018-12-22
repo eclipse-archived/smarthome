@@ -6,7 +6,7 @@ Bundle-Name: Eclipse SmartHome MapDB Storage Service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: 
  com.google.gson,
  com.google.gson.annotations,

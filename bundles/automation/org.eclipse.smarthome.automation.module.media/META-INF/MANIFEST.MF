@@ -7,7 +7,7 @@ Bundle-Name: Eclipse SmartHome Automation Media Modules
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module.media
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Export-Package: org.eclipse.smarthome.automation.module.media.handler
 Import-Package: 
  org.apache.commons.lang,

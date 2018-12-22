@@ -6,7 +6,7 @@ Bundle-Name: Eclipse SmartHome Script
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.script;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.actions,
  org.eclipse.smarthome.model.script.engine,

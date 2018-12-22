@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.extension.ui</groupId>
     <artifactId>pom</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
+    <version>0.11.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.eclipse.smarthome.ui.basic</artifactId>
   <packaging>eclipse-plugin</packaging>

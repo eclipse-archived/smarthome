@@ -5,7 +5,7 @@ Bundle-Name: Eclipse SmartHome Rule Model
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.model.rule;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Export-Package: org.eclipse.smarthome.model.rule,
  org.eclipse.smarthome.model.rule.formatting,
  org.eclipse.smarthome.model.rule.jvmmodel,

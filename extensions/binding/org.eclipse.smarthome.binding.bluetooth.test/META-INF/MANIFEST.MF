@@ -4,7 +4,7 @@ Bundle-Name: Eclipse SmartHome Bluetooth Binding Tests
 Bundle-SymbolicName: 
  org.eclipse.smarthome.binding.bluetooth.test;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.eclipse.smarthome.binding.bluetooth
 Import-Package: org.eclipse.smarthome.binding.bluetooth,

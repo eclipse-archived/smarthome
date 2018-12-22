@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome OAuth2Client Tests
 Bundle-SymbolicName: org.eclipse.smarthome.auth.oauth2client.test
 Fragment-Host: org.eclipse.smarthome.auth.oauth2client
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: 

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Automation Thingsupport
 Bundle-SymbolicName: org.eclipse.smarthome.automation.thingsupport
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Automatic-Module-Name: org.eclipse.smarthome.automation.thingsupport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.jdt.annotation;resolution:=optional,

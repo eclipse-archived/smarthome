@@ -1,6 +1,6 @@
 {
   "name": "org.eclipse.smarthome.ui.paperui",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
   "scripts": {
     "install": "node node_modules/openlayers/tasks/build.js openlayers-esh.json node_modules/openlayers/ol-esh.js",

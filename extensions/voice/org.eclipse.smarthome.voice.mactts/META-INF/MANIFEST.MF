@@ -6,7 +6,7 @@ Bundle-Name: Eclipse SmartHome macOS Text-to-Speech
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.eclipse.smarthome.voice.mactts;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Import-Package: 
  org.apache.commons.io,
  org.eclipse.jdt.annotation;resolution:=optional,
