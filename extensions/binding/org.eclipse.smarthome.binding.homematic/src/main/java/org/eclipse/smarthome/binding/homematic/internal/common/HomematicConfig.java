@@ -48,6 +48,7 @@ public class HomematicConfig {
     private int groupPort;
 
     private String callbackHost;
+    private String bindAddress;
     private int xmlCallbackPort;
     private int binCallbackPort;
 
@@ -86,6 +87,20 @@ public class HomematicConfig {
      */
     public void setCallbackHost(String callbackHost) {
         this.callbackHost = callbackHost;
+    }
+
+    /**
+     * Returns the bind address.
+     */
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    /**
+     * Sets the bind address.
+     */
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
     }
 
     /**
@@ -384,11 +399,12 @@ public class HomematicConfig {
     public String toString() {
         ToStringBuilder tsb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         tsb.append("gatewayAddress", gatewayAddress).append("callbackHost", callbackHost)
-                .append("xmlCallbackPort", xmlCallbackPort).append("binCallbackPort", binCallbackPort)
-                .append("gatewayType", gatewayType).append("rfPort", getRfPort()).append("wiredPort", getWiredPort())
-                .append("hmIpPort", getHmIpPort()).append("cuxdPort", getCuxdPort()).append("groupPort", getGroupPort())
-                .append("timeout", timeout).append("discoveryTimeToLive", discoveryTimeToLive)
-                .append("installModeDuration", installModeDuration).append("socketMaxAlive", socketMaxAlive);
+                .append("bindAddress", bindAddress).append("xmlCallbackPort", xmlCallbackPort)
+                .append("binCallbackPort", binCallbackPort).append("gatewayType", gatewayType)
+                .append("rfPort", getRfPort()).append("wiredPort", getWiredPort()).append("hmIpPort", getHmIpPort())
+                .append("cuxdPort", getCuxdPort()).append("groupPort", getGroupPort()).append("timeout", timeout)
+                .append("discoveryTimeToLive", discoveryTimeToLive).append("installModeDuration", installModeDuration)
+                .append("socketMaxAlive", socketMaxAlive);
         return tsb.toString();
     }
 }
