@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="sonos" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="sonos"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -104,6 +105,12 @@
 		<state readOnly="true" />
 	</channel-type>
 
+	<channel-type id="nightmode" advanced="true">
+		<item-type>Switch</item-type>
+		<label>Night Mode</label>
+		<description>Enable or disable the night mode feature</description>
+	</channel-type>
+
 	<channel-type id="notificationsound" advanced="true">
 		<item-type>String</item-type>
 		<label>Notification Sound</label>
@@ -200,6 +207,12 @@
 		<label>Snooze</label>
 		<description>Snooze the running alarm, if any, with the given number of minutes</description>
 		<state readOnly="false" pattern="%d min" />
+	</channel-type>
+
+	<channel-type id="speechenhancement" advanced="true">
+		<item-type>Switch</item-type>
+		<label>Speech Enhancement </label>
+		<description>Enable or disable the speech enhancement feature</description>
 	</channel-type>
 
 	<channel-type id="standalone" advanced="true">
