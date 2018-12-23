@@ -248,13 +248,13 @@ public class OwserverConnection {
     /**
      * write a DecimalType
      *
-     * @param path full owfs path to the sensor
+     * @param path  full owfs path to the sensor
      * @param value the value to write
      * @throws OwException
      */
     public void writeDecimalType(String path, DecimalType value) throws OwException {
         OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.WRITE, path);
-        requestPacket.setPayload(String.valueOf(value));
+        requestPacket.appendPayload(String.valueOf(value), true);
 
         OwserverPacket returnPacket = request(requestPacket);
 

@@ -159,7 +159,7 @@ public class OwserverPacket {
     }
 
     /**
-     * set this packet payload from a string
+     * set (or replace) this packet's payload from a string
      *
      * @param payload string representation of the payload
      */
@@ -168,6 +168,23 @@ public class OwserverPacket {
         payloadLength = bytes.length + 1;
         this.payload = new byte[payloadLength];
         System.arraycopy(bytes, 0, this.payload, 0, bytes.length);
+    }
+
+    /**
+     * append to this packet's payload from a string
+     *
+     * @param payload   string representation of the payload to append
+     * @param separator if a space should be added in front of the payload
+     */
+    public void appendPayload(String payload, boolean separator) {
+        String fullPayload = getPayloadString();
+
+        if (separator) {
+            fullPayload += " ";
+        }
+        fullPayload += payload;
+
+        setPayload(fullPayload);
     }
 
     /**
