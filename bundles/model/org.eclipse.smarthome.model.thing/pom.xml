@@ -13,7 +13,7 @@
   <artifactId>org.eclipse.smarthome.model.thing</artifactId>
   <packaging>eclipse-plugin</packaging>
 
-  <name>Eclipse SmartHome Thing Model</name>
+  <name>Eclipse SmartHome Model Thing</name>
 
   <build>
     <plugins>

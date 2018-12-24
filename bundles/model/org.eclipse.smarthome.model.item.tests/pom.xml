@@ -13,7 +13,7 @@
 
   <packaging>eclipse-test-plugin</packaging>
 
-  <name>Eclipse SmartHome Items Model Tests</name>
+  <name>Eclipse SmartHome Model Items Tests</name>
 
   <build>
     <plugins>

@@ -13,6 +13,6 @@
   <artifactId>org.eclipse.smarthome.model.thing.runtime</artifactId>
   <packaging>eclipse-plugin</packaging>
 
-  <name>Eclipse SmartHome Thing Model Runtime</name>
+  <name>Eclipse SmartHome Model Thing Runtime</name>
 
 </project>
