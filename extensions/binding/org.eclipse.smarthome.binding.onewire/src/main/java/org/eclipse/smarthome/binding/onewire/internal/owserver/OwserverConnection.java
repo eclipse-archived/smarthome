@@ -254,7 +254,7 @@ public class OwserverConnection {
      */
     public void writeDecimalType(String path, DecimalType value) throws OwException {
         OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.WRITE, path);
-        requestPacket.appendPayload(String.valueOf(value), true);
+        requestPacket.appendPayload(String.valueOf(value));
 
         OwserverPacket returnPacket = request(requestPacket);
 

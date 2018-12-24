@@ -98,7 +98,11 @@ public class OwserverPacket {
         setPayload(path);
         setTemperatureScale(OwserverTemperatureScale.CENTIGRADE);
         setControlFlags(owControlFlags);
-        packetSize = 0x00001000;
+        if (owMessageType == OwserverMessageType.WRITE) {
+            packetSize = 0x00000001;
+        } else {
+            packetSize = 0x00010000;
+        }
     }
 
     /**
@@ -173,18 +177,17 @@ public class OwserverPacket {
     /**
      * append to this packet's payload from a string
      *
-     * @param payload   string representation of the payload to append
-     * @param separator if a space should be added in front of the payload
+     * @param payload string representation of the payload to append
      */
-    public void appendPayload(String payload, boolean separator) {
-        String fullPayload = getPayloadString();
+    public void appendPayload(String payload) {
+        byte appendBytes[] = payload.getBytes();
 
-        if (separator) {
-            fullPayload += " ";
-        }
-        fullPayload += payload;
+        byte[] fullPayload = new byte[this.payload.length + appendBytes.length];
+        System.arraycopy(this.payload, 0, fullPayload, 0, this.payload.length);
+        System.arraycopy(appendBytes, 0, fullPayload, this.payload.length, appendBytes.length);
 
-        setPayload(fullPayload);
+        this.payloadLength = fullPayload.length;
+        this.payload = fullPayload;
     }
 
     /**
