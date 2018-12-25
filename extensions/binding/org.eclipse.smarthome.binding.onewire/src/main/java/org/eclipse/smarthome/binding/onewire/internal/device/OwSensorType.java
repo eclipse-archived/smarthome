@@ -50,5 +50,8 @@ public enum OwSensorType {
     EDS0066,
     EDS0067,
     EDS0068,
+    BAE,
+    BAE0910,
+    BAE0911,
     UNKNOWN;
 }

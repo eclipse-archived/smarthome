@@ -48,4 +48,5 @@ public class UtilTest {
                 relativeHumidity);
         assertEquals(15.43, dewPoint.doubleValue(), 0.01);
     }
+
 }

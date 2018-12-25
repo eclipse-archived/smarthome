@@ -46,15 +46,16 @@ public class OwBindingConstants {
     public static final ThingTypeUID THING_TYPE_AMS = new ThingTypeUID(BINDING_ID, "ams");
     public static final ThingTypeUID THING_TYPE_COUNTER2 = new ThingTypeUID(BINDING_ID, "counter2");
     public static final ThingTypeUID THING_TYPE_EDS_ENV = new ThingTypeUID(BINDING_ID, "edsenv");
+    public static final ThingTypeUID THING_TYPE_BAE091X = new ThingTypeUID(BINDING_ID, "bae091x");
 
-    // DEPRECATED
+    // TODO: Remove after release 0.11.0
     public static final ThingTypeUID THING_TYPE_MS_TH = new ThingTypeUID(BINDING_ID, "ms-th");
     public static final ThingTypeUID THING_TYPE_MS_TV = new ThingTypeUID(BINDING_ID, "ms-tv");
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_OWSERVER, THING_TYPE_TEMPERATURE, THING_TYPE_IBUTTON, THING_TYPE_DIGITALIO,
                     THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8, THING_TYPE_AMS, THING_TYPE_BMS, THING_TYPE_MS_TH,
-                    THING_TYPE_MS_TX, THING_TYPE_MS_TV, THING_TYPE_EDS_ENV, THING_TYPE_COUNTER2));
+                    THING_TYPE_MS_TX, THING_TYPE_MS_TV, THING_TYPE_EDS_ENV, THING_TYPE_COUNTER2, THING_TYPE_BAE091X));
 
     // List of all config options
     public static final String CONFIG_ADDRESS = "network-address";
@@ -72,13 +73,20 @@ public class OwBindingConstants {
     public static final String CONFIG_TEMPERATURESENSOR = "temperaturesensor";
     public static final String CONFIG_LIGHTSENSOR = "lightsensor";
 
+    public static final String CONFIG_BAE_PIN_DISABLED = "disabled";
+    public static final String CONFIG_BAE_PIN_PIO = "pio";
+    public static final String CONFIG_BAE_PIN_COUNTER = "counter";
+    public static final String CONFIG_BAE_PIN_PWM = "pwm";
+    public static final String CONFIG_BAE_PIN_ANALOG = "analog";
+    public static final String CONFIG_BAE_PIN_IN = "input";
+    public static final String CONFIG_BAE_PIN_OUT = "output";
+
     // list of all properties
     public static final String PROPERTY_MODELID = "modelId";
     public static final String PROPERTY_VENDOR = "vendor";
     public static final String PROPERTY_SENSORCOUNT = "sensorCount";
     public static final String PROPERTY_PROD_DATE = "prodDate";
     public static final String PROPERTY_HW_REVISION = "hwRevision";
-    public static final String PROPERTY_THING_TYPE_VERSION = "thingTypeVersion";
 
     // List of all channel ids
     public static final String CHANNEL_HUMIDITY = "humidity";
@@ -93,6 +101,15 @@ public class OwBindingConstants {
     public static final String CHANNEL_PRESSURE = "pressure";
     public static final String CHANNEL_DIGITAL = "digital";
     public static final String CHANNEL_COUNTER = "counter";
+    public static final String CHANNEL_DIGITAL0 = "digital0";
+    public static final String CHANNEL_DIGITAL1 = "digital1";
+    public static final String CHANNEL_DIGITAL2 = "digital2";
+    public static final String CHANNEL_DIGITAL3 = "digital3";
+    public static final String CHANNEL_DIGITAL4 = "digital4";
+    public static final String CHANNEL_DIGITAL5 = "digital5";
+    public static final String CHANNEL_DIGITAL6 = "digital6";
+    public static final String CHANNEL_DIGITAL7 = "digital7";
+    public static final String CHANNEL_DIGITAL8 = "digital8";
 
     // Maps for Discovery
     public static final Map<OwSensorType, ThingTypeUID> THING_TYPE_MAP;
@@ -126,6 +143,7 @@ public class OwBindingConstants {
         initThingTypeMap.put(OwSensorType.EDS0066, THING_TYPE_EDS_ENV);
         initThingTypeMap.put(OwSensorType.EDS0067, THING_TYPE_EDS_ENV);
         initThingTypeMap.put(OwSensorType.EDS0068, THING_TYPE_EDS_ENV);
+        initThingTypeMap.put(OwSensorType.BAE, THING_TYPE_BAE091X);
         THING_TYPE_MAP = Collections.unmodifiableMap(initThingTypeMap);
 
         Map<ThingTypeUID, String> initThingLabelMap = new HashMap<ThingTypeUID, String>();
@@ -139,6 +157,7 @@ public class OwBindingConstants {
         initThingLabelMap.put(THING_TYPE_AMS, "Elaborated Networks AMS");
         initThingLabelMap.put(THING_TYPE_COUNTER2, "Dual Counter");
         initThingLabelMap.put(THING_TYPE_EDS_ENV, "EDS Environmental Sensor");
+        initThingLabelMap.put(THING_TYPE_BAE091X, "Multisensor BAE0910");
         THING_LABEL_MAP = Collections.unmodifiableMap(initThingLabelMap);
     }
 

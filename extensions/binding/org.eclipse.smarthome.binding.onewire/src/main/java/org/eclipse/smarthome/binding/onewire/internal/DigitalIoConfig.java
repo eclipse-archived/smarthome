@@ -37,9 +37,10 @@ public class DigitalIoConfig {
     private DigitalIoMode ioMode = DigitalIoMode.INPUT;
     private DigitalIoLogic ioLogic = DigitalIoLogic.NORMAL;
 
-    public DigitalIoConfig(Thing thing, Integer channelIndex, OwDeviceParameterMap inParam, OwDeviceParameterMap outParam) {
-        this.channelUID = new ChannelUID(thing.getUID(), String.format("%s%d", CHANNEL_DIGITAL, channelIndex));
-        this.channelID = String.format("%s%d", CHANNEL_DIGITAL, channelIndex);
+    public DigitalIoConfig(Thing thing, Integer channelIndex, OwDeviceParameterMap inParam,
+            OwDeviceParameterMap outParam) {
+        this.channelUID = buildChannelUID(thing, channelIndex);
+        this.channelID = buildChannelId(channelIndex);
         this.inParam = inParam;
         this.outParam = outParam;
     }
@@ -91,5 +92,13 @@ public class DigitalIoConfig {
     @Override
     public String toString() {
         return String.format("path=%s, mode=%s, logic=%s", Arrays.asList(getParameter()), ioMode, ioLogic);
+    }
+
+    public static String buildChannelId(int channelIndex) {
+        return String.format("%s%d", CHANNEL_DIGITAL, channelIndex);
+    }
+
+    public static ChannelUID buildChannelUID(Thing thing, int channelIndex) {
+        return new ChannelUID(thing.getUID(), String.format("%s%d", CHANNEL_DIGITAL, channelIndex));
     }
 }

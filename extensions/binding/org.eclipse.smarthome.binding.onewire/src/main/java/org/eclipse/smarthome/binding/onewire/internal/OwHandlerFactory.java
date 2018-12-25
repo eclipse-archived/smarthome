@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.discovery.OwDiscoveryService;
 import org.eclipse.smarthome.binding.onewire.internal.handler.AdvancedMultisensorThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.BAE091xSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.CounterSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.DigitalIOThingHandler;
@@ -84,6 +85,8 @@ public class OwHandlerFactory extends BaseThingHandlerFactory {
             return new CounterSensorThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (EDSSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new EDSSensorThingHandler(thing, dynamicStateDescriptionProvider);
+        } else if (BAE091xSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new BAE091xSensorThingHandler(thing, dynamicStateDescriptionProvider);
         }
 
         return null;
