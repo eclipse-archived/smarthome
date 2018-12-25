@@ -248,13 +248,13 @@ public class OwserverConnection {
     /**
      * write a DecimalType
      *
-     * @param path full owfs path to the sensor
+     * @param path  full owfs path to the sensor
      * @param value the value to write
      * @throws OwException
      */
     public void writeDecimalType(String path, DecimalType value) throws OwException {
         OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.WRITE, path);
-        requestPacket.setPayload(String.valueOf(value));
+        requestPacket.appendPayload(String.valueOf(value));
 
         OwserverPacket returnPacket = request(requestPacket);
 
@@ -270,6 +270,8 @@ public class OwserverConnection {
      */
     private OwserverPacket request(OwserverPacket requestPacket) throws OwException {
         OwserverPacket returnPacket = new OwserverPacket(OwserverPacketType.RETURN);
+        // answer to value write is always empty
+        boolean payloadExpected = requestPacket.getMessageType() != OwserverMessageType.WRITE;
         try {
             write(requestPacket);
             do {
@@ -279,7 +281,7 @@ public class OwserverConnection {
                 } else {
                     returnPacket = read(false);
                 }
-            } while (returnPacket.isPingPacket() || !returnPacket.hasPayload());
+            } while (returnPacket.isPingPacket() || !(returnPacket.hasPayload() == payloadExpected));
         } catch (OwException e) {
             logger.debug("failed requesting {}->{} [{}]", requestPacket, returnPacket, e.getMessage());
             throw e;

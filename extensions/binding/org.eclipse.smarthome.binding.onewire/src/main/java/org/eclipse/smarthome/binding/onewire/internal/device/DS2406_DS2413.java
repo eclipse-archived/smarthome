@@ -43,6 +43,9 @@ public class DS2406_DS2413 extends AbstractDigitalOwDevice {
         outParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/PIO.A"));
         ioConfig.add(new DigitalIoConfig(callback.getThing(), 0, inParam, outParam));
 
+        inParam = new OwDeviceParameterMap();
+        outParam = new OwDeviceParameterMap();
+
         inParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/sensed.B"));
         outParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/PIO.B"));
         ioConfig.add(new DigitalIoConfig(callback.getThing(), 1, inParam, outParam));

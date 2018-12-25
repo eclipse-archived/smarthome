@@ -140,7 +140,6 @@ public class OwserverTestServer {
                 }
                 break;
             case WRITE:
-                returnPacket.setPayload(inputPacket.getPayloadString());
                 returnPackets.add(returnPacket);
                 break;
             default:
