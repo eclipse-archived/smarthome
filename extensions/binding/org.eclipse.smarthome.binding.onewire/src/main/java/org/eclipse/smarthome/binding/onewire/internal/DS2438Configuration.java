@@ -32,8 +32,8 @@ public class DS2438Configuration {
 
     private OwSensorType sensorSubType = OwSensorType.DS2438;
     private String vendor = "";
-    private String hwRevision = "";
-    private String prodDate = "";
+    private String hwRevision = "0";
+    private String prodDate = "unknown";
 
     private final List<String> associatedSensorIds = new ArrayList<>();
     private final List<OwSensorType> associatedSensorTypes = new ArrayList<>();
@@ -77,7 +77,7 @@ public class DS2438Configuration {
             default:
         }
 
-        if (vendor.equals("Elaborated Networks")) {
+        if (vendor.equals("Elaborated Networks") || sensorSubType == OwSensorType.MS_TH) {
             for (int i = 4; i < 7; i++) {
                 Matcher matcher = ASSOC_SENSOR_ID_PATTERN.matcher(pageBuffer.getPageString(i));
                 if (matcher.matches()) {

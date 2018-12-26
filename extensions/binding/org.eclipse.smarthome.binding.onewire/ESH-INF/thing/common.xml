@@ -24,7 +24,7 @@
 				<label>Ignore POR-value</label>
 				<description>filters all  85°C readings (POR-value), may suppress valid readings if enabled</description>
 				<default>false</default>
-				<required>false</required>	 
+				<required>false</required>
 			</parameter>
 		</config-description>
 	</channel-type>
@@ -38,7 +38,7 @@
 				<label>Ignore POR-value</label>
 				<description>filters all 85°C readings (POR-value), may suppress valid readings if enabled</description>
 				<default>false</default>
-				<required>false</required>	 
+				<required>false</required>
 			</parameter>
 			<parameter name="resolution" type="text">
 				<label>Sensor resolution</label>

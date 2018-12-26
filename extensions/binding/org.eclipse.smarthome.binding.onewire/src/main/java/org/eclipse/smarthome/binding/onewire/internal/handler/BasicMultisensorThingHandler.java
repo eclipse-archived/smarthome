@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
@@ -30,7 +29,6 @@ import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.CurrentSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.LightSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -209,49 +207,24 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    protected void updateSensorProperties() {
-        logger.debug("updating sensor properties of {}", thing.getLabel());
-        Map<String, String> properties = editProperties();
+    protected Map<String, String> doUpdateSensorProperties(OwBaseBridgeHandler bridgeHandler,
+            Map<String, String> properties) throws OwException {
+        sensorType = bridgeHandler.getType(sensorIds.get(0));
 
-        Bridge bridge = getBridge();
-        if (bridge == null) {
-            logger.debug("updating thing properties failed, no bridge available");
-            scheduler.schedule(() -> {
-                updateSensorProperties();
-            }, 5000, TimeUnit.MILLISECONDS);
-            return;
+        if (sensorType == OwSensorType.DS1923) {
+            properties.put(PROPERTY_MODELID, sensorType.toString());
+            properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
+        } else {
+            OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
+            DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
+
+            sensorType = ds2438configuration.getSensorSubType();
+            properties.put(PROPERTY_MODELID, sensorType.toString());
+
+            String vendor = ds2438configuration.getVendor();
+            properties.put(PROPERTY_VENDOR, vendor);
         }
 
-        OwBaseBridgeHandler bridgeHandler = (OwBaseBridgeHandler) bridge.getHandler();
-        try {
-            if (bridgeHandler == null) {
-                throw new OwException("no bridge handler available");
-            }
-
-            sensorType = bridgeHandler.getType(sensorIds.get(0));
-
-            if (sensorType == OwSensorType.DS1923) {
-                properties.put(PROPERTY_MODELID, sensorType.toString());
-                properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
-            } else {
-                OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
-                DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
-
-                sensorType = ds2438configuration.getSensorSubType();
-                properties.put(PROPERTY_MODELID, sensorType.toString());
-
-                String vendor = ds2438configuration.getVendor();
-                properties.put(PROPERTY_VENDOR, vendor);
-            }
-        } catch (OwException e) {
-            logger.debug("updating thing properties failed: {}", e.getMessage());
-            scheduler.schedule(() -> {
-                updateSensorProperties();
-            }, 5000, TimeUnit.MILLISECONDS);
-            return;
-        }
-
-        updateProperties(properties);
-        initialize();
+        return properties;
     }
 }

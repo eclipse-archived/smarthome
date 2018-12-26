@@ -41,12 +41,12 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class DS1923 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS1923.class);
-    private static final OwDeviceParameterMap TEMPERATURE_PARAMETER = new OwDeviceParameterMap() {
+    private final OwDeviceParameterMap temperatureParameter = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
         }
     };
-    private static final OwDeviceParameterMap HUMIDITY_PARAMETER = new OwDeviceParameterMap() {
+    private final OwDeviceParameterMap humidityParameterR = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/humidity"));
         }
@@ -62,14 +62,14 @@ public class DS1923 extends AbstractOwDevice {
         Channel temperatureChannel = thing.getChannel(CHANNEL_TEMPERATURE);
 
         if (temperatureChannel != null) {
-            TEMPERATURE_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
+            temperatureParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
         } else {
             throw new OwException(CHANNEL_TEMPERATURE + " not found");
         }
 
         Channel humidityChannel = thing.getChannel(CHANNEL_HUMIDITY);
         if (humidityChannel != null) {
-            HUMIDITY_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/humidity"));
+            humidityParameterR.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/humidity"));
         }
 
         isConfigured = true;
@@ -82,14 +82,14 @@ public class DS1923 extends AbstractOwDevice {
                     || enabledChannels.contains(CHANNEL_ABSOLUTE_HUMIDITY)
                     || enabledChannels.contains(CHANNEL_DEWPOINT)) {
                 QuantityType<Temperature> temperature = new QuantityType<Temperature>(
-                        (DecimalType) bridgeHandler.readDecimalType(sensorId, TEMPERATURE_PARAMETER), SIUnits.CELSIUS);
+                        (DecimalType) bridgeHandler.readDecimalType(sensorId, temperatureParameter), SIUnits.CELSIUS);
                 logger.trace("read temperature {} from {}", temperature, sensorId);
                 callback.postUpdate(CHANNEL_TEMPERATURE, temperature);
 
                 if (enabledChannels.contains(CHANNEL_HUMIDITY) || enabledChannels.contains(CHANNEL_ABSOLUTE_HUMIDITY)
                         || enabledChannels.contains(CHANNEL_DEWPOINT)) {
                     QuantityType<Dimensionless> humidity = new QuantityType<Dimensionless>(
-                            (DecimalType) bridgeHandler.readDecimalType(sensorId, HUMIDITY_PARAMETER),
+                            (DecimalType) bridgeHandler.readDecimalType(sensorId, humidityParameterR),
                             SmartHomeUnits.PERCENT);
                     logger.trace("read humidity {} from {}", humidity, sensorId);
 

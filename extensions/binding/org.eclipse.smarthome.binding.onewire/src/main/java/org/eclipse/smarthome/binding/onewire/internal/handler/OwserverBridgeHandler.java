@@ -84,12 +84,14 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
         scheduler.execute(() -> {
             owserverConnection.start();
         });
+
+        super.initialize();
     }
 
     @Override
     public void dispose() {
-        owserverConnection.stop();
         super.dispose();
+        owserverConnection.stop();
     }
 
     @Override

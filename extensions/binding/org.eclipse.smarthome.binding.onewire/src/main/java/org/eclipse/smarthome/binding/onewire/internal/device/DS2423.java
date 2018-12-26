@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class DS2423 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS2423.class);
-    private static final OwDeviceParameterMap COUNTER_PARAMETER = new OwDeviceParameterMap() {
+    private final OwDeviceParameterMap counterParameter = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/counters.ALL"));
         }
@@ -51,7 +51,7 @@ public class DS2423 extends AbstractOwDevice {
     @Override
     public void refresh(OwBaseBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException {
         if (isConfigured) {
-            List<State> states = bridgeHandler.readDecimalTypeArray(sensorId, COUNTER_PARAMETER);
+            List<State> states = bridgeHandler.readDecimalTypeArray(sensorId, counterParameter);
             logger.trace("read array {} from {}", states, sensorId);
 
             if (states.size() != 2) {

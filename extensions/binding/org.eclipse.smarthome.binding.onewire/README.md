@@ -97,7 +97,7 @@ These sensors provide `temperature`, `humidity` and `supplyvoltage` channels.
 If the light sensor is attached and configured, a `light` channel is provided, otherwise a `current` channel.
 The AMS has an additional `voltage`and two `digitalX` channels.
 
-It has two (`bms`) or four (`ams`) sensor ids (`id0` to `id3`).
+It has two (`bms`) or four (`ams`) sensor ids (`id`, `id1`, `id2`, `id3`).
 The first id is always the main DS2438, the second id the DS18B20 temperature sensor.
 In the case of the AMS, the third sensor id has to be the second DS2438 and the fourth the DS2413.
 
@@ -106,6 +106,7 @@ The AMS supports a `digitalrefresh` parameter for the refresh time of the digita
 
 Since both multisensors have two temperature sensors on-board, the `temperaturesensor` parameter allows to select `DS18B20` or `DS2438` to be used for temperature measurement.
 This parameter has a default of `DS18B20` as this is considered more accurate.
+The `temperature` channel is of type `temperature` if the internal sensor is used and of type `temperature-por-res` for the external DS18B20.
 
 The last parameter is the `lightsensor` option to configure if an ambient light sensor is attached.
 It defaults to `false`.
@@ -115,21 +116,26 @@ The correct formula for the ambient light is automatically determined from the s
 
 ## Channels
 
-| Type-ID         | Thing                       | Item    | readonly   | Description                                        |
-|-----------------|-----------------------------|---------|------------|----------------------------------------------------|
-| current         | ms-tx                       | Number  | yes        | current                                            |
-| counter         | counter2                    | Number  | yes        | countervalue                                       |
-| digital         | digitalX, ams               | Switch  | no         | digital, can be configured as input or output      |
-| humidity        | ms-tx, ams, bms             | Number  | yes        | relative humidity                                  |
-| light           | ams, bms                    | Number  | yes        | lightness                                          |
-| present         | all                         | Switch  | yes        | sensor found on bus                                |
-| supplyvoltage   | ms-tx                       | Number  | yes        | sensor supplyvoltage                               |
-| temperature     | not digitalX, ibutton       | Number  | yes        | environmental temperature                          |
-| voltage         | ms-tx, ams                  | Number  | yes        | voltage input                                      |
+| Type-ID             | Thing                  | Item                     | readonly   | Description                                        |
+|---------------------|------------------------|--------------------------|------------|----------------------------------------------------|
+| absolutehumidity    | ms-tx, ams, bms        | Number:Density           | yes        | absolute humidity                                  |
+| current             | ms-tx, ams             | Number:ElectricCurrent   | yes        | current                                            |
+| counter             | counter2               | Number                   | yes        | countervalue                                       |
+| dewpoint            | ms-tx, ams, bms        | Number:Temperature       | yes        | dewpoint                                           |
+| dio                 | digitalX, ams          | Switch                   | no         | digital I/O, can be configured as input or output  |
+| humidity            | ms-tx, ams, bms        | Number:Dimensionless     | yes        | relative humidity                                  |
+| humidityconf        | ms-tx                  | Number:Dimensionless     | yes        | relative humidity                                  |
+| light               | ams, bms               | Number:Illuminance       | yes        | lightness                                          |
+| present             | all                    | Switch                   | yes        | sensor found on bus                                |
+| supplyvoltage       | ms-tx                  | Number:ElectricPotential | yes        | sensor supplyvoltage                               |
+| temperature         | temperature, ms-tx     | Number:Temperature       | yes        | environmental temperature                          |
+| temperature-por     | temperature            | Number:Temperature       | yes        | environmental temperature                          |
+| temperature-por-res | temperature, ams, bms  | Number:Temperature       | yes        | environmental temperature                          |
+| voltage             | ms-tx, ams             | Number:ElectricPotential | yes        | voltage input                                      |
 
-### Digital I/O (`digitalX`)
+### Digital I/O (`dio`)
 
-The `digitalX` channels each have two parameters: `mode` and `logic`.
+Channels of type `dio` channels each have two parameters: `mode` and `logic`.
 
 The `mode` parameter is used to configure this channels as `input` or `output`.
 
@@ -137,17 +143,20 @@ The `logic` parameter can be used to invert the channel.
 In `normal` mode the channel is considered `ON` for logic high, and `OFF` for logic low.
 In `inverted` mode `ON` is logic low and `OFF` is logic high.
 
-### Humidity (`humidity`)
+### Humidity (`humidity`, `humidityconf`, `abshumidity`, `dewpoint`)
 
-Depending on the sensor, the `humidity` channel may have the `humiditytype` parameter.
-This is only needed for the `ms-tx` sensors.
-`ams` and `bms` sensors select the correct sensor type automatically.
-
+Depending on the sensor, a `humidity` or `humidityconf` channel may be added.
+This is only relevant for DS2438-based sensors of thing-type `ms-tx`.
+`humidityconf`-type channels have the `humiditytype` parameter.
 Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for HIH-4000 sensors, `/HTM1735/humidity` for HTM-1735 sensors and `/DATANAB/humidity` for sensors from Datanab.
 
-### Temperature (`temperature`)
+All humidity sensors also support `absolutehumidity` and `dewpoint`.
 
-The `temperature` channel has three types: `temperature`, `temperature-por`and `temperature-por-res`.
+### Temperature (`temperature`, `temperature-por`, `temperature-por-res`)
+
+There are three temperature channel types: `temperature`, `temperature-por`and `temperature-por-res`.
+The correct channel-type is selected automatically by the thing handler depending on the sensor type.
+
 If the channel-type is `temperature`, there is nothing else to configure.
 
 Some sensors (e.g. DS18x20) report 85 °C as Power-On-Reset value.
@@ -161,17 +170,39 @@ This corresponds to 0.5 °C, 0.25 °C, 0.125 °C, 0.0625 °C respectively.
 The conversion time is inverse to that and ranges from 95 ms to 750 ms.
 For best performance it is recommended to set the resolution only as high as needed. 
  
-The correct channel-type is selected automatically by the thing handler depending on the sensor type.
- 
 ## Full Example
 
-This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) and a temperature sensor as thing (`onewire:temperature:mybridge:mysensor`). 
+This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) as well as a temperature sensor and a BMS as things (`onewire:temperature:mybridge:mysensor`, `onewire:bms:mybridge:mybms`). 
 
 ### demo.things:
 
 ```
-Bridge onewire:owserver:mybridge [ network-address="192.168.0.51" ] {
-    temperature mysensor   [id="28.505AF0020000" ] 
+Bridge onewire:owserver:mybridge [ 
+    network-address="192.168.0.51" 
+    ] {
+    
+    Thing temperature mysensor [
+        id="28.505AF0020000", 
+        refresh=60
+        ] {
+            Channels:
+                Type temperature-por-res : temperature [
+                    resolution="11"
+                ]
+        } 
+    
+    Thing bms mybms [
+        id="26.CD497C010000", 
+        id1="28.D3E45A040000", 
+        lightsensor=true, 
+        temperaturesensor="DS18B20", 
+        refresh=60
+        ] {
+            Channels:
+                Type temperature-por-res : temperature [
+                    resolution="9"
+                ]
+        } 
 }
 ```
 
@@ -179,6 +210,8 @@ Bridge onewire:owserver:mybridge [ network-address="192.168.0.51" ] {
 
 ```
 Number:Temperature MySensor "MySensor [%.1f %unit%]" { channel="onewire:temperature:mybridge:mysensor:temperature" }
+Number:Temperature MyBMS_T "MyBMS Temperature [%.1f %unit%]" { channel="onewire:bms:mybridge:mybms:temperature" }
+Number:Dimensionless MyBMS_H "MyBMS Humidity [%.1f %unit%]"  { channel="onewire:bms:mybridge:mybms:humidity" }
 ```
 
 ### demo.sitemap:
@@ -188,6 +221,8 @@ sitemap demo label="Main Menu"
 {
     Frame {
         Text item=MySensor
+        Text item=MyBMS_T
+        Text item=MyBMS_H
     }
 }
 ```

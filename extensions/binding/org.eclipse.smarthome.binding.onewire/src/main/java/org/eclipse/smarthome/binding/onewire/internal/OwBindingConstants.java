@@ -66,7 +66,7 @@ public class OwBindingConstants {
     public static final String CONFIG_REFRESH = "refresh";
     public static final String CONFIG_DIGITALREFRESH = "digitalrefresh";
     public static final String CONFIG_OFFSET = "offset";
-    public static final String CONFIG_HUMIDITY = "humidity";
+    public static final String CONFIG_HUMIDITY = "humiditytype";
     public static final String CONFIG_DIGITAL_MODE = "mode";
     public static final String CONFIG_DIGITAL_LOGIC = "logic";
     public static final String CONFIG_TEMPERATURESENSOR = "temperaturesensor";

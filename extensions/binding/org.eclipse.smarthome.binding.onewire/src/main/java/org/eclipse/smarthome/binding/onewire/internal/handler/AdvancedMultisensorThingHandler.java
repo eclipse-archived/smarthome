@@ -16,10 +16,10 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
@@ -33,7 +33,6 @@ import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.LightSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -189,9 +188,23 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         Channel temperatureChannel = thing.getChannel(CHANNEL_TEMPERATURE);
         if (temperatureChannel == null) {
             // this is strange - there should always be to be a temperature channel
-            temperatureChannel = Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE);
+            temperatureChannel = Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE,
+                    new Configuration());
             thingBuilder.withChannel(temperatureChannel);
             isEdited = true;
+        }
+
+        // always use HIH-4000 on ElabNet sensors.
+        Channel humidityChannel = thing.getChannel(CHANNEL_HUMIDITY);
+        if (humidityChannel != null && !humidityChannel.getConfiguration().containsKey(CONFIG_HUMIDITY)) {
+            thingBuilder.withoutChannel(humidityChannel.getUID());
+            thingBuilder.withChannel(ChannelBuilder.create(humidityChannel.getUID(), "Number:Dimensionless")
+                    .withLabel("Humidity").withType(new ChannelTypeUID(BINDING_ID, "humidity"))
+                    .withConfiguration(new Configuration(new HashMap<String, Object>() {
+                        {
+                            put(CONFIG_HUMIDITY, "/HIH4000/humidity");
+                        }
+                    })).build());
         }
 
         if (configuration.containsKey(CONFIG_TEMPERATURESENSOR)
@@ -200,8 +213,8 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
             sensors.get(1).enableChannel(CHANNEL_TEMPERATURE);
             if (!CHANNEL_TYPE_UID_TEMPERATURE_POR_RES.equals(temperatureChannel.getChannelTypeUID())) {
                 thingBuilder.withoutChannel(temperatureChannel.getUID());
-                thingBuilder.withChannel(
-                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(),
+                        CHANNEL_TYPE_UID_TEMPERATURE_POR_RES, temperatureChannel.getConfiguration()));
                 isEdited = true;
             }
         } else {
@@ -209,7 +222,8 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
             sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
             if (!CHANNEL_TYPE_UID_TEMPERATURE.equals(temperatureChannel.getChannelTypeUID())) {
                 thingBuilder.withoutChannel(temperatureChannel.getUID());
-                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE));
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE,
+                        temperatureChannel.getConfiguration()));
                 isEdited = true;
             }
         }
@@ -282,47 +296,19 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    protected void updateSensorProperties() {
-        logger.debug("updating sensor properties of {}", thing.getLabel());
-        Map<String, String> properties = editProperties();
+    protected Map<String, String> doUpdateSensorProperties(OwBaseBridgeHandler bridgeHandler,
+            Map<String, String> properties) throws OwException {
+        OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
+        DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
 
-        Bridge bridge = getBridge();
-        if (bridge == null) {
-            logger.debug("updating thing properties failed, no bridge available");
-            scheduler.schedule(() -> {
-                updateSensorProperties();
-            }, 5000, TimeUnit.MILLISECONDS);
-            return;
-        }
+        sensorType = DS2438Configuration.getMultisensorType(ds2438configuration.getSensorSubType(),
+                ds2438configuration.getAssociatedSensorTypes());
+        properties.put(PROPERTY_MODELID, sensorType.toString());
+        properties.put(PROPERTY_VENDOR, ds2438configuration.getVendor());
 
-        OwBaseBridgeHandler bridgeHandler = (OwBaseBridgeHandler) bridge.getHandler();
-        try {
-            if (bridgeHandler == null) {
-                throw new OwException("no bridge handler available");
-            }
+        properties.put(PROPERTY_PROD_DATE, ds2438configuration.getProductionDate());
+        properties.put(PROPERTY_HW_REVISION, ds2438configuration.getHardwareRevision());
 
-            OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
-            DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
-
-            sensorType = DS2438Configuration.getMultisensorType(sensorType,
-                    ds2438configuration.getAssociatedSensorTypes());
-            properties.put(PROPERTY_MODELID, sensorType.toString());
-
-            String vendor = ds2438configuration.getVendor();
-            properties.put(PROPERTY_VENDOR, vendor);
-
-            properties.put(PROPERTY_PROD_DATE, ds2438configuration.getProductionDate());
-            properties.put(PROPERTY_HW_REVISION, ds2438configuration.getHardwareRevision());
-
-        } catch (OwException e) {
-            logger.debug("updating thing properties failed: {}", e.getMessage());
-            scheduler.schedule(() -> {
-                updateSensorProperties();
-            }, 5000, TimeUnit.MILLISECONDS);
-            return;
-        }
-
-        updateProperties(properties);
-        initialize();
+        return properties;
     }
 }
