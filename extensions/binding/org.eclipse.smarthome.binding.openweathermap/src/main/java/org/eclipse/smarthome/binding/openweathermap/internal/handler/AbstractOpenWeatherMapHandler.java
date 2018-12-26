@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.openweathermap.internal.handler;
 
-import static org.eclipse.smarthome.binding.openweathermap.internal.OpenWeatherMapBindingConstants.THING_TYPE_WEATHER_AND_FORECAST;
+import static org.eclipse.smarthome.binding.openweathermap.internal.OpenWeatherMapBindingConstants.*;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.measure.Unit;
 
@@ -68,8 +70,8 @@ public abstract class AbstractOpenWeatherMapHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractOpenWeatherMapHandler.class);
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections
-            .singleton(THING_TYPE_WEATHER_AND_FORECAST);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(
+            Stream.of(THING_TYPE_WEATHER_AND_FORECAST, THING_TYPE_UVINDEX).collect(Collectors.toSet()));
 
     // keeps track of the parsed location
     protected @Nullable PointType location;
@@ -176,6 +178,10 @@ public abstract class AbstractOpenWeatherMapHandler extends BaseThingHandler {
         return (value == null) ? UnDefType.UNDEF
                 : new DateTimeType(
                         ZonedDateTime.ofInstant(Instant.ofEpochSecond(value.longValue()), ZoneId.systemDefault()));
+    }
+
+    protected State getDecimalTypeState(@Nullable Double value) {
+        return (value == null) ? UnDefType.UNDEF : new DecimalType(value);
     }
 
     protected State getPointTypeState(@Nullable Double latitude, @Nullable Double longitude) {
