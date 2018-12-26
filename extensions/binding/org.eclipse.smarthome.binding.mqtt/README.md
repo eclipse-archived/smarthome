@@ -14,7 +14,7 @@ It has the following extensions:
 
 ## Supported Bridges
 
-* Broker: This bridge represents a MQTT Broker connection, configured and managed by this binding.
+* Broker: This bridge represents an MQTT Broker connection, configured and managed by this binding.
 * SystemBroker: A system configured broker cannot be changed by this binding and will be listed as read-only system-broker.
 
 ## Bridge Configuration
@@ -88,5 +88,4 @@ mqtt:broker:myUnsecureBroker [ host="192.168.0.42",secure=false ]
 mqtt:broker:myAuthentificatedBroker [ host="192.168.0.43", secure=true, username="user", password="password" ]
 
 mqtt:broker:pinToPublicKey [ host="192.168.0.44", secure=true, publickeypin=true, publickey="SHA-256:9a6f30e67ae9723579da2575c35daf7da3b370b04ac0bde031f5e1f5e4617eb8" ]
-
 ```
