@@ -10,7 +10,6 @@
   </parent>
 
   <artifactId>org.eclipse.smarthome.binding.serialbutton</artifactId>
-  <version>0.11.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 
   <name>Eclipse SmartHome SerialButton Binding</name>

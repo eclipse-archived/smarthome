@@ -8,7 +8,6 @@
   </parent>
   <groupId>org.eclipse.smarthome.core</groupId>
   <artifactId>org.eclipse.smarthome.core.thing.test</artifactId>
-  <version>0.11.0-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
   <name>Eclipse SmartHome Thing Tests</name>
 
