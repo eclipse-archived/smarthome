@@ -10,7 +10,7 @@ Successfully tested are internet radios:
  * [Medion MD87180, MD86988, MD86955](http://internetradio.medion.com/)
  * [Silvercrest SMRS18A1, SMRS30A1, SMRS35A1, SIRD 14 C2](http://www.silvercrest-multiroom.de/en/products/stereo-internet-radio/)
  * [Roberts Stream 83i and 93i](https://www.robertsradio.com/uk/products/radio/smart-radio/)
- * [Auna Connect 150](https://www.auna.de/Radios/Internetradios/)
+ * [Auna Connect 150, Auna KR200](https://www.auna.de/Radios/Internetradios/)
  * [TechniSat DIGITRADIO 350 IR and 850](https://www.technisat.com/en_XX/DAB+-Radios-with-Internetradio/352-10996/)
  * [TTMicro AS Pinell Supersound](http://www.ttmicro.no/radio)
  * [Revo SuperConnect](https://revo.co.uk/products/)
@@ -74,6 +74,7 @@ This list is just an example how the mapping looks like for some of the devices,
 | Technisat DigitRadio 580 | Internet Radio | Spotify                 | -         | Music Player | DAB Radio | FM Radio | AUX in       | CD        | Bluetooth | -      |
 | Dual IR 3a               | Internet Radio | Spotify                 | -         | Music Player | DAB Radio | FM Radio | Bluetooth    | -         | -         | -      |
 | Silvercrest SIRD 14 C2   | Internet Radio | TIDAL                   | Deezer    | Qobuz        | Spotify   | -        | Music Player | DAB Radio | FM Radio  | AUX in |
+| Auna KR200 Kitchen Radio | Internet Radio | Spotify                 | -         | Music Player | DAB Radio | FM Radio | AUX in       | -         | -         | -      |
 
 
 ## Full Example
