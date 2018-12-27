@@ -17,7 +17,7 @@
 		</channels>
 	</channel-group-type>
 
-	<channel-group-type id="current">
+	<channel-group-type id="weather">
 		<label>Current Weather</label>
 		<description>This is the current weather.</description>
 		<channels>
@@ -75,6 +75,24 @@
 			<channel id="cloudiness" typeId="forecasted-cloudiness" />
 			<channel id="rain" typeId="forecasted-rain" />
 			<channel id="snow" typeId="forecasted-snow" />
+		</channels>
+	</channel-group-type>
+
+	<channel-group-type id="uvindex">
+		<label>Current UV Index</label>
+		<description>This is the current UV Index.</description>
+		<channels>
+			<channel id="time-stamp" typeId="daily-forecast-time-stamp" />
+			<channel id="uvindex" typeId="uvindex" />
+		</channels>
+	</channel-group-type>
+
+	<channel-group-type id="uvindexForecast">
+		<label>Forecasted UV Index</label>
+		<description>This is the forecasted UV Index.</description>
+		<channels>
+			<channel id="time-stamp" typeId="daily-forecast-time-stamp" />
+			<channel id="uvindex" typeId="forecasted-uvindex" />
 		</channels>
 	</channel-group-type>
 
@@ -265,6 +283,20 @@
 		<description>Forecasted snow volume for the next 3 hours.</description>
 		<category>Snow</category>
 		<state readOnly="true" pattern="%.2f %unit%" />
+	</channel-type>
+
+	<channel-type id="uvindex">
+		<item-type>Number</item-type>
+		<label>UV Index</label>
+		<description>Current UV Index.</description>
+		<state readOnly="true" pattern="%.1f" />
+	</channel-type>
+
+	<channel-type id="forecasted-uvindex">
+		<item-type>Number</item-type>
+		<label>Forecasted UV Index</label>
+		<description>Forecasted UV Index.</description>
+		<state readOnly="true" pattern="%.1f" />
 	</channel-type>
 
 </thing:thing-descriptions>

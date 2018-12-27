@@ -126,11 +126,18 @@ public class OpenWeatherMapDiscoveryService extends AbstractDiscoveryService {
         String locationString = location.toFullString();
         ThingUID bridgeUID = bridgeHandler.getThing().getUID();
         createWeatherAndForecastResult(locationString, bridgeUID);
+        createUVIndexResult(locationString, bridgeUID);
     }
 
     private void createWeatherAndForecastResult(String location, ThingUID bridgeUID) {
         thingDiscovered(DiscoveryResultBuilder.create(new ThingUID(THING_TYPE_WEATHER_AND_FORECAST, bridgeUID, LOCAL))
                 .withLabel("Local weather and forecast").withProperty(CONFIG_LOCATION, location)
+                .withRepresentationProperty(CONFIG_LOCATION).withBridge(bridgeUID).build());
+    }
+
+    private void createUVIndexResult(String location, ThingUID bridgeUID) {
+        thingDiscovered(DiscoveryResultBuilder.create(new ThingUID(THING_TYPE_UVINDEX, bridgeUID, LOCAL))
+                .withLabel("Local UV Index").withProperty(CONFIG_LOCATION, location)
                 .withRepresentationProperty(CONFIG_LOCATION).withBridge(bridgeUID).build());
     }
 }

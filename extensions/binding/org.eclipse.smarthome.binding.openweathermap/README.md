@@ -10,7 +10,7 @@ This binding integrates the [OpenWeatherMap weather API](https://openweathermap.
 
 ## Supported Things
 
-There are two supported things.
+There are three supported things.
 
 ### OpenWeatherMap Account
 
@@ -27,10 +27,16 @@ You can add as many `weather-and-forecast` things for different locations to you
 The binding tries to request daily forecast data from the OpenWeatherMap API.
 If the request fails, all daily forecast channel groups will be removed from the thing and further request will be omitted.
 
+### Current UV Index And Forceast
+
+The third thing `uvindex` supports the [current UV Index](https://openweathermap.org/api/uvi#current) and [forecasted UV Index](https://openweathermap.org/api/uvi#forecast) for a specific location.
+It requires coordinates of the location of your interest.
+You can add as much `uvindex` things for different locations to your setup as you like to observe.
+
 ## Discovery
 
-If a system location is set, a "Local Weather And Forecast" (`weather-and-forecast`) thing will be automatically discovered for this location.
-Once the system location will be changed, the background discovery updates the configuration of "Local Weather And Forecast" accordingly.
+If a system location is set, a "Local Weather And Forecast" (`weather-and-forecast`) thing and "Local UV Index" (`uvindex`) thing will be automatically discovered for this location.
+Once the system location will be changed, the background discovery updates the configuration of both things accordingly.
 
 ## Thing Configuration
 
@@ -51,6 +57,15 @@ Once the system location will be changed, the background discovery updates the c
 | forecastDays   | Number of days for daily forecast (including todays forecast). Optional, the default value is 6 (min="0", max="16", step="1"). |
 
 Once the parameters `forecastHours` or `forecastDays` will be changed, the available channel groups on the thing will be created or removed accordingly.
+
+### Current UV INdex And Forecast
+
+| Parameter      | Description                                                                                                                    |
+|----------------|--------------------------------------------------------------------------------------------------------------------------------|
+| location       | Location of weather in geographical coordinates (latitude/longitude/altitude). **Mandatory**                                   |
+| forecastDays   | Number of days for UV Index forecast (including todays forecast). Optional, the default value is 6 (min="1", max="8", step="1"). |
+
+Once the parameter `forecastDays` will be changed, the available channel groups on the thing will be created or removed accordingly.
 
 ## Channels
 
@@ -102,7 +117,7 @@ Once the parameters `forecastHours` or `forecastDays` will be changed, the avail
 
 | Channel Group ID                                                 | Channel ID      | Item Type            | Description                                          |
 |------------------------------------------------------------------|-----------------|----------------------|------------------------------------------------------|
-| forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | time-stamp      | DateTime             | Time of data forecasted.                             |
+| forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | time-stamp      | DateTime             | Date of data forecasted.                             |
 | forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | condition       | String               | Forecast weather condition.                          |
 | forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | condition-id    | String               | Id of the forecasted weather condition. **Advanced** |
 | forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | icon            | Image                | Icon representing the forecasted weather condition.  |
@@ -117,6 +132,13 @@ Once the parameters `forecastHours` or `forecastDays` will be changed, the avail
 | forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | rain            | Number:Length        | Expected rain volume of a day.                       |
 | forecastToday, forecastTomorrow, forecastDay2, ... forecastDay16 | snow            | Number:Length        | Expected snow volume of a day.                       |
 
+### UV Index
+
+| Channel Group ID                                          | Channel ID | Item Type | Description                    |
+|-----------------------------------------------------------|------------|-----------|---------------------------------|
+| current, forecastTomorrow, forecastDay2, ... forecastDay7 | time-stamp | DateTime  | Date of data observation / forecast.        |
+| current, forecastTomorrow, forecastDay2, ... forecastDay7 | uvindex    | Number    | Current or forecasted UV Index. |
+
 ## Full Example
 
 ### Things
@@ -127,6 +149,7 @@ demo.things
 Bridge openweathermap:weather-api:api "OpenWeatherMap Account" [apikey="AAA", refreshInterval=30, language="de"] {
     Thing weather-and-forecast local "Local Weather And Forecast" [location="XXX,YYY", forecastHours=0, forecastDays=7]
     Thing weather-and-forecast miami "Weather And Forecast In Miami" [location="25.782403,-80.264563", forecastHours=24, forecastDays=0]
+    Thing uvindex local "Local UV Index" [location="XXX,YYY", forecastDays=7]
 }
 ```
 
@@ -190,6 +213,13 @@ Number:Temperature miamiHourlyForecast03Temperature "Temperature in Miami for th
 String miamiHourlyForecast06Condition "Condition in Miami for hours 3 to 6 [%s]" <sun_clouds> { channel="openweathermap:weather-and-forecast:api:miami:forecastHours06#condition" }
 Image miamiHourlyForecast06ConditionIcon "Icon" { channel="openweathermap:weather-and-forecast:api:miami:forecastHours06#icon" }
 Number:Temperature miamiHourlyForecast06Temperature "Temperature in Miami for hours 3 to 6 [%.1f %unit%]" <temperature> { channel="openweathermap:weather-and-forecast:api:miami:forecastHours06#temperature" }
+...
+
+DateTime localCurrentUVIndexTimestamp "Timestamp of last measurement [%1$tY-%1$tm-%1$td]" <time> { channel="openweathermap:uvindex:api:local:current#timestamp" }
+Number localCurrentUVIndex "Current UV Index [%d]" { channel="openweathermap:uvindex:api:local:current#uvindex" }
+
+DateTime localForecastTomorrowUVIndexTimestamp "Timestamp of forecast [%1$tY-%1$tm-%1$td]" <time> { channel="openweathermap:uvindex:api:local:forecastTomorrow#timestamp" }
+Number localForecastTomorrowUVIndex "UV Index for tomorrow [%d]" { channel="openweathermap:uvindex:api:local:forecastTomorrow#uvindex" }
 ...
 ```
 
@@ -263,6 +293,13 @@ sitemap demo label="OpenWeatherMap" {
         Text item=miamiHourlyForecast06Condition
         Image item=miamiHourlyForecast06ConditionIcon
         Text item=miamiHourlyForecast06Temperature
+        ...
+    }
+    Frame label="UV Index" {
+        Text item=localCurrentUVIndexTimestamp
+        Text item=localCurrentUVIndex
+        Text item=localForecastTomorrowUVIndexTimestamp
+        Text item=localForecastTomorrowUVIndex
         ...
     }
 }
