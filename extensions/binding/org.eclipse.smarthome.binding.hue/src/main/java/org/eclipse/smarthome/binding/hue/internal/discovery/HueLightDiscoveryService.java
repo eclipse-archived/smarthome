@@ -37,6 +37,7 @@ import org.eclipse.smarthome.binding.hue.internal.handler.SensorStatusListener;
 import org.eclipse.smarthome.binding.hue.internal.handler.sensors.DimmerSwitchHandler;
 import org.eclipse.smarthome.binding.hue.internal.handler.sensors.LightLevelHandler;
 import org.eclipse.smarthome.binding.hue.internal.handler.sensors.PresenceHandler;
+import org.eclipse.smarthome.binding.hue.internal.handler.sensors.TapSwitchHandler;
 import org.eclipse.smarthome.binding.hue.internal.handler.sensors.TemperatureHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -64,8 +65,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
         implements LightStatusListener, SensorStatusListener {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(Stream
             .of(HueLightHandler.SUPPORTED_THING_TYPES.stream(), DimmerSwitchHandler.SUPPORTED_THING_TYPES.stream(),
-                    PresenceHandler.SUPPORTED_THING_TYPES.stream(), TemperatureHandler.SUPPORTED_THING_TYPES.stream(),
-                    LightLevelHandler.SUPPORTED_THING_TYPES.stream())
+                    TapSwitchHandler.SUPPORTED_THING_TYPES.stream(), PresenceHandler.SUPPORTED_THING_TYPES.stream(),
+                    TemperatureHandler.SUPPORTED_THING_TYPES.stream(), LightLevelHandler.SUPPORTED_THING_TYPES.stream())
             .flatMap(i -> i).collect(Collectors.toSet()));
 
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
@@ -82,6 +83,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
             new SimpleEntry<>("extended_color_light", "0210"),
             new SimpleEntry<>("color_temperature_light", "0220"),
             new SimpleEntry<>("zllswitch", "0820"),
+            new SimpleEntry<>("zgpswitch", "0830"),
             new SimpleEntry<>("zllpresence", "0107"),
             new SimpleEntry<>("zlltemperature", "0302"),
             new SimpleEntry<>("zlllightlevel", "0106")

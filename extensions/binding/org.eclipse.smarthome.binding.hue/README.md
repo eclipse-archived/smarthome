@@ -45,12 +45,13 @@ Beside bulbs and luminaires the Hue binding supports some ZigBee sensors.
 Currently only Hue specific sensors are tested successfully (e.g. Hue Motion Sensor and Hue Dimmer Switch).
 The Hue Motion Sensor registers a `ZLLLightLevel` sensor, a `ZLLPresence` sensor and a `ZLLTemperature` sensor in one device.
 
-| Device type           | ZigBee Device ID | Thing type |
-|-----------------------|------------------|------------|
-| Light Sensor          | 0x0106           | 0106       |
-| Occupancy Sensor      | 0x0107           | 0107       |
-| Temperature Sensor    | 0x0302           | 0302       |
-| Non-Colour Controller | 0x0820           | 0820       |
+| Device type                 | ZigBee Device ID | Thing type |
+|-----------------------------|------------------|------------|
+| Light Sensor                | 0x0106           | 0106       |
+| Occupancy Sensor            | 0x0107           | 0107       |
+| Temperature Sensor          | 0x0302           | 0302       |
+| Non-Colour Controller       | 0x0820           | 0820       |
+| Non-Colour Scene Controller | 0x0830           | 0830       |
 
 The type of a specific device can be found in the configuration section for things in the PaperUI.
 It is part of the unique thing id which could look like:
@@ -84,6 +85,7 @@ The user name can be set using the `userName` configuration value, e.g.:
 ```
 Bridge hue:bridge:1 [ ipAddress="192.168.0.64", userName="qwertzuiopasdfghjklyxcvbnm1234" ]
 ```
+
 | Parameter             | Description                                                                                                                                                                                                                              |
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ipAddress             | Network address of the Hue bridge. **Mandatory**                                                                                                                                                                                         |
@@ -125,9 +127,9 @@ The devices support some of the following channels:
 | daylight          | Switch             | This channel indicates whether the light level is below the daylight threshold or not.                                                  | 0106                                |
 | presence          | Switch             | This channel indicates whether a motion is detected by the sensor or not.                                                               | 0107                                |
 | temperature       | Number:Temperature | This channel shows the current temperature measured by the sensor.                                                                      | 0302                                |
-| last_updated      | DateTime           | This channel the date and time when the sensor was last updated.                                                                        | 0820, 0106, 0107, 0302              |
-| battery_level     | Number             | This channel shows the battery level.                                                                                                   | 0820, 0106, 0107, 0302              |
-| battery_low       | Switch             | This channel indicates whether the battery is low or not.                                                                               | 0820, 0106, 0107, 0302              |
+| last_updated      | DateTime           | This channel the date and time when the sensor was last updated.                                                                        | 0820, 0830, 0106, 0107, 0302        |
+| battery_level     | Number             | This channel shows the battery level.                                                                                                   | 0820, 0830, 0106, 0107, 0302        |
+| battery_low       | Switch             | This channel indicates whether the battery is low or not.                                                                               | 0820, 0830, 0106, 0107, 0302        |
 
 ### Trigger Channels
 
@@ -136,8 +138,9 @@ The dimmer switch additionally supports a trigger channel.
 | Channel ID          | Description                      | Thing types supporting this channel |
 |---------------------|----------------------------------|-------------------------------------|
 | dimmer_switch_event | Event for dimmer switch pressed. | 0820                                |
+| tap_switch_event    | Event for tap switch pressed.    | 0830                                |
 
-The event can trigger one of the following events:
+The `dimmer_switch_event` can trigger one of the following events:
 
 | Button              | State           | Event |
 |---------------------|-----------------|-------|
@@ -157,6 +160,15 @@ The event can trigger one of the following events:
 |                     | HOLD            | 4001  |
 |                     | SHORT RELEASED  | 4002  |
 |                     | LONG RELEASED   | 4003  |
+
+The `tap_switch_event` can trigger one of the following events:
+
+| Button   | State    | Event |
+|----------|----------|-------|
+| Button 1 | Button 1 | 34    |
+| Button 2 | Button 2 | 16    |
+| Button 3 | Button 3 | 17    |
+| Button 4 | Button 4 | 18    |
 
 ## Full Example
 

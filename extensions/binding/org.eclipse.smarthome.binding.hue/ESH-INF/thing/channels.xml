@@ -119,6 +119,34 @@
 		</event>
 	</channel-type>
 
+	<channel-type id="tap_switch">
+		<item-type>Number</item-type>
+		<label>Tap Switch State</label>
+		<description>The Button that was last pressed on the tap switch.</description>
+		<state readOnly="true" pattern="%d">
+			<options>
+				<option value="34">Button 1</option>
+				<option value="16">Button 2</option>
+				<option value="17">Button 3</option>
+				<option value="18">Button 4</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="tap_switch_event">
+		<kind>trigger</kind>
+		<label>Tap Switch Event</label>
+		<description>Triggers when a button is pressed on the tap switch.</description>
+		<event>
+			<options>
+				<option value="34">34</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+			</options>
+		</event>
+	</channel-type>
+
 	<!-- Switch Channel -->
 	<channel-type id="switch">
 		<item-type>Switch</item-type>
@@ -145,7 +173,8 @@
 		<item-type>Dimmer</item-type>
 		<label>Color Temperature</label>
 		<description>The color temperature channel allows to set the color
-			temperature of a light from 0 (cold) to 100 (warm).</description>
+			temperature of a light from 0 (cold) to 100 (warm).
+		</description>
 		<category>ColorLight</category>
 	</channel-type>
 
