@@ -45,6 +45,8 @@ It supports both, a hostname or an IP address.
 
 The `port` parameter is used to adjust non-standard OWFS installations.
 It defaults to `4304`, which is the default of each OWFS installation.  
+
+Bridges of type `owserver` are extensible with channels of type `owfs-number` and `owfs-string`. 
   
 ### Counter (`counter2`)
 
@@ -135,6 +137,8 @@ Additional channels (`light`, `pressure`, `humidity`, `dewpoint`, `abshumidity`)
 | humidity            | ms-tx, ams, bms, edsenv    | Number:Dimensionless     | yes        | relative humidity                                  |
 | humidityconf        | ms-tx                      | Number:Dimensionless     | yes        | relative humidity                                  |
 | light               | ams, bms, edsenv           | Number:Illuminance       | yes        | lightness                                          |
+| owfs-number         | owserver                   | Number                   | yes        | direct access to OWFS nodes                        |
+| owfs-string         | owserver                   | String                   | yes        | direct access to OWFS nodes                        |
 | present             | all                        | Switch                   | yes        | sensor found on bus                                |
 | pressure            | edsenv                     | Number:Pressure          | yes        | environmental pressure                             |
 | supplyvoltage       | ms-tx                      | Number:ElectricPotential | yes        | sensor supplyvoltage                               |
@@ -161,6 +165,16 @@ This is only relevant for DS2438-based sensors of thing-type `ms-tx`.
 Possible options are `/humidity` for HIH-3610 sensors, `/HIH4000/humidity` for HIH-4000 sensors, `/HTM1735/humidity` for HTM-1735 sensors and `/DATANAB/humidity` for sensors from Datanab.
 
 All humidity sensors also support `absolutehumidity` and `dewpoint`.
+
+### OWFS Direct Access (`owfs-number`, `owfs-string`)
+
+These channels allow direct access to OWFS nodes.
+They have two configuration parameters: `path` and `refresh`.
+
+The `path` parameter is mandatory and contains a full path inside the OWFS (e.g. `statistics/errors/CRC8_errors`).
+
+The `refresh` parameter is the number of seconds between two consecutive (successful) reads of the node.
+It defaults to 300s.
 
 ### Temperature (`temperature`, `temperature-por`, `temperature-por-res`)
 
@@ -213,6 +227,11 @@ Bridge onewire:owserver:mybridge [
                     resolution="9"
                 ]
         } 
+
+    Channels:
+        Type owfs-number : crc8errors [
+            path="statistics/errors/CRC8_errors"
+        ]
 }
 ```
 
@@ -222,6 +241,7 @@ Bridge onewire:owserver:mybridge [
 Number:Temperature MySensor "MySensor [%.1f %unit%]" { channel="onewire:temperature:mybridge:mysensor:temperature" }
 Number:Temperature MyBMS_T "MyBMS Temperature [%.1f %unit%]" { channel="onewire:bms:mybridge:mybms:temperature" }
 Number:Dimensionless MyBMS_H "MyBMS Humidity [%.1f %unit%]"  { channel="onewire:bms:mybridge:mybms:humidity" }
+Number  CRC8Errors "Bus-Errors [%d]" { channel="onewire:owserver:mybridge:crc8errors" }
 ```
 
 ### demo.sitemap:
@@ -233,6 +253,7 @@ sitemap demo label="Main Menu"
         Text item=MySensor
         Text item=MyBMS_T
         Text item=MyBMS_H
+        Text item=CRC8Errors
     }
 }
 ```
