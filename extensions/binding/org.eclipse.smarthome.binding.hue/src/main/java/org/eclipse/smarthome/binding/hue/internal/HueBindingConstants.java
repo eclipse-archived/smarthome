@@ -57,7 +57,7 @@ public class HueBindingConstants {
     public static final String CHANNEL_EFFECT = "effect";
     public static final String CHANNEL_SWITCH = "switch";
     public static final String CHANNEL_DIMMER_SWITCH = "dimmer_switch";
-    public static final String CHANNEL_TAP_SWITCH = "dimmer_switch";
+    public static final String CHANNEL_TAP_SWITCH = "tap_switch";
     public static final String CHANNEL_PRESENCE = "presence";
     public static final String CHANNEL_TEMPERATURE = "temperature";
     public static final String CHANNEL_LAST_UPDATED = "last_updated";
@@ -70,7 +70,7 @@ public class HueBindingConstants {
 
     // List all triggers
     public static final String EVENT_DIMMER_SWITCH = "dimmer_switch_event";
-    public static final String EVENT_TAP_SWITCH = "dimmer_switch_event";
+    public static final String EVENT_TAP_SWITCH = "tap_switch_event";
 
     // Bridge config properties
     public static final String HOST = "ipAddress";

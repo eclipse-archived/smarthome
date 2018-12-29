@@ -128,8 +128,8 @@ The devices support some of the following channels:
 | presence          | Switch             | This channel indicates whether a motion is detected by the sensor or not.                                                               | 0107                                |
 | temperature       | Number:Temperature | This channel shows the current temperature measured by the sensor.                                                                      | 0302                                |
 | last_updated      | DateTime           | This channel the date and time when the sensor was last updated.                                                                        | 0820, 0830, 0106, 0107, 0302        |
-| battery_level     | Number             | This channel shows the battery level.                                                                                                   | 0820, 0830, 0106, 0107, 0302        |
-| battery_low       | Switch             | This channel indicates whether the battery is low or not.                                                                               | 0820, 0830, 0106, 0107, 0302        |
+| battery_level     | Number             | This channel shows the battery level.                                                                                                   | 0820, 0106, 0107, 0302             |
+| battery_low       | Switch             | This channel indicates whether the battery is low or not.                                                                               | 0820, 0106, 0107, 0302             |
 
 ### Trigger Channels
 

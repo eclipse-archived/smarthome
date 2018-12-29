@@ -16,8 +16,6 @@
 			<channel id="tap_switch_event" typeId="tap_switch_event" />
 			<channel id="tap_switch" typeId="tap_switch" />
 			<channel id="last_updated" typeId="last_updated" />
-			<channel id="battery_level" typeId="system.battery-level" />
-			<channel id="battery_low" typeId="system.low-battery" />
 		</channels>
 
 		<representation-property>uniqueId</representation-property>
