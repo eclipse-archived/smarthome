@@ -140,15 +140,15 @@ Here is a short table demonstrating conversions for the examples above:
 ## Item Metadata
 
 Sometimes additional information is required to be attached to Items for certain use-cases. 
-This could be e.g. an application which needs some hints in order to render the Items in a generic way or an integration with voice controlled assistants or any other services which access the Items and need to understand their "meaning".
+This could be an application which needs some hints in order to render the Items in a generic way, or an integration with voice controlled assistants, or any other services which access the Items and need to understand their "meaning".
 
-For this purpose, such meta-information can be attached to Items using disjunct namespaces so they won't conflict with each other. 
+Such metadata can be attached to Items using disjunct namespaces so they won't conflict with each other. 
 Each metadata entry has a main value and optionally additional key/value pairs. 
 There can be metadata attached to an Item for as many namespaces as desired, like in the following example: 
 
     Switch "My Fan" { homekit="Fan.v2", alexa="Fan" [ type="oscillating", speedSteps=3 ] }
 
-The metadata can alternatively maintained via a dedicated REST endpoint and is included in the `EnrichedItemDTO` responses.
+The metadata can be maintained via a dedicated REST endpoint and is included in the `EnrichedItemDTO` responses.
 
 Extensions which can infer some metadata automatically need to implement and register a `MetadataProvider` service in order to make them available to the system. 
 They may provision them from any source they like and also dynamically remove or add data. 
