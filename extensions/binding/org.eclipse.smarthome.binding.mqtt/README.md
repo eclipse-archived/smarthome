@@ -71,7 +71,8 @@ Be aware that if your brokers certificate changes, you need to remove the connec
 
 The second connection is a plain, unsecured one. Use this only for local MQTT Brokers.
 
-A third connection uses a username and password for authentication. Secure is set to false as the username and password is requested by the broker.
+A third connection uses a username and password for authentication.
+Secure is set to false as the username and password is requested by the broker.
 The credentials are plain values on the wire, therefore you should only use this on a secure connection.
 
 In a forth connection, the public key pinning is enabled again.
