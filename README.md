@@ -2,21 +2,18 @@
 
 Thanks for your interest in the Eclipse SmartHome project!
 
-Building and running the project is fairly easy if you follow the steps
-detailed below.
+Building and running the project is fairly easy if you follow the steps detailed below.
 
 Please note that Eclipse SmartHome is not a product itself, but a framework to build solutions on top.
-This means that what you build is primarily an artifact repository of OSGi bundles that can be used
-within smart home products. Besides this repository, a tool called "Designer" is available. The
-Designer can be used for editing configuration files with full IDE support.
+This means that what you build is primarily an artifact repository of OSGi bundles that can be used within smart home products.
+Besides this repository, a VSCode extension is available for editing configuration files with full IDE support.
 
 1\. Prerequisites
 =================
 
-The build infrastructure is based on Maven in order to make it
-as easy as possible to get up to speed. If you know Maven already then
-there won't be any surprises for you. If you have not worked with Maven
-yet, just follow the instructions and everything will miraculously work ;-)
+The build infrastructure is based on Maven in order to make it as easy as possible to get up to speed. 
+If you know Maven already then there won't be any surprises for you. 
+If you have not worked with Maven yet, just follow the instructions and everything will miraculously work ;-)
 
 What you need before you start:
 - Maven3 from http://maven.apache.org/download.html
@@ -38,11 +35,9 @@ To build Eclipse SmartHome from the sources, Maven takes care of everything:
 - change into the smarthome directory ("cd smarthome“)
 - run "mvn clean install" to compile and package all sources
 
-If there are tests that are failing occasionally on your local build, 
-run `mvn -DskipTests=true clean install` instead to skip them.
+If there are tests that are failing occasionally on your local build, run `mvn -DskipTests=true clean install` instead to skip them.
 
-The p2 repository that contains all bundles as a build result will be available in the folder 
-`products/org.eclipse.smarthome.repo/target`.
+The p2 repository that contains all bundles as a build result will be available in the folder `products/org.eclipse.smarthome.repo/target`.
 
 # How to contribute
 
