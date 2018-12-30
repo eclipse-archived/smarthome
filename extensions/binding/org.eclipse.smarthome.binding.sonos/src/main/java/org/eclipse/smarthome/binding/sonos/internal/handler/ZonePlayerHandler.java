@@ -90,6 +90,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final String GROUP_URI = "x-rincon:";
     private static final String STREAM_URI = "x-sonosapi-stream:";
     private static final String RADIO_URI = "x-sonosapi-radio:";
+    private static final String RADIO_MP3_URI = "x-rincon-mp3radio:";
+    private static final String OPML_TUNE = "http://opml.radiotime.com/Tune.ashx";
     private static final String FILE_URI = "x-file-cifs:";
     private static final String SPDIF = ":spdif";
     private static final String TUNEIN_URI = "x-sonosapi-stream:s%s?sid=%s&flags=32";
@@ -995,10 +997,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             // The media information will be updated by the coordinator
             // Notification of group change occurs later, so we just check the URI
 
-            else if (isPlayingStream(currentURI)) {
+            else if (isPlayingStream(currentURI) || isPlayingRadioStartedByAmazonEcho(currentURI)) {
                 // Radio stream (tune-in)
                 boolean opmlUrlSucceeded = false;
-                stationID = StringUtils.substringBetween(currentURI, ":s", "?sid");
+                stationID = extractStationId(currentURI);
                 if (opmlUrl != null) {
                     String mac = getMACAddress();
                     if (stationID != null && !stationID.isEmpty() && mac != null && !mac.isEmpty()) {
@@ -1103,6 +1105,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (needsUpdating && handlerForImageUpdate != null) {
             handlerForImageUpdate.updateAlbumArtChannel(true);
         }
+    }
+
+    private String extractStationId(String uri) {
+        String stationID = null;
+        if (isPlayingStream(uri)) {
+            stationID = StringUtils.substringBetween(uri, ":s", "?sid");
+        } else if (isPlayingRadioStartedByAmazonEcho(uri)) {
+            stationID = StringUtils.substringBetween(uri, "sid=s", "&");
+        }
+        return stationID;
     }
 
     public boolean isGroupCoordinator() {
@@ -1334,7 +1346,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             savedState.volume = getVolume();
 
             if (currentURI != null) {
-                if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
+                if (isPlayingStream(currentURI) || isPlayingRadioStartedByAmazonEcho(currentURI)
+                        || isPlayingRadio(currentURI)) {
                     // we are streaming music, like tune-in radio or Google Play Music radio
                     SonosMetaData track = getTrackMetadata();
                     SonosMetaData current = getCurrentURIMetadata();
@@ -2238,7 +2251,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 String currentURI = coordinator.getCurrentURI();
 
-                if (isPlayingStream(currentURI) || isPlayingRadio(currentURI)) {
+                if (isPlayingStream(currentURI) || isPlayingRadioStartedByAmazonEcho(currentURI)
+                        || isPlayingRadio(currentURI)) {
                     handleRadioStream(currentURI, notificationURL, coordinator);
                 } else if (isPlayingLineIn(currentURI)) {
                     handleLineIn(currentURI, notificationURL, coordinator);
@@ -2279,6 +2293,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             return false;
         }
         return currentURI.contains(RADIO_URI);
+    }
+
+    private boolean isPlayingRadioStartedByAmazonEcho(String currentURI) {
+        if (currentURI == null) {
+            return false;
+        }
+        return currentURI.contains(RADIO_MP3_URI) && currentURI.contains(OPML_TUNE);
     }
 
     private boolean isPlayingLineIn(String currentURI) {
