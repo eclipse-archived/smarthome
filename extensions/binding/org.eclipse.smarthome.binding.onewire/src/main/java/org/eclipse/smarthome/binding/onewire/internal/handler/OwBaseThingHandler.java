@@ -16,6 +16,7 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -65,9 +66,6 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     protected boolean validConfig = false;
     protected boolean showPresence = false;
 
-    protected int propertyUpdateRetryCounter = 0;
-    protected boolean thingDisposed = false;
-
     protected OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider;
 
     protected @Nullable ScheduledFuture<?> updateTask;
@@ -87,9 +85,6 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        thingDisposed = false;
-        propertyUpdateRetryCounter = 0;
-
         configure();
     }
 
@@ -237,85 +232,44 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
         sensorIds.clear();
         sensors.clear();
 
-        if (updateTask != null) {
-            updateTask.cancel(true);
-
-        }
-
-        thingDisposed = true;
         super.dispose();
     }
 
     /**
-     * update type and vendor thing properties
-     *
-     * thing handler specific code needs to be placed in doUpdateSensorProperties
+     * add this sensor to the property update list of the bridge handler
      *
      */
     protected void updateSensorProperties() {
-        if (thingDisposed) {
-            logger.warn("property update scheduler not cancelled even if thing {} was disposed before",
-                    this.thing.getUID());
-            return;
-        }
-
-        propertyUpdateRetryCounter++;
-
         Bridge bridge = getBridge();
         if (bridge == null) {
-            logger.debug("updating thing properties for {} failed, no bridge available retry {}/{}",
-                    this.thing.getUID(), propertyUpdateRetryCounter, PROPERTY_UPDATE_MAX_RETRY);
-            if (propertyUpdateRetryCounter >= PROPERTY_UPDATE_MAX_RETRY) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                        "max. number of retries for thing update exceeded");
-            } else {
-                updateTask = scheduler.schedule(() -> {
-                    updateSensorProperties();
-                }, PROPERTY_UPDATE_INTERVAL, TimeUnit.MILLISECONDS);
-            }
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "bridge not found");
             return;
         }
-
-        Map<String, String> properties = editProperties();
 
         OwBaseBridgeHandler bridgeHandler = (OwBaseBridgeHandler) bridge.getHandler();
-        try {
-            if (bridgeHandler == null) {
-                throw new OwException("no bridge handler available");
-            }
-            properties = doUpdateSensorProperties(bridgeHandler, properties);
-        } catch (OwException e) {
-            logger.debug("updating thing properties for {} failed, retry {}/{}: {}", this.thing.getUID(),
-                    propertyUpdateRetryCounter, PROPERTY_UPDATE_MAX_RETRY, e.getMessage());
-            if (propertyUpdateRetryCounter >= PROPERTY_UPDATE_MAX_RETRY) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                        "max. number of retries for thing update exceeded");
-            } else {
-                updateTask = scheduler.schedule(() -> {
-                    updateSensorProperties();
-                }, PROPERTY_UPDATE_INTERVAL, TimeUnit.MILLISECONDS);
-            }
+        if (bridgeHandler == null) {
+            logger.debug("bridgehandler for {} not available for scheduling property update, retrying in 5s",
+                    thing.getUID());
+            scheduler.schedule(() -> {
+                updateSensorProperties();
+            }, 5000, TimeUnit.MILLISECONDS);
             return;
         }
 
-        updateTask = null;
-
-        updateProperties(properties);
-        initialize();
+        bridgeHandler.addToUpdatePropertyThingList(thing);
     }
 
     /**
      * thing specific update method for sensor properties
      *
-     * called by updaetSensorProperties
+     * called by the bridge handler
      *
      * @param bridgeHandler the bridge handler to be used
-     * @param properties    the current propertied
-     * @return updated properties
+     * @return properties to be added to the properties map
      * @throws OwException
      */
-    protected Map<String, String> doUpdateSensorProperties(OwBaseBridgeHandler bridgeHandler,
-            Map<String, String> properties) throws OwException {
+    public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
+        Map<String, String> properties = new HashMap<String, String>();
         OwSensorType sensorType = bridgeHandler.getType(sensorIds.get(0));
         properties.put(PROPERTY_MODELID, sensorType.toString());
         properties.put(PROPERTY_VENDOR, "Dallas/Maxim");

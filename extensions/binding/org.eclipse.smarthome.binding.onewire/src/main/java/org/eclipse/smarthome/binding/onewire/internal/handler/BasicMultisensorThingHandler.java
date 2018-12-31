@@ -15,6 +15,7 @@ package org.eclipse.smarthome.binding.onewire.internal.handler;
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -78,9 +79,7 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
         }
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
             return;
         }
         sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
@@ -100,8 +99,6 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
     private void configureThingChannels() {
         ThingBuilder thingBuilder = editThing();
         boolean isEdited = false;
-
-        logger.debug("configuring sensors for {}", this.thing.getLabel());
 
         // temperature channel (present on all devices)
         sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
@@ -207,8 +204,8 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    protected Map<String, String> doUpdateSensorProperties(OwBaseBridgeHandler bridgeHandler,
-            Map<String, String> properties) throws OwException {
+    public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
+        Map<String, String> properties = new HashMap<String, String>();
         sensorType = bridgeHandler.getType(sensorIds.get(0));
 
         if (sensorType == OwSensorType.DS1923) {

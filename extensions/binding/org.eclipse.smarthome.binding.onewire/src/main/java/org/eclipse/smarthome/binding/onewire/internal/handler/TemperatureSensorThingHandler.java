@@ -60,9 +60,7 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
         sensors.add(new DS18x20(sensorIds.get(0), this));
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
         } else {
             scheduler.execute(() -> {
                 configureThingChannels();

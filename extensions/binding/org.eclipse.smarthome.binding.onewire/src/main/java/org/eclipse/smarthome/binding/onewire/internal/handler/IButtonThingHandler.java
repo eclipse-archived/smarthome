@@ -54,9 +54,7 @@ public class IButtonThingHandler extends OwBaseThingHandler {
         }
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
         }
 
         sensors.add(new DS2401(sensorIds.get(0), this));

@@ -55,9 +55,7 @@ public class CounterSensorThingHandler extends OwBaseThingHandler {
         }
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
         }
 
         sensors.add(new DS2423(sensorIds.get(0), this));

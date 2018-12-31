@@ -92,9 +92,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
 
         if (!properties.containsKey(PROPERTY_MODELID) || !properties.containsKey(PROPERTY_PROD_DATE)
                 || !properties.containsKey(PROPERTY_HW_REVISION)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
             return;
         } else {
             sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
@@ -181,8 +179,6 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         Configuration configuration = getConfig();
         ThingBuilder thingBuilder = editThing();
         boolean isEdited = false;
-
-        logger.debug("configuring sensors for {}", this.thing.getLabel());
 
         // temperature channel
         Channel temperatureChannel = thing.getChannel(CHANNEL_TEMPERATURE);
@@ -296,8 +292,8 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    protected Map<String, String> doUpdateSensorProperties(OwBaseBridgeHandler bridgeHandler,
-            Map<String, String> properties) throws OwException {
+    public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
+        Map<String, String> properties = new HashMap<String, String>();
         OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
         DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
 

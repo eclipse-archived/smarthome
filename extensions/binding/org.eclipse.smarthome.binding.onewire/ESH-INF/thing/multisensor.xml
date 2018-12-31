@@ -102,8 +102,6 @@
 			<channel id="supplyvoltage" typeId="voltage" />
 		</channels>
 		<properties>
-			<property name="modelId">BMS</property>
-			<property name="vendor">Elaborated Networks</property>
 			<property name="sensorCount">2</property>
 		</properties>
 		<config-description>
@@ -164,8 +162,6 @@
 			</channel>
 		</channels>
 		<properties>
-			<property name="modelId">AMS</property>
-			<property name="vendor">Elaborated Networks</property>
 			<property name="sensorCount">4</property>
 		</properties>
 		<config-description>
