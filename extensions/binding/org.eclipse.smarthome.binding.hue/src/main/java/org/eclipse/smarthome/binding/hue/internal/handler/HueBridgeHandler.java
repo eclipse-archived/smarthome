@@ -79,8 +79,8 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueClient {
 
-    private static final int DEFAULT_POLLING_INTERVAL = 10; // in seconds
-    private static final int DEFAULT_SENSOR_POLLING_INTERVAL = 500; // in milliseconds
+    private long pollingInterval = TimeUnit.SECONDS.toSeconds(10);
+    private long sensorPollingInterval = TimeUnit.MILLISECONDS.toMillis(500);
 
     final ReentrantLock pollingLock = new ReentrantLock();
 
@@ -371,7 +371,6 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
     private synchronized void onUpdate() {
         if (hueBridge != null) {
             if (pollingJob == null || pollingJob.isCancelled()) {
-                int pollingInterval = DEFAULT_POLLING_INTERVAL;
                 if (hueBridgeConfig.getPollingInterval() < 1) {
                     logger.info("Wrong configuration value for polling interval. Using default value: {}s",
                             pollingInterval);
@@ -381,9 +380,8 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
                 pollingJob = scheduler.scheduleWithFixedDelay(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
             }
             if (sensorPollingJob == null || sensorPollingJob.isCancelled()) {
-                int sensorPollingInterval = DEFAULT_SENSOR_POLLING_INTERVAL;
                 if (hueBridgeConfig.getSensorPollingInterval() < 50) {
-                    logger.info("Wrong configuration value for sensor polling interval. Using default value: {}s",
+                    logger.info("Wrong configuration value for sensor polling interval. Using default value: {}ms",
                             sensorPollingInterval);
                 } else {
                     sensorPollingInterval = hueBridgeConfig.getSensorPollingInterval();
@@ -717,5 +715,9 @@ public class HueBridgeHandler extends ConfigStatusBridgeHandler implements HueCl
         }
 
         return configStatusMessages;
+    }
+
+    public long getSensorPollingInterval() {
+        return sensorPollingInterval;
     }
 }
