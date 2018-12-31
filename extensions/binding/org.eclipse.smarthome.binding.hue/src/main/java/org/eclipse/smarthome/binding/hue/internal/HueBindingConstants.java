@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.internal;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * The {@link HueBindingConstants} class defines common constants, which are
@@ -71,6 +72,32 @@ public class HueBindingConstants {
     // List all triggers
     public static final String EVENT_DIMMER_SWITCH = "dimmer_switch_event";
     public static final String EVENT_TAP_SWITCH = "tap_switch_event";
+
+    public static final ChannelTypeUID CHANNEL_TYPE_EVENT_DIMMER_SWITCH = new ChannelTypeUID(BINDING_ID,
+            EVENT_DIMMER_SWITCH);
+    public static final ChannelTypeUID CHANNEL_TYPE_EVENT_TAP_SWITCH = new ChannelTypeUID(BINDING_ID, EVENT_TAP_SWITCH);
+
+    public static final String EVENT_DIMMER_1000 = "1000.0";
+    public static final String EVENT_DIMMER_1001 = "1001.0";
+    public static final String EVENT_DIMMER_1002 = "1002.0";
+    public static final String EVENT_DIMMER_1003 = "1003.0";
+    public static final String EVENT_DIMMER_2000 = "2000.0";
+    public static final String EVENT_DIMMER_2001 = "2001.0";
+    public static final String EVENT_DIMMER_2002 = "2002.0";
+    public static final String EVENT_DIMMER_2003 = "2003.0";
+    public static final String EVENT_DIMMER_3000 = "3000.0";
+    public static final String EVENT_DIMMER_3001 = "3001.0";
+    public static final String EVENT_DIMMER_3002 = "3002.0";
+    public static final String EVENT_DIMMER_3003 = "3003.0";
+    public static final String EVENT_DIMMER_4000 = "4000.0";
+    public static final String EVENT_DIMMER_4001 = "4001.0";
+    public static final String EVENT_DIMMER_4002 = "4002.0";
+    public static final String EVENT_DIMMER_4003 = "4003.0";
+
+    public static final String EVENT_TAP_34 = "34.0";
+    public static final String EVENT_TAP_16 = "16.0";
+    public static final String EVENT_TAP_17 = "17.0";
+    public static final String EVENT_TAP_18 = "18.0";
 
     // Bridge config properties
     public static final String HOST = "ipAddress";

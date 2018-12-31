@@ -121,6 +121,7 @@ The devices support some of the following channels:
 | alert             | String             | This channel supports displaying alerts by flashing the bulb either once or multiple times. Valid values are: NONE, SELECT and LSELECT. | 0000, 0100, 0200, 0210, 0220        |
 | effect            | Switch             | This channel supports color looping.                                                                                                    | 0200, 0210, 0220                    |
 | dimmer_switch     | Number             | This channel shows which button was last pressed on the dimmer switch.                                                                  | 0820                                |
+| tap_switch        | Number             | This channel shows which button was last pressed on the tap switch.                                                                     | 0830                                |
 | illuminance       | Number:Illuminance | This channel shows the current illuminance measured by the sensor.                                                                      | 0106                                |
 | light_level       | Number             | This channel shows the current light level measured by the sensor. **Advanced**                                                         | 0106                                |
 | dark              | Switch             | This channel indicates whether the light level is below the darkness threshold or not.                                                  | 0106                                |
@@ -142,33 +143,37 @@ The dimmer switch additionally supports a trigger channel.
 
 The `dimmer_switch_event` can trigger one of the following events:
 
-| Button              | State           | Event |
-|---------------------|-----------------|-------|
-| Button 1 (ON)       | INITIAL_PRESSED | 1000  |
-|                     | HOLD            | 1001  |
-|                     | SHORT RELEASED  | 1002  |
-|                     | LONG RELEASED   | 1003  |
-| Button 2 (DIM UP)   | INITIAL_PRESSED | 2000  |
-|                     | HOLD            | 2001  |
-|                     | SHORT RELEASED  | 2002  |
-|                     | LONG RELEASED   | 2003  |
-| Button 3 (DIM DOWN) | INITIAL_PRESSED | 3000  |
-|                     | HOLD            | 3001  |
-|                     | SHORT RELEASED  | 3002  |
-|                     | LONG RELEASED   | 3003  |
-| Button 4 (OFF)      | INITIAL_PRESSED | 4000  |
-|                     | HOLD            | 4001  |
-|                     | SHORT RELEASED  | 4002  |
-|                     | LONG RELEASED   | 4003  |
+| Button              | State           | Event  |
+|---------------------|-----------------|--------|
+| Button 1 (ON)       | INITIAL_PRESSED | 1000.0 |
+|                     | HOLD            | 1001.0 |
+|                     | SHORT RELEASED  | 1002.0 |
+|                     | LONG RELEASED   | 1003.0 |
+| Button 2 (DIM UP)   | INITIAL_PRESSED | 2000.0 |
+|                     | HOLD            | 2001.0 |
+|                     | SHORT RELEASED  | 2002.0 |
+|                     | LONG RELEASED   | 2003.0 |
+| Button 3 (DIM DOWN) | INITIAL_PRESSED | 3000.0 |
+|                     | HOLD            | 3001.0 |
+|                     | SHORT RELEASED  | 3002.0 |
+|                     | LONG RELEASED   | 3003.0 |
+| Button 4 (OFF)      | INITIAL_PRESSED | 4000.0 |
+|                     | HOLD            | 4001.0 |
+|                     | SHORT RELEASED  | 4002.0 |
+|                     | LONG RELEASED   | 4003.0 |
 
 The `tap_switch_event` can trigger one of the following events:
 
 | Button   | State    | Event |
 |----------|----------|-------|
-| Button 1 | Button 1 | 34    |
-| Button 2 | Button 2 | 16    |
-| Button 3 | Button 3 | 17    |
-| Button 4 | Button 4 | 18    |
+| Button 1 | Button 1 | 34.0  |
+| Button 2 | Button 2 | 16.0  |
+| Button 3 | Button 3 | 17.0  |
+| Button 4 | Button 4 | 18.0  |
+
+## Profiles
+
+TODO
 
 ## Full Example
 
