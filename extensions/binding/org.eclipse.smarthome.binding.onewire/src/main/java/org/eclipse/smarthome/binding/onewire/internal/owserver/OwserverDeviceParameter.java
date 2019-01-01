@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.onewire.internal.owserver;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameter;
 
 /**
@@ -30,13 +31,13 @@ public class OwserverDeviceParameter extends OwDeviceParameter {
      * device parameter for owserver bridge handler
      *
      * @param prefix path prefix (e.g. "uncached/")
-     * @param path path without sensor id (e.g. "/humidity")
+     * @param path   path without sensor id (e.g. "/humidity")
      */
     public OwserverDeviceParameter(String prefix, String path) {
         if (prefix.endsWith("/")) {
-            this.prefix = prefix;
+            this.prefix = prefix.substring(0, prefix.length() - 1);
         } else {
-            this.prefix = prefix + "/";
+            this.prefix = prefix;
         }
         if (path.startsWith("/")) {
             this.path = path;
@@ -59,12 +60,12 @@ public class OwserverDeviceParameter extends OwDeviceParameter {
      *
      * @param sensorId
      */
-    public String getPath(String sensorId) {
-        return prefix + sensorId + path;
+    public String getPath(SensorId sensorId) {
+        return prefix + sensorId.getFullPath() + path;
     }
 
     @Override
     public String toString() {
-        return getPath("sensorId");
+        return prefix + "/sensorId" + path;
     }
 }

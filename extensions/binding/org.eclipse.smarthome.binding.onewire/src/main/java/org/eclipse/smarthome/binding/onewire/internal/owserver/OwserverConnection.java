@@ -20,11 +20,13 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -114,33 +116,22 @@ public class OwserverConnection {
      *
      * @return a list of device ids
      */
-    public List<String> getDirectory() throws OwException {
-        List<String> directory = new ArrayList<String>();
-        OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.DIR, "/");
+    public List<SensorId> getDirectory(String basePath) throws OwException {
+        OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.DIRALL, basePath);
+        OwserverPacket returnPacket = request(requestPacket);
 
-        write(requestPacket);
-
-        OwserverPacket returnPacket = null;
-        do {
-            try {
-                returnPacket = read(false);
-            } catch (OwException e) {
-                logger.debug("getDirectory may have returned incomplete result: {}", e.getMessage());
-                checkConnection();
-                return directory;
-            }
-            if (returnPacket.hasPayload()) {
-                directory.add(returnPacket.getPayloadString());
-            }
-        } while ((returnPacket.isPingPacket() || returnPacket.hasPayload()));
-
-        if (!returnPacket.hasControlFlag(OwserverControlFlag.PERSISTENCE)) {
-            logger.trace("closing connection because persistence was denied");
-            close();
+        if ((returnPacket.getReturnCode() != -1) && returnPacket.hasPayload()) {
+            connectionErrorCounter = 0;
+            return Arrays.stream(returnPacket.getPayloadString().split(",")).map(s -> {
+                try {
+                    return new SensorId(s);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            }).filter(s -> s != null).collect(Collectors.toList());
+        } else {
+            throw new OwException("invalid of empty packet");
         }
-
-        connectionErrorCounter = 0;
-        return directory;
     }
 
     /**
@@ -183,7 +174,7 @@ public class OwserverConnection {
         if ((returnPacket.getReturnCode() != -1) && returnPacket.hasPayload()) {
             returnState = DecimalType.valueOf(returnPacket.getPayloadString().trim());
         } else {
-            throw new OwException("invalid of empty packet");
+            throw new OwException("invalid or empty packet");
         }
 
         return returnState;
@@ -204,7 +195,7 @@ public class OwserverConnection {
             Arrays.stream(returnPacket.getPayloadString().split(","))
                     .forEach(v -> returnList.add(DecimalType.valueOf(v.trim())));
         } else {
-            throw new OwException("invalid of empty packet");
+            throw new OwException("invalid or empty packet");
         }
 
         return returnList;
@@ -248,7 +239,7 @@ public class OwserverConnection {
     /**
      * write a DecimalType
      *
-     * @param path  full owfs path to the sensor
+     * @param path full owfs path to the sensor
      * @param value the value to write
      * @throws OwException
      */

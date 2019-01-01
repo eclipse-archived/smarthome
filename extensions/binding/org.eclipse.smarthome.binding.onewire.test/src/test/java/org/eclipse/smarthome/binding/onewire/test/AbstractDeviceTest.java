@@ -20,6 +20,7 @@ import java.lang.reflect.Constructor;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.AbstractOwDevice;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
@@ -51,7 +52,7 @@ public abstract class AbstractDeviceTest {
     protected Thing mockThing;
     protected InOrder inOrder;
 
-    protected String testSensorId = "00.000000000000";
+    protected SensorId testSensorId = new SensorId("00.000000000000");
 
     public void setupMocks(ThingTypeUID thingTypeUID) {
         mockThingHandler = mock(OwBaseThingHandler.class);
@@ -79,11 +80,11 @@ public abstract class AbstractDeviceTest {
 
     public @Nullable AbstractOwDevice instantiateDevice() {
         try {
-            Constructor<?> constructor = deviceTestClazz.getConstructor(String.class, OwBaseThingHandler.class);
+            Constructor<?> constructor = deviceTestClazz.getConstructor(SensorId.class, OwBaseThingHandler.class);
             testDevice = (AbstractOwDevice) constructor.newInstance(new Object[] { testSensorId, mockThingHandler });
             return testDevice;
         } catch (Exception e) {
-            Assert.fail("Couldn't create test device");
+            Assert.fail("Couldn't create test device: " + e.getMessage());
             return null;
         }
     }

@@ -18,6 +18,7 @@ import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
@@ -47,7 +48,7 @@ public class DS18x20 extends AbstractOwDevice {
 
     private boolean ignorePOR = false;
 
-    public DS18x20(String sensorId, OwBaseThingHandler callback) {
+    public DS18x20(SensorId sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);
     }
 

@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnection;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnectionState;
@@ -104,12 +105,12 @@ public class OwserverConnectionTest extends JavaTest {
     public void testGetDirectory() {
         owserverConnection.start();
         try {
-            List<String> presence = owserverConnection.getDirectory();
+            List<SensorId> directory = owserverConnection.getDirectory("/");
 
-            assertEquals(3, presence.size());
-            assertEquals("sensor0", presence.get(0));
-            assertEquals("sensor1", presence.get(1));
-            assertEquals("sensor2", presence.get(2));
+            assertEquals(3, directory.size());
+            assertEquals(new SensorId("/00.0123456789ab"), directory.get(0));
+            assertEquals(new SensorId("/00.0123456789ac"), directory.get(1));
+            assertEquals(new SensorId("/00.0123456789ad"), directory.get(2));
         } catch (OwException e) {
             Assert.fail("caught unexpected OwException");
         }

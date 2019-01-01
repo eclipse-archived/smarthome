@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameterMap;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnection;
@@ -95,21 +96,21 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public List<String> getDirectory() throws OwException {
+    public List<SensorId> getDirectory(String basePath) throws OwException {
         synchronized (owserverConnection) {
-            return owserverConnection.getDirectory();
+            return owserverConnection.getDirectory(basePath);
         }
     }
 
     @Override
-    public State checkPresence(String sensorId) throws OwException {
+    public State checkPresence(SensorId sensorId) throws OwException {
         synchronized (owserverConnection) {
-            return owserverConnection.checkPresence(sensorId);
+            return owserverConnection.checkPresence(sensorId.getFullPath());
         }
     }
 
     @Override
-    public OwSensorType getType(String sensorId) throws OwException {
+    public OwSensorType getType(SensorId sensorId) throws OwException {
         OwSensorType sensorType = OwSensorType.UNKNOWN;
         synchronized (owserverConnection) {
             try {
@@ -121,7 +122,7 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public State readDecimalType(String sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public State readDecimalType(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
         synchronized (owserverConnection) {
             return owserverConnection
                     .readDecimalType(((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
@@ -129,7 +130,7 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public List<State> readDecimalTypeArray(String sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public List<State> readDecimalTypeArray(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
         synchronized (owserverConnection) {
             return owserverConnection.readDecimalTypeArray(
                     ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
@@ -137,14 +138,14 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public OwPageBuffer readPages(String sensorId) throws OwException {
+    public OwPageBuffer readPages(SensorId sensorId) throws OwException {
         synchronized (owserverConnection) {
-            return owserverConnection.readPages(sensorId);
+            return owserverConnection.readPages(sensorId.getFullPath());
         }
     }
 
     @Override
-    public String readString(String sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public String readString(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
         synchronized (owserverConnection) {
             return owserverConnection
                     .readString(((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
@@ -152,10 +153,11 @@ public class OwserverBridgeHandler extends OwBaseBridgeHandler {
     }
 
     @Override
-    public void writeDecimalType(String path, OwDeviceParameterMap parameter, DecimalType value) throws OwException {
+    public void writeDecimalType(SensorId sensorId, OwDeviceParameterMap parameter, DecimalType value)
+            throws OwException {
         synchronized (owserverConnection) {
             owserverConnection.writeDecimalType(
-                    ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(path), value);
+                    ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId), value);
         }
     }
 

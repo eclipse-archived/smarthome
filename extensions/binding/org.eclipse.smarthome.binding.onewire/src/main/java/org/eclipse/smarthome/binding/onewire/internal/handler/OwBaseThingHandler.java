@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.AbstractOwDevice;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -60,7 +60,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     protected int sensorCount;
 
     protected final List<AbstractOwDevice> sensors = new ArrayList<AbstractOwDevice>();
-    protected final List<String> sensorIds = new ArrayList<String>();
+    protected final List<SensorId> sensorIds = new ArrayList<SensorId>();
     protected long lastRefresh = 0;
     protected long refreshInterval = 300 * 1000;
 
@@ -106,10 +106,9 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             String configKey = (i == 0) ? CONFIG_ID : CONFIG_ID + String.valueOf(i);
             if (configuration.get(configKey) != null) {
                 String sensorId = (String) configuration.get(configKey);
-                Matcher sensorIdMatcher = SENSOR_ID_PATTERN.matcher(sensorId);
-                if (sensorIdMatcher.matches()) {
-                    sensorIds.add(sensorIdMatcher.group(1));
-                } else {
+                try {
+                    sensorIds.add(new SensorId(sensorId));
+                } catch (IllegalArgumentException e) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                             "sensor id format mismatch");
                     return false;
@@ -151,7 +150,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * needs proper exception handling for refresh errors if overridden
      *
      * @param bridgeHandler bridge handler to use for communication with ow bus
-     * @param now           current time
+     * @param now current time
      */
     public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
         try {
@@ -206,7 +205,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * post update to channel
      *
      * @param channelId channel id
-     * @param state     new channel state
+     * @param state new channel state
      */
     public void postUpdate(String channelId, State state) {
         if (this.thing.getChannel(channelId) != null) {
