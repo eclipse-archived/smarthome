@@ -34,10 +34,10 @@ public class TopicSubscribe implements MqttMessageSubscriber {
     /**
      * Creates a {@link TopicSubscribe} object.
      *
-     * @param connection The broker connection
-     * @param topic The topic
+     * @param connection              The broker connection
+     * @param topic                   The topic
      * @param topicDiscoveredListener A listener
-     * @param thing A thing, used as an argument to the listener callback.
+     * @param thing                   A thing, used as an argument to the listener callback.
      */
     public TopicSubscribe(MqttBrokerConnection connection, String topic,
             MQTTTopicDiscoveryParticipant topicDiscoveredListener, ThingUID thing) {
@@ -49,7 +49,11 @@ public class TopicSubscribe implements MqttMessageSubscriber {
 
     @Override
     public void processMessage(String topic, byte[] payload) {
-        topicDiscoveredListener.receivedMessage(thing, connection, topic, payload);
+        if (payload.length > 0) {
+            topicDiscoveredListener.receivedMessage(thing, connection, topic, payload);
+        } else {
+            topicDiscoveredListener.topicVanished(thing, connection, topic);
+        }
     }
 
     /**

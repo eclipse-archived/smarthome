@@ -20,8 +20,8 @@ import static org.mockito.Mockito.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryParticipant;
+import org.eclipse.smarthome.binding.mqtt.discovery.MQTTTopicDiscoveryService;
 import org.eclipse.smarthome.binding.mqtt.handler.BrokerHandler;
 import org.eclipse.smarthome.binding.mqtt.handler.BrokerHandlerEx;
 import org.eclipse.smarthome.binding.mqtt.handler.MqttBrokerConnectionEx;
@@ -132,4 +132,20 @@ public class MQTTTopicDiscoveryServiceTest {
         subject.subscriber.get(listener).observedBrokerHandlers.get(thing.getUID()).processMessage("topic", bytes);
         verify(listener).receivedMessage(eq(thing.getUID()), eq(connection), eq("topic"), eq(bytes));
     }
+
+    @Test
+    public void topicVanished() {
+        handler.initialize();
+        BrokerHandlerEx.verifyCreateBrokerConnection(handler, 1);
+
+        subject.createdHandler(handler);
+        subject.subscribe(listener, "topic");
+        assertThat(subject.subscriber.get(listener).topic, is("topic"));
+
+        // Simulate receiving
+        final byte[] bytes = "".getBytes();
+        subject.subscriber.get(listener).observedBrokerHandlers.get(thing.getUID()).processMessage("topic", bytes);
+        verify(listener).topicVanished(eq(thing.getUID()), eq(connection), eq("topic"));
+    }
+
 }
