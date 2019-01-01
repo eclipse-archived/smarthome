@@ -16,8 +16,10 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -51,16 +53,22 @@ import org.slf4j.LoggerFactory;
 public abstract class OwBaseThingHandler extends BaseThingHandler {
     private final Logger logger = LoggerFactory.getLogger(OwBaseThingHandler.class);
 
+    protected static final int PROPERTY_UPDATE_INTERVAL = 5000; // in ms
+    protected static final int PROPERTY_UPDATE_MAX_RETRY = 5;
+
     protected int sensorCount;
 
     protected final List<AbstractOwDevice> sensors = new ArrayList<AbstractOwDevice>();
     protected final List<String> sensorIds = new ArrayList<String>();
     protected long lastRefresh = 0;
     protected long refreshInterval = 300 * 1000;
+
     protected boolean validConfig = false;
     protected boolean showPresence = false;
 
     protected OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider;
+
+    protected @Nullable ScheduledFuture<?> updateTask;
 
     public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
         super(thing);
@@ -138,7 +146,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * needs proper exception handling for refresh errors if overridden
      *
      * @param bridgeHandler bridge handler to use for communication with ow bus
-     * @param now current time
+     * @param now           current time
      */
     public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
         try {
@@ -193,7 +201,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * post update to channel
      *
      * @param channelId channel id
-     * @param state new channel state
+     * @param state     new channel state
      */
     public void postUpdate(String channelId, State state) {
         if (this.thing.getChannel(channelId) != null) {
@@ -228,40 +236,46 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     }
 
     /**
-     * update properties of the sensor if missing
+     * add this sensor to the property update list of the bridge handler
      *
      */
     protected void updateSensorProperties() {
-        Map<String, String> properties = editProperties();
-
         Bridge bridge = getBridge();
         if (bridge == null) {
-            logger.debug("updating thing properties failed, no bridge available");
-            scheduler.schedule(() -> {
-                updateSensorProperties();
-            }, 5000, TimeUnit.MILLISECONDS);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "bridge not found");
             return;
         }
 
         OwBaseBridgeHandler bridgeHandler = (OwBaseBridgeHandler) bridge.getHandler();
-        try {
-            if (bridgeHandler == null) {
-                throw new OwException("no bridge handler available");
-            }
-            OwSensorType sensorType = bridgeHandler.getType(sensorIds.get(0));
-            properties.put(PROPERTY_MODELID, sensorType.toString());
-            properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
-            logger.trace("updated modelid/vendor to {} / {}", sensorType.name(), "Dallas/Maxim");
-        } catch (OwException e) {
-            logger.info("updating thing properties failed: {}", e.getMessage());
+        if (bridgeHandler == null) {
+            logger.debug("bridgehandler for {} not available for scheduling property update, retrying in 5s",
+                    thing.getUID());
             scheduler.schedule(() -> {
                 updateSensorProperties();
             }, 5000, TimeUnit.MILLISECONDS);
             return;
         }
 
-        updateProperties(properties);
-        initialize();
+        bridgeHandler.addToUpdatePropertyThingList(thing);
+    }
+
+    /**
+     * thing specific update method for sensor properties
+     *
+     * called by the bridge handler
+     *
+     * @param bridgeHandler the bridge handler to be used
+     * @return properties to be added to the properties map
+     * @throws OwException
+     */
+    public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
+        Map<String, String> properties = new HashMap<String, String>();
+        OwSensorType sensorType = bridgeHandler.getType(sensorIds.get(0));
+        properties.put(PROPERTY_MODELID, sensorType.toString());
+        properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
+        logger.trace("updated modelid/vendor to {} / {}", sensorType.name(), "Dallas/Maxim");
+
+        return properties;
     }
 
     /**

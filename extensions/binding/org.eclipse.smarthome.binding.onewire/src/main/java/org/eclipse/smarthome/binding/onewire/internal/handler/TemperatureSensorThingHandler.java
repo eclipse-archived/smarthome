@@ -23,6 +23,7 @@ import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionP
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -59,9 +60,7 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
         sensors.add(new DS18x20(sensorIds.get(0), this));
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
         } else {
             scheduler.execute(() -> {
                 configureThingChannels();
@@ -76,11 +75,11 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             ThingBuilder thingBuilder = editThing();
             if (properties.get(PROPERTY_MODELID).equals("DS18B20")
                     || properties.get(PROPERTY_MODELID).equals("DS1822")) {
-                thingBuilder.withChannel(
-                        Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR_RES));
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(),
+                        CHANNEL_TYPE_UID_TEMPERATURE_POR_RES, new Configuration()));
             } else {
-                thingBuilder
-                        .withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR));
+                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE_POR,
+                        new Configuration()));
             }
             updateThing(thingBuilder.build());
         }

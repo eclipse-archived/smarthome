@@ -21,6 +21,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
@@ -103,8 +104,9 @@ public class Util {
      * @param channelTypeUID the channelTypeUID of the channel
      * @return the channel itself
      */
-    public static Channel buildTemperatureChannel(ThingUID thingUID, ChannelTypeUID channelTypeUID) {
+    public static Channel buildTemperatureChannel(ThingUID thingUID, ChannelTypeUID channelTypeUID,
+            Configuration configuration) {
         return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_TEMPERATURE), "Number:Temperature")
-                .withLabel("Temperature").withType(channelTypeUID).build();
+                .withLabel("Temperature").withType(channelTypeUID).withConfiguration(configuration).build();
     }
 }

@@ -84,7 +84,7 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                     }
                     logger.trace("found sensor {} (id: {})", owDiscoveryItem.getSensorType(), sensorId);
                 } catch (OwException e) {
-                    logger.info("sensor-id {}: {}", sensorId, e.getMessage());
+
                 }
             }
         }
@@ -131,42 +131,46 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
         // make discovery results
         for (OwDiscoveryItem owDiscoveryItem : owDiscoveryItems.values()) {
             owDiscoveryItem.checkSensorType();
-            ThingTypeUID thingTypeUID = owDiscoveryItem.getThingTypeUID();
+            try {
+                ThingTypeUID thingTypeUID = owDiscoveryItem.getThingTypeUID();
 
-            String normalizedId = owDiscoveryItem.getNormalizedSensorId();
-            ThingUID thingUID = new ThingUID(thingTypeUID, bridgeUID, normalizedId);
-            logger.debug("created thing UID {} for sensor {}, type {}", thingUID, owDiscoveryItem.getSensorId(),
-                    owDiscoveryItem.getSensorType());
+                String normalizedId = owDiscoveryItem.getNormalizedSensorId();
+                ThingUID thingUID = new ThingUID(thingTypeUID, bridgeUID, normalizedId);
+                logger.debug("created thing UID {} for sensor {}, type {}", thingUID, owDiscoveryItem.getSensorId(),
+                        owDiscoveryItem.getSensorType());
 
-            Map<String, Object> properties = new HashMap<>(1);
-            properties.put(PROPERTY_MODELID, owDiscoveryItem.getSensorType().toString());
-            properties.put(PROPERTY_VENDOR, owDiscoveryItem.getVendor());
-            properties.put(PROPERTY_SENSORCOUNT, String.valueOf(owDiscoveryItem.getAssociatedSensorCount()));
-            if (thingTypeUID.equals(THING_TYPE_BMS)) {
-                properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
-                properties.put(CONFIG_ID + "1", owDiscoveryItem.getAssociatedSensors().get(0).getSensorId());
-                properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
-                properties.put(CONFIG_LIGHTSENSOR,
-                        String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.BMS_S));
-            } else if (thingTypeUID.equals(THING_TYPE_AMS)) {
-                properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
-                properties.put(CONFIG_ID + "1",
-                        owDiscoveryItem.getAssociatedSensors(OwSensorType.DS18B20).get(0).getSensorId());
-                properties.put(CONFIG_ID + "2",
-                        owDiscoveryItem.getAssociatedSensors(OwSensorType.MS_TV).get(0).getSensorId());
-                properties.put(CONFIG_ID + "3",
-                        owDiscoveryItem.getAssociatedSensors(OwSensorType.DS2413).get(0).getSensorId());
-                properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
-                properties.put(CONFIG_LIGHTSENSOR,
-                        String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.AMS_S));
-            } else {
-                properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
+                Map<String, Object> properties = new HashMap<>(1);
+                properties.put(PROPERTY_MODELID, owDiscoveryItem.getSensorType().toString());
+                properties.put(PROPERTY_VENDOR, owDiscoveryItem.getVendor());
+                properties.put(PROPERTY_SENSORCOUNT, String.valueOf(owDiscoveryItem.getAssociatedSensorCount()));
+                if (thingTypeUID.equals(THING_TYPE_BMS)) {
+                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
+                    properties.put(CONFIG_ID + "1", owDiscoveryItem.getAssociatedSensors().get(0).getSensorId());
+                    properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
+                    properties.put(CONFIG_LIGHTSENSOR,
+                            String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.BMS_S));
+                } else if (thingTypeUID.equals(THING_TYPE_AMS)) {
+                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
+                    properties.put(CONFIG_ID + "1",
+                            owDiscoveryItem.getAssociatedSensors(OwSensorType.DS18B20).get(0).getSensorId());
+                    properties.put(CONFIG_ID + "2",
+                            owDiscoveryItem.getAssociatedSensors(OwSensorType.MS_TV).get(0).getSensorId());
+                    properties.put(CONFIG_ID + "3",
+                            owDiscoveryItem.getAssociatedSensors(OwSensorType.DS2413).get(0).getSensorId());
+                    properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
+                    properties.put(CONFIG_LIGHTSENSOR,
+                            String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.AMS_S));
+                } else {
+                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
+                }
+
+                DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
+                        .withProperties(properties).withBridge(bridgeUID).withLabel(owDiscoveryItem.getLabel()).build();
+
+                thingDiscovered(discoveryResult);
+            } catch (OwException e) {
+                logger.info("sensor-id {}: {}", owDiscoveryItem.getSensorId(), e.getMessage());
             }
-
-            DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
-                    .withProperties(properties).withBridge(bridgeUID).withLabel(owDiscoveryItem.getLabel()).build();
-
-            thingDiscovered(discoveryResult);
         }
     }
 

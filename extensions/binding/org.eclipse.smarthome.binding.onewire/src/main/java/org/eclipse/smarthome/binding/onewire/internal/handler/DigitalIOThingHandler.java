@@ -93,9 +93,7 @@ public class DigitalIOThingHandler extends OwBaseThingHandler {
         }
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
-            scheduler.execute(() -> {
-                updateSensorProperties();
-            });
+            updateSensorProperties();
         }
 
         if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO)) {

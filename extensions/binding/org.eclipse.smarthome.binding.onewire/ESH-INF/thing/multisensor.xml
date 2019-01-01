@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <thing:thing-descriptions bindingId="onewire" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
-	<thing-type id="ms-th">
+	<thing-type id="ms-tx">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="owserver" />
+		</supported-bridge-type-refs>
+		<label>Multisensor (T, TC, TH, TL, TV)</label>
+		<description>A 1-wire multisensor (DS1923/DS2438-based)</description>
+		<channels>
+			<channel id="temperature" typeId="temperature" />
+			<channel id="supplyvoltage" typeId="voltage" />
+		</channels>
+		<properties>
+			<property name="sensorCount">1</property>
+		</properties>	
+		<config-description>
+			<parameter name="id" type="text">
+				<label>Sensor ID</label>
+				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+				<required>true</required>
+			</parameter>
+			<parameter name="refresh" type="integer" min="1">
+				<label>Refresh Time</label>
+				<description>Time in seconds after which the thing is refreshed</description>
+				<default>300</default>
+				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</thing-type>
+	<thing-type id="ms-th" listed="false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="owserver" />
 		</supported-bridge-type-refs>
@@ -31,7 +59,7 @@
 			</parameter>
 		</config-description>
 	</thing-type>
-	<thing-type id="ms-tv">
+	<thing-type id="ms-tv" listed = "false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="owserver" />
 		</supported-bridge-type-refs>
@@ -74,8 +102,6 @@
 			<channel id="supplyvoltage" typeId="voltage" />
 		</channels>
 		<properties>
-			<property name="modelId">BMS</property>
-			<property name="vendor">Elaborated Networks</property>
 			<property name="sensorCount">2</property>
 		</properties>
 		<config-description>
@@ -136,8 +162,6 @@
 			</channel>
 		</channels>
 		<properties>
-			<property name="modelId">AMS</property>
-			<property name="vendor">Elaborated Networks</property>
 			<property name="sensorCount">4</property>
 		</properties>
 		<config-description>

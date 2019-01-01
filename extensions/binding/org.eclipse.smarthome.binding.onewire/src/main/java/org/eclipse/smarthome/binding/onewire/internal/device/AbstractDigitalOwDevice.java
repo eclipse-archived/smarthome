@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDigitalOwDevice extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(AbstractDigitalOwDevice.class);
 
-    protected OwDeviceParameterMap fullInParam = new OwDeviceParameterMap();
-    protected OwDeviceParameterMap fullOutParam = new OwDeviceParameterMap();
+    protected final OwDeviceParameterMap fullInParam = new OwDeviceParameterMap();
+    protected final OwDeviceParameterMap fullOutParam = new OwDeviceParameterMap();
 
     protected final List<DigitalIoConfig> ioConfig = new ArrayList<DigitalIoConfig>();
 

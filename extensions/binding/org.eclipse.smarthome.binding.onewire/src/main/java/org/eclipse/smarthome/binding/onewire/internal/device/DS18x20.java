@@ -38,7 +38,8 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class DS18x20 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS18x20.class);
-    private static final OwDeviceParameterMap TEMPERATURE_PARAMETER = new OwDeviceParameterMap() {
+
+    private final OwDeviceParameterMap temperatureParamater = new OwDeviceParameterMap() {
         {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
         }
@@ -58,10 +59,10 @@ public class DS18x20 extends AbstractOwDevice {
         if (temperatureChannel != null) {
             Configuration channelConfiguration = temperatureChannel.getConfiguration();
             if (channelConfiguration.containsKey(CONFIG_RESOLUTION)) {
-                TEMPERATURE_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter(
+                temperatureParamater.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter(
                         "/temperature" + (String) channelConfiguration.get(CONFIG_RESOLUTION)));
             } else {
-                TEMPERATURE_PARAMETER.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
+                temperatureParamater.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
             }
             if (channelConfiguration.containsKey(CONFIG_IGNORE_POR)) {
                 ignorePOR = (Boolean) channelConfiguration.get(CONFIG_IGNORE_POR);
@@ -79,7 +80,7 @@ public class DS18x20 extends AbstractOwDevice {
     public void refresh(OwBaseBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException {
         if (isConfigured && enabledChannels.contains(CHANNEL_TEMPERATURE)) {
             QuantityType<Temperature> temperature = new QuantityType<Temperature>(
-                    (DecimalType) bridgeHandler.readDecimalType(sensorId, TEMPERATURE_PARAMETER), SIUnits.CELSIUS);
+                    (DecimalType) bridgeHandler.readDecimalType(sensorId, temperatureParamater), SIUnits.CELSIUS);
             logger.trace("read temperature {} from {}", temperature, sensorId);
             if (ignorePOR && (Double.compare(temperature.doubleValue(), 85.0) == 0)) {
                 logger.trace("ignored POR value from sensor {}", sensorId);

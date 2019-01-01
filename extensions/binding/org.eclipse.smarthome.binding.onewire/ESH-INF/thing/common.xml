@@ -14,32 +14,32 @@
 		<description>temperature value of this sensor</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
-    <channel-type id="temperature-por">
-        <item-type>Number:Temperature</item-type>
-        <label>Temperature</label>
-        <description>temperature value of this sensor</description>
-        <state readOnly="true" pattern="%.1f %unit%" />
-        <config-description>
-            <parameter name="ignorepor" type="boolean">
-                <label>Ignore POR-value</label>
-                <description>filters all  85°C readings (POR-value), may suppress valid readings if enabled</description>
-                <default>false</default>
-                <required>false</required>   
-            </parameter>
-        </config-description>
-    </channel-type>
+	<channel-type id="temperature-por">
+		<item-type>Number:Temperature</item-type>
+		<label>Temperature</label>
+		<description>temperature value of this sensor</description>
+		<state readOnly="true" pattern="%.1f %unit%" />
+		<config-description>
+			<parameter name="ignorepor" type="boolean">
+				<label>Ignore POR-value</label>
+				<description>filters all  85°C readings (POR-value), may suppress valid readings if enabled</description>
+				<default>false</default>
+				<required>false</required>
+			</parameter>
+		</config-description>
+	</channel-type>
 	<channel-type id="temperature-por-res">
 		<item-type>Number:Temperature</item-type>
 		<label>Temperature</label>
 		<description>temperature value of this sensor</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
 		<config-description>
-            <parameter name="ignorepor" type="boolean">
-                <label>Ignore POR-value</label>
-                <description>filters all 85°C readings (POR-value), may suppress valid readings if enabled</description>
-                <default>false</default>
-                <required>false</required>   
-            </parameter>
+			<parameter name="ignorepor" type="boolean">
+				<label>Ignore POR-value</label>
+				<description>filters all 85°C readings (POR-value), may suppress valid readings if enabled</description>
+				<default>false</default>
+				<required>false</required>
+			</parameter>
 			<parameter name="resolution" type="text">
 				<label>Sensor resolution</label>
 				<options>

@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 
-import org.eclipse.smarthome.binding.onewire.internal.handler.MultisensorThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.test.AbstractThingHandlerTest;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -38,13 +38,13 @@ import org.mockito.MockitoAnnotations;
  */
 public class MultisensorThingHandlerTest extends AbstractThingHandlerTest {
     private static final String TEST_ID = "00.000000000000";
-    private static final ThingUID THING_UID = new ThingUID(THING_TYPE_MS_TH, "testthing");
-    private static final ChannelUID CHANNEL_UID_PRESENT = new ChannelUID(THING_UID, CHANNEL_PRESENT);
+    private static final ThingUID THING_UID = new ThingUID(THING_TYPE_MS_TX, "testthing");
     private static final ChannelUID CHANNEL_UID_TEMPERATURE = new ChannelUID(THING_UID, CHANNEL_TEMPERATURE);
     private static final ChannelUID CHANNEL_UID_HUMIDITY = new ChannelUID(THING_UID, CHANNEL_HUMIDITY);
     private static final ChannelUID CHANNEL_UID_ABSOLUTE_HUMIDITY = new ChannelUID(THING_UID,
             CHANNEL_ABSOLUTE_HUMIDITY);
     private static final ChannelUID CHANNEL_UID_DEWPOINT = new ChannelUID(THING_UID, CHANNEL_DEWPOINT);
+    private static final ChannelUID CHANNEL_UID_SUPPLYVOLTAGE = new ChannelUID(THING_UID, CHANNEL_SUPPLYVOLTAGE);
 
     @Before
     public void setup() {
@@ -54,19 +54,19 @@ public class MultisensorThingHandlerTest extends AbstractThingHandlerTest {
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
         thingProperties.put(PROPERTY_SENSORCOUNT, "1");
-        thingProperties.put(PROPERTY_THING_TYPE_VERSION, "1");
+        thingProperties.put(PROPERTY_MODELID, "MS_TH");
 
-        channels.add(ChannelBuilder.create(CHANNEL_UID_PRESENT, "Switch").build());
-        channels.add(ChannelBuilder.create(CHANNEL_UID_TEMPERATURE, "Number").build());
-        channels.add(ChannelBuilder.create(CHANNEL_UID_HUMIDITY, "Number").build());
-        channels.add(ChannelBuilder.create(CHANNEL_UID_ABSOLUTE_HUMIDITY, "Number").build());
-        channels.add(ChannelBuilder.create(CHANNEL_UID_DEWPOINT, "Number").build());
+        channels.add(ChannelBuilder.create(CHANNEL_UID_TEMPERATURE, "Number:Temperature").build());
+        channels.add(ChannelBuilder.create(CHANNEL_UID_HUMIDITY, "Number:Dimensionless").build());
+        channels.add(ChannelBuilder.create(CHANNEL_UID_ABSOLUTE_HUMIDITY, "Number:Density").build());
+        channels.add(ChannelBuilder.create(CHANNEL_UID_DEWPOINT, "Number:Temperature").build());
+        channels.add(ChannelBuilder.create(CHANNEL_UID_SUPPLYVOLTAGE, "Number:ElectricPotential").build());
 
-        thing = ThingBuilder.create(THING_TYPE_MS_TH, "testthing").withLabel("Test thing").withChannels(channels)
+        thing = ThingBuilder.create(THING_TYPE_MS_TX, "testthing").withLabel("Test thing").withChannels(channels)
                 .withConfiguration(new Configuration(thingConfiguration)).withProperties(thingProperties)
                 .withBridge(bridge.getUID()).build();
 
-        thingHandler = new MultisensorThingHandler(thing, stateProvider) {
+        thingHandler = new BasicMultisensorThingHandler(thing, stateProvider) {
             @Override
             protected Bridge getBridge() {
                 return bridge;
@@ -74,7 +74,6 @@ public class MultisensorThingHandlerTest extends AbstractThingHandlerTest {
         };
 
         initializeHandlerMocks();
-
     }
 
     @Test
@@ -95,7 +94,7 @@ public class MultisensorThingHandlerTest extends AbstractThingHandlerTest {
 
         try {
             inOrder.verify(bridgeHandler, times(1)).checkPresence(TEST_ID);
-            inOrder.verify(bridgeHandler, times(2)).readDecimalType(eq(TEST_ID), any());
+            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(TEST_ID), any());
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {
