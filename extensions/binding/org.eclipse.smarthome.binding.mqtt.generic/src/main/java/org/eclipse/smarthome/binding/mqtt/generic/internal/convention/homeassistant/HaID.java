@@ -37,14 +37,14 @@ public class HaID {
      * Creates a {@link HaID} object for a given HomeAssistant MQTT topic.
      *
      * @param mqttTopic A topic like "homeassistant/binary_sensor/garden/config" or
-     *            "homeassistant/binary_sensor/0/garden/config"
+     *                      "homeassistant/binary_sensor/0/garden/config"
      */
     public HaID(String mqttTopic) {
         String[] strings = mqttTopic.split("/");
         if (strings.length < 3) {
             throw new IllegalArgumentException("MQTT topic not a HomeAssistant topic!");
         }
-        if (strings.length >= 4) {
+        if (strings.length >= 5) {
             component = strings[1];
             nodeID = strings[2];
             objectID = strings[3];
@@ -60,8 +60,8 @@ public class HaID {
      * Creates a {@link HaID} by providing all components separately.
      *
      * @param baseTopic The base topic. Usually "homeassistant".
-     * @param objectID The object ID
-     * @param nodeID The node ID (can be the empty string)
+     * @param objectID  The object ID
+     * @param nodeID    The node ID (can be the empty string)
      * @param component The component ID
      */
     public HaID(String baseTopic, String objectID, String nodeID, String component) {
@@ -75,7 +75,7 @@ public class HaID {
      * Creates a {@link HaID} by providing a channel UID.
      *
      * @param baseTopic The base topic. Usually "homeassistant".
-     * @param channel The channel UID
+     * @param channel   The channel UID
      */
     public HaID(String baseTopic, ChannelUID channel) {
         String groupId = channel.getGroupId();
