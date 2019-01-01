@@ -71,7 +71,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
             while (childListIterator.hasNext() && refreshable) {
                 Thing owThing = childListIterator.next();
 
-                logger.trace("refresh: etting handler for {} ({} to go)", owThing.getUID(), thingCount);
+                logger.trace("refresh: getting handler for {} ({} to go)", owThing.getUID(), thingCount);
                 OwBaseThingHandler owHandler = (OwBaseThingHandler) owThing.getHandler();
                 if (owHandler != null) {
                     if (owHandler.isRefreshable()) {
