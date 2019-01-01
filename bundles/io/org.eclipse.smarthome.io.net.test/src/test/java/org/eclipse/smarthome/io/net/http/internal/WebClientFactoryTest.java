@@ -56,7 +56,7 @@ public class WebClientFactoryTest {
     private TrustManagerProvider trustmanagerProvider;
 
     @Mock
-    private ExtensibleTrustManager extensibleTrustManager;
+    private ExtensibleTrustManagerImpl extensibleTrustManager;
 
     @Before
     public void setup() {

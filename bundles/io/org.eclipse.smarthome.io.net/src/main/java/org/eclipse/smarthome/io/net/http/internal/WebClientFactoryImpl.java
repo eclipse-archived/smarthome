@@ -31,6 +31,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.eclipse.smarthome.io.net.http.ExtensibleTrustManager;
 import org.eclipse.smarthome.io.net.http.HttpClientFactory;
 import org.eclipse.smarthome.io.net.http.HttpClientInitializationException;
 import org.eclipse.smarthome.io.net.http.TrustManagerProvider;

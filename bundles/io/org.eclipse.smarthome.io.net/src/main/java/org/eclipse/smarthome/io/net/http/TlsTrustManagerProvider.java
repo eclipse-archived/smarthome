@@ -21,6 +21,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  * Implement this interface to request the framework to use a specific trust manager for the given host
  *
+ * NOTE: implementations of this interface should be immutable, to guarantee efficient and correct functionality
+ *
  * @author Martin van Wingerden - Initial Contribution
  */
 @NonNullByDefault
@@ -32,7 +34,7 @@ public interface TlsTrustManagerProvider extends TlsProvider {
      * Note that the implementation might call this method multiple times make sure to return the same instance in that
      * case
      *
-     * @return this can for example be a trustManager extracted after importing a jks trust-store
+     * @return this can for example be a trustManager extracted after importing a JKS trust-store
      */
     X509ExtendedTrustManager getTrustManager();
 }

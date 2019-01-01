@@ -21,6 +21,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  * Implement this interface to request the framework to use a specific certificate for the given host
  *
+ * NOTE: implementations of this interface should be immutable, to guarantee efficient and correct functionality
+ *
  * @author Martin van Wingerden - Initial Contribution
  */
 @NonNullByDefault
