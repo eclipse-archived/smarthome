@@ -38,7 +38,7 @@ import org.mockito.MockitoAnnotations;
  * @author Jan N. Klug - Initial contribution
  */
 public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
-    private static final SensorId TEST_ID = new SensorId("00.000000000000");
+    private static final String TEST_ID = "00.000000000000";
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_EDS_ENV, "testthing");
     private static final ChannelUID CHANNEL_UID_TEMPERATURE = new ChannelUID(THING_UID, CHANNEL_TEMPERATURE);
     private static final ChannelUID CHANNEL_UID_HUMIDITY = new ChannelUID(THING_UID, CHANNEL_HUMIDITY);
@@ -92,8 +92,8 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
 
         try {
-            inOrder.verify(bridgeHandler, times(1)).checkPresence(TEST_ID);
-            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(TEST_ID), any());
+            inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
+            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(new SensorId(TEST_ID)), any());
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {

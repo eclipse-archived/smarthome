@@ -31,6 +31,7 @@ Please note that:
 
 * All things need a bridge.
 * The sensor id parameter supports only the dotted format, including the family id (e.g. `28.7AA256050000`).
+DS2409 MicroLAN couplers (hubs) are supported by adding their id and the branch (`main` or `aux`) in a directory-like format in front of the sensor id (e.g. `1F.EDC601000000/main/28.945042000000`).
 * Refresh time is the minimum time in seconds between two checks of that thing.
 It defaults to 300s for analog channels and 10s for digital channels.
 * Some thing channels need additional configuration, please see below in the channels section.

@@ -44,41 +44,61 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
 
     private final OwBaseBridgeHandler owBridgeHandler;
 
+    Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<>();
+    Map<String, String> associationMap = new HashMap<>();
+    ThingUID bridgeUID;
+
     public OwDiscoveryService(OwBaseBridgeHandler owBridgeHandler) {
         super(SUPPORTED_THING_TYPES, 60, false);
         this.owBridgeHandler = owBridgeHandler;
         logger.debug("registering discovery service for {}", owBridgeHandler);
     }
 
-    @Override
-    public void startScan() {
-        List<SensorId> directory;
-        ThingUID bridgeUID = owBridgeHandler.getThing().getUID();
+    private void scanDirectory(String baseDirectory) {
+        List<SensorId> directoryList;
 
+        logger.trace("scanning {} on bridge {}", baseDirectory, bridgeUID);
         try {
-            directory = owBridgeHandler.getDirectory("/");
+            directoryList = owBridgeHandler.getDirectory(baseDirectory);
         } catch (OwException e) {
-            logger.info("could not get base directory for {}", bridgeUID);
+            logger.info("empty directory '{}' for {}", baseDirectory, bridgeUID);
             return;
         }
 
-        Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<>();
-        Map<String, String> associationMap = new HashMap<>();
-
         // find all valid sensors
-        for (SensorId directoryEntry : directory) {
+        for (SensorId directoryEntry : directoryList) {
             try {
                 OwDiscoveryItem owDiscoveryItem = new OwDiscoveryItem(owBridgeHandler, directoryEntry);
-                owDiscoveryItems.put(owDiscoveryItem.getSensorId().getId(), owDiscoveryItem);
-                if (owDiscoveryItem.hasAssociatedSensorIds()) {
-                    for (String associatedSensorId : owDiscoveryItem.getAssociatedSensorIds()) {
-                        associationMap.put(associatedSensorId, owDiscoveryItem.getSensorId().getId());
+                if (owDiscoveryItem.getSensorType() == OwSensorType.DS2409) {
+                    // scan hub sub-directories
+                    logger.trace("found hub {}, scanning sub-directories", directoryEntry);
+
+                    scanDirectory(owDiscoveryItem.getSensorId().getFullPath() + "/main/");
+                    scanDirectory(owDiscoveryItem.getSensorId().getFullPath() + "/aux/");
+                } else {
+                    // add found sensor to list
+                    logger.trace("found sensor {} (type: {})", directoryEntry, owDiscoveryItem.getSensorType());
+
+                    owDiscoveryItems.put(owDiscoveryItem.getSensorId().getId(), owDiscoveryItem);
+                    if (owDiscoveryItem.hasAssociatedSensorIds()) {
+                        for (String associatedSensorId : owDiscoveryItem.getAssociatedSensorIds()) {
+                            associationMap.put(associatedSensorId, owDiscoveryItem.getSensorId().getId());
+                        }
                     }
+
                 }
-                logger.trace("found sensor {} (id: {})", owDiscoveryItem.getSensorType(), directoryEntry);
             } catch (OwException e) {
+                logger.debug("error while scanning for sensors in directory {} on bridge {}: {}", baseDirectory,
+                        bridgeUID, e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void startScan() {
+        bridgeUID = owBridgeHandler.getThing().getUID();
+
+        scanDirectory("/");
 
         // resolve all non-DS2438
         Iterator<Entry<String, String>> associationMapIterator = associationMap.entrySet().iterator();

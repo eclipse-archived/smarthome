@@ -263,7 +263,7 @@ public class OwDiscoveryItem {
      * @return the thing label
      */
     public String getLabel() {
-        return THING_LABEL_MAP.get(thingTypeUID) + " (" + this.sensorId + ")";
+        return THING_LABEL_MAP.get(thingTypeUID) + " (" + this.sensorId.getId() + ")";
     }
 
     @Override

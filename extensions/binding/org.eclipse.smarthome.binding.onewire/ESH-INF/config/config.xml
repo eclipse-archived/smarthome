@@ -6,7 +6,7 @@
 	<config-description uri="thing-type:onewire:fastthingconfig">
 		<parameter name="id" type="text">
 			<label>Sensor ID</label>
-			<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+			<description>Sensor ID in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 			<required>true</required>
 		</parameter>
 		<parameter name="refresh" type="integer" min="1">
@@ -20,7 +20,7 @@
 	<config-description uri="thing-type:onewire:basethingconfig">
 		<parameter name="id" type="text">
 			<label>Sensor ID</label>
-			<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
+			<description>Sensor ID in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 			<required>true</required>
 		</parameter>
 		<parameter name="refresh" type="integer" min="1">

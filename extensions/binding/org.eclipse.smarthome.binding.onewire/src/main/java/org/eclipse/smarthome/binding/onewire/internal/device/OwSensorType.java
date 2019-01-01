@@ -28,6 +28,7 @@ public enum OwSensorType {
     DS2405,
     DS2406,
     DS2408,
+    DS2409,
     DS2413,
     DS2423,
     DS2431,
