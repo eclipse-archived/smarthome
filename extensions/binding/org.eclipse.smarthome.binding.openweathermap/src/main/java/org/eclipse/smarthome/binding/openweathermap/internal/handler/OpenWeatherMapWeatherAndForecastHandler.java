@@ -170,7 +170,6 @@ public class OpenWeatherMapWeatherAndForecastHandler extends AbstractOpenWeather
                     dailyForecastData = connection.getDailyForecastData(location, forecastDays);
                 } catch (OpenWeatherMapConfigurationException e) {
                     if (e.getCause() instanceof HttpResponseException) {
-                        logger.warn(e.getLocalizedMessage());
                         forecastDays = 0;
                         Configuration editConfig = editConfiguration();
                         editConfig.put(CONFIG_FORECAST_DAYS, 0);
