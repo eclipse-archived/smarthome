@@ -61,11 +61,8 @@ public class ScriptThingActions {
         if (thing != null) {
             ThingHandler handler = thing.getHandler();
             if (handler != null) {
-                ThingActions thingActions = thingActionsMap.get(scope);
-                if (thingActions != null) {
-                    thingActions.setThingHandler(handler);
-                    return thingActions;
-                }
+                ThingActions thingActions = thingActionsMap.get(getKey(scope, thingUid));
+                return thingActions;
             }
         }
         return null;
@@ -73,16 +70,30 @@ public class ScriptThingActions {
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     void addThingActions(ThingActions thingActions) {
-        String scope = getScope(thingActions);
-        thingActionsMap.put(scope, thingActions);
+        String key = getKey(thingActions);
+        thingActionsMap.put(key, thingActions);
     }
 
     void removeThingActions(ThingActions thingActions) {
-        String scope = getScope(thingActions);
-        thingActionsMap.remove(scope);
+        String key = getKey(thingActions);
+        thingActionsMap.remove(key);
     }
 
-    private String getScope(ThingActions actions) {
+    private static String getKey(ThingActions thingActions) {
+        String scope = getScope(thingActions);
+        String thingUID = getThingUID(thingActions);
+        return getKey(scope, thingUID);
+    }
+
+    private static String getKey(String scope, String thingUID) {
+        return scope + "-" + thingUID;
+    }
+
+    private static String getThingUID(ThingActions actions) {
+        return actions.getThingHandler().getThing().getUID().getAsString();
+    }
+
+    private static String getScope(ThingActions actions) {
         ThingActionsScope scopeAnnotation = actions.getClass().getAnnotation(ThingActionsScope.class);
         return scopeAnnotation.name();
     }

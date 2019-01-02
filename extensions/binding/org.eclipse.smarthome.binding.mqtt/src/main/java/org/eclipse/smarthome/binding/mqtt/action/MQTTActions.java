@@ -21,7 +21,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.thing.binding.ThingActionsScope;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.io.transport.mqtt.MqttBrokerConnection;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  */
 @ThingActionsScope(name = "mqtt")
-@Component
 @NonNullByDefault
 public class MQTTActions implements ThingActions {
     private final Logger logger = LoggerFactory.getLogger(MQTTActions.class);
