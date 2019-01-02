@@ -84,7 +84,7 @@ in [Java MessageDigest Algorithms](https://docs.oracle.com/javase/9/docs/specs/s
 
 ```xtend
 mqtt:broker:mySecureBroker [ host="192.168.0.41", secure=true, certificatepin=true, publickeypin=true ]
-mqtt:broker:myUnsecureBroker [ host="192.168.0.42",secure=false ]
+mqtt:broker:myUnsecureBroker [ host="192.168.0.42", secure=false ]
 
 mqtt:broker:myAuthentificatedBroker [ host="192.168.0.43", secure=false, username="user", password="password" ]
 
