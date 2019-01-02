@@ -424,7 +424,7 @@ public class RuleEngineImpl implements RuleManager, RegistryChangeListener<Modul
      */
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     protected void addModuleHandlerFactory(ModuleHandlerFactory moduleHandlerFactory) {
-        logger.debug("ModuleHandlerFactory added.");
+        logger.debug("ModuleHandlerFactory added {}", moduleHandlerFactory.getClass().getSimpleName());
         allModuleHandlerFactories.add(moduleHandlerFactory);
         Collection<String> moduleTypes = moduleHandlerFactory.getTypes();
         Set<String> notInitializedRules = null;

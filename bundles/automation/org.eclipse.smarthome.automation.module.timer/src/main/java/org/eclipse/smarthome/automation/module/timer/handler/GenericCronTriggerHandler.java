@@ -12,17 +12,13 @@
  */
 package org.eclipse.smarthome.automation.module.timer.handler;
 
-import java.text.ParseException;
-
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
-import org.eclipse.smarthome.automation.module.timer.factory.TimerModuleHandlerFactory;
-import org.eclipse.smarthome.core.scheduler.CronExpression;
-import org.eclipse.smarthome.core.scheduler.Expression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
+import org.eclipse.smarthome.core.scheduler.CronScheduler;
+import org.eclipse.smarthome.core.scheduler.SchedulerRunnable;
+import org.eclipse.smarthome.core.scheduler.ScheduledCompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Yordan Mihaylov - Remove Quarz lib dependency
  *
  */
-public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implements Runnable {
+public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implements SchedulerRunnable {
 
     private final Logger logger = LoggerFactory.getLogger(GenericCronTriggerHandler.class);
 
@@ -44,21 +40,14 @@ public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implemen
     public static final String MODULE_CONTEXT_NAME = "MODULE";
 
     private static final String CFG_CRON_EXPRESSION = "cronExpression";
-    private final ExpressionThreadPoolExecutor scheduler;
-    private Expression expression;
+    private final CronScheduler scheduler;
+    private final String expression;
+    private ScheduledCompletableFuture<?> schedule;
 
-    public GenericCronTriggerHandler(Trigger module) {
+    public GenericCronTriggerHandler(Trigger module, CronScheduler scheduler) {
         super(module);
-        String cronExpressionString = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
-
-        try {
-            expression = new CronExpression(cronExpressionString);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException(
-                    "'" + cronExpressionString + "' parameter is not in valid cron expression.", e);
-        }
-        scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool(TimerModuleHandlerFactory.THREADPOOLNAME);
-
+        this.scheduler = scheduler;
+        this.expression = (String) module.getConfiguration().get(CFG_CRON_EXPRESSION);
     }
 
     @Override
@@ -68,7 +57,7 @@ public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implemen
     }
 
     private void scheduleJob() {
-        scheduler.schedule(this, expression);
+        schedule = scheduler.schedule(this, expression);
         logger.debug("Scheduled cron job '{}' for trigger '{}'.", module.getConfiguration().get(CFG_CRON_EXPRESSION),
                 module.getId());
     }
@@ -76,12 +65,10 @@ public class GenericCronTriggerHandler extends BaseTriggerModuleHandler implemen
     @Override
     public synchronized void dispose() {
         super.dispose();
-        if (scheduler.remove(this)) {
+        if (schedule != null) {
+            schedule.cancel(true);
             logger.debug("cancelled job for trigger '{}'.", module.getId());
-        } else {
-            logger.debug("Failed cancelling job for trigger '{}' - maybe it was never scheduled?", module.getId());
         }
-
     }
 
     @Override

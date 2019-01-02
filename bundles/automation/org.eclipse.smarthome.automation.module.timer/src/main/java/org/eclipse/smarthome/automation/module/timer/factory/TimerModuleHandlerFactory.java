@@ -20,11 +20,15 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.module.timer.handler.DayOfWeekConditionHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.GenericCronTriggerHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayConditionHandler;
 import org.eclipse.smarthome.automation.module.timer.handler.TimeOfDayTriggerHandler;
+import org.eclipse.smarthome.core.scheduler.CronScheduler;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - added new module types
  *
  */
+@Component(immediate = true, service = ModuleHandlerFactory.class)
 public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private final Logger logger = LoggerFactory.getLogger(TimerModuleHandlerFactory.class);
@@ -45,10 +50,21 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
             .asList(new String[] { GenericCronTriggerHandler.MODULE_TYPE_ID, TimeOfDayTriggerHandler.MODULE_TYPE_ID,
                     TimeOfDayConditionHandler.MODULE_TYPE_ID, DayOfWeekConditionHandler.MODULE_TYPE_ID });
 
+    private CronScheduler scheduler;
+
     @Override
     @Deactivate
     public void deactivate() {
         super.deactivate();
+    }
+
+    @Reference
+    protected void setCronScheduler(CronScheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    protected void unsetCronScheduler(CronScheduler scheduler) {
+        this.scheduler = null;
     }
 
     @Override
@@ -61,9 +77,9 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
         logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
         String moduleTypeUID = module.getTypeUID();
         if (GenericCronTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            return new GenericCronTriggerHandler((Trigger) module);
+            return new GenericCronTriggerHandler((Trigger) module, scheduler);
         } else if (TimeOfDayTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            return new TimeOfDayTriggerHandler((Trigger) module);
+            return new TimeOfDayTriggerHandler((Trigger) module, scheduler);
         } else if (TimeOfDayConditionHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
             return new TimeOfDayConditionHandler((Condition) module);
         } else if (DayOfWeekConditionHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {

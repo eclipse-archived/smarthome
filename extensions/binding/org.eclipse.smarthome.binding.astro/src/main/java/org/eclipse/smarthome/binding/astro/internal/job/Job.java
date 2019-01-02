@@ -30,6 +30,7 @@ import org.eclipse.smarthome.binding.astro.internal.config.AstroChannelConfig;
 import org.eclipse.smarthome.binding.astro.internal.model.Planet;
 import org.eclipse.smarthome.binding.astro.internal.model.Range;
 import org.eclipse.smarthome.binding.astro.internal.model.SunPhaseName;
+import org.eclipse.smarthome.core.scheduler.SchedulerRunnable;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Amit Kumar Mondal - New Simplified API, Implementation compliant with ESH Scheduler
  */
-public interface Job extends Runnable {
+public interface Job extends SchedulerRunnable, Runnable {
 
     /** Logger Instance */
     public final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

@@ -25,6 +25,7 @@ import org.eclipse.smarthome.binding.astro.handler.MoonHandler;
 import org.eclipse.smarthome.binding.astro.handler.SunHandler;
 import org.eclipse.smarthome.binding.astro.internal.util.PropertyUtils;
 import org.eclipse.smarthome.core.i18n.TimeZoneProvider;
+import org.eclipse.smarthome.core.scheduler.CronScheduler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -45,6 +46,7 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
             .concat(SunHandler.SUPPORTED_THING_TYPES.stream(), MoonHandler.SUPPORTED_THING_TYPES.stream())
             .collect(Collectors.toSet());
     private static final Map<String, AstroThingHandler> ASTRO_THING_HANDLERS = new HashMap<>();
+    private CronScheduler scheduler;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -56,9 +58,9 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
         AstroThingHandler thingHandler = null;
         if (thingTypeUID.equals(THING_TYPE_SUN)) {
-            thingHandler = new SunHandler(thing);
+            thingHandler = new SunHandler(thing, scheduler);
         } else if (thingTypeUID.equals(THING_TYPE_MOON)) {
-            thingHandler = new MoonHandler(thing);
+            thingHandler = new MoonHandler(thing, scheduler);
         }
         if (thingHandler != null) {
             ASTRO_THING_HANDLERS.put(thing.getUID().toString(), thingHandler);
@@ -84,4 +86,14 @@ public class AstroHandlerFactory extends BaseThingHandlerFactory {
     public static AstroThingHandler getHandler(String thingUid) {
         return ASTRO_THING_HANDLERS.get(thingUid);
     }
+
+    @Reference
+    protected void setCronScheduler(CronScheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    protected void unsetCronScheduler(CronScheduler scheduler) {
+        this.scheduler = null;
+    }
+
 }
