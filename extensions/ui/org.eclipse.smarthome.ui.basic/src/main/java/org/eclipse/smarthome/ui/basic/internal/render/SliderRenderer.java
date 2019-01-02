@@ -35,6 +35,7 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Vlad Ivanov - BasicUI changes
+ * @author Florian Schmidt - Make min and max value configurable in Sitemap
  *
  */
 @Component(service = WidgetRenderer.class)
@@ -73,12 +74,28 @@ public class SliderRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%frequency%", frequency);
         snippet = StringUtils.replace(snippet, "%switch%", s.isSwitchEnabled() ? "1" : "0");
         snippet = StringUtils.replace(snippet, "%unit%", unit);
+        snippet = StringUtils.replace(snippet, "%minValue%", minValueOf(s));
+        snippet = StringUtils.replace(snippet, "%maxValue%", maxValueOf(s));
 
         // Process the color tags
         snippet = processColor(w, snippet);
 
         sb.append(snippet);
         return null;
+    }
+
+    private String maxValueOf(Slider slider) {
+        if (slider.getMaxValue() != null) {
+            return slider.getMaxValue().toString();
+        }
+        return "100";
+    }
+
+    private String minValueOf(Slider slider) {
+        if (slider.getMinValue() != null) {
+            return slider.getMinValue().toString();
+        }
+        return "0";
     }
 
     @Override
