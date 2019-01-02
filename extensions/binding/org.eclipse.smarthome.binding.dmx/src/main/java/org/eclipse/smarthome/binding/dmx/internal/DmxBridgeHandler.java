@@ -15,9 +15,16 @@ package org.eclipse.smarthome.binding.dmx.internal;
 import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.binding.dmx.action.DmxActions;
+import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
+import org.eclipse.smarthome.binding.dmx.internal.action.ResumeAction;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
@@ -30,6 +37,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +84,7 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * get a DMX channel from the bridge
      *
      * @param channel a BaseChannel that identifies the requested channel
-     * @param thing the Thing that requests the channel to track channel usage
+     * @param thing   the Thing that requests the channel to track channel usage
      * @return a Channel object
      */
     public DmxChannel getDmxChannel(BaseDmxChannel channel, Thing thing) {
@@ -129,7 +137,7 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * close the connection to send DMX data and update thing Status
      *
      * @param statusDetail ThingStatusDetail for thingStatus OFFLINE
-     * @param description string giving the reason for closing the connection
+     * @param description  string giving the reason for closing the connection
      */
     protected void closeConnection(ThingStatusDetail statusDetail, String description) {
         updateStatus(ThingStatus.OFFLINE, statusDetail, description);
@@ -216,8 +224,8 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * set the universe id and make sure it observes the limits
      *
      * @param universeConfig ConfigurationObject
-     * @param minUniverseId the minimum id allowed by the bridge
-     * @param maxUniverseId the maximum id allowed by the bridge
+     * @param minUniverseId  the minimum id allowed by the bridge
+     * @param maxUniverseId  the maximum id allowed by the bridge
      **/
     protected void setUniverse(Object universeConfig, int minUniverseId, int maxUniverseId) {
         int universeId = minUniverseId;
@@ -233,4 +241,53 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
         }
     }
 
+    /**
+     * sends an immediate fade to the DMX output (for rule actions)
+     *
+     * @param channelString a String containing the channels
+     * @param fadeString    a String containing the fade definition
+     * @param resumeAfter   a boolean if the previous state should be restored
+     */
+    public void immediateFade(String channelString, String fadeString, Boolean resumeAfter) {
+        // parse channel config
+        List<DmxChannel> channels = new ArrayList<>();
+        try {
+            List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString(channelString, getUniverseId());
+            logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
+            for (BaseDmxChannel channel : configChannels) {
+                channels.add(getDmxChannel(channel, this.thing));
+            }
+        } catch (IllegalArgumentException e) {
+            logger.warn("invalid channel configuration: {}", channelString);
+            return;
+        }
+
+        // parse fade config
+        ValueSet value = ValueSet.fromString(fadeString);
+        if (value.isEmpty()) {
+            logger.warn("invalid fade configuration: {}", fadeString);
+            return;
+        }
+
+        // do action
+        Integer channelCounter = 0;
+        for (DmxChannel channel : channels) {
+            if (resumeAfter) {
+                channel.suspendAction();
+            } else {
+                channel.clearAction();
+            }
+            channel.addChannelAction(
+                    new FadeAction(value.getFadeTime(), value.getValue(channelCounter), value.getHoldTime()));
+            if (resumeAfter) {
+                channel.addChannelAction(new ResumeAction());
+            }
+            channelCounter++;
+        }
+    }
+
+    @Override
+    public Collection<Class<? extends ThingHandlerService>> getServices() {
+        return Collections.singletonList(DmxActions.class);
+    }
 }

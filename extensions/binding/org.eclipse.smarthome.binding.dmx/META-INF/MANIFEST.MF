@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Automatic-Module-Name: org.eclipse.smarthome.binding.dmx
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
@@ -9,9 +10,11 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.11.0.qualifier
 Export-Package: 
  org.eclipse.smarthome.binding.dmx,
- org.eclipse.smarthome.binding.dmx.handler
+ org.eclipse.smarthome.binding.dmx.handler,
+ org.eclipse.smarthome.binding.dmx.action
 Import-Package: 
  org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.automation.annotation;resolution:=optional,
  org.eclipse.smarthome.binding.dmx,
  org.eclipse.smarthome.binding.dmx.handler,
  org.eclipse.smarthome.config.core,
@@ -25,4 +28,4 @@ Import-Package:
  org.osgi.service.component,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Automatic-Module-Name: org.eclipse.smarthome.binding.dmx
+
