@@ -21,19 +21,16 @@ import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.thing.binding.ThingActionsScope;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link DmxActions} provides actions
- * for DMX Bridges
+ * The {@link DmxActions} provides actions for DMX Bridges
  *
  * @author Jan N. Klug - Initial contribution
  */
 
 @ThingActionsScope(name = "dmx")
-@Component
 @NonNullByDefault
 public class DmxActions implements ThingActions {
 

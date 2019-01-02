@@ -249,7 +249,7 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * @param resumeAfter   a boolean if the previous state should be restored
      */
     public void immediateFade(String channelString, String fadeString, Boolean resumeAfter) {
-        // parse channel
+        // parse channel config
         List<DmxChannel> channels = new ArrayList<>();
         try {
             List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString(channelString, getUniverseId());
@@ -258,14 +258,14 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
                 channels.add(getDmxChannel(channel, this.thing));
             }
         } catch (IllegalArgumentException e) {
-            logger.debug("invalid channel configuration: {}", channelString);
+            logger.warn("invalid channel configuration: {}", channelString);
             return;
         }
 
         // parse fade config
         ValueSet value = ValueSet.fromString(fadeString);
         if (value.isEmpty()) {
-            logger.info("invalid fade configuration: {}", fadeString);
+            logger.warn("invalid fade configuration: {}", fadeString);
             return;
         }
 
