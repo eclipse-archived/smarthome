@@ -99,7 +99,7 @@ public class OwserverPacket {
         setTemperatureScale(OwserverTemperatureScale.CENTIGRADE);
         setControlFlags(owControlFlags);
         if (owMessageType == OwserverMessageType.WRITE) {
-            packetSize = 0x00000001;
+            packetSize = 0x00000000;
         } else {
             packetSize = 0x00010000;
         }
@@ -186,6 +186,7 @@ public class OwserverPacket {
         System.arraycopy(this.payload, 0, fullPayload, 0, this.payload.length);
         System.arraycopy(appendBytes, 0, fullPayload, this.payload.length, appendBytes.length);
 
+        this.packetSize += appendBytes.length;
         this.payloadLength = fullPayload.length;
         this.payload = fullPayload;
     }

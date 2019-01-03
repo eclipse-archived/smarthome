@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -97,13 +98,17 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             return false;
         }
 
+        sensorIds.clear();
+        sensors.clear();
+
         sensorCount = Integer.valueOf(properties.get(PROPERTY_SENSORCOUNT));
         for (int i = 0; i < sensorCount; i++) {
             String configKey = (i == 0) ? CONFIG_ID : CONFIG_ID + String.valueOf(i);
             if (configuration.get(configKey) != null) {
                 String sensorId = (String) configuration.get(configKey);
-                if (SENSOR_ID_PATTERN.matcher(sensorId).matches()) {
-                    sensorIds.add(sensorId);
+                Matcher sensorIdMatcher = SENSOR_ID_PATTERN.matcher(sensorId);
+                if (sensorIdMatcher.matches()) {
+                    sensorIds.add(sensorIdMatcher.group(1));
                 } else {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                             "sensor id format mismatch");
@@ -228,10 +233,6 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     @Override
     public void dispose() {
         dynamicStateDescriptionProvider.removeDescriptionsForThing(getThing().getUID());
-
-        sensorIds.clear();
-        sensors.clear();
-
         super.dispose();
     }
 

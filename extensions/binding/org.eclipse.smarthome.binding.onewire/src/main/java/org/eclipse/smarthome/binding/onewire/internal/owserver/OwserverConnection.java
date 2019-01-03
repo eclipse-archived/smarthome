@@ -126,7 +126,7 @@ public class OwserverConnection {
                 returnPacket = read(false);
             } catch (OwException e) {
                 logger.debug("getDirectory may have returned incomplete result: {}", e.getMessage());
-                closeOnError();
+                checkConnection();
                 return directory;
             }
             if (returnPacket.hasPayload()) {
@@ -297,22 +297,6 @@ public class OwserverConnection {
     }
 
     /**
-     * sends a nop to keep the server connection active
-     *
-     * @return true if successful send
-     * @throws OwException
-     */
-    private boolean sendNop() throws OwException {
-        OwserverPacket requestPacket = new OwserverPacket(OwserverMessageType.NOP, "");
-        OwserverPacket returnPacket = request(requestPacket);
-        if (returnPacket.getReturnCode() == -1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * open/reopen the connection to the owserver
      *
      * @return true if open
@@ -398,6 +382,19 @@ public class OwserverConnection {
     }
 
     /**
+     * check if the connection is dead and close it
+     */
+    private void checkConnection() {
+        try {
+            int pid = ((DecimalType) readDecimalType("/system/process/pid")).intValue();
+            logger.debug("read pid {} -> connection still alive", pid);
+            return;
+        } catch (OwException e) {
+            closeOnError();
+        }
+    }
+
+    /**
      * close the connection to the owserver instance after an error occured
      */
     private void closeOnError() {
@@ -456,7 +453,7 @@ public class OwserverConnection {
         } catch (EOFException e) {
             // nothing to read
         } catch (OwException e) {
-            closeOnError();
+            checkConnection();
             throw e;
         } catch (IOException e) {
             if (e.getMessage().equals("Read timed out") && noTimeoutException) {
@@ -464,7 +461,7 @@ public class OwserverConnection {
                 returnPacket.setPayload("timeout");
                 returnPacket.setReturnCode(-1);
             } else {
-                closeOnError();
+                checkConnection();
                 throw new OwException("I/O error: exception while reading packet - " + e.getMessage());
             }
         }
