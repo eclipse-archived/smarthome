@@ -81,11 +81,12 @@ public class EDS006x extends AbstractOwDevice {
      * @param sensorType an OwSensorType
      */
     public void configureChannels(OwSensorType sensorType) {
+        String sensorTypeName = sensorType.name();
         temperatureParameter.set(THING_TYPE_OWSERVER,
-                new OwserverDeviceParameter("/" + sensorType.name() + "/temperature"));
-        humidityParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/" + sensorType.name() + "/humidity"));
-        pressureParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/" + sensorType.name() + "/pressure"));
-        lightParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/" + sensorType.name() + "/light"));
+                new OwserverDeviceParameter("/" + sensorTypeName + "/temperature"));
+        humidityParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/" + sensorTypeName + "/humidity"));
+        pressureParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/" + sensorTypeName + "/pressure"));
+        lightParameter.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/" + sensorTypeName + "/light"));
 
         isConfigured = true;
     }

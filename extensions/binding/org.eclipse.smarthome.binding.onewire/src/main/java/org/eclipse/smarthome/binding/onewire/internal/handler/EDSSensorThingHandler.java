@@ -47,6 +47,8 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class EDSSensorThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_EDS_ENV));
+    private static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = new HashSet<>(Arrays.asList(OwSensorType.EDS0064,
+            OwSensorType.EDS0065, OwSensorType.EDS0066, OwSensorType.EDS0067, OwSensorType.EDS0068));
 
     private final Logger logger = LoggerFactory.getLogger(EDSSensorThingHandler.class);
 
@@ -91,33 +93,34 @@ public class EDSSensorThingHandler extends OwBaseThingHandler {
         logger.debug("configuring sensors for {}", this.thing.getLabel());
 
         try {
-            ((EDS006x) sensors.get(0)).configureChannels(sensorType);
+            EDS006x sensor = (EDS006x) sensors.get(0);
+            sensor.configureChannels(sensorType);
 
             switch (sensorType) {
                 case EDS0064:
-                    sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
+                    sensor.enableChannel(CHANNEL_TEMPERATURE);
                     break;
                 case EDS0065:
-                    sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
-                    sensors.get(0).enableChannel(CHANNEL_HUMIDITY);
-                    sensors.get(0).enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
-                    sensors.get(0).enableChannel(CHANNEL_DEWPOINT);
+                    sensor.enableChannel(CHANNEL_TEMPERATURE);
+                    sensor.enableChannel(CHANNEL_HUMIDITY);
+                    sensor.enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
+                    sensor.enableChannel(CHANNEL_DEWPOINT);
                     break;
                 case EDS0066:
-                    sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
-                    sensors.get(0).enableChannel(CHANNEL_PRESSURE);
+                    sensor.enableChannel(CHANNEL_TEMPERATURE);
+                    sensor.enableChannel(CHANNEL_PRESSURE);
                     break;
                 case EDS0067:
-                    sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
-                    sensors.get(0).enableChannel(CHANNEL_LIGHT);
+                    sensor.enableChannel(CHANNEL_TEMPERATURE);
+                    sensor.enableChannel(CHANNEL_LIGHT);
                     break;
                 case EDS0068:
-                    sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
-                    sensors.get(0).enableChannel(CHANNEL_HUMIDITY);
-                    sensors.get(0).enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
-                    sensors.get(0).enableChannel(CHANNEL_DEWPOINT);
-                    sensors.get(0).enableChannel(CHANNEL_PRESSURE);
-                    sensors.get(0).enableChannel(CHANNEL_LIGHT);
+                    sensor.enableChannel(CHANNEL_TEMPERATURE);
+                    sensor.enableChannel(CHANNEL_HUMIDITY);
+                    sensor.enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
+                    sensor.enableChannel(CHANNEL_DEWPOINT);
+                    sensor.enableChannel(CHANNEL_PRESSURE);
+                    sensor.enableChannel(CHANNEL_LIGHT);
                     break;
                 default:
                     throw new OwException("sensor not supported");
@@ -201,8 +204,7 @@ public class EDSSensorThingHandler extends OwBaseThingHandler {
         } catch (IllegalArgumentException e) {
         }
 
-        if ((sensorType != OwSensorType.EDS0064) && (sensorType != OwSensorType.EDS0065)
-                && (sensorType != OwSensorType.EDS0066) && (sensorType != OwSensorType.EDS0067)) {
+        if (!SUPPORTED_SENSOR_TYPES.contains(sensorType)) {
             throw new OwException("sensorType not supported for EDSSensorThing");
         }
 
