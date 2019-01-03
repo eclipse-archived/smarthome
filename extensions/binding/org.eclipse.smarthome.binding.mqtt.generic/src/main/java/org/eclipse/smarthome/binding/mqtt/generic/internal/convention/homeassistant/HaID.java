@@ -44,7 +44,7 @@ public class HaID {
         if (strings.length < 3) {
             throw new IllegalArgumentException("MQTT topic not a HomeAssistant topic!");
         }
-        if (strings.length >= 4) {
+        if (strings.length >= 5) {
             component = strings[1];
             nodeID = strings[2];
             objectID = strings[3];

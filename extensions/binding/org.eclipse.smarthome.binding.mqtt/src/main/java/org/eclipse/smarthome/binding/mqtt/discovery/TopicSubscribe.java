@@ -49,7 +49,11 @@ public class TopicSubscribe implements MqttMessageSubscriber {
 
     @Override
     public void processMessage(String topic, byte[] payload) {
-        topicDiscoveredListener.receivedMessage(thing, connection, topic, payload);
+        if (payload.length > 0) {
+            topicDiscoveredListener.receivedMessage(thing, connection, topic, payload);
+        } else {
+            topicDiscoveredListener.topicVanished(thing, connection, topic);
+        }
     }
 
     /**
