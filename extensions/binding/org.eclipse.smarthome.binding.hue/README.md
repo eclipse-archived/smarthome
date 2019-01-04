@@ -253,7 +253,7 @@ sitemap demo label="Main Menu"
  ```php
 rule "example trigger rule"
 when
-    Channel "hue:0820:dimmer-switch:dimmer_switch_event" triggered <EVENT>
+    Channel "hue:0820:1:dimmer-switch:dimmer_switch_event" triggered <EVENT>
 then
     ...
 end
