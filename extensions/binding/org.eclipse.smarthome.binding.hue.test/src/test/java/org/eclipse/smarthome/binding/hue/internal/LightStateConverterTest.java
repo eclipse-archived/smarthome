@@ -102,6 +102,17 @@ public class LightStateConverterTest {
     }
 
     @Test
+    public void hsbHueAlwaysGreaterThanZeroAndLessThan360() {
+        final State lightState = new State();
+        lightState.colormode = ColorMode.CT.toString();
+        for (int hue = 0; hue <= 65535; ++hue) {
+            lightState.hue = hue;
+            assertTrue(LightStateConverter.toHSBType(lightState).getHue().intValue() >= 0);
+            assertTrue(LightStateConverter.toHSBType(lightState).getHue().intValue() < 360);
+        }
+    }
+
+    @Test
     public void colorLightStateConverterForSaturationConversionIsBijective() {
         final State lightState = new State();
         lightState.colormode = ColorMode.CT.toString();
@@ -112,6 +123,20 @@ public class LightStateConverterTest {
             assertThat(stateUpdate.commands.get(1).key, is("sat"));
             lightState.sat = Integer.parseInt(stateUpdate.commands.get(1).value.toString());
             assertThat(LightStateConverter.toHSBType(lightState).getSaturation().intValue(), is(percent));
+        }
+    }
+
+    @Test
+    public void colorLightStateConverterForHueConversionIsBijective() {
+        final State lightState = new State();
+        lightState.colormode = ColorMode.HS.toString();
+        for (int hue = 0; hue < 360; ++hue) {
+            final HSBType hsbType = new HSBType(new DecimalType(hue), PercentType.HUNDRED, PercentType.HUNDRED);
+            StateUpdate stateUpdate = LightStateConverter.toColorLightState(hsbType, lightState);
+            assertThat(stateUpdate.commands.size(), is(3));
+            assertThat(stateUpdate.commands.get(0).key, is("hue"));
+            lightState.hue = Integer.parseInt(stateUpdate.commands.get(0).value.toString());
+            assertThat(LightStateConverter.toHSBType(lightState).getHue().intValue(), is(hue));
         }
     }
 

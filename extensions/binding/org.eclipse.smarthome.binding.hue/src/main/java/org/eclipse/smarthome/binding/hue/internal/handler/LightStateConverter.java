@@ -41,7 +41,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 @NonNullByDefault
 public class LightStateConverter {
 
-    private static final int HUE_FACTOR = 182;
+    private static final double HUE_FACTOR = 65536 / 360.0;
     private static final double SATURATION_FACTOR = 2.54;
     private static final double BRIGHTNESS_FACTOR = 2.54;
 
@@ -223,7 +223,7 @@ public class LightStateConverter {
     }
 
     private static HSBType fromHSBtoHSBType(State lightState) {
-        int hue = lightState.getHue();
+        int hue = (int) Math.round(lightState.getHue() / HUE_FACTOR) % 360;
 
         int saturationInPercent = (int) Math.ceil(lightState.getSaturation() / SATURATION_FACTOR);
         saturationInPercent = restrictToBounds(saturationInPercent);
@@ -231,7 +231,7 @@ public class LightStateConverter {
         int brightnessInPercent = (int) Math.ceil(lightState.getBrightness() / BRIGHTNESS_FACTOR);
         brightnessInPercent = restrictToBounds(brightnessInPercent);
 
-        return new HSBType(new DecimalType(hue / HUE_FACTOR), new PercentType(saturationInPercent),
+        return new HSBType(new DecimalType(hue), new PercentType(saturationInPercent),
                 new PercentType(brightnessInPercent));
     }
 
