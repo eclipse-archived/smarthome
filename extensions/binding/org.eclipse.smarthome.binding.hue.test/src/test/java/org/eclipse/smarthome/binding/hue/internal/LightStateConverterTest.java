@@ -104,7 +104,6 @@ public class LightStateConverterTest {
     @Test
     public void hsbHueAlwaysGreaterThanZeroAndLessThan360() {
         final State lightState = new State();
-        lightState.colormode = ColorMode.CT.toString();
         for (int hue = 0; hue <= 65535; ++hue) {
             lightState.hue = hue;
             assertTrue(LightStateConverter.toHSBType(lightState).getHue().intValue() >= 0);
@@ -129,7 +128,6 @@ public class LightStateConverterTest {
     @Test
     public void colorLightStateConverterForHueConversionIsBijective() {
         final State lightState = new State();
-        lightState.colormode = ColorMode.HS.toString();
         for (int hue = 0; hue < 360; ++hue) {
             final HSBType hsbType = new HSBType(new DecimalType(hue), PercentType.HUNDRED, PercentType.HUNDRED);
             StateUpdate stateUpdate = LightStateConverter.toColorLightState(hsbType, lightState);
