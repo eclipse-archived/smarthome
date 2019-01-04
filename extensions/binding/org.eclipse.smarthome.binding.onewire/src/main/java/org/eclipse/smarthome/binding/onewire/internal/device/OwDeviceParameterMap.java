@@ -32,11 +32,7 @@ public class OwDeviceParameterMap {
      * @param owDeviceParameter the information for this bridge
      */
     public void set(ThingTypeUID thingTypeUID, OwDeviceParameter owDeviceParameter) {
-        if (map.containsKey(thingTypeUID)) {
-            map.replace(thingTypeUID, owDeviceParameter);
-        } else {
-            map.put(thingTypeUID, owDeviceParameter);
-        }
+        map.put(thingTypeUID, owDeviceParameter);
     }
 
     /**
