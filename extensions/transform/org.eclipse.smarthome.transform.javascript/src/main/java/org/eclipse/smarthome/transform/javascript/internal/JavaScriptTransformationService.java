@@ -12,8 +12,6 @@
  */
 package org.eclipse.smarthome.transform.javascript.internal;
 
-import java.util.Objects;
-
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
@@ -31,8 +29,8 @@ import org.slf4j.LoggerFactory;
  * The implementation of {@link TransformationService} which transforms the
  * input by Java Script.
  *
- * @author Pauli Anttila
- * @author thomask
+ * @author Pauli Anttila Initial contribution
+ * @author Thomas Kordelle pre compiled scripts
  */
 @NonNullByDefault
 @Component(immediate = true, property = { "smarthome.transform=JS" })
@@ -57,14 +55,15 @@ public class JavaScriptTransformationService implements TransformationService {
      * transformations one should use subfolders.
      *
      * @param filename the name of the file which contains the Java script
-     *                     transformation rule. Transformation service inject input
-     *                     (source) to 'input' variable.
-     * @param source   the input to transform
+     *            transformation rule. Transformation service inject input
+     *            (source) to 'input' variable.
+     * @param source the input to transform
      */
     @Override
     public @Nullable String transform(String filename, String source) throws TransformationException {
-        Objects.requireNonNull(filename, "the given parameter 'filename' must not be null");
-        Objects.requireNonNull(source, "the given parameter 'source' must not be null");
+        if (filename == null || source == null) {
+            throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
+        }
 
         final long startTime = System.currentTimeMillis();
         logger.debug("about to transform '{}' by the JavaScript '{}'", source, filename);
