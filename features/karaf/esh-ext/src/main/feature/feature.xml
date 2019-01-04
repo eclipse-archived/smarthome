@@ -172,11 +172,6 @@
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.wemo/${project.version}</bundle>
   </feature>
 
-  <feature name="esh-binding-yahooweather" version="${project.version}">
-    <feature>esh-base</feature>
-    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.yahooweather/${project.version}</bundle>
-  </feature>
-
   <feature name="esh-extensionservice-marketplace" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.extensionservice/org.eclipse.smarthome.extensionservice.marketplace/${project.version}</bundle>
