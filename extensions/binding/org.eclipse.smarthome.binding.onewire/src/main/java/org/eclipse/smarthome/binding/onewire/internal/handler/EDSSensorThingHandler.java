@@ -15,11 +15,12 @@ package org.eclipse.smarthome.binding.onewire.internal.handler;
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
@@ -46,9 +47,10 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class EDSSensorThingHandler extends OwBaseThingHandler {
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_EDS_ENV));
-    private static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = new HashSet<>(Arrays.asList(OwSensorType.EDS0064,
-            OwSensorType.EDS0065, OwSensorType.EDS0066, OwSensorType.EDS0067, OwSensorType.EDS0068));
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_EDS_ENV);
+    private static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections
+            .unmodifiableSet(Stream.of(OwSensorType.EDS0064, OwSensorType.EDS0065, OwSensorType.EDS0066,
+                    OwSensorType.EDS0067, OwSensorType.EDS0068).collect(Collectors.toSet()));
 
     private final Logger logger = LoggerFactory.getLogger(EDSSensorThingHandler.class);
 
