@@ -76,6 +76,7 @@ public class SliderRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%unit%", unit);
         snippet = StringUtils.replace(snippet, "%minValue%", minValueOf(s));
         snippet = StringUtils.replace(snippet, "%maxValue%", maxValueOf(s));
+        snippet = StringUtils.replace(snippet, "%step%", setpOf(s));
 
         // Process the color tags
         snippet = processColor(w, snippet);
@@ -96,6 +97,13 @@ public class SliderRenderer extends AbstractWidgetRenderer {
             return slider.getMinValue().toString();
         }
         return "0";
+    }
+
+    private String setpOf(Slider slider) {
+        if (slider.getStep() != null) {
+            return slider.getStep().toString();
+        }
+        return "1";
     }
 
     @Override

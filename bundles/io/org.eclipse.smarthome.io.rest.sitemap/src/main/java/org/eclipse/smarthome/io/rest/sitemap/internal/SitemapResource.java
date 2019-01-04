@@ -542,6 +542,7 @@ public class SitemapResource implements RESTResource, SitemapSubscriptionCallbac
             bean.switchSupport = sliderWidget.isSwitchEnabled();
             bean.minValue = sliderWidget.getMinValue();
             bean.maxValue = sliderWidget.getMaxValue();
+            bean.step = sliderWidget.getStep();
         }
         if (widget instanceof List) {
             List listWidget = (List) widget;
