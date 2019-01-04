@@ -23,8 +23,6 @@ import org.eclipse.smarthome.binding.hue.internal.FullConfig;
 import org.eclipse.smarthome.binding.hue.internal.FullLight;
 import org.eclipse.smarthome.binding.hue.internal.State.ColorMode;
 import org.eclipse.smarthome.binding.hue.internal.StateUpdate;
-import org.eclipse.smarthome.binding.hue.internal.handler.HueClient;
-import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler;
 import org.eclipse.smarthome.binding.hue.test.HueLightState;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -188,8 +186,14 @@ public class HueLightHandlerTest {
     }
 
     @Test
+    public void assertCommandForColorChannelGreen() {
+        String expectedReply = "{\"bri\" : 254, \"sat\" : 254, \"hue\" : 21845}";
+        assertSendCommandForColor(HSBType.GREEN, new HueLightState(), expectedReply);
+    }
+
+    @Test
     public void assertCommandForColorChannelBlue() {
-        String expectedReply = "{\"bri\" : 254, \"sat\" : 254, \"hue\" : 43680}";
+        String expectedReply = "{\"bri\" : 254, \"sat\" : 254, \"hue\" : 43690}";
         assertSendCommandForColor(HSBType.BLUE, new HueLightState(), expectedReply);
     }
 
