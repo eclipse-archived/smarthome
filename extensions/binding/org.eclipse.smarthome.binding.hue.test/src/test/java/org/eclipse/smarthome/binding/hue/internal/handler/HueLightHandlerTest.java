@@ -186,6 +186,12 @@ public class HueLightHandlerTest {
     }
 
     @Test
+    public void assertCommandForColorChannelGreen() {
+        String expectedReply = "{\"bri\" : 254, \"sat\" : 254, \"hue\" : 21845}";
+        assertSendCommandForColor(HSBType.GREEN, new HueLightState(), expectedReply);
+    }
+
+    @Test
     public void assertCommandForColorChannelBlue() {
         String expectedReply = "{\"bri\" : 254, \"sat\" : 254, \"hue\" : 43690}";
         assertSendCommandForColor(HSBType.BLUE, new HueLightState(), expectedReply);
