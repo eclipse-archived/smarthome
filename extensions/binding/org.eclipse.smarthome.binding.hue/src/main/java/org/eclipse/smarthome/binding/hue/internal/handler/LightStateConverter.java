@@ -41,7 +41,7 @@ import org.eclipse.smarthome.core.library.types.StringType;
 @NonNullByDefault
 public class LightStateConverter {
 
-    private static final double HUE_FACTOR = 65536 / 360.0;
+    private static final double HUE_FACTOR = 65535 / 360.0;
     private static final double SATURATION_FACTOR = 2.54;
     private static final double BRIGHTNESS_FACTOR = 2.54;
 
