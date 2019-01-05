@@ -15,7 +15,7 @@ The `owserver` is the bridge that connects to an existing OWFS installation.
 
 ### Things
 
-There are three types of things: the generic ones (`counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature`), multisensors built around the DS1923/DS2438 chip (`ms-tx`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`). 
+There are different types of things: the generic ones (`counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature`), multisensors built around the DS1923/DS2438 chip (`ms-tx`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`) and Embedded Data System (`edsenv`). 
 
 The thing types `ms-th`and `ms-tv` have been marked deprecated and will be updated to `ms-tx`automatically. 
 Manually (via textual configuration) defined things should be changed to `ms-tx`. 
@@ -114,24 +114,34 @@ In that mode, a `current`  channel is provided.
 If set to `true`, a `light` channel is added to the thing.
 The correct formula for the ambient light is automatically determined from the sensor version.
 
+### Embedded Data System Environmental sensors (`edsenv`)
+
+This thing supports EDS0064, EDS0065, EDS0066 or EDS0067 sensors.
+It has two parameters: sensor id `id` and refresh time `refresh`.
+
+All things have a `temperature` channel.
+Additional channels (`light`, `pressure`, `humidity`, `dewpoint`, `abshumidity`) will be added if available from the sensor automatically.
+
+
 ## Channels
 
-| Type-ID             | Thing                  | Item                     | readonly   | Description                                        |
-|---------------------|------------------------|--------------------------|------------|----------------------------------------------------|
-| absolutehumidity    | ms-tx, ams, bms        | Number:Density           | yes        | absolute humidity                                  |
-| current             | ms-tx, ams             | Number:ElectricCurrent   | yes        | current                                            |
-| counter             | counter2               | Number                   | yes        | countervalue                                       |
-| dewpoint            | ms-tx, ams, bms        | Number:Temperature       | yes        | dewpoint                                           |
-| dio                 | digitalX, ams          | Switch                   | no         | digital I/O, can be configured as input or output  |
-| humidity            | ms-tx, ams, bms        | Number:Dimensionless     | yes        | relative humidity                                  |
-| humidityconf        | ms-tx                  | Number:Dimensionless     | yes        | relative humidity                                  |
-| light               | ams, bms               | Number:Illuminance       | yes        | lightness                                          |
-| present             | all                    | Switch                   | yes        | sensor found on bus                                |
-| supplyvoltage       | ms-tx                  | Number:ElectricPotential | yes        | sensor supplyvoltage                               |
-| temperature         | temperature, ms-tx     | Number:Temperature       | yes        | environmental temperature                          |
-| temperature-por     | temperature            | Number:Temperature       | yes        | environmental temperature                          |
-| temperature-por-res | temperature, ams, bms  | Number:Temperature       | yes        | environmental temperature                          |
-| voltage             | ms-tx, ams             | Number:ElectricPotential | yes        | voltage input                                      |
+| Type-ID             | Thing                      | Item                     | readonly   | Description                                        |
+|---------------------|----------------------------|--------------------------|------------|----------------------------------------------------|
+| absolutehumidity    | ms-tx, ams, bms, edsenv    | Number:Density           | yes        | absolute humidity                                  |
+| current             | ms-tx, ams                 | Number:ElectricCurrent   | yes        | current                                            |
+| counter             | counter2                   | Number                   | yes        | countervalue                                       |
+| dewpoint            | ms-tx, ams, bms, edsenv    | Number:Temperature       | yes        | dewpoint                                           |
+| dio                 | digitalX, ams              | Switch                   | no         | digital I/O, can be configured as input or output  |
+| humidity            | ms-tx, ams, bms, edsenv    | Number:Dimensionless     | yes        | relative humidity                                  |
+| humidityconf        | ms-tx                      | Number:Dimensionless     | yes        | relative humidity                                  |
+| light               | ams, bms, edsenv           | Number:Illuminance       | yes        | lightness                                          |
+| present             | all                        | Switch                   | yes        | sensor found on bus                                |
+| pressure            | edsenv                     | Number:Pressure          | yes        | environmental pressure                             |
+| supplyvoltage       | ms-tx                      | Number:ElectricPotential | yes        | sensor supplyvoltage                               |
+| temperature         | temperature, ms-tx, edsenv | Number:Temperature       | yes        | environmental temperature                          |
+| temperature-por     | temperature                | Number:Temperature       | yes        | environmental temperature                          |
+| temperature-por-res | temperature, ams, bms      | Number:Temperature       | yes        | environmental temperature                          |
+| voltage             | ms-tx, ams                 | Number:ElectricPotential | yes        | voltage input                                      |
 
 ### Digital I/O (`dio`)
 

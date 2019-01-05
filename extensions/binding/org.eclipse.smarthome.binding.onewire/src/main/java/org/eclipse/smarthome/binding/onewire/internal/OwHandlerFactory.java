@@ -25,6 +25,7 @@ import org.eclipse.smarthome.binding.onewire.internal.handler.AdvancedMultisenso
 import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.CounterSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.DigitalIOThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.EDSSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.IButtonThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.TemperatureSensorThingHandler;
@@ -81,6 +82,8 @@ public class OwHandlerFactory extends BaseThingHandlerFactory {
             return new AdvancedMultisensorThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (CounterSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new CounterSensorThingHandler(thing, dynamicStateDescriptionProvider);
+        } else if (EDSSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new EDSSensorThingHandler(thing, dynamicStateDescriptionProvider);
         }
 
         return null;
