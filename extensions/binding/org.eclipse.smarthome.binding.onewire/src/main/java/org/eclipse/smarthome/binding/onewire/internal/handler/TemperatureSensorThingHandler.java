@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 
@@ -53,7 +54,9 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             return;
         }
 
-        if (getThing().getStatus() == ThingStatus.OFFLINE) {
+        ThingStatusInfo statusInfo = getThing().getStatusInfo();
+        if (statusInfo.getStatus() == ThingStatus.OFFLINE
+                && statusInfo.getStatusDetail() == ThingStatusDetail.CONFIGURATION_ERROR) {
             return;
         }
 
