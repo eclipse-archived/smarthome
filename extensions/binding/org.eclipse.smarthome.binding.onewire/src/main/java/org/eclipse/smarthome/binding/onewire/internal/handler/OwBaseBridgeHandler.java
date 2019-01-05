@@ -86,6 +86,8 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
                 thingCount--;
             }
 
+            refreshBridgeChannels(now);
+
             // update thing properties (only one per refresh cycle)
             if (updatePropertiesThingListIterator.hasNext()) {
                 Thing owThing = updatePropertiesThingListIterator.next();
@@ -154,6 +156,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      *
      * @param sensorId the sensor's full ID
      * @return ON if present, OFF if missing
+     * @throws OwException
      */
     public abstract State checkPresence(String sensorId) throws OwException;
 
@@ -162,6 +165,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      *
      * @param sensorId the sensor's full ID
      * @return a String containing the sensor type
+     * @throws OwException
      */
     public abstract OwSensorType getType(String sensorId) throws OwException;
 
@@ -170,24 +174,27 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      *
      * @param sensorId the sensor's full ID
      * @return a OwPageBuffer object containing the requested information
+     * @throws OwException
      */
     public abstract OwPageBuffer readPages(String sensorId) throws OwException;
 
     /**
      * read a single decimal value from a sensor
      *
-     * @param sensorId  sensorId the sensor's full ID
+     * @param sensorId sensorId the sensor's full ID
      * @param parameter device parameters needed for this request
      * @return a DecimalType
+     * @throws OwException
      */
     public abstract State readDecimalType(String sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
      * read an array of decimal values from a sensor
      *
-     * @param sensorId  sensorId the sensor's full ID
+     * @param sensorId sensorId the sensor's full ID
      * @param parameter device parameters needed for this request
      * @return a list of DecimalType values
+     * @throws OwException
      */
     public abstract List<State> readDecimalTypeArray(String sensorId, OwDeviceParameterMap parameter)
             throws OwException;
@@ -195,17 +202,19 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
     /**
      * read a string from a sensor
      *
-     * @param sensorId  sensorId the sensor's full ID
+     * @param sensorId sensorId the sensor's full ID
      * @param parameter device parameters needed for this request
      * @return a String
+     * @throws OwException
      */
     public abstract String readString(String sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
      * writes a DecimalType to the sensor
      *
-     * @param sensorId  sensorId the sensor's full ID
+     * @param sensorId sensorId the sensor's full ID
      * @param parameter device parameters needed for this request
+     * @throws OwException
      */
     public abstract void writeDecimalType(String sensorId, OwDeviceParameterMap parameter, DecimalType value)
             throws OwException;
@@ -214,8 +223,17 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * returns if this bridge is refreshable
      *
      * @return true if implementation reports communication ready
+     * @throws OwException
      */
     public boolean isRefreshable() {
         return refreshable;
+    }
+
+    /**
+     * refreshes channels attached to the bridge
+     *
+     * @param now current time
+     */
+    public void refreshBridgeChannels(long now) {
     }
 }

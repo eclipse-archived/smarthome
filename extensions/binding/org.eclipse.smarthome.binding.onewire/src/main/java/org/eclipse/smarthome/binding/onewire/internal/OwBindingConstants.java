@@ -149,4 +149,7 @@ public class OwBindingConstants {
             "temperature-por");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE_POR_RES = new ChannelTypeUID(BINDING_ID,
             "temperature-por-res");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_OWFS_NUMBER = new ChannelTypeUID(BINDING_ID, "owfs-number");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_OWFS_STRING = new ChannelTypeUID(BINDING_ID, "owfs-string");
+
 }
