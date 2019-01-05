@@ -4,10 +4,10 @@
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-	<!-- Soundbar PLAYBAR Thing Type -->
-	<thing-type id="PLAYBAR" listed="false">
-		<label>PLAYBAR</label>
-		<description>Represents SONOS PLAYBAR soundbar</description>
+	<!-- Soundbar PLAYBASE Thing Type -->
+	<thing-type id="PLAYBASE" listed="false">
+		<label>PLAYBASE</label>
+		<description>Represents SONOS PLAYBASE soundbar</description>
 
 		<channels>
 			<channel id="add" typeId="add" />
@@ -61,7 +61,7 @@
 
 		<properties>
 			<property name="vendor">SONOS</property>
-			<property name="modelId">PLAYBAR</property>
+			<property name="modelId">PLAYBASE</property>
 		</properties>
 
 		<representation-property>udn</representation-property>

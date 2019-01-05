@@ -336,6 +336,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case REPEAT:
                     setRepeat(command);
                     break;
+                case NIGHTMODE:
+                    setNightMode(command);
+                    break;
+                case SPEECHENHANCEMENT:
+                    setSpeechEnhancement(command);
+                    break;
                 default:
                     break;
             }
@@ -459,6 +465,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     break;
                 case "MuteMaster":
                     updateChannel(MUTE);
+                    break;
+                case "NightMode":
+                    updateChannel(NIGHTMODE);
+                    break;
+                case "DialogLevel":
+                    updateChannel(SPEECHENHANCEMENT);
                     break;
                 case "LineInConnected":
                 case "TOSLinkConnected":
@@ -657,6 +669,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case MUTE:
                 if (stateMap.get("MuteMaster") != null) {
                     newState = stateMap.get("MuteMaster").equals("1") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case NIGHTMODE:
+                if (stateMap.get("NightMode") != null) {
+                    newState = stateMap.get("NightMode").equals("1") ? OnOffType.ON : OnOffType.OFF;
+                }
+                break;
+            case SPEECHENHANCEMENT:
+                if (stateMap.get("DialogLevel") != null) {
+                    newState = stateMap.get("DialogLevel").equals("1") ? OnOffType.ON : OnOffType.OFF;
                 }
                 break;
             case LINEIN:
@@ -1774,6 +1796,38 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
+    public void setNightMode(Command command) {
+        if ((command != null) && (command instanceof OnOffType || command instanceof OpenClosedType
+                || command instanceof UpDownType)) {
+            setEQ("NightMode", (command.equals(OnOffType.ON) || command.equals(UpDownType.UP)
+                    || command.equals(OpenClosedType.OPEN)) ? "1" : "0");
+        }
+    }
+
+    public void setSpeechEnhancement(Command command) {
+        if ((command != null) && (command instanceof OnOffType || command instanceof OpenClosedType
+                || command instanceof UpDownType)) {
+            setEQ("DialogLevel", (command.equals(OnOffType.ON) || command.equals(UpDownType.UP)
+                    || command.equals(OpenClosedType.OPEN)) ? "1" : "0");
+        }
+    }
+
+    private void setEQ(String eqType, String value) {
+        try {
+            Map<String, String> inputs = new HashMap<String, String>();
+            inputs.put("InstanceID", "0");
+            inputs.put("EQType", eqType);
+            inputs.put("DesiredValue", value);
+            Map<String, String> result = service.invokeAction(this, "RenderingControl", "SetEQ", inputs);
+
+            for (String variable : result.keySet()) {
+                this.onValueReceived(variable, result.get(variable), "RenderingControl");
+            }
+        } catch (IllegalStateException e) {
+            logger.debug("Cannot handle {} command ({})", eqType, e.getMessage());
+        }
+    }
+
     public Boolean isShuffleActive() {
         return ((stateMap.get("CurrentPlayMode") != null) && stateMap.get("CurrentPlayMode").startsWith("SHUFFLE"))
                 ? true
@@ -2343,9 +2397,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
      */
     private void handleLineIn(String currentLineInURI, Command notificationURL, ZonePlayerHandler coordinator) {
+        logger.debug("Handling notification while sound from line-in was being played");
         String nextAction = coordinator.getTransportState();
 
         handleNotificationSound(notificationURL, coordinator);
+        logger.debug("Restoring sound from line-in using {}", currentLineInURI);
         coordinator.setCurrentURI(currentLineInURI, "");
 
         restoreLastTransportState(coordinator, nextAction);

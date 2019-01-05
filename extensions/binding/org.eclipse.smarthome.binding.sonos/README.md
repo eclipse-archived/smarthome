@@ -10,9 +10,9 @@ This happens because of a TTL=1 for ALIVE packets send by Sonos devices, resulti
 
 ## Supported Things
 
-All available Sonos (playback) devices are supported by this binding. This includes the Play:1, Play:3, Play:5, Connect, Connect:Amp, Playbar, and Sub. The Bridge and Boost are not supported, but these devices do only have an auxiliary role in the Sonos network and do not have any playback capability. All supported Sonos devices are registered as an audio sink in the framework.
+All available Sonos (playback) devices are supported by this binding. This includes the One, Play:1, Play:3, Play:5, Connect, Connect:Amp, Playbar, Playbase, Beam and Sub. The Bridge and Boost are not supported, but these devices do only have an auxiliary role in the Sonos network and do not have any playback capability. All supported Sonos devices are registered as an audio sink in the framework.
 
-When being defined in a \*.things file, the specific thing types PLAY1, PLAY3, PLAY5, PLAYBAR, CONNECT and CONNECTAMP should be used.
+When being defined in a \*.things file, the specific thing types One, PLAY1, PLAY3, PLAY5, PLAYBAR, PLAYBASE, Beam, CONNECT and CONNECTAMP should be used.
 
 Please note that these thing types are case sensitive (you need to define them in upper case).
 
@@ -67,8 +67,9 @@ The devices support the following channels:
 | linein              | Switch    | R           | Indicator set to ON when the line-in of the Zone Player is connected                                                                                      | PLAY5, CONNECT, CONNECTAMP, PLAYBASE |
 | localcoordinator    | Switch    | R           | Indicator set to ON if the this Zone Player is the Zone Group Coordinator                                                                                 | all                                  |
 | mute                | Switch    | RW          | Set or get the mute state of the master volume of the Zone Player                                                                                         | all                                  |
+| nightmode           | Switch    | RW          | Enable or disable the night mode feature                                                                                                                  | PLAYBAR, PLAYBASE, Beam              |
 | notificationsound   | String    | W           | Play a notification sound by a given URI                                                                                                                  | all                                  |
-| playlinein          | String    | W           | This channel supports playing the audio source connected to the line-in of the zoneplayer identified by the Thing UID or UPnP UDN provided by the String. | PLAY5, CONNECT, CONNECTAMP, PLAYBASE |
+| playlinein          | String    | W           | This channel supports playing the audio source connected to the line-in of the zoneplayer identified by the Thing UID or UPnP UDN provided by the String. | PLAY5, CONNECT, CONNECTAMP, PLAYBAR, PLAYBASE, Beam |
 | playlist            | String    | W           | Play the given playlist. The playlist has to predefined in the Sonos Controller app                                                                       | all                                  |
 | playqueue           | Switch    | W           | Play the songs from the current queue                                                                                                                     | all                                  |
 | playtrack           | Number    | W           | Play the given track number from the current queue                                                                                                        | all                                  |
@@ -84,6 +85,7 @@ The devices support the following channels:
 | shuffle             | Switch    | RW          | Shuffle the queue playback                                                                                                                                | all                                  |
 | sleeptimer          | Number    | RW          | Set/show the duration of the SleepTimer in seconds                                                                                                        | all                                  |
 | snooze              | Number    | W           | Snooze the running alarm, if any, with the given number of minutes                                                                                        | all                                  |
+| speechenhancement   | Switch    | RW          | Enable or disable the speech enhancement feature                                                                                                          | PLAYBAR, PLAYBASE, Beam              |
 | standalone          | Switch    | W           | Make the Zone Player leave its Group and become a standalone Zone Player                                                                                  | all                                  |
 | state               | String    | R           | The State channel contains state of the Zone Player, e.g. PLAYING, STOPPED, ...                                                                           | all                                  |
 | stop                | Switch    | W           | Write `ON` to this channel: Stops the Zone Player player.                                                                                                 | all                                  |

@@ -39,17 +39,20 @@ public class SonosBindingConstants {
     public static final ThingTypeUID PLAY3_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY3");
     public static final ThingTypeUID PLAY5_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAY5");
     public static final ThingTypeUID PLAYBAR_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAYBAR");
+    public static final ThingTypeUID PLAYBASE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "PLAYBASE");
+    public static final ThingTypeUID BEAM_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "Beam");
     public static final ThingTypeUID CONNECT_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "CONNECT");
     public static final ThingTypeUID CONNECTAMP_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "CONNECTAMP");
     public static final ThingTypeUID ZONEPLAYER_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "zoneplayer");
 
     public static final Set<ThingTypeUID> WITH_LINEIN_THING_TYPES_UIDS = Stream
-            .of(PLAY5_THING_TYPE_UID, PLAYBAR_THING_TYPE_UID, CONNECT_THING_TYPE_UID, CONNECTAMP_THING_TYPE_UID)
+            .of(PLAY5_THING_TYPE_UID, PLAYBAR_THING_TYPE_UID, PLAYBASE_THING_TYPE_UID, BEAM_THING_TYPE_UID,
+                    CONNECT_THING_TYPE_UID, CONNECTAMP_THING_TYPE_UID)
             .collect(Collectors.toSet());
 
-    public static final Set<ThingTypeUID> SUPPORTED_KNOWN_THING_TYPES_UIDS = Stream
-            .of(ONE_THING_TYPE_UID, PLAY1_THING_TYPE_UID, PLAY3_THING_TYPE_UID, PLAY5_THING_TYPE_UID,
-                    PLAYBAR_THING_TYPE_UID, CONNECT_THING_TYPE_UID, CONNECTAMP_THING_TYPE_UID)
+    public static final Set<ThingTypeUID> SUPPORTED_KNOWN_THING_TYPES_UIDS = Stream.of(ONE_THING_TYPE_UID,
+            PLAY1_THING_TYPE_UID, PLAY3_THING_TYPE_UID, PLAY5_THING_TYPE_UID, PLAYBAR_THING_TYPE_UID,
+            PLAYBASE_THING_TYPE_UID, BEAM_THING_TYPE_UID, CONNECT_THING_TYPE_UID, CONNECTAMP_THING_TYPE_UID)
             .collect(Collectors.toSet());
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = new HashSet<ThingTypeUID>(
@@ -79,6 +82,7 @@ public class SonosBindingConstants {
     public static final String LINEIN = "linein";
     public static final String LOCALCOORDINATOR = "localcoordinator";
     public static final String MUTE = "mute";
+    public static final String NIGHTMODE = "nightmode";
     public static final String NOTIFICATIONSOUND = "notificationsound";
     public static final String PLAYLINEIN = "playlinein";
     public static final String PLAYLIST = "playlist";
@@ -96,6 +100,7 @@ public class SonosBindingConstants {
     public static final String SHUFFLE = "shuffle";
     public static final String SLEEPTIMER = "sleeptimer";
     public static final String SNOOZE = "snooze";
+    public static final String SPEECHENHANCEMENT = "speechenhancement";
     public static final String STANDALONE = "standalone";
     public static final String STATE = "state";
     public static final String STOP = "stop";
