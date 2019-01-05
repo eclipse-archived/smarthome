@@ -98,17 +98,10 @@ public class OwserverTestServer {
                 returnPacket.setPayload("");
                 returnPackets.add(returnPacket);
                 break;
-            case DIR:
-                returnPacket.setPayload("sensor0");
+            case DIRALL:
+                returnPacket.setPayload("/00.0123456789ab,/00.0123456789ac,/00.0123456789ad,/statistics");
                 returnPackets.add(returnPacket);
                 returnPacket = new OwserverPacket(OwserverPacketType.RETURN);
-                returnPacket.setPayload("sensor1");
-                returnPackets.add(returnPacket);
-                returnPacket = new OwserverPacket(OwserverPacketType.RETURN);
-                returnPacket.setPayload("sensor2");
-                returnPackets.add(returnPacket);
-                returnPacket = new OwserverPacket(OwserverPacketType.RETURN);
-                returnPackets.add(returnPacket);
                 break;
             case PRESENT:
                 switch (inputPacket.getPayloadString()) {

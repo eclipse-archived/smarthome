@@ -14,6 +14,7 @@ package org.eclipse.smarthome.binding.onewire.internal.device;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 
@@ -25,7 +26,7 @@ import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler
 @NonNullByDefault
 public class DS2401 extends AbstractOwDevice {
 
-    public DS2401(String sensorId, OwBaseThingHandler callback) {
+    public DS2401(SensorId sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);
         isConfigured = true;
     }

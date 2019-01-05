@@ -14,16 +14,15 @@ package org.eclipse.smarthome.binding.onewire.internal.discovery;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
 
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -45,49 +44,61 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
 
     private final OwBaseBridgeHandler owBridgeHandler;
 
+    Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<>();
+    Map<String, String> associationMap = new HashMap<>();
+    ThingUID bridgeUID;
+
     public OwDiscoveryService(OwBaseBridgeHandler owBridgeHandler) {
         super(SUPPORTED_THING_TYPES, 60, false);
         this.owBridgeHandler = owBridgeHandler;
         logger.debug("registering discovery service for {}", owBridgeHandler);
     }
 
-    @Override
-    public void startScan() {
-        List<String> directory;
-        ThingUID bridgeUID = owBridgeHandler.getThing().getUID();
+    private void scanDirectory(String baseDirectory) {
+        List<SensorId> directoryList;
 
+        logger.trace("scanning {} on bridge {}", baseDirectory, bridgeUID);
         try {
-            directory = owBridgeHandler.getDirectory();
+            directoryList = owBridgeHandler.getDirectory(baseDirectory);
         } catch (OwException e) {
-            logger.info("could not get directory for {}", bridgeUID);
+            logger.info("empty directory '{}' for {}", baseDirectory, bridgeUID);
             return;
         }
 
-        Collections.sort(directory);
-
-        Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<>();
-        Map<String, String> associationMap = new HashMap<>();
-
         // find all valid sensors
-        for (String directoryEntry : directory) {
-            Matcher discoveryMatch = SENSOR_ID_PATTERN.matcher(directoryEntry);
+        for (SensorId directoryEntry : directoryList) {
+            try {
+                OwDiscoveryItem owDiscoveryItem = new OwDiscoveryItem(owBridgeHandler, directoryEntry);
+                if (owDiscoveryItem.getSensorType() == OwSensorType.DS2409) {
+                    // scan hub sub-directories
+                    logger.trace("found hub {}, scanning sub-directories", directoryEntry);
 
-            if (discoveryMatch.matches()) {
-                String sensorId = discoveryMatch.group(1);
-                try {
-                    OwDiscoveryItem owDiscoveryItem = new OwDiscoveryItem(owBridgeHandler, sensorId);
-                    owDiscoveryItems.put(owDiscoveryItem.getSensorId(), owDiscoveryItem);
+                    scanDirectory(owDiscoveryItem.getSensorId().getFullPath() + "/main/");
+                    scanDirectory(owDiscoveryItem.getSensorId().getFullPath() + "/aux/");
+                } else {
+                    // add found sensor to list
+                    logger.trace("found sensor {} (type: {})", directoryEntry, owDiscoveryItem.getSensorType());
+
+                    owDiscoveryItems.put(owDiscoveryItem.getSensorId().getId(), owDiscoveryItem);
                     if (owDiscoveryItem.hasAssociatedSensorIds()) {
                         for (String associatedSensorId : owDiscoveryItem.getAssociatedSensorIds()) {
-                            associationMap.put(associatedSensorId, owDiscoveryItem.getSensorId());
+                            associationMap.put(associatedSensorId, owDiscoveryItem.getSensorId().getId());
                         }
                     }
-                    logger.trace("found sensor {} (id: {})", owDiscoveryItem.getSensorType(), sensorId);
-                } catch (OwException e) {
 
                 }
+            } catch (OwException e) {
+                logger.debug("error while scanning for sensors in directory {} on bridge {}: {}", baseDirectory,
+                        bridgeUID, e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void startScan() {
+        bridgeUID = owBridgeHandler.getThing().getUID();
+
+        scanDirectory("/");
 
         // resolve all non-DS2438
         Iterator<Entry<String, String>> associationMapIterator = associationMap.entrySet().iterator();
@@ -144,24 +155,25 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                 properties.put(PROPERTY_VENDOR, owDiscoveryItem.getVendor());
                 properties.put(PROPERTY_SENSORCOUNT, String.valueOf(owDiscoveryItem.getAssociatedSensorCount()));
                 if (thingTypeUID.equals(THING_TYPE_BMS)) {
-                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
-                    properties.put(CONFIG_ID + "1", owDiscoveryItem.getAssociatedSensors().get(0).getSensorId());
+                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId().getFullPath());
+                    properties.put(CONFIG_ID + "1",
+                            owDiscoveryItem.getAssociatedSensors().get(0).getSensorId().getFullPath());
                     properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
                     properties.put(CONFIG_LIGHTSENSOR,
                             String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.BMS_S));
                 } else if (thingTypeUID.equals(THING_TYPE_AMS)) {
-                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
-                    properties.put(CONFIG_ID + "1",
-                            owDiscoveryItem.getAssociatedSensors(OwSensorType.DS18B20).get(0).getSensorId());
-                    properties.put(CONFIG_ID + "2",
-                            owDiscoveryItem.getAssociatedSensors(OwSensorType.MS_TV).get(0).getSensorId());
-                    properties.put(CONFIG_ID + "3",
-                            owDiscoveryItem.getAssociatedSensors(OwSensorType.DS2413).get(0).getSensorId());
+                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId().getFullPath());
+                    properties.put(CONFIG_ID + "1", owDiscoveryItem.getAssociatedSensors(OwSensorType.DS18B20).get(0)
+                            .getSensorId().getFullPath());
+                    properties.put(CONFIG_ID + "2", owDiscoveryItem.getAssociatedSensors(OwSensorType.MS_TV).get(0)
+                            .getSensorId().getFullPath());
+                    properties.put(CONFIG_ID + "3", owDiscoveryItem.getAssociatedSensors(OwSensorType.DS2413).get(0)
+                            .getSensorId().getFullPath());
                     properties.put(CONFIG_TEMPERATURESENSOR, "DS18B20");
                     properties.put(CONFIG_LIGHTSENSOR,
                             String.valueOf(owDiscoveryItem.getSensorType() == OwSensorType.AMS_S));
                 } else {
-                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId());
+                    properties.put(CONFIG_ID, owDiscoveryItem.getSensorId().getFullPath());
                 }
 
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)

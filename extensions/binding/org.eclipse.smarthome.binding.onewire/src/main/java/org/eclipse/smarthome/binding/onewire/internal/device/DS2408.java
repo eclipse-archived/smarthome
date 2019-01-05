@@ -17,6 +17,7 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DigitalIoConfig;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
 
@@ -28,7 +29,7 @@ import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDevicePar
 @NonNullByDefault
 public class DS2408 extends AbstractDigitalOwDevice {
 
-    public DS2408(String sensorId, OwBaseThingHandler callback) {
+    public DS2408(SensorId sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);
     }
 

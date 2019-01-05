@@ -23,6 +23,7 @@ import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
@@ -92,7 +93,7 @@ public class DS2438 extends AbstractOwDevice {
         }
     };
 
-    public DS2438(String sensorId, OwBaseThingHandler callback) {
+    public DS2438(SensorId sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);
     }
 

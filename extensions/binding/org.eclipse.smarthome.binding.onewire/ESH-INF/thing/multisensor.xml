@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="onewire" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0" xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+<thing:thing-descriptions bindingId="onewire"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 	<thing-type id="ms-tx">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="owserver" />
@@ -12,21 +15,8 @@
 		</channels>
 		<properties>
 			<property name="sensorCount">1</property>
-		</properties>	
-		<config-description>
-			<parameter name="id" type="text">
-				<label>Sensor ID</label>
-				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
-				<required>true</required>
-			</parameter>
-			<parameter name="refresh" type="integer" min="1">
-				<label>Refresh Time</label>
-				<description>Time in seconds after which the thing is refreshed</description>
-				<default>300</default>
-				<unitLabel>s</unitLabel>
-				<required>false</required>
-			</parameter>
-		</config-description>
+		</properties>
+		<config-description-ref uri="thing-type:onewire:basethingconfig" />
 	</thing-type>
 	<thing-type id="ms-th" listed="false">
 		<supported-bridge-type-refs>
@@ -44,22 +34,9 @@
 		<properties>
 			<property name="sensorCount">1</property>
 		</properties>
-		<config-description>
-			<parameter name="id" type="text">
-				<label>Sensor ID</label>
-				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
-				<required>true</required>
-			</parameter>
-			<parameter name="refresh" type="integer" min="1">
-				<label>Refresh Time</label>
-				<description>Time in seconds after which the thing is refreshed</description>
-				<default>300</default>
-				<unitLabel>s</unitLabel>
-				<required>false</required>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="thing-type:onewire:basethingconfig" />
 	</thing-type>
-	<thing-type id="ms-tv" listed = "false">
+	<thing-type id="ms-tv" listed="false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="owserver" />
 		</supported-bridge-type-refs>
@@ -73,20 +50,7 @@
 		<properties>
 			<property name="sensorCount">1</property>
 		</properties>
-		<config-description>
-			<parameter name="id" type="text">
-				<label>Sensor ID</label>
-				<description>Sensor ID in format: xx.xxxxxxxxxxxx)</description>
-				<required>true</required>
-			</parameter>
-			<parameter name="refresh" type="integer" min="1">
-				<label>Refresh Time</label>
-				<description>Time in seconds after which the thing is refreshed</description>
-				<default>300</default>
-				<unitLabel>s</unitLabel>
-				<required>false</required>
-			</parameter>
-		</config-description>
+		<config-description-ref uri="thing-type:onewire:basethingconfig" />
 	</thing-type>
 	<thing-type id="bms">
 		<supported-bridge-type-refs>
@@ -107,13 +71,13 @@
 		<config-description>
 			<parameter name="id" type="text">
 				<label>TH(S) sensor ID</label>
-				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx</description>
+				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="id1" type="text">
 				<context>network_address</context>
 				<label>Temperature sensor ID</label>
-				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx</description>
+				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="lightsensor" type="boolean">
@@ -167,25 +131,25 @@
 		<config-description>
 			<parameter name="id" type="text">
 				<label>TH(S) sensor ID</label>
-				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx</description>
+				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="id1" type="text">
 				<context>network_address</context>
 				<label>Temperature sensor ID</label>
-				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx</description>
+				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="id2" type="text">
 				<context>network_address</context>
 				<label>AI sensor ID</label>
-				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx</description>
+				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="id3" type="text">
 				<context>network_address</context>
 				<label>Digital I/O sensor ID</label>
-				<description>Sensor ID of the DS2413 sensor in format: xx.xxxxxxxxxxxx</description>
+				<description>Sensor ID of the DS2413 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="lightsensor" type="boolean">

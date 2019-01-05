@@ -92,8 +92,8 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
 
         try {
-            inOrder.verify(bridgeHandler, times(1)).checkPresence(TEST_ID);
-            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(TEST_ID), any());
+            inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
+            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(new SensorId(TEST_ID)), any());
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {

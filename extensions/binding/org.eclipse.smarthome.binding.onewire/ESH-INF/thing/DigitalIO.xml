@@ -17,7 +17,7 @@
 		<properties>
 			<property name="sensorCount">1</property>
 		</properties>
-		<config-description-ref uri="thing-type:onewire:digitalioconfig" />
+		<config-description-ref uri="thing-type:onewire:fastthingconfig" />
 	</thing-type>
 	<thing-type id="digitalio2">
 		<supported-bridge-type-refs>
@@ -36,7 +36,7 @@
 		<properties>
 			<property name="sensorCount">1</property>
 		</properties>
-		<config-description-ref uri="thing-type:onewire:digitalioconfig" />
+		<config-description-ref uri="thing-type:onewire:fastthingconfig" />
 	</thing-type>
 	<thing-type id="digitalio8">
 		<supported-bridge-type-refs>
@@ -73,6 +73,6 @@
 		<properties>
 			<property name="sensorCount">1</property>
 		</properties>
-		<config-description-ref uri="thing-type:onewire:digitalioconfig" />
+		<config-description-ref uri="thing-type:onewire:fastthingconfig" />
 	</thing-type>
 </thing:thing-descriptions>

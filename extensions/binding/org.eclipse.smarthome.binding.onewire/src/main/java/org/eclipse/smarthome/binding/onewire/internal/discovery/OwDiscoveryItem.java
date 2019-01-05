@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -37,8 +38,7 @@ import org.slf4j.LoggerFactory;
 public class OwDiscoveryItem {
     private final Logger logger = LoggerFactory.getLogger(OwDiscoveryItem.class);
 
-    private final String familyId;
-    private final String sensorId;
+    private final SensorId sensorId;
     private OwSensorType sensorType = OwSensorType.UNKNOWN;
     private String vendor = "Dallas/Maxim";
     private String hwRevision = "";
@@ -52,9 +52,8 @@ public class OwDiscoveryItem {
     private final List<OwSensorType> associatedSensorTypes = new ArrayList<>();
     private final List<OwDiscoveryItem> associatedSensors = new ArrayList<>();
 
-    public OwDiscoveryItem(OwBaseBridgeHandler bridgeHandler, String sensorId) throws OwException {
+    public OwDiscoveryItem(OwBaseBridgeHandler bridgeHandler, SensorId sensorId) throws OwException {
         this.sensorId = sensorId;
-        familyId = sensorId.substring(0, 2);
         sensorType = bridgeHandler.getType(sensorId);
         switch (sensorType) {
             case DS2438:
@@ -86,15 +85,6 @@ public class OwDiscoveryItem {
     }
 
     /**
-     * get family ID of this sensor (first two characters in sensor id)
-     *
-     * @return the sensors family id
-     */
-    public String getFamilyId() {
-        return familyId;
-    }
-
-    /**
      * get sensor type
      *
      * @return full sensor type
@@ -108,7 +98,7 @@ public class OwDiscoveryItem {
      *
      * @return sensor id
      */
-    public String getSensorId() {
+    public SensorId getSensorId() {
         return sensorId;
     }
 
@@ -118,7 +108,7 @@ public class OwDiscoveryItem {
      * @return sensor id in format familyId_xxxxxxxxxx
      */
     public String getNormalizedSensorId() {
-        return sensorId.replace(".", "_");
+        return sensorId.getId().replace(".", "_");
     }
 
     /**
@@ -273,7 +263,7 @@ public class OwDiscoveryItem {
      * @return the thing label
      */
     public String getLabel() {
-        return THING_LABEL_MAP.get(thingTypeUID) + " (" + this.sensorId + ")";
+        return THING_LABEL_MAP.get(thingTypeUID) + " (" + this.sensorId.getId() + ")";
     }
 
     @Override

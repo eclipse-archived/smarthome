@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
@@ -141,8 +140,6 @@ public class OwBindingConstants {
         initThingLabelMap.put(THING_TYPE_EDS_ENV, "EDS Environmental Sensor");
         THING_LABEL_MAP = Collections.unmodifiableMap(initThingLabelMap);
     }
-
-    public static final Pattern SENSOR_ID_PATTERN = Pattern.compile("^\\/?([0-9A-Fa-f]{2}\\.[0-9A-Fa-f]{12})$");
 
     public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE = new ChannelTypeUID(BINDING_ID, "temperature");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE_POR = new ChannelTypeUID(BINDING_ID,

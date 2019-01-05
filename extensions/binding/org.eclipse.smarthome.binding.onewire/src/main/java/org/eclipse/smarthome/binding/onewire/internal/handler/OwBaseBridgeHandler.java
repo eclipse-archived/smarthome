@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameterMap;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -149,7 +150,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      *
      * @return a list of all sensor-IDs
      */
-    public abstract List<String> getDirectory() throws OwException;
+    public abstract List<SensorId> getDirectory(String basePath) throws OwException;
 
     /**
      * check the presence of a sensor on the bus
@@ -158,7 +159,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @return ON if present, OFF if missing
      * @throws OwException
      */
-    public abstract State checkPresence(String sensorId) throws OwException;
+    public abstract State checkPresence(SensorId sensorId) throws OwException;
 
     /**
      * get a sensors type string
@@ -167,7 +168,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @return a String containing the sensor type
      * @throws OwException
      */
-    public abstract OwSensorType getType(String sensorId) throws OwException;
+    public abstract OwSensorType getType(SensorId sensorId) throws OwException;
 
     /**
      * get full sensor information stored in pages (not available on all sensors)
@@ -176,7 +177,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @return a OwPageBuffer object containing the requested information
      * @throws OwException
      */
-    public abstract OwPageBuffer readPages(String sensorId) throws OwException;
+    public abstract OwPageBuffer readPages(SensorId sensorId) throws OwException;
 
     /**
      * read a single decimal value from a sensor
@@ -186,7 +187,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @return a DecimalType
      * @throws OwException
      */
-    public abstract State readDecimalType(String sensorId, OwDeviceParameterMap parameter) throws OwException;
+    public abstract State readDecimalType(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
      * read an array of decimal values from a sensor
@@ -196,7 +197,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @return a list of DecimalType values
      * @throws OwException
      */
-    public abstract List<State> readDecimalTypeArray(String sensorId, OwDeviceParameterMap parameter)
+    public abstract List<State> readDecimalTypeArray(SensorId sensorId, OwDeviceParameterMap parameter)
             throws OwException;
 
     /**
@@ -207,7 +208,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @return a String
      * @throws OwException
      */
-    public abstract String readString(String sensorId, OwDeviceParameterMap parameter) throws OwException;
+    public abstract String readString(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
      * writes a DecimalType to the sensor
@@ -216,7 +217,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      * @param parameter device parameters needed for this request
      * @throws OwException
      */
-    public abstract void writeDecimalType(String sensorId, OwDeviceParameterMap parameter, DecimalType value)
+    public abstract void writeDecimalType(SensorId sensorId, OwDeviceParameterMap parameter, DecimalType value)
             throws OwException;
 
     /**

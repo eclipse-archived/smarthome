@@ -79,7 +79,7 @@ public class IButtonThingHandlerTest extends AbstractThingHandlerTest {
         thingHandler.initialize();
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
         try {
-            inOrder.verify(bridgeHandler, times(1)).checkPresence(TEST_ID);
+            inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {
