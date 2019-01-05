@@ -16,7 +16,7 @@ The following Item types are currently available (alphabetical order):
 | Item Name          | Description | Command Types |
 |--------------------|-------------|---------------|
 | Color              | Color information (RGB) | OnOff, IncreaseDecrease, Percent, HSB |
-| Contact            | Item storing status of e.g. door/window contacts | OpenClose |
+| Contact            | Item storing status of e.g. door/window contacts | OpenClosed |
 | DateTime           | Stores date and time | - |
 | Dimmer             | Item carrying a percentage value for dimmers | OnOff, IncreaseDecrease, Percent |
 | Group              | Item to nest other Items / collect them in Groups | - |
