@@ -111,3 +111,32 @@ sitemap demo label="Main Menu"
     }
 }
 ```
+
+Since Openhab 2.4 it is possible to use one Dimmer for multiple bulbs. 
+It is faster than using OH-groups solutions.
+
+demo_multi.things:
+
+```
+Bridge tradfri:gateway:mygateway [ host="192.168.0.177", code="EHPW5rIJKyXFgjH3" ] {
+    0100 myDimmableBulb1 "My Dimmable Bulb1" [ id=65537 ]
+    0100 myDimmableBulb2 "My Dimmable Bulb2" [ id=65538 ]
+}
+```
+
+demo_multi.items:
+
+```
+Dimmer Light1 { channel="tradfri:0100:mygateway:myDimmableBulb1:brightness,tradfri:0100:mygateway:myDimmableBulb2:brightness" }
+```
+
+demo_multi.sitemap:
+
+```
+sitemap demo label="Main Menu"
+{
+    Frame {
+        Slider item=Light1 label="Light1 & Light2 Brightness [%.1f %%]"
+
+    }
+}
