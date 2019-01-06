@@ -15,6 +15,7 @@ package org.eclipse.smarthome.binding.onewire.internal.device;
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -22,7 +23,6 @@ import org.eclipse.smarthome.binding.onewire.internal.DigitalIoConfig;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
-import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -101,10 +101,8 @@ public abstract class AbstractDigitalOwDevice extends AbstractOwDevice {
         if (isConfigured) {
             State state;
 
-            List<Boolean> statesSensed = Util
-                    .decimalTypeToBooleanList((DecimalType) bridgeHandler.readDecimalType(sensorId, fullInParam));
-            List<Boolean> statesPIO = Util
-                    .decimalTypeToBooleanList((DecimalType) bridgeHandler.readDecimalType(sensorId, fullOutParam));
+            BitSet statesSensed = bridgeHandler.readBitSet(sensorId, fullInParam);
+            BitSet statesPIO = bridgeHandler.readBitSet(sensorId, fullOutParam);
 
             for (int i = 0; i < ioConfig.size(); i++) {
                 if (ioConfig.get(i).isInput()) {

@@ -16,6 +16,7 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,10 @@ public abstract class AbstractThingHandlerTest extends JavaTest {
             Mockito.doAnswer(answer -> {
                 return new DecimalType(10);
             }).when(bridgeHandler).readDecimalType(any(), any());
+
+            Mockito.doAnswer(answer -> {
+                return new BitSet(8);
+            }).when(bridgeHandler).readBitSet(any(), any());
 
         } catch (OwException e) {
             Assert.fail("caught unexpected OwException");
