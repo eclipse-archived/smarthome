@@ -31,7 +31,6 @@
                 <default>counter</default>
                 <limitToOptions>true</limitToOptions>
                 <required>false</required>
-                <advanced>true</advanced>
             </parameter>
             <parameter name="pin2" type="text">
                 <label>Pin 2 Mode Configuration</label>
@@ -61,8 +60,7 @@
                     <option value="disabled">disabled</option>
                     <option value="analog">Analog Input</option>
                     <option value="output">Digital Output</option>
-                    <option value="pwm">Hardware PWM 2 - Positive Polarity</option>
-                    <option value="pwm">Hardware PWM 2 - Negative Polarity</option>
+                    <option value="pwm">Hardware PWM 2</option>
                 </options>
                 <default>analog</default>
                 <limitToOptions>true</limitToOptions>
@@ -74,8 +72,7 @@
                     <option value="disabled">disabled</option>
                     <option value="input">Digital Input</option>
                     <option value="output">Digital Output</option>
-                    <option value="pwm_pos">Hardware PWM 1 - Positive Polarity</option>
-                    <option value="pwm_neg">Hardware PWM 1 - Negative Polarity</option>
+                    <option value="pwm">Hardware PWM 1</option>
                 </options>
                 <default>output</default>
                 <limitToOptions>true</limitToOptions>
@@ -84,12 +81,12 @@
         </config-description>        
     </thing-type>
 	<!-- PWM Channels -->
-	<channel-type id="bae-pwm-period">
+	<channel-type id="bae-pwm-frequency">
 		<item-type>Number:Frequency</item-type>
 		<label>Frequency</label>
 		<description>Frequency of PWM output in Hz</description>
         <config-description>
-            <parameter name="prescaler" type="text">
+            <parameter name="prescaler" type="integer">
                 <label>Range</label>
                 <description>defines the frequency range of PWM output</description>
                 <options>
@@ -103,6 +100,15 @@
                     <option value="7">2 Hz - 62.5 kHz</option>
                 </options>
                 <default>0</default>
+                <limitToOptions>true</limitToOptions>
+                <required>false</required>   
+            </parameter>
+            <parameter name="polarity" type="text">
+                <options>
+                    <option value="positive">positive</option>
+                    <option value="negative">negative</option>
+                </options>
+                <default>positive</default>
                 <limitToOptions>true</limitToOptions>
                 <required>false</required>   
             </parameter>

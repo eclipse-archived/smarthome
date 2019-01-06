@@ -110,6 +110,12 @@ public class OwBindingConstants {
     public static final String CHANNEL_DIGITAL6 = "digital6";
     public static final String CHANNEL_DIGITAL7 = "digital7";
     public static final String CHANNEL_DIGITAL8 = "digital8";
+    public static final String CHANNEL_PWM_DUTY1 = "pwmduty1";
+    public static final String CHANNEL_PWM_DUTY2 = "pwmduty2";
+    public static final String CHANNEL_PWM_DUTY3 = "pwmduty3";
+    public static final String CHANNEL_PWM_DUTY4 = "pwmduty4";
+    public static final String CHANNEL_PWM_FREQ1 = "pwmfreq1";
+    public static final String CHANNEL_PWM_FREQ2 = "pwmfreq2";
 
     // Maps for Discovery
     public static final Map<OwSensorType, ThingTypeUID> THING_TYPE_MAP;
@@ -168,5 +174,8 @@ public class OwBindingConstants {
             "temperature-por-res");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_OWFS_NUMBER = new ChannelTypeUID(BINDING_ID, "owfs-number");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_OWFS_STRING = new ChannelTypeUID(BINDING_ID, "owfs-string");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_BAE_PWM_DUTY = new ChannelTypeUID(BINDING_ID, "bae-pwm-duty");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_BAE_PWM_FREQUENCY = new ChannelTypeUID(BINDING_ID,
+            "bae-pwm-frequency");
 
 }

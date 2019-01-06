@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.binding.onewire.internal.DigitalIoConfig;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.config.BAE091xHandlerConfiguration;
 import org.eclipse.smarthome.binding.onewire.internal.device.BAE0910;
@@ -34,6 +33,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
@@ -119,23 +119,26 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
         BAE091xHandlerConfiguration configuration = getConfig().as(BAE091xHandlerConfiguration.class);
         ThingBuilder thingBuilder = editThing();
         boolean isEdited = false;
+        boolean hasPWM13 = false;
+        boolean hasPWM24 = false;
 
-        logger.debug("configuring sensors for {}", this.thing.getUID());
+        ThingUID thingUID = getThing().getUID();
+        logger.debug("configuring sensors for {}", thingUID);
 
+        BAE0910 sensor = (BAE0910) sensors.get(0);
         // Pin1:
         switch (configuration.pin1) {
             case CONFIG_BAE_PIN_DISABLED:
                 if (thing.getChannel(CHANNEL_COUNTER) != null) {
-                    thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_COUNTER));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_COUNTER));
                     isEdited = true;
                 }
                 break;
             case CONFIG_BAE_PIN_COUNTER:
                 if (thing.getChannel(CHANNEL_COUNTER) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(getThing().getUID(), CHANNEL_COUNTER), "Number").withLabel("Counter")
-                            .withType(new ChannelTypeUID(BINDING_ID, "bae-counter")).build());
-                    sensors.get(0).enableChannel(CHANNEL_COUNTER);
+                    thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_COUNTER), "Number")
+                            .withLabel("Counter").withType(new ChannelTypeUID(BINDING_ID, "bae-counter")).build());
+                    sensor.enableChannel(CHANNEL_COUNTER);
                     isEdited = true;
                 }
                 break;
@@ -149,21 +152,39 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
         switch (configuration.pin2) {
             case CONFIG_BAE_PIN_DISABLED:
                 if (thing.getChannel(CHANNEL_DIGITAL2) != null) {
-                    thingBuilder.withoutChannel(DigitalIoConfig.buildChannelUID(getThing(), 2));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL2));
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_PWM_DUTY3) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY3));
                     isEdited = true;
                 }
                 break;
             case CONFIG_BAE_PIN_OUT:
                 if (thing.getChannel(CHANNEL_DIGITAL2) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(DigitalIoConfig.buildChannelUID(getThing(), 2), "Switch")
+                    thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_DIGITAL2), "Switch")
                             .withLabel("Digital Out Pin 2").withType(new ChannelTypeUID(BINDING_ID, "bae-do")).build());
-                    sensors.get(0).enableChannel(CHANNEL_DIGITAL2);
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY3) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY3));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_DIGITAL2);
                 break;
             case CONFIG_BAE_PIN_PWM:
-                // TODO: add PWM
+                hasPWM13 = true;
+                if (thing.getChannel(CHANNEL_PWM_DUTY3) == null) {
+                    thingBuilder.withChannel(
+                            ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_PWM_DUTY3), "Number:Dimensionless")
+                                    .withLabel("Duty Cycle PWM 3").withType(CHANNEL_TYPE_UID_BAE_PWM_DUTY).build());
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_DIGITAL2) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL2));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_PWM_DUTY3);
                 break;
             default:
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -175,21 +196,39 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
         switch (configuration.pin6) {
             case CONFIG_BAE_PIN_DISABLED:
                 if (thing.getChannel(CHANNEL_DIGITAL6) != null) {
-                    thingBuilder.withoutChannel(DigitalIoConfig.buildChannelUID(getThing(), 2));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL6));
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_PWM_DUTY4) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY4));
                     isEdited = true;
                 }
                 break;
             case CONFIG_BAE_PIN_PIO:
                 if (thing.getChannel(CHANNEL_DIGITAL6) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(DigitalIoConfig.buildChannelUID(getThing(), 6), "Switch").withLabel("PIO Pin 6")
-                            .withType(new ChannelTypeUID(BINDING_ID, "bae-pio")).build());
-                    sensors.get(0).enableChannel(CHANNEL_DIGITAL6);
+                    thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_DIGITAL6), "Switch")
+                            .withLabel("PIO Pin 6").withType(new ChannelTypeUID(BINDING_ID, "bae-pio")).build());
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY4) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY4));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_DIGITAL6);
                 break;
             case CONFIG_BAE_PIN_PWM:
-                // TODO: add PWM
+                hasPWM24 = true;
+                if (thing.getChannel(CHANNEL_PWM_DUTY4) == null) {
+                    thingBuilder.withChannel(
+                            ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_PWM_DUTY4), "Number:Dimensionless")
+                                    .withLabel("Duty Cycle PWM 4").withType(CHANNEL_TYPE_UID_BAE_PWM_DUTY).build());
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_DIGITAL6) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL6));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_PWM_DUTY4);
                 break;
             default:
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -201,11 +240,15 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
         switch (configuration.pin7) {
             case CONFIG_BAE_PIN_DISABLED:
                 if (thing.getChannel(CHANNEL_DIGITAL7) != null) {
-                    thingBuilder.withoutChannel(DigitalIoConfig.buildChannelUID(getThing(), 7));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL7));
                     isEdited = true;
                 }
                 if (thing.getChannel(CHANNEL_VOLTAGE) != null) {
-                    thingBuilder.withoutChannel(new ChannelUID(thing.getUID(), CHANNEL_VOLTAGE));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_VOLTAGE));
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_PWM_DUTY2) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY2));
                     isEdited = true;
                 }
                 break;
@@ -214,29 +257,51 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
                     thingBuilder.withChannel(ChannelBuilder
                             .create(new ChannelUID(thing.getUID(), CHANNEL_VOLTAGE), "Number:Voltage")
                             .withLabel("Analog Input").withType(new ChannelTypeUID(BINDING_ID, "bae-analog")).build());
-                    sensors.get(0).enableChannel(CHANNEL_VOLTAGE);
                     isEdited = true;
                 }
                 if (thing.getChannel(CHANNEL_DIGITAL7) != null) {
-                    thingBuilder.withoutChannel(DigitalIoConfig.buildChannelUID(getThing(), 7));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL7));
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY2) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY2));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_VOLTAGE);
                 break;
             case CONFIG_BAE_PIN_OUT:
                 if (thing.getChannel(CHANNEL_DIGITAL7) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(DigitalIoConfig.buildChannelUID(getThing(), 7), "Switch")
+                    thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_DIGITAL7), "Switch")
                             .withLabel("Digital Out Pin 7").withType(new ChannelTypeUID(BINDING_ID, "bae-do")).build());
-                    sensors.get(0).enableChannel(CHANNEL_DIGITAL7);
                     isEdited = true;
                 }
                 if (thing.getChannel(CHANNEL_VOLTAGE) != null) {
-                    thingBuilder.withoutChannel(new ChannelUID(thing.getUID(), CHANNEL_VOLTAGE));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_VOLTAGE));
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY2) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY2));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_DIGITAL7);
                 break;
             case CONFIG_BAE_PIN_PWM:
-                // TODO: add PWM
+                hasPWM24 = true;
+                if (thing.getChannel(CHANNEL_PWM_DUTY2) == null) {
+                    thingBuilder.withChannel(
+                            ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_PWM_DUTY2), "Number:Dimensionless")
+                                    .withLabel("Duty Cycle PWM 2").withType(CHANNEL_TYPE_UID_BAE_PWM_DUTY).build());
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_DIGITAL7) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL7));
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_VOLTAGE) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_VOLTAGE));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_PWM_DUTY2);
                 break;
             default:
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -249,22 +314,29 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
         switch (configuration.pin8) {
             case CONFIG_BAE_PIN_DISABLED:
                 if (thing.getChannel(CHANNEL_DIGITAL8) != null) {
-                    thingBuilder.withoutChannel(DigitalIoConfig.buildChannelUID(getThing(), 8));
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL8));
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY1) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY1));
+                    isEdited = true;
+                }
+                break;
             case CONFIG_BAE_PIN_IN:
-
                 if ((channel8 == null)
                         || !((new ChannelTypeUID(BINDING_ID, "bae-in")).equals(channel8.getChannelTypeUID()))) {
                     if (channel8 != null) {
                         thingBuilder.withoutChannels(channel8);
                     }
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_DIGITAL8), "Switch")
+                    thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_DIGITAL8), "Switch")
                             .withLabel("Digital In Pin 8").withType(new ChannelTypeUID(BINDING_ID, "bae-in")).build());
-                    sensors.get(0).enableChannel(CHANNEL_DIGITAL8);
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY1) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY1));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_DIGITAL8);
                 break;
             case CONFIG_BAE_PIN_OUT:
                 if ((channel8 == null)
@@ -273,16 +345,30 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
                         thingBuilder.withoutChannels(channel8);
                     }
 
-                    thingBuilder.withChannel(
-                            ChannelBuilder.create(new ChannelUID(thing.getUID(), CHANNEL_DIGITAL8), "Switch")
-                                    .withLabel("Digital Out Pin 8").withType(new ChannelTypeUID(BINDING_ID, "bae-out"))
-                                    .build());
-                    sensors.get(0).enableChannel(CHANNEL_DIGITAL8);
+                    thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_DIGITAL8), "Switch")
+                            .withLabel("Digital Out Pin 8").withType(new ChannelTypeUID(BINDING_ID, "bae-out"))
+                            .build());
                     isEdited = true;
                 }
+                if (thing.getChannel(CHANNEL_PWM_DUTY1) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_DUTY1));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_DIGITAL8);
                 break;
             case CONFIG_BAE_PIN_PWM:
-                // TODO: add PWM
+                hasPWM24 = true;
+                if (thing.getChannel(CHANNEL_PWM_DUTY1) == null) {
+                    thingBuilder.withChannel(
+                            ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_PWM_DUTY1), "Number:Dimensionless")
+                                    .withLabel("Duty Cycle PWM 1").withType(CHANNEL_TYPE_UID_BAE_PWM_DUTY).build());
+                    isEdited = true;
+                }
+                if (thing.getChannel(CHANNEL_DIGITAL8) != null) {
+                    thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_DIGITAL8));
+                    isEdited = true;
+                }
+                sensor.enableChannel(CHANNEL_PWM_DUTY1);
                 break;
             default:
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -290,11 +376,44 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
                 return;
         }
 
+        if (hasPWM13) {
+            if (thing.getChannel(CHANNEL_PWM_FREQ1) == null) {
+                thingBuilder.withChannel(ChannelBuilder
+                        .create(new ChannelUID(thingUID, CHANNEL_PWM_FREQ1), "Number:Frequency").withLabel("Frequency")
+                        .withType(new ChannelTypeUID(BINDING_ID, "bae-pwm-frequency")).build());
+                isEdited = true;
+            }
+            sensor.enableChannel(CHANNEL_PWM_FREQ1);
+        } else {
+            if (thing.getChannel(CHANNEL_PWM_FREQ1) != null) {
+                thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_FREQ1));
+                isEdited = true;
+
+            }
+        }
+
+        if (hasPWM24) {
+            if (thing.getChannel(CHANNEL_PWM_FREQ2) == null) {
+
+                thingBuilder.withChannel(ChannelBuilder
+                        .create(new ChannelUID(thingUID, CHANNEL_PWM_FREQ2), "Number:Frequency").withLabel("Frequency")
+                        .withType(new ChannelTypeUID(BINDING_ID, "bae-pwm-frequency")).build());
+                isEdited = true;
+            }
+            sensor.enableChannel(CHANNEL_PWM_FREQ2);
+        } else {
+            if (thing.getChannel(CHANNEL_PWM_FREQ2) != null) {
+                thingBuilder.withoutChannel(new ChannelUID(thingUID, CHANNEL_PWM_FREQ2));
+                isEdited = true;
+            }
+        }
+
         if (isEdited) {
             updateThing(thingBuilder.build());
         }
 
         validConfig = true;
+
         updatePresenceStatus(UnDefType.UNDEF);
     }
 
