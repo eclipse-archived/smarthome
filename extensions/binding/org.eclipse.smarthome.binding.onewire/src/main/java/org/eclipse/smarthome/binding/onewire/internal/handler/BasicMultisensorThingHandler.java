@@ -122,6 +122,23 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
             case MS_T:
                 // no other channels
                 break;
+            case DS2438:
+                if (thing.getChannel(CHANNEL_VOLTAGE) == null) {
+                    thingBuilder.withChannel(ChannelBuilder
+                            .create(new ChannelUID(thing.getUID(), CHANNEL_VOLTAGE), "Number:ElectricPotential")
+                            .withLabel("Voltage").withType(new ChannelTypeUID(BINDING_ID, "voltage")).build());
+                    isEdited = true;
+                }
+                sensors.get(0).enableChannel(CHANNEL_VOLTAGE);
+                if (thing.getChannel(CHANNEL_CURRENT) == null) {
+                    thingBuilder.withChannel(ChannelBuilder
+                            .create(new ChannelUID(thing.getUID(), CHANNEL_CURRENT), "Number:ElectricCurrent")
+                            .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
+                    isEdited = true;
+                }
+                ((DS2438) sensors.get(0)).setCurrentSensorType(CurrentSensorType.INTERNAL);
+                sensors.get(0).enableChannel(CHANNEL_CURRENT);
+                break;
             case DS1923:
                 // DS1923 has fixed humidity sensor on-board
                 if (thing.getChannel(CHANNEL_HUMIDITY) == null) {
@@ -134,14 +151,14 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
                 break;
             case MS_TC:
                 if (thing.getChannel(CHANNEL_CURRENT) == null) {
-                    thingBuilder.withChannel(
-                            ChannelBuilder.create(new ChannelUID(thing.getUID(), CHANNEL_LIGHT), "Number:Current")
-                                    .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
+                    thingBuilder.withChannel(ChannelBuilder
+                            .create(new ChannelUID(thing.getUID(), CHANNEL_CURRENT), "Number:ElectricCurrent")
+                            .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
                     isEdited = true;
-                    sensors.get(0).enableChannel(CHANNEL_CURRENT);
-                    ((DS2438) sensors.get(0)).setCurrentSensorType(CurrentSensorType.IBUTTONLINK);
                 }
-                sensors.get(0).enableChannel(CHANNEL_LIGHT);
+                ((DS2438) sensors.get(0)).setCurrentSensorType(CurrentSensorType.IBUTTONLINK);
+                sensors.get(0).enableChannel(CHANNEL_CURRENT);
+                break;
             case MS_TH:
                 // DS2438 can have different sensors
                 if (thing.getChannel(CHANNEL_HUMIDITY) == null) {

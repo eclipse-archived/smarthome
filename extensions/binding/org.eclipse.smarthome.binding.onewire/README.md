@@ -84,6 +84,9 @@ If the voltage input of the DS2438 is connected to a humidity sensor, several co
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
+Known DS2438-base sensors are iButtonLink (https://www.ibuttonlink.com/) MS-T (recognized as generic DS2438), MS-TH, MS-TC, MS-TL, MS-TV.
+Unknown multisensors are added as generic DS2438 and have `temperature`, `current`, `voltage` and `supplyvoltage` channels.
+
 ### Temperature sensor (`temperature`)
 
 The temperature thing supports DS18S20, DS18B20 and DS1822 sensors.
