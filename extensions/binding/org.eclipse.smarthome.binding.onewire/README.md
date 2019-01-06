@@ -53,6 +53,7 @@ Bridges of type `owserver` are extensible with channels of type `owfs-number` an
 
 The counter thing supports the DS2423 chip, a dual counter.
 Two `counterX` channels are supported. 
+`X` is either `0` or `1`.
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
  
@@ -61,6 +62,7 @@ It has two parameters: sensor id `id` and refresh time `refresh`.
 
 The digital I/O things support the DS2405, DS2406, DS2408 and DS2413 chips.
 Depending on the chip, one (DS2405), two (DS2406/DS2413) or eight (DS2408) `digitalX`  channels are supported.
+`X` is a number from `0` to `7`.
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
@@ -197,7 +199,10 @@ For best performance it is recommended to set the resolution only as high as nee
  
 ## Full Example
 
-This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) as well as a temperature sensor and a BMS as things (`onewire:temperature:mybridge:mysensor`, `onewire:bms:mybridge:mybms`). 
+** Attention: Adding channels with UIDs different from the ones mentioned in the thing description will not work and may cause problems.
+Please use the pre-defined channel names only. **
+
+This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) as well as a temperature sensor, a BMS and a 2-port Digital I/O as things (`onewire:temperature:mybridge:mysensor`, `onewire:bms:mybridge:mybms`, `onewire:digitalio2:mybridge:mydio`). 
 
 ### demo.things:
 
@@ -229,6 +234,18 @@ Bridge onewire:owserver:mybridge [
                 ]
         } 
 
+    Thing digitalio2 mydio [
+        id="3A.134E47DB60000"
+        ] {
+            Channels:
+                Type dio : digital0 [
+                    mode="input"
+                ]
+                Type dio : digital1 [
+                    mode="output"
+                ]
+        }
+        
     Channels:
         Type owfs-number : crc8errors [
             path="statistics/errors/CRC8_errors"
@@ -239,10 +256,12 @@ Bridge onewire:owserver:mybridge [
 ### demo.items:
 
 ```
-Number:Temperature MySensor "MySensor [%.1f %unit%]" { channel="onewire:temperature:mybridge:mysensor:temperature" }
-Number:Temperature MyBMS_T "MyBMS Temperature [%.1f %unit%]" { channel="onewire:bms:mybridge:mybms:temperature" }
-Number:Dimensionless MyBMS_H "MyBMS Humidity [%.1f %unit%]"  { channel="onewire:bms:mybridge:mybms:humidity" }
-Number  CRC8Errors "Bus-Errors [%d]" { channel="onewire:owserver:mybridge:crc8errors" }
+Number:Temperature      MySensor    "MySensor [%.1f °C]"            { channel="onewire:temperature:mybridge:mysensor:temperature" }
+Number:Temperature      MyBMS_T     "MyBMS Temperature [%.1f °F]"   { channel="onewire:bms:mybridge:mybms:temperature" }
+Number:Dimensionless    MyBMS_H     "MyBMS Humidity [%.1f %unit%]"  { channel="onewire:bms:mybridge:mybms:humidity" }
+Switch                  Digital0    "Digital 0"                     { channel="onewire:digitalio2:mybridge:mydio:digital0" }
+Switch                  Digital1    "Digital 1"                     { channel="onewire:digitalio2:mybridge:mydio:digital1" }
+Number                  CRC8Errors  "Bus-Errors [%d]"               { channel="onewire:owserver:mybridge:crc8errors" }
 ```
 
 ### demo.sitemap:
@@ -255,6 +274,8 @@ sitemap demo label="Main Menu"
         Text item=MyBMS_T
         Text item=MyBMS_H
         Text item=CRC8Errors
+        Text item=Digital0
+        Switch item=Digital1
     }
 }
 ```
