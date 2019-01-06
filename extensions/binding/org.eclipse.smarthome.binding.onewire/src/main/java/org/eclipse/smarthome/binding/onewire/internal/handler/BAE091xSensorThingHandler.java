@@ -78,6 +78,7 @@ public class BAE091xSensorThingHandler extends OwBaseThingHandler {
                 }
             }
         }
+        // TODO: PWM channels
         super.handleCommand(channelUID, command);
     }
 

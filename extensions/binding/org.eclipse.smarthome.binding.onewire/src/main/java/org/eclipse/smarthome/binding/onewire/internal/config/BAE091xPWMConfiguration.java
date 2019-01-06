@@ -19,5 +19,5 @@ package org.eclipse.smarthome.binding.onewire.internal.config;
  */
 public class BAE091xPWMConfiguration {
     public int prescaler = 0;
-    public String polarity = "positive";
+    public boolean reversePolarity = false;
 }

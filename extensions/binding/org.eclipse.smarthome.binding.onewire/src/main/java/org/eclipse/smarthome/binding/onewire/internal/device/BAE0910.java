@@ -16,15 +16,22 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.util.BitSet;
 
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Frequency;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.config.BAE091xAnalogConfiguration;
 import org.eclipse.smarthome.binding.onewire.internal.config.BAE091xPIOConfiguration;
+import org.eclipse.smarthome.binding.onewire.internal.config.BAE091xPWMConfiguration;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.QuantityType;
+import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
@@ -57,9 +64,9 @@ public class BAE0910 extends AbstractOwDevice {
     private static final int TPMC_POL = 7;
     private static final int TPMC_INENA = 5;
     private static final int TPMC_PWMDIS = 4;
-    private static final int TPMC_PS3 = 2;
-    private static final int TPMC_PS2 = 1;
-    private static final int TPMC_PS1 = 0;
+    private static final int TPMC_PS2 = 2;
+    private static final int TPMC_PS1 = 1;
+    private static final int TPMC_PS0 = 0;
 
     private final Logger logger = LoggerFactory.getLogger(BAE0910.class);
     private final OwDeviceParameterMap pin1CounterParameter = new OwDeviceParameterMap() {
@@ -108,12 +115,45 @@ public class BAE0910 extends AbstractOwDevice {
             set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/tpm2c"));
         }
     };
+    private final OwDeviceParameterMap period1Parameter = new OwDeviceParameterMap() {
+        {
+            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/period1"));
+        }
+    };
+    private final OwDeviceParameterMap period2Parameter = new OwDeviceParameterMap() {
+        {
+            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/period2"));
+        }
+    };
+    private final OwDeviceParameterMap duty1Parameter = new OwDeviceParameterMap() {
+        {
+            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/duty1"));
+        }
+    };
+    private final OwDeviceParameterMap duty2Parameter = new OwDeviceParameterMap() {
+        {
+            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/duty2"));
+        }
+    };
+    private final OwDeviceParameterMap duty3Parameter = new OwDeviceParameterMap() {
+        {
+            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/duty3"));
+        }
+    };
+    private final OwDeviceParameterMap duty4Parameter = new OwDeviceParameterMap() {
+        {
+            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/duty4"));
+        }
+    };
 
     private BitSet outcRegister = new BitSet(8);
     private BitSet piocRegister = new BitSet(8);
     private BitSet adccRegister = new BitSet(8);
     private BitSet tpm1cRegister = new BitSet(8);
     private BitSet tpm2cRegister = new BitSet(8);
+
+    private double resolution1 = 8; // in µs
+    private double resolution2 = 8; // in µs
 
     public BAE0910(SensorId sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);
@@ -124,27 +164,54 @@ public class BAE0910 extends AbstractOwDevice {
     }
 
     public void configureChannels(OwBaseBridgeHandler bridgeHandler) throws OwException {
+        outcRegister.clear();
+        piocRegister.clear();
+        adccRegister.clear();
+        tpm1cRegister.clear();
+        tpm2cRegister.clear();
+
+        if (enabledChannels.contains(CHANNEL_PWM_FREQ1)) {
+            Channel channel = callback.getThing().getChannel(CHANNEL_PWM_FREQ1);
+            if (channel != null) {
+                BAE091xPWMConfiguration channelConfig = channel.getConfiguration().as(BAE091xPWMConfiguration.class);
+                tpm1cRegister.set(TPMC_POL, channelConfig.reversePolarity);
+                tpm1cRegister.set(TPMC_PS2, (channelConfig.prescaler & 4) == 4);
+                tpm1cRegister.set(TPMC_PS1, (channelConfig.prescaler & 2) == 2);
+                tpm1cRegister.set(TPMC_PS0, (channelConfig.prescaler & 1) == 1);
+                resolution1 = 0.0625 * (1 << channelConfig.prescaler);
+            } else {
+                throw new OwException("trying to configure pwm but frequency channel is missing");
+            }
+        }
+
+        if (enabledChannels.contains(CHANNEL_PWM_FREQ2)) {
+            Channel channel = callback.getThing().getChannel(CHANNEL_PWM_FREQ2);
+            if (channel != null) {
+                BAE091xPWMConfiguration channelConfig = channel.getConfiguration().as(BAE091xPWMConfiguration.class);
+                tpm2cRegister.set(TPMC_POL, channelConfig.reversePolarity);
+                tpm2cRegister.set(TPMC_PS2, (channelConfig.prescaler & 4) == 4);
+                tpm2cRegister.set(TPMC_PS1, (channelConfig.prescaler & 2) == 2);
+                tpm2cRegister.set(TPMC_PS0, (channelConfig.prescaler & 1) == 1);
+                resolution2 = 0.0625 * (1 << channelConfig.prescaler);
+            } else {
+                throw new OwException("trying to configure pwm but frequency channel is missing");
+            }
+        }
+
         // Pin 2
         if (enabledChannels.contains(CHANNEL_DIGITAL2)) {
             outcRegister.set(OUTC_DS);
             outcRegister.set(OUTC_OUTEN);
-        } else {
-            outcRegister.clear(OUTC_DS);
-            outcRegister.clear(OUTC_OUTEN);
         }
 
         // Pin 6
         if (enabledChannels.contains(CHANNEL_DIGITAL6)) {
             piocRegister.set(PIOC_PIOEN);
             piocRegister.set(PIOC_DS);
-            Channel channel6 = callback.getThing().getChannel(CHANNEL_DIGITAL6);
-            if (channel6 != null) {
-                BAE091xPIOConfiguration channelConfig = channel6.getConfiguration().as(BAE091xPIOConfiguration.class);
-                if (channelConfig.mode.equals("output")) {
-                    piocRegister.set(PIOC_DD);
-                } else {
-                    piocRegister.clear(PIOC_DD);
-                }
+            Channel channel = callback.getThing().getChannel(CHANNEL_DIGITAL6);
+            if (channel != null) {
+                BAE091xPIOConfiguration channelConfig = channel.getConfiguration().as(BAE091xPIOConfiguration.class);
+                piocRegister.set(PIOC_DD, channelConfig.mode.equals("output"));
                 switch (channelConfig.pulldevice) {
                     case "pullup":
                         piocRegister.set(PIOC_PE);
@@ -152,37 +219,28 @@ public class BAE0910 extends AbstractOwDevice {
                         break;
                     case "pulldown":
                         piocRegister.set(PIOC_PE);
-                        piocRegister.clear(PIOC_PD);
+                        piocRegister.set(PIOC_PD);
                         break;
                     default:
-                        piocRegister.clear(PIOC_PE);
                 }
             } else {
                 throw new OwException("trying to configure pin 6 but channel is missing");
             }
-        } else {
-            piocRegister.clear(PIOC_PIOEN);
-            piocRegister.clear(PIOC_DS);
         }
 
         // Pin 7
         if (enabledChannels.contains(CHANNEL_VOLTAGE)) {
             adccRegister.set(ADCC_ADCEN);
-            Channel channel7 = callback.getThing().getChannel(CHANNEL_VOLTAGE);
-            if (channel7 != null) {
-                BAE091xAnalogConfiguration channelConfig = channel7.getConfiguration()
+            Channel channel = callback.getThing().getChannel(CHANNEL_VOLTAGE);
+            if (channel != null) {
+                BAE091xAnalogConfiguration channelConfig = channel.getConfiguration()
                         .as(BAE091xAnalogConfiguration.class);
-                if (channelConfig.hires) {
-                    adccRegister.set(ADCC_10BIT);
-                } else {
-                    adccRegister.clear(ADCC_10BIT);
-                }
+                adccRegister.set(ADCC_10BIT, channelConfig.hires);
             } else {
                 throw new OwException("trying to configure pin 7 but channel is missing");
             }
-        } else {
-            adccRegister.clear(ADCC_ADCEN);
         }
+
         if (enabledChannels.contains(CHANNEL_DIGITAL7)) {
             tpm2cRegister.set(TPMC_PWMDIS);
         }
@@ -194,78 +252,99 @@ public class BAE0910 extends AbstractOwDevice {
             if (channel != null) {
                 if (!(new ChannelTypeUID(BINDING_ID, "bae-in")).equals(channel.getChannelTypeUID())) {
                     tpm1cRegister.set(TPMC_INENA);
-                } else {
-                    tpm1cRegister.clear(TPMC_INENA);
                 }
             } else {
                 throw new OwException("trying to configure pin 8 but channel is missing");
             }
         }
 
+        // write configuration
         bridgeHandler.writeBitSet(sensorId, outcParameter, outcRegister);
         bridgeHandler.writeBitSet(sensorId, piocParameter, piocRegister);
         bridgeHandler.writeBitSet(sensorId, adccParameter, adccRegister);
         bridgeHandler.writeBitSet(sensorId, tpm1cParameter, tpm1cRegister);
         bridgeHandler.writeBitSet(sensorId, tpm2cParameter, tpm2cRegister);
+
         isConfigured = true;
     }
 
     @Override
     public void refresh(OwBaseBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException {
-        // Pin1
+        // Counter
         if (enabledChannels.contains(CHANNEL_COUNTER)) {
             State counterValue = bridgeHandler.readDecimalType(sensorId, pin1CounterParameter);
-            logger.trace("read {} from {}", counterValue, sensorId);
             callback.postUpdate(CHANNEL_COUNTER, counterValue);
         }
 
-        // Pin 2
+        // Digital Pins
         if (enabledChannels.contains(CHANNEL_DIGITAL2)) {
             BitSet value = bridgeHandler.readBitSet(sensorId, pin2OutParameter);
-            logger.trace("read {} from {}", value, sensorId);
             callback.postUpdate(CHANNEL_DIGITAL2, OnOffType.from(value.get(0)));
         }
-
-        // Pin 6
         if (enabledChannels.contains(CHANNEL_DIGITAL6)) {
             BitSet value = bridgeHandler.readBitSet(sensorId, pin6PIOParameter);
-            logger.trace("read {} from {}", value, sensorId);
             callback.postUpdate(CHANNEL_DIGITAL6, OnOffType.from(value.get(0)));
         }
-
-        // Pin 7
         if (enabledChannels.contains(CHANNEL_DIGITAL7)) {
             BitSet value = bridgeHandler.readBitSet(sensorId, tpm2cParameter);
-            logger.trace("read {} from {}", value, sensorId);
             callback.postUpdate(CHANNEL_DIGITAL7, OnOffType.from(value.get(TPMC_POL)));
         }
+        if (enabledChannels.contains(CHANNEL_DIGITAL8)) {
+            BitSet value = bridgeHandler.readBitSet(sensorId, tpm1cParameter);
+            callback.postUpdate(CHANNEL_DIGITAL8, OnOffType.from(value.get(TPMC_POL)));
+        }
+
+        // Analog
         if (enabledChannels.contains(CHANNEL_VOLTAGE)) {
             State analogValue = bridgeHandler.readDecimalType(sensorId, pin7AnalogParameter);
-            logger.trace("read {} from {}", analogValue, sensorId);
             callback.postUpdate(CHANNEL_VOLTAGE, analogValue);
         }
 
-        // Pin 8
-        if (enabledChannels.contains(CHANNEL_DIGITAL8)) {
-            BitSet value = bridgeHandler.readBitSet(sensorId, tpm1cParameter);
-            logger.trace("read {} from {}", value, sensorId);
-            callback.postUpdate(CHANNEL_DIGITAL8, OnOffType.from(value.get(TPMC_POL)));
+        // PWM
+        int period1 = 0;
+        int period2 = 0;
+        if (enabledChannels.contains(CHANNEL_PWM_FREQ1)) {
+            period1 = ((DecimalType) bridgeHandler.readDecimalType(sensorId, period1Parameter)).intValue();
+            double frequency = (period1 > 0) ? 1 / (period1 * resolution1 * 1e-6) : 0;
+            callback.postUpdate(CHANNEL_PWM_FREQ1, new QuantityType<Frequency>(frequency, SmartHomeUnits.HERTZ));
+        }
+        if (enabledChannels.contains(CHANNEL_PWM_FREQ2)) {
+            period2 = ((DecimalType) bridgeHandler.readDecimalType(sensorId, period2Parameter)).intValue();
+            double frequency = (period2 > 0) ? 1 / (period2 * resolution2 * 1e-6) : 0;
+            callback.postUpdate(CHANNEL_PWM_FREQ2, new QuantityType<Frequency>(frequency, SmartHomeUnits.HERTZ));
+        }
+        if (enabledChannels.contains(CHANNEL_PWM_DUTY1)) {
+            int dutyValue = ((DecimalType) bridgeHandler.readDecimalType(sensorId, duty1Parameter)).intValue();
+            double duty = (period1 > 0 && dutyValue <= period1) ? 100 * dutyValue / period1 : 100;
+            callback.postUpdate(CHANNEL_PWM_DUTY1, new QuantityType<Dimensionless>(duty, SmartHomeUnits.PERCENT));
+        }
+        if (enabledChannels.contains(CHANNEL_PWM_DUTY2)) {
+            int dutyValue = ((DecimalType) bridgeHandler.readDecimalType(sensorId, duty2Parameter)).intValue();
+            double duty = (period2 > 0 && dutyValue <= period2) ? 100 * dutyValue / period2 : 100;
+            callback.postUpdate(CHANNEL_PWM_DUTY1, new QuantityType<Dimensionless>(duty, SmartHomeUnits.PERCENT));
+        }
+        if (enabledChannels.contains(CHANNEL_PWM_DUTY3)) {
+            int dutyValue = ((DecimalType) bridgeHandler.readDecimalType(sensorId, duty3Parameter)).intValue();
+            double duty = (period1 > 0 && dutyValue <= period1) ? 100 * dutyValue / period1 : 100;
+            callback.postUpdate(CHANNEL_PWM_DUTY3, new QuantityType<Dimensionless>(duty, SmartHomeUnits.PERCENT));
+        }
+        if (enabledChannels.contains(CHANNEL_PWM_DUTY4)) {
+            int dutyValue = ((DecimalType) bridgeHandler.readDecimalType(sensorId, duty4Parameter)).intValue();
+            double duty = (period2 > 0 && dutyValue <= period2) ? 100 * dutyValue / period2 : 100;
+            callback.postUpdate(CHANNEL_PWM_DUTY4, new QuantityType<Dimensionless>(duty, SmartHomeUnits.PERCENT));
         }
     }
 
     public boolean writeChannel(OwBaseBridgeHandler bridgeHandler, String channelId, Command command) {
         try {
             BitSet value = new BitSet(8);
-
             switch (channelId) {
                 case CHANNEL_DIGITAL2:
                     // output
                     if (!outcRegister.get(OUTC_OUTEN)) {
                         return false;
                     }
-                    if (((OnOffType) command).equals(OnOffType.ON)) {
-                        value.set(1);
-                    }
+                    value.set(1, ((OnOffType) command).equals(OnOffType.ON));
                     bridgeHandler.writeBitSet(sensorId, pin2OutParameter, value);
                     break;
                 case CHANNEL_DIGITAL6:
@@ -273,21 +352,15 @@ public class BAE0910 extends AbstractOwDevice {
                     if (!piocRegister.get(PIOC_DD) || !piocRegister.get(PIOC_PIOEN)) {
                         return false;
                     }
-                    if (((OnOffType) command).equals(OnOffType.ON)) {
-                        value.set(1);
-                    }
+                    value.set(1, ((OnOffType) command).equals(OnOffType.ON));
                     bridgeHandler.writeBitSet(sensorId, pin6PIOParameter, value);
                     break;
                 case CHANNEL_DIGITAL7:
                     // not pwm, not analog
-                    if (!tpm1cRegister.get(TPMC_PWMDIS) || adccRegister.get(ADCC_ADCEN)) {
+                    if (!tpm2cRegister.get(TPMC_PWMDIS) || adccRegister.get(ADCC_ADCEN)) {
                         return false;
                     }
-                    if (((OnOffType) command).equals(OnOffType.ON)) {
-                        tpm2cRegister.set(TPMC_POL);
-                    } else {
-                        tpm2cRegister.clear(TPMC_POL);
-                    }
+                    tpm2cRegister.set(TPMC_POL, ((OnOffType) command).equals(OnOffType.ON));
                     bridgeHandler.writeBitSet(sensorId, tpm2cParameter, tpm2cRegister);
                     break;
                 case CHANNEL_DIGITAL8:
@@ -295,13 +368,10 @@ public class BAE0910 extends AbstractOwDevice {
                     if (tpm1cRegister.get(TPMC_INENA) || !tpm1cRegister.get(TPMC_PWMDIS)) {
                         return false;
                     }
-                    if (((OnOffType) command).equals(OnOffType.ON)) {
-                        tpm1cRegister.set(TPMC_POL);
-                    } else {
-                        tpm1cRegister.clear(TPMC_POL);
-                    }
+                    tpm1cRegister.set(TPMC_POL, ((OnOffType) command).equals(OnOffType.ON));
                     bridgeHandler.writeBitSet(sensorId, tpm1cParameter, tpm1cRegister);
                     break;
+                // TODO: PWM channels
                 default:
                     throw new OwException("unknown or invalid channel");
             }

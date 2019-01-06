@@ -20,7 +20,6 @@
                 <description>Time in seconds after which the thing is refreshed</description>
                 <default>300</default>
                 <unitLabel>s</unitLabel>
-                <required>false</required>
             </parameter>
             <parameter name="pin1" type="text">
                 <label>Pin 1 Mode Configuration</label>
@@ -30,7 +29,6 @@
                 </options>
                 <default>counter</default>
                 <limitToOptions>true</limitToOptions>
-                <required>false</required>
             </parameter>
             <parameter name="pin2" type="text">
                 <label>Pin 2 Mode Configuration</label>
@@ -41,7 +39,6 @@
                 </options>
                 <default>output</default>
                 <limitToOptions>true</limitToOptions>
-                <required>false</required>
             </parameter>
             <parameter name="pin6" type="text">
                 <label>Pin 6 Mode Configuration</label>
@@ -52,7 +49,6 @@
                 </options>
                 <default>output</default>
                 <limitToOptions>true</limitToOptions>
-                <required>false</required>
             </parameter>
             <parameter name="pin7" type="text">
                 <label>Pin 7 Mode Configuration</label>
@@ -64,7 +60,6 @@
                 </options>
                 <default>analog</default>
                 <limitToOptions>true</limitToOptions>
-                <required>false</required>
             </parameter>
             <parameter name="pin8" type="text">
                 <label>Pin 8 Mode Configuration</label>
@@ -76,7 +71,6 @@
                 </options>
                 <default>output</default>
                 <limitToOptions>true</limitToOptions>
-                <required>false</required>
             </parameter>
         </config-description>        
     </thing-type>
@@ -100,17 +94,11 @@
                     <option value="7">2 Hz - 62.5 kHz</option>
                 </options>
                 <default>0</default>
-                <limitToOptions>true</limitToOptions>
-                <required>false</required>   
+                <limitToOptions>true</limitToOptions>   
             </parameter>
-            <parameter name="polarity" type="text">
-                <options>
-                    <option value="positive">positive</option>
-                    <option value="negative">negative</option>
-                </options>
-                <default>positive</default>
-                <limitToOptions>true</limitToOptions>
-                <required>false</required>   
+            <parameter name="reversePolarity" type="boolean">
+                <label>Reverse polarity</label>
+                <default>false</default>   
             </parameter>
         </config-description>
 	</channel-type>
@@ -143,7 +131,6 @@
 				</options>
 				<default>disabled</default>
 				<limitToOptions>true</limitToOptions>
-				<required>false</required>
 			</parameter>
 		</config-description>
 	</channel-type>
@@ -163,9 +150,9 @@
         <state readOnly="true" pattern="%.1f %unit%" />
         <config-description>
             <parameter name="hires" type="boolean">
-                <label>Hires Mode (10bit)</label>
+                <label>Hires</label>
+                <description>High resolution Mode (10bit)</description>
                 <default>false</default>
-                <required>false</required>
             </parameter>
         </config-description>
     </channel-type>
