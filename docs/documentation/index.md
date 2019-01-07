@@ -44,6 +44,6 @@ The project focuses on services and APIs for the following topics:
 
 Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:
 
-* Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.
+* Language Server Protocol (LSP) support for content assist and syntax validation. This may be used by solutions to provide full IDE support for editing configuration models and rules.
 * Maven archetypes to easily create skeletons for extensions
 * Demo packaging with other Eclipse IoT projects
