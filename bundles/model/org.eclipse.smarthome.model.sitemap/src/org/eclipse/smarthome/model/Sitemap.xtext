@@ -87,6 +87,7 @@ Mapview:
 Slider:
     'Slider' (('item=' item=ItemRef) & ('label=' label=(ID | STRING))? & ('icon=' icon=Icon)? &
     ('sendFrequency=' frequency=INT)? & (switchEnabled?='switchSupport')? &
+    ('minValue=' minValue=Number)? & ('maxValue=' maxValue=Number)? & ('step=' step=Number)? &
     ('labelcolor=[' (LabelColor+=ColorArray (',' LabelColor+=ColorArray)* ']'))? &
     ('valuecolor=[' (ValueColor+=ColorArray (',' ValueColor+=ColorArray)* ']'))? &
     ('visibility=[' (Visibility+=VisibilityRule (',' Visibility+=VisibilityRule)* ']'))?);
