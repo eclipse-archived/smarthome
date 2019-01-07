@@ -162,7 +162,9 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
             new ProductUnit<VolumetricFlowRate>(Units.CUBIC_METRE.divide(Units.HOUR)));
     public static final Unit<VolumetricFlowRate> CUBICMETRE_PER_DAY = addUnit(
             new ProductUnit<VolumetricFlowRate>(Units.CUBIC_METRE.divide(Units.DAY)));
-
+    public static final Unit<AmountOfSubstance> DEUTSCHE_HAERTE = addUnit(new TransformedUnit<AmountOfSubstance>("°dH",
+            (Unit<AmountOfSubstance>) MetricPrefix.MILLI(Units.MOLE).divide(Units.LITRE),
+            RationalConverter.of(5.6, 1)));
     /**
      * Add unit symbols for custom ESH units.
      */
@@ -186,6 +188,7 @@ public class SmartHomeUnits extends AbstractSystemOfUnits {
         SimpleUnitFormat.getInstance().label(CUBICMETRE_PER_MINUTE, "m³/min");
         SimpleUnitFormat.getInstance().label(CUBICMETRE_PER_HOUR, "m³/h");
         SimpleUnitFormat.getInstance().label(CUBICMETRE_PER_DAY, "m³/d");
+        SimpleUnitFormat.getInstance().label(DEUTSCHE_HAERTE, "°dH");
     }
 
     /**
