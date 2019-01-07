@@ -17,7 +17,9 @@ import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -70,6 +72,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(immediate = true)
 public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
 
+    private Queue<ThingActions> queuedBeforeActivation;
+
     private Map<String, Object> elements;
 
     private ItemRegistry itemRegistry;
@@ -121,9 +125,16 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
     }
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    void addThingActions(ThingActions thingActions) {
-        this.thingActions.addThingActions(thingActions);
-        elements.put(thingActions.getClass().getSimpleName(), thingActions.getClass());
+    synchronized void addThingActions(ThingActions thingActions) {
+        if (this.thingActions == null) { // bundle may not be active yet
+            if (this.queuedBeforeActivation == null) {
+                queuedBeforeActivation = new LinkedList<>();
+            }
+            queuedBeforeActivation.add(thingActions);
+        } else {
+            this.thingActions.addThingActions(thingActions);
+            elements.put(thingActions.getClass().getSimpleName(), thingActions.getClass());
+        }
     }
 
     protected void removeThingActions(ThingActions thingActions) {
@@ -132,7 +143,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
     }
 
     @Activate
-    protected void activate() {
+    protected synchronized void activate() {
         busEvent = new ScriptBusEvent(itemRegistry, eventPublisher);
         thingActions = new ScriptThingActions(thingRegistry);
 
@@ -205,6 +216,12 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements.put("events", busEvent);
         elements.put("rules", ruleRegistry);
         elements.put("actions", thingActions);
+
+        // if any thingActions were queued before this got activated, add them now
+        if (queuedBeforeActivation != null) {
+            queuedBeforeActivation.forEach(thingActions -> this.addThingActions(thingActions));
+            queuedBeforeActivation = null;
+        }
     }
 
     @Deactivate
