@@ -144,14 +144,14 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
         ThingUID thingUID = getThingUID(light);
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
-        String modelId = light.getModelID();
+        String modelId = light.getNormalizedModelID();
 
         if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>();
             properties.put(LIGHT_ID, light.getId());
             if (modelId != null) {
-                properties.put(Thing.PROPERTY_MODEL_ID, modelId.replaceAll(NORMALIZE_ID_REGEX, "_"));
+                properties.put(Thing.PROPERTY_MODEL_ID, modelId);
             }
             String uniqueID = light.getUniqueID();
             if (uniqueID != null) {
@@ -210,14 +210,14 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
         ThingUID thingUID = getThingUID(sensor);
         ThingTypeUID thingTypeUID = getThingTypeUID(sensor);
 
-        String modelId = sensor.getModelID();
+        String modelId = sensor.getNormalizedModelID();
 
         if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>();
             properties.put(SENSOR_ID, sensor.getId());
             if (modelId != null) {
-                properties.put(Thing.PROPERTY_MODEL_ID, modelId.replaceAll(NORMALIZE_ID_REGEX, "_"));
+                properties.put(Thing.PROPERTY_MODEL_ID, modelId);
             }
             String uniqueID = sensor.getUniqueID();
             if (uniqueID != null) {

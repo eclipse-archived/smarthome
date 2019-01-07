@@ -143,10 +143,12 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (!propertiesInitializedSuccessfully) {
             FullHueObject fullLight = getLight();
             if (fullLight != null) {
-                updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-                String modelId = fullLight.getModelID();
+                String softwareVersion = fullLight.getSoftwareVersion();
+                if (softwareVersion != null) {
+                    updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, softwareVersion);
+                }
+                String modelId = fullLight.getNormalizedModelID();
                 if (modelId != null) {
-                    modelId = modelId.replaceAll(NORMALIZE_ID_REGEX, "_");
                     updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
                     String vendor = getVendor(modelId);
                     if (vendor != null) {

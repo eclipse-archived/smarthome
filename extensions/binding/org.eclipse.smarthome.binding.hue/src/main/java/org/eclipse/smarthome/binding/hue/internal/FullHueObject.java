@@ -12,6 +12,9 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
+import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.NORMALIZE_ID_REGEX;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
@@ -22,16 +25,17 @@ import com.google.gson.annotations.SerializedName;
  * @author Samuel Leisering - Initial contribution
  * @author Christoph Weitkamp - Initial contribution
  */
+@NonNullByDefault
 public class FullHueObject extends HueObject {
 
-    private String type;
-    private String modelid;
+    private @NonNullByDefault({}) String type;
+    private @Nullable String modelid;
     @SerializedName("manufacturername")
-    private String manufacturerName;
+    private @NonNullByDefault({}) String manufacturerName;
     @SerializedName("productname")
-    private String productName;
-    private String swversion;
-    private String uniqueid;
+    private @NonNullByDefault({}) String productName;
+    private @Nullable String swversion;
+    private @Nullable String uniqueid;
 
     public FullHueObject() {
         super();
@@ -62,6 +66,10 @@ public class FullHueObject extends HueObject {
         return modelid;
     }
 
+    public @Nullable String getNormalizedModelID() {
+        return modelid != null ? modelid.replaceAll(NORMALIZE_ID_REGEX, "_") : modelid;
+    }
+
     /**
      * Set the model ID of the object.
      */
@@ -90,7 +98,7 @@ public class FullHueObject extends HueObject {
      *
      * @return software version
      */
-    public String getSoftwareVersion() {
+    public @Nullable String getSoftwareVersion() {
         return swversion;
     }
 
@@ -100,8 +108,8 @@ public class FullHueObject extends HueObject {
      *
      * @return the unique id, can be null for some virtual types like the daylight sensor
      */
-    @Nullable
-    public String getUniqueID() {
+
+    public @Nullable String getUniqueID() {
         return uniqueid;
     }
 }
