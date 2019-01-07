@@ -58,7 +58,7 @@ public class FullHueObject extends HueObject {
      *
      * @return model id
      */
-    public String getModelID() {
+    public @Nullable String getModelID() {
         return modelid;
     }
 
