@@ -98,9 +98,14 @@ public abstract class HueSensorHandler extends BaseThingHandler implements Senso
         if (!propertiesInitializedSuccessfully) {
             FullHueObject fullSensor = getSensor();
             if (fullSensor != null) {
-                String modelId = fullSensor.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_");
-                updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
-                updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullSensor.getSoftwareVersion());
+                String softwareVersion = fullSensor.getSoftwareVersion();
+                if (softwareVersion != null) {
+                    updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, softwareVersion);
+                }
+                String modelId = fullSensor.getNormalizedModelID();
+                if (modelId != null) {
+                    updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
+                }
                 updateProperty(Thing.PROPERTY_VENDOR, fullSensor.getManufacturerName());
                 updateProperty(PRODUCT_NAME, fullSensor.getProductName());
                 String uniqueID = fullSensor.getUniqueID();

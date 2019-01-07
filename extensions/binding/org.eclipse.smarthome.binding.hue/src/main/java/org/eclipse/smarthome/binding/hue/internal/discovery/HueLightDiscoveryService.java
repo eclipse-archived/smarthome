@@ -144,13 +144,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
         ThingUID thingUID = getThingUID(light);
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
-        String modelId = light.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_");
+        String modelId = light.getNormalizedModelID();
 
         if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>();
             properties.put(LIGHT_ID, light.getId());
-            properties.put(Thing.PROPERTY_MODEL_ID, modelId);
+            if (modelId != null) {
+                properties.put(Thing.PROPERTY_MODEL_ID, modelId);
+            }
             String uniqueID = light.getUniqueID();
             if (uniqueID != null) {
                 properties.put(UNIQUE_ID, uniqueID);
@@ -194,7 +196,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
 
     private @Nullable ThingTypeUID getThingTypeUID(FullHueObject hueObject) {
         String thingTypeId = TYPE_TO_ZIGBEE_ID_MAP
-                .get(hueObject.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
+                .get(hueObject.getType().replaceAll(NORMALIZE_ID_REGEX, "_").toLowerCase());
 
         return thingTypeId != null ? new ThingTypeUID(BINDING_ID, thingTypeId) : null;
     }
@@ -208,13 +210,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService
         ThingUID thingUID = getThingUID(sensor);
         ThingTypeUID thingTypeUID = getThingTypeUID(sensor);
 
-        String modelId = sensor.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_");
+        String modelId = sensor.getNormalizedModelID();
 
         if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>();
             properties.put(SENSOR_ID, sensor.getId());
-            properties.put(Thing.PROPERTY_MODEL_ID, modelId);
+            if (modelId != null) {
+                properties.put(Thing.PROPERTY_MODEL_ID, modelId);
+            }
             String uniqueID = sensor.getUniqueID();
             if (uniqueID != null) {
                 properties.put(UNIQUE_ID, uniqueID);

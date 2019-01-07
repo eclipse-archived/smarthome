@@ -87,8 +87,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     private static final String OSRAM_PAR16_50_TW_MODEL_ID = "PAR16_50_TW";
 
-    public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
-
     @NonNullByDefault({})
     private String lightId;
 
@@ -145,12 +143,19 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (!propertiesInitializedSuccessfully) {
             FullHueObject fullLight = getLight();
             if (fullLight != null) {
-                String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
-                updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
-                updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-                String vendor = getVendor(modelId);
-                if (vendor != null) {
-                    updateProperty(Thing.PROPERTY_VENDOR, vendor);
+                String softwareVersion = fullLight.getSoftwareVersion();
+                if (softwareVersion != null) {
+                    updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, softwareVersion);
+                }
+                String modelId = fullLight.getNormalizedModelID();
+                if (modelId != null) {
+                    updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
+                    String vendor = getVendor(modelId);
+                    if (vendor != null) {
+                        updateProperty(Thing.PROPERTY_VENDOR, vendor);
+                    }
+                } else {
+                    updateProperty(Thing.PROPERTY_VENDOR, fullLight.getManufacturerName());
                 }
                 String uniqueID = fullLight.getUniqueID();
                 if (uniqueID != null) {
