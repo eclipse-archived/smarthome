@@ -371,13 +371,6 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
     }
 
     /**
-     * Returns true, if the given datapoint is a Thing status.
-     */
-    public static boolean isStatusDatapoint(HmDatapoint dp) {
-        return StringUtils.indexOfAny(dp.getName(), STATUS_DATAPOINT_NAMES) != -1;
-    }
-
-    /**
      * Returns true, if the given datapoint can be ignored for metadata generation.
      */
     public static boolean isIgnoredDatapoint(HmDatapoint dp) {
