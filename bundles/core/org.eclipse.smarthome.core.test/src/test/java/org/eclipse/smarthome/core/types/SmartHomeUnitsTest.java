@@ -274,7 +274,12 @@ public class SmartHomeUnitsTest {
 
     @Test
     public void testMicrogramPerCubicMeterUnitSymbol() {
-        assertThat(SmartHomeUnits.MICROGRAM_PER_CUBICMETRE.toString(), is("μg/m³"));
+        assertThat(SmartHomeUnits.MICROGRAM_PER_CUBICMETRE.toString(), is("µg/m³"));
+    }
+
+    @Test
+    public void testMicrogramPerCubicMeterFromString() {
+        assertThat(QuantityType.valueOf("2.60 µg/m³").getUnit().toString(), is("µg/m³"));
     }
 
     @Test
@@ -286,7 +291,12 @@ public class SmartHomeUnitsTest {
 
     @Test
     public void testMicrowattPerSquareCentimetreUnitSymbol() {
-        assertThat(SmartHomeUnits.MICROWATT_PER_SQUARE_CENTIMETRE.toString(), is("μW/cm²"));
+        assertThat(SmartHomeUnits.MICROWATT_PER_SQUARE_CENTIMETRE.toString(), is("µW/cm²"));
+    }
+
+    @Test
+    public void testMicrowattPerSquareCentimetreFromString() {
+        assertThat(QuantityType.valueOf("2.60 µW/cm²").getUnit().toString(), is("µW/cm²"));
     }
 
 }
