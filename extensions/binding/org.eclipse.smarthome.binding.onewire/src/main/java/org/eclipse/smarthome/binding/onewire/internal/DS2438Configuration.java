@@ -31,7 +31,7 @@ public class DS2438Configuration {
             .compile("^(26|28|3A)([0-9A-Fa-f]{12})[0-9A-Fa-f]{2}$");
 
     private OwSensorType sensorSubType = OwSensorType.DS2438;
-    private String vendor = "";
+    private String vendor = "Dallas/Maxim";
     private String hwRevision = "0";
     private String prodDate = "unknown";
 
@@ -41,10 +41,6 @@ public class DS2438Configuration {
     public DS2438Configuration(OwPageBuffer pageBuffer) {
         String sensorTypeId = pageBuffer.getPageString(3).substring(0, 2);
         switch (sensorTypeId) {
-            case "00":
-                vendor = "iButtonLink";
-                sensorSubType = OwSensorType.MS_T;
-                break;
             case "19":
                 vendor = "iButtonLink";
                 sensorSubType = OwSensorType.MS_TH;
@@ -168,7 +164,7 @@ public class DS2438Configuration {
     /**
      * determine multisensor type
      *
-     * @param mainsensorType        the type of the main sensor
+     * @param mainsensorType the type of the main sensor
      * @param associatedSensorTypes a list of OwSensorTypes of all associated sensors
      * @return the multisensor type (if known)
      */

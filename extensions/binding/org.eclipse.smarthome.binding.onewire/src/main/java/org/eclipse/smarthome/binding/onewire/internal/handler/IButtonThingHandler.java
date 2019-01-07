@@ -25,6 +25,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
@@ -49,7 +50,9 @@ public class IButtonThingHandler extends OwBaseThingHandler {
             return;
         }
 
-        if (getThing().getStatus() == ThingStatus.OFFLINE) {
+        ThingStatusInfo statusInfo = getThing().getStatusInfo();
+        if (statusInfo.getStatus() == ThingStatus.OFFLINE
+                && statusInfo.getStatusDetail() == ThingStatusDetail.CONFIGURATION_ERROR) {
             return;
         }
 

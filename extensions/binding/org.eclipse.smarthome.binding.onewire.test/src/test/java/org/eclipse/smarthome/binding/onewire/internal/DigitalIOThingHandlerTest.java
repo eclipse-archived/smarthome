@@ -86,7 +86,7 @@ public class DigitalIOThingHandlerTest extends AbstractThingHandlerTest {
 
         try {
             inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
-            inOrder.verify(bridgeHandler, times(2)).readDecimalType(eq(new SensorId(TEST_ID)), any());
+            inOrder.verify(bridgeHandler, times(2)).readBitSet(eq(new SensorId(TEST_ID)), any());
 
             inOrder.verifyNoMoreInteractions();
         } catch (OwException e) {

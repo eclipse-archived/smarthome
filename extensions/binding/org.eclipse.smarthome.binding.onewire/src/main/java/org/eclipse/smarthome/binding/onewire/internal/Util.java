@@ -14,16 +14,12 @@ package org.eclipse.smarthome.binding.onewire.internal;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.CHANNEL_TEMPERATURE;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.dimension.Density;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
@@ -41,22 +37,6 @@ import org.eclipse.smarthome.core.types.State;
  */
 @NonNullByDefault
 public class Util {
-
-    /**
-     * convert a number to a list of booleans
-     *
-     * @param decimal
-     * @return
-     */
-    public static List<Boolean> decimalTypeToBooleanList(DecimalType decimal) {
-        List<Boolean> returnValues = new ArrayList<Boolean>();
-        int value = decimal.intValue();
-        for (int i = 0; i < 8; i++) {
-            returnValues.add((value & (1 << i)) > 0);
-        }
-        return returnValues;
-    }
-
     /**
      * calculate absolute humidity in g/m³ from measured values
      *

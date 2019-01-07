@@ -16,10 +16,11 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 
+import java.util.BitSet;
+
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2405;
 import org.eclipse.smarthome.binding.onewire.test.AbstractDeviceTest;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,16 +61,19 @@ public class DS2405Test extends AbstractDeviceTest {
     private void digitalChannelTest(OnOffType state, int channelNo) {
         instantiateDevice();
 
-        DecimalType returnValue = new DecimalType((state == OnOffType.ON) ? 255 : 0);
+        BitSet returnValue = new BitSet(8);
+        if (state == OnOffType.ON) {
+            returnValue.flip(0, 7);
+        }
 
         try {
             Mockito.when(mockBridgeHandler.checkPresence(testSensorId)).thenReturn(OnOffType.ON);
-            Mockito.when(mockBridgeHandler.readDecimalType(eq(testSensorId), any())).thenReturn(returnValue);
+            Mockito.when(mockBridgeHandler.readBitSet(eq(testSensorId), any())).thenReturn(returnValue);
 
             testDevice.configureChannels();
             testDevice.refresh(mockBridgeHandler, true);
 
-            inOrder.verify(mockBridgeHandler, times(2)).readDecimalType(eq(testSensorId), any());
+            inOrder.verify(mockBridgeHandler, times(2)).readBitSet(eq(testSensorId), any());
             inOrder.verify(mockThingHandler).postUpdate(eq(channelName(channelNo)), eq(state));
         } catch (OwException e) {
             Assert.fail("caught unexpected OwException");

@@ -12,17 +12,13 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
+import static org.junit.Assert.assertEquals;
 
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.smarthome.core.library.dimension.Density;
-import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
-import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Test;
 
 /**
@@ -31,15 +27,6 @@ import org.junit.Test;
  * @author Jan N. Klug - Initial contribution
  */
 public class UtilTest {
-
-    @Test
-    public void decimalTypeToBooleanListTest() {
-        DecimalType testDecimal = new DecimalType(0b10001111);
-        Boolean expectedResult[] = { true, true, true, true, false, false, false, true };
-        List<Boolean> conversionResult = Util.decimalTypeToBooleanList(testDecimal);
-
-        assertThat(conversionResult, IsIterableContainingInOrder.contains(expectedResult));
-    }
 
     @Test
     public void convertAbsoluteHumidityTest() {

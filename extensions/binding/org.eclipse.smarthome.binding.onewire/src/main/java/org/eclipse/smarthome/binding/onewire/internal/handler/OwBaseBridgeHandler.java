@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal.handler;
 
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -190,6 +191,18 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
     public abstract State readDecimalType(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException;
 
     /**
+     * read a BitSet value from a sensor
+     *
+     * @param sensorId sensorId the sensor's full ID
+     * @param parameter device parameters needed for this request
+     * @return a BitSet
+     * @throws OwException
+     */
+    public BitSet readBitSet(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
+        return BitSet.valueOf(new long[] { ((DecimalType) readDecimalType(sensorId, parameter)).longValue() });
+    }
+
+    /**
      * read an array of decimal values from a sensor
      *
      * @param sensorId sensorId the sensor's full ID
@@ -219,6 +232,17 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
      */
     public abstract void writeDecimalType(SensorId sensorId, OwDeviceParameterMap parameter, DecimalType value)
             throws OwException;
+
+    /**
+     * writes a BitSet to the sensor
+     *
+     * @param sensorId sensorId the sensor's full ID
+     * @param parameter device parameters needed for this request
+     * @throws OwException
+     */
+    public void writeBitSet(SensorId sensorId, OwDeviceParameterMap parameter, BitSet value) throws OwException {
+        writeDecimalType(sensorId, parameter, new DecimalType(value.toLongArray()[0]));
+    }
 
     /**
      * returns if this bridge is refreshable
