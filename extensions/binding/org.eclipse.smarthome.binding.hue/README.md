@@ -99,14 +99,15 @@ The devices are identified by the number that the Hue bridge assigns to them (al
 Thus, all it needs for manual configuration is this single value like
 
 ```
-0210 bulb1 [ lightId="1" ]
+0210 bulb1 "Lamp 1" [ lightId="1" ]
 ```
 
 or
 
 ```
-0107 motion-sensor [ sensorId="4" ]
+0107 motion-sensor "Motion Sensor" [ sensorId="4" ]
 ```
+You can freely choose the thing identifier (such as motion-sensor) and its name (such as "Motion Sensor"). The name will then be used eg. by PaperUI to show the item.
 
 ## Channels
 
@@ -179,13 +180,13 @@ Therefore it is a thing of type **0210**.
 ### demo.things:
 
 ```
-Bridge hue:bridge:1 [ ipAddress="192.168.0.64" ] {
-	0210 bulb1 [ lightId="1" ]
-	0220 bulb2 [ lightId="2" ]
-	0106 light-level-sensor [ sensorId="3" ]
-	0107 motion-sensor [ sensorId="4" ]
-	0302 temperature-sensor [ sensorId="5" ]
-	0820 dimmer-switch [ sensorId="6" ]
+Bridge hue:bridge:1 "Hue Bridge" [ ipAddress="192.168.0.64" ] {
+	0210 bulb1  		"Lamp 1"     	[ lightId="1" ]
+	0220 bulb2  		"Lamp 2"     	[ lightId="2" ]
+	0106 light-level-sensor	"Light-Sensor"	[ sensorId="3" ]
+	0107 motion-sensor 	"Motion-Sensor" [ sensorId="4" ]
+	0302 temperature-sensor	"Temp-Sensor" 	[ sensorId="5" ]
+	0820 dimmer-switch 	"Dimmer-Switch" [ sensorId="6" ]
 }
 ```
 
