@@ -32,7 +32,6 @@ import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -67,12 +66,6 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
         Map<String, String> properties = editProperties();
 
         if (!super.configure()) {
-            return;
-        }
-
-        ThingStatusInfo statusInfo = getThing().getStatusInfo();
-        if (statusInfo.getStatus() == ThingStatus.OFFLINE
-                && statusInfo.getStatusDetail() == ThingStatusDetail.CONFIGURATION_ERROR) {
             return;
         }
 
