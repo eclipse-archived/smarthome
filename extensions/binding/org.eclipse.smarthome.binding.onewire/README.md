@@ -105,9 +105,8 @@ These sensors provide `temperature`, `humidity` and `supplyvoltage` channels.
 If the light sensor is attached and configured, a `light` channel is provided, otherwise a `current` channel.
 The AMS has an additional `voltage`and two `digitalX` channels.
 
-It has two (`bms`) or four (`ams`) sensor ids (`id`, `id1`, `id2`, `id3`).
-The first id is always the main DS2438, the second id the DS18B20 temperature sensor.
-In the case of the AMS, the third sensor id has to be the second DS2438 and the fourth the DS2413.
+It has two (`bms`) or four (`ams`) sensors.
+The id parameter (`id`) has to be configured with the sensor id of the humidity sensor.
 
 Additionally the refresh time `refresh` can be configured.
 The AMS supports a `digitalrefresh` parameter for the refresh time of the digital channels.
@@ -225,11 +224,10 @@ Bridge onewire:owserver:mybridge [
         } 
     
     Thing bms mybms [
-        id="26.CD497C010000", 
-        id1="28.D3E45A040000", 
+        id="26.CD497C010000",
+        refresh=60, 
         lightsensor=true, 
         temperaturesensor="DS18B20", 
-        refresh=60
         ] {
             Channels:
                 Type temperature-por-res : temperature [

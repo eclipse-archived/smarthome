@@ -74,12 +74,6 @@
 				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
-			<parameter name="id1" type="text">
-				<context>network_address</context>
-				<label>Temperature sensor ID</label>
-				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
-				<required>true</required>
-			</parameter>
 			<parameter name="lightsensor" type="boolean">
 				<label>Ambient light</label>
 				<description>Ambient light connected</description>
@@ -132,24 +126,6 @@
 			<parameter name="id" type="text">
 				<label>TH(S) sensor ID</label>
 				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
-				<required>true</required>
-			</parameter>
-			<parameter name="id1" type="text">
-				<context>network_address</context>
-				<label>Temperature sensor ID</label>
-				<description>Sensor ID of the DS18B20 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
-				<required>true</required>
-			</parameter>
-			<parameter name="id2" type="text">
-				<context>network_address</context>
-				<label>AI sensor ID</label>
-				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
-				<required>true</required>
-			</parameter>
-			<parameter name="id3" type="text">
-				<context>network_address</context>
-				<label>Digital I/O sensor ID</label>
-				<description>Sensor ID of the DS2413 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
 			<parameter name="lightsensor" type="boolean">

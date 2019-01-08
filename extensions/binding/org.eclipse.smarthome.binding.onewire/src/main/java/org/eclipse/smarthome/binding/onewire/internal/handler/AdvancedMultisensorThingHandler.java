@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
-import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2406_DS2413;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
@@ -52,6 +52,10 @@ import org.slf4j.LoggerFactory;
 public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_AMS, THING_TYPE_BMS));
+
+    private static final String PROPERTY_DS18B20 = "ds18b20";
+    private static final String PROPERTY_DS2413 = "ds2413";
+    private static final String PROPERTY_DS2438 = "ds2438";
 
     private final Logger logger = LoggerFactory.getLogger(AdvancedMultisensorThingHandler.class);
 
@@ -90,7 +94,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         digitalLastRefresh = 0;
 
         if (!properties.containsKey(PROPERTY_MODELID) || !properties.containsKey(PROPERTY_PROD_DATE)
-                || !properties.containsKey(PROPERTY_HW_REVISION)) {
+                || !properties.containsKey(PROPERTY_HW_REVISION) || !properties.containsKey(PROPERTY_DS18B20)) {
             updateSensorProperties();
             return;
         } else {
@@ -101,11 +105,11 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         // add sensors
 
         sensors.add(new DS2438(sensorIds.get(0), this));
-        sensors.add(new DS18x20(sensorIds.get(1), this));
+        sensors.add(new DS18x20(new SensorId(properties.get(PROPERTY_DS18B20)), this));
 
         if (THING_TYPE_AMS.equals(thingType)) {
-            sensors.add(new DS2438(sensorIds.get(2), this));
-            sensors.add(new DS2406_DS2413(sensorIds.get(3), this));
+            sensors.add(new DS2438(new SensorId(properties.get(PROPERTY_DS2438)), this));
+            sensors.add(new DS2406_DS2413(new SensorId(properties.get(PROPERTY_DS2413)), this));
         }
 
         scheduler.execute(() -> {
@@ -245,16 +249,36 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     @Override
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
-        OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
-        DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
+        DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorIds.get(0));
 
         sensorType = DS2438Configuration.getMultisensorType(ds2438configuration.getSensorSubType(),
                 ds2438configuration.getAssociatedSensorTypes());
+
         properties.put(PROPERTY_MODELID, sensorType.toString());
         properties.put(PROPERTY_VENDOR, ds2438configuration.getVendor());
 
         properties.put(PROPERTY_PROD_DATE, ds2438configuration.getProductionDate());
         properties.put(PROPERTY_HW_REVISION, ds2438configuration.getHardwareRevision());
+
+        switch (sensorType) {
+            case BMS:
+            case BMS_S:
+                properties.put(PROPERTY_DS18B20,
+                        ds2438configuration.getAssociatedSensorIds(OwSensorType.DS18B20).get(0).getFullPath());
+                break;
+            case AMS:
+            case AMS_S:
+                properties.put(PROPERTY_DS18B20,
+                        ds2438configuration.getAssociatedSensorIds(OwSensorType.DS18B20).get(0).getFullPath());
+                properties.put(PROPERTY_DS2413,
+                        ds2438configuration.getAssociatedSensorIds(OwSensorType.DS2413).get(0).getFullPath());
+                properties.put(PROPERTY_DS2438,
+                        ds2438configuration.getAssociatedSensorIds(OwSensorType.MS_TV).get(0).getFullPath());
+
+                break;
+            default:
+                throw new OwException("sensorType " + sensorType.toString() + " not supported by this thing handler");
+        }
 
         return properties;
     }
