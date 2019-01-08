@@ -93,11 +93,11 @@ public class DigitalIOThingHandler extends OwBaseThingHandler {
         }
 
         if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO)) {
-            sensors.add(new DS2405(sensorIds.get(0), this));
+            sensors.add(new DS2405(sensorId, this));
         } else if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO2)) {
-            sensors.add(new DS2406_DS2413(sensorIds.get(0), this));
+            sensors.add(new DS2406_DS2413(sensorId, this));
         } else if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO8)) {
-            sensors.add(new DS2408(sensorIds.get(0), this));
+            sensors.add(new DS2408(sensorId, this));
         }
 
         // sensor configuration

@@ -66,7 +66,7 @@ public class EDSSensorThingHandler extends OwBaseThingHandler {
         }
 
         // add sensors
-        sensors.add(new EDS006x(sensorIds.get(0), this));
+        sensors.add(new EDS006x(sensorId, this));
 
         // check sensors
         if (!properties.containsKey(PROPERTY_MODELID)) {
@@ -160,7 +160,7 @@ public class EDSSensorThingHandler extends OwBaseThingHandler {
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
 
-        OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
+        OwPageBuffer pages = bridgeHandler.readPages(sensorId);
 
         OwSensorType sensorType = OwSensorType.UNKNOWN;
         try {

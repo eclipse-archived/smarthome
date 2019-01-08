@@ -54,7 +54,7 @@ public class CounterSensorThingHandler extends OwBaseThingHandler {
             updateSensorProperties();
         }
 
-        sensors.add(new DS2423(sensorIds.get(0), this));
+        sensors.add(new DS2423(sensorId, this));
 
         try {
             sensors.get(0).configureChannels();

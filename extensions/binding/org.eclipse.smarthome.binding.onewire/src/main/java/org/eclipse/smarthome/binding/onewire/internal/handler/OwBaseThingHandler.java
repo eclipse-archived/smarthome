@@ -61,10 +61,8 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     protected static final int PROPERTY_UPDATE_INTERVAL = 5000; // in ms
     protected static final int PROPERTY_UPDATE_MAX_RETRY = 5;
 
-    protected int sensorCount;
-
     protected final List<AbstractOwDevice> sensors = new ArrayList<AbstractOwDevice>();
-    protected final List<SensorId> sensorIds = new ArrayList<SensorId>();
+    protected @NonNullByDefault({}) SensorId sensorId;
     protected long lastRefresh = 0;
     protected long refreshInterval = 300 * 1000;
 
@@ -101,29 +99,24 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "bridge missing");
             return false;
         }
-
-        sensorIds.clear();
         sensors.clear();
 
-        sensorCount = Integer.valueOf(properties.get(PROPERTY_SENSORCOUNT));
-        for (int i = 0; i < sensorCount; i++) {
-            String configKey = (i == 0) ? CONFIG_ID : CONFIG_ID + String.valueOf(i);
-            if (configuration.get(configKey) != null) {
-                String sensorId = (String) configuration.get(configKey);
-                try {
-                    sensorIds.add(new SensorId(sensorId));
-                } catch (IllegalArgumentException e) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                            "sensor id format mismatch");
-                    return false;
-                }
-            } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "sensor id missing");
+        if (configuration.get(CONFIG_ID) != null) {
+            String sensorId = (String) configuration.get(CONFIG_ID);
+            try {
+                this.sensorId = new SensorId(sensorId);
+            } catch (IllegalArgumentException e) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "sensor id format mismatch");
                 return false;
             }
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "sensor id missing");
+            return false;
         }
 
-        if (configuration.get(CONFIG_REFRESH) != null) {
+        if (configuration.get(CONFIG_REFRESH) != null)
+
+        {
             refreshInterval = ((BigDecimal) configuration.get(CONFIG_REFRESH)).intValue() * 1000;
         } else {
             refreshInterval = 300 * 1000;
@@ -154,7 +147,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * needs proper exception handling for refresh errors if overridden
      *
      * @param bridgeHandler bridge handler to use for communication with ow bus
-     * @param now current time
+     * @param now           current time
      */
     public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
         try {
@@ -169,7 +162,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
                     return;
                 }
 
-                for (int i = 0; i < sensorCount; i++) {
+                for (int i = 0; i < sensors.size(); i++) {
                     logger.trace("refreshing sensor {} ({})", i, sensors.get(i).getSensorId());
                     sensors.get(i).refresh(bridgeHandler, forcedRefresh);
                 }
@@ -209,7 +202,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * post update to channel
      *
      * @param channelId channel id
-     * @param state new channel state
+     * @param state     new channel state
      */
     public void postUpdate(String channelId, State state) {
         if (this.thing.getChannel(channelId) != null) {
@@ -274,7 +267,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      */
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
-        OwSensorType sensorType = bridgeHandler.getType(sensorIds.get(0));
+        OwSensorType sensorType = bridgeHandler.getType(sensorId);
         properties.put(PROPERTY_MODELID, sensorType.toString());
         properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
         logger.trace("updated modelid/vendor to {} / {}", sensorType.name(), "Dallas/Maxim");

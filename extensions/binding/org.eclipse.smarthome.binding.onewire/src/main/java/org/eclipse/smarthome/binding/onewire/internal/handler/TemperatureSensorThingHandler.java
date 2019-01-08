@@ -51,7 +51,7 @@ public class TemperatureSensorThingHandler extends OwBaseThingHandler {
             return;
         }
 
-        sensors.add(new DS18x20(sensorIds.get(0), this));
+        sensors.add(new DS18x20(sensorId, this));
 
         if (!properties.containsKey(PROPERTY_MODELID)) {
             updateSensorProperties();

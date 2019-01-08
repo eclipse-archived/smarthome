@@ -53,7 +53,7 @@ public class IButtonThingHandler extends OwBaseThingHandler {
             updateSensorProperties();
         }
 
-        sensors.add(new DS2401(sensorIds.get(0), this));
+        sensors.add(new DS2401(sensorId, this));
 
         if (configuration.get(CONFIG_REFRESH) == null) {
             // override default of 300s from base thing handler if no user-defined value is present

@@ -77,9 +77,9 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
 
         // add sensors
         if (sensorType == OwSensorType.DS1923) {
-            sensors.add(new DS1923(sensorIds.get(0), this));
+            sensors.add(new DS1923(sensorId, this));
         } else {
-            sensors.add(new DS2438(sensorIds.get(0), this));
+            sensors.add(new DS2438(sensorId, this));
         }
 
         scheduler.execute(() -> {
@@ -186,13 +186,13 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
     @Override
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
-        sensorType = bridgeHandler.getType(sensorIds.get(0));
+        sensorType = bridgeHandler.getType(sensorId);
 
         if (sensorType == OwSensorType.DS1923) {
             properties.put(PROPERTY_MODELID, sensorType.toString());
             properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
         } else {
-            DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorIds.get(0));
+            DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorId);
 
             sensorType = ds2438configuration.getSensorSubType();
             properties.put(PROPERTY_MODELID, sensorType.toString());

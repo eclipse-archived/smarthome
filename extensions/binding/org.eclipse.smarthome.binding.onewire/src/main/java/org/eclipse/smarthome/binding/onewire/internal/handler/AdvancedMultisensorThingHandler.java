@@ -97,9 +97,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
 
         // add sensors
 
-        sensors.add(new DS2438(sensorIds.get(0), this));
         sensors.add(new DS18x20(new SensorId(properties.get(PROPERTY_DS18B20)), this));
-
         if (THING_TYPE_AMS.equals(thingType)) {
             sensors.add(new DS2438(new SensorId(properties.get(PROPERTY_DS2438)), this));
             sensors.add(new DS2406_DS2413(new SensorId(properties.get(PROPERTY_DS2413)), this));
@@ -137,11 +135,11 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
                 lastRefresh = now;
 
                 if (thingType.equals(THING_TYPE_AMS)) {
-                    for (int i = 0; i < sensorCount - 1; i++) {
+                    for (int i = 0; i < sensors.size() - 1; i++) {
                         sensors.get(i).refresh(bridgeHandler, forcedRefresh);
                     }
                 } else {
-                    for (int i = 0; i < sensorCount; i++) {
+                    for (int i = 0; i < sensors.size(); i++) {
                         sensors.get(i).refresh(bridgeHandler, forcedRefresh);
                     }
                 }
@@ -227,7 +225,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         updateThing(thingBuilder.build());
 
         try {
-            for (int i = 0; i < sensorCount; i++) {
+            for (int i = 0; i < sensors.size(); i++) {
                 sensors.get(i).configureChannels();
             }
         } catch (OwException e) {
@@ -242,7 +240,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     @Override
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
-        DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorIds.get(0));
+        DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorId);
 
         sensorType = DS2438Configuration.getMultisensorType(ds2438configuration.getSensorSubType(),
                 ds2438configuration.getAssociatedSensorTypes());

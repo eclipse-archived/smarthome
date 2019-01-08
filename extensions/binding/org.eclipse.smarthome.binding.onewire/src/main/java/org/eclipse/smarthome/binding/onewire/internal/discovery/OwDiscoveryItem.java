@@ -79,14 +79,14 @@ public class OwDiscoveryItem {
     /**
      * get sensor type
      *
-     * @return full sensor type
+     * @return sensor type
      */
     public OwSensorType getSensorType() {
         return sensorType;
     }
 
     /**
-     * get sensor id (familyId.xxxxxxxxxx)
+     * get this sensor id
      *
      * @return sensor id
      */
@@ -127,48 +127,12 @@ public class OwDiscoveryItem {
     }
 
     /**
-     * check if associated sensors have been found
-     *
-     * @return true if this sensors pages include other sensor ids
-     */
-    public boolean hasAssociatedSensorIds() {
-        return !associatedSensors.isEmpty();
-    }
-
-    /**
      * get a list of all sensors associated to this sensor
      *
      * @return list of strings
      */
     public List<SensorId> getAssociatedSensorIds() {
         return new ArrayList<>(associatedSensors.keySet());
-    }
-
-    /**
-     * check if secondary sensors have been added
-     *
-     * @return true if sensors have been added
-     */
-    public boolean hasAssociatedSensors() {
-        return !associatedSensors.isEmpty();
-    }
-
-    /**
-     * get all secondary sensors
-     *
-     * @return a list of OwDiscoveryItems
-     */
-    public Map<SensorId, OwSensorType> getAssociatedSensors() {
-        return associatedSensors;
-    }
-
-    /**
-     * get the number of secondary sensors
-     *
-     * @return number of sensors
-     */
-    public int getAssociatedSensorCount() {
-        return associatedSensors.size();
     }
 
     /**
@@ -188,7 +152,7 @@ public class OwDiscoveryItem {
     }
 
     /**
-     * get Label "thingtype (id)"
+     * get Label "<thingtype> (<id>)"
      *
      * @return the thing label
      */

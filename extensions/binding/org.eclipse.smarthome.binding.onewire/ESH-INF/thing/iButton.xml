@@ -9,9 +9,6 @@
 		<channels>
 			<channel id="present" typeId="present" />
 		</channels>
-		<properties>
-			<property name="sensorCount">1</property>
-		</properties>
 		<config-description-ref uri="thing-type:onewire:basethingconfig" />
 	</thing-type>
 </thing:thing-descriptions>
