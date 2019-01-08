@@ -17,11 +17,14 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -37,29 +40,26 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 @NonNullByDefault
 public class TemperatureSensorThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_TEMPERATURE);
+    public static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections.unmodifiableSet(
+            Stream.of(OwSensorType.DS18B20, OwSensorType.DS18S20, OwSensorType.DS1822).collect(Collectors.toSet()));
 
     public TemperatureSensorThingHandler(Thing thing,
             OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
-        super(thing, dynamicStateDescriptionProvider);
+        super(thing, dynamicStateDescriptionProvider, SUPPORTED_SENSOR_TYPES);
     }
 
     @Override
     public void initialize() {
-        Map<String, String> properties = editProperties();
-
         if (!super.configure()) {
             return;
         }
 
         sensors.add(new DS18x20(sensorId, this));
 
-        if (!properties.containsKey(PROPERTY_MODELID)) {
-            updateSensorProperties();
-        } else {
-            scheduler.execute(() -> {
-                configureThingChannels();
-            });
-        }
+        scheduler.execute(() -> {
+            configureThingChannels();
+        });
+
     }
 
     private void configureThingChannels() {

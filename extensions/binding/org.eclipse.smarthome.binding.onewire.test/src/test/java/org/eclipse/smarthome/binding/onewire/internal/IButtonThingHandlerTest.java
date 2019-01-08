@@ -47,9 +47,8 @@ public class IButtonThingHandlerTest extends AbstractThingHandlerTest {
         initializeBridge();
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
-        thingProperties.put(PROPERTY_SENSORCOUNT, "1");
-        thingProperties.put(PROPERTY_MODELID, "UNKNOWN");
-        thingProperties.put(PROPERTY_VENDOR, "generic");
+        thingProperties.put(PROPERTY_MODELID, "DS2401");
+        thingProperties.put(PROPERTY_VENDOR, "Dallas/Maxim");
 
         channels.add(ChannelBuilder.create(CHANNEL_UID_PRESENT, "Switch").build());
 

@@ -53,7 +53,7 @@ public class MultisensorThingHandlerTest extends AbstractThingHandlerTest {
         initializeBridge();
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
-        thingProperties.put(PROPERTY_SENSORCOUNT, "1");
+        thingProperties.put(PROPERTY_VENDOR, "iButtonLink");
         thingProperties.put(PROPERTY_MODELID, "MS_TH");
 
         channels.add(ChannelBuilder.create(CHANNEL_UID_TEMPERATURE, "Number:Temperature").build());

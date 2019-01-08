@@ -16,10 +16,13 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
@@ -51,23 +54,31 @@ import org.slf4j.LoggerFactory;
 public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
             Arrays.asList(THING_TYPE_AMS, THING_TYPE_BMS));
+    public static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections
+            .unmodifiableSet(Stream.of(OwSensorType.AMS, OwSensorType.AMS_S, OwSensorType.BMS, OwSensorType.BMS_S)
+                    .collect(Collectors.toSet()));
 
     private static final String PROPERTY_DS18B20 = "ds18b20";
     private static final String PROPERTY_DS2413 = "ds2413";
     private static final String PROPERTY_DS2438 = "ds2438";
+    private static final Set<String> REQUIRED_PROPERTIES_AMS = Collections.unmodifiableSet(
+            Stream.of(PROPERTY_HW_REVISION, PROPERTY_PROD_DATE, PROPERTY_DS18B20, PROPERTY_DS2438, PROPERTY_DS2413)
+                    .collect(Collectors.toSet()));
+    private static final Set<String> REQUIRED_PROPERTIES_BMS = Collections.unmodifiableSet(
+            Stream.of(PROPERTY_HW_REVISION, PROPERTY_PROD_DATE, PROPERTY_DS18B20).collect(Collectors.toSet()));
 
     private final Logger logger = LoggerFactory.getLogger(AdvancedMultisensorThingHandler.class);
 
     private final ThingTypeUID thingType = this.thing.getThingTypeUID();
     private int hwRevision = 0;
-    private OwSensorType sensorType = OwSensorType.UNKNOWN;
 
     private int digitalRefreshInterval = 10 * 1000;
     private long digitalLastRefresh = 0;
 
     public AdvancedMultisensorThingHandler(Thing thing,
             OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
-        super(thing, dynamicStateDescriptionProvider);
+        super(thing, dynamicStateDescriptionProvider, SUPPORTED_SENSOR_TYPES,
+                getRequiredProperties(thing.getThingTypeUID()));
     }
 
     @Override
@@ -79,6 +90,8 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
             return;
         }
 
+        hwRevision = Integer.valueOf(properties.get(PROPERTY_HW_REVISION));
+
         if (configuration.containsKey(CONFIG_DIGITALREFRESH)) {
             digitalRefreshInterval = ((BigDecimal) configuration.get(CONFIG_DIGITALREFRESH)).intValue() * 1000;
         } else {
@@ -86,17 +99,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         }
         digitalLastRefresh = 0;
 
-        if (!properties.containsKey(PROPERTY_MODELID) || !properties.containsKey(PROPERTY_PROD_DATE)
-                || !properties.containsKey(PROPERTY_HW_REVISION) || !properties.containsKey(PROPERTY_DS18B20)) {
-            updateSensorProperties();
-            return;
-        } else {
-            sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
-            hwRevision = Integer.valueOf(properties.get(PROPERTY_HW_REVISION));
-        }
-
-        // add sensors
-
+        sensors.add(new DS2438(sensorId, this));
         sensors.add(new DS18x20(new SensorId(properties.get(PROPERTY_DS18B20)), this));
         if (THING_TYPE_AMS.equals(thingType)) {
             sensors.add(new DS2438(new SensorId(properties.get(PROPERTY_DS2438)), this));
@@ -272,5 +275,19 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         }
 
         return properties;
+    }
+
+    /**
+     * used to determine the correct set of required properties
+     *
+     * @param thingType
+     * @return
+     */
+    private static Set<String> getRequiredProperties(ThingTypeUID thingType) {
+        if (THING_TYPE_AMS.equals(thingType)) {
+            return REQUIRED_PROPERTIES_AMS;
+        } else {
+            return REQUIRED_PROPERTIES_BMS;
+        }
     }
 }

@@ -16,11 +16,15 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -61,8 +65,16 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     protected static final int PROPERTY_UPDATE_INTERVAL = 5000; // in ms
     protected static final int PROPERTY_UPDATE_MAX_RETRY = 5;
 
+    private static final Set<String> REQUIRED_PROPERTIES = Collections
+            .unmodifiableSet(Stream.of(PROPERTY_MODELID, PROPERTY_VENDOR).collect(Collectors.toSet()));
+
+    protected List<String> requiredProperties = new ArrayList<>(REQUIRED_PROPERTIES);
+    protected Set<OwSensorType> supportedSensorTypes;
+
     protected final List<AbstractOwDevice> sensors = new ArrayList<AbstractOwDevice>();
     protected @NonNullByDefault({}) SensorId sensorId;
+    protected @NonNullByDefault({}) OwSensorType sensorType;
+
     protected long lastRefresh = 0;
     protected long refreshInterval = 300 * 1000;
 
@@ -73,9 +85,21 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
     protected @Nullable ScheduledFuture<?> updateTask;
 
-    public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
+    public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider,
+            Set<OwSensorType> supportedSensorTypes) {
         super(thing);
+
         this.dynamicStateDescriptionProvider = dynamicStateDescriptionProvider;
+        this.supportedSensorTypes = supportedSensorTypes;
+    }
+
+    public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider,
+            Set<OwSensorType> supportedSensorTypes, Set<String> requiredProperties) {
+        super(thing);
+
+        this.dynamicStateDescriptionProvider = dynamicStateDescriptionProvider;
+        this.supportedSensorTypes = supportedSensorTypes;
+        this.requiredProperties.addAll(requiredProperties);
     }
 
     @Override
@@ -114,9 +138,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             return false;
         }
 
-        if (configuration.get(CONFIG_REFRESH) != null)
-
-        {
+        if (configuration.get(CONFIG_REFRESH) != null) {
             refreshInterval = ((BigDecimal) configuration.get(CONFIG_REFRESH)).intValue() * 1000;
         } else {
             refreshInterval = 300 * 1000;
@@ -124,6 +146,21 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
         if (thing.getChannel(CHANNEL_PRESENT) != null) {
             showPresence = true;
+        }
+
+        // check if all required properties are present. update if not
+        for (String property : requiredProperties) {
+            if (!properties.containsKey(property)) {
+                updateSensorProperties();
+                return false;
+            }
+        }
+
+        sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
+        if (!supportedSensorTypes.contains(sensorType)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "sensor type not supported by this thing type");
+            return false;
         }
 
         lastRefresh = 0;
@@ -147,7 +184,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * needs proper exception handling for refresh errors if overridden
      *
      * @param bridgeHandler bridge handler to use for communication with ow bus
-     * @param now           current time
+     * @param now current time
      */
     public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
         try {
@@ -202,7 +239,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      * post update to channel
      *
      * @param channelId channel id
-     * @param state     new channel state
+     * @param state new channel state
      */
     public void postUpdate(String channelId, State state) {
         if (this.thing.getChannel(channelId) != null) {
@@ -228,7 +265,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
     @Override
     public void dispose() {
-        dynamicStateDescriptionProvider.removeDescriptionsForThing(getThing().getUID());
+        dynamicStateDescriptionProvider.removeDescriptionsForThing(thing.getUID());
         super.dispose();
     }
 
@@ -253,7 +290,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             return;
         }
 
-        bridgeHandler.addToUpdatePropertyThingList(thing);
+        bridgeHandler.scheduleForPropertiesUpdate(thing);
     }
 
     /**

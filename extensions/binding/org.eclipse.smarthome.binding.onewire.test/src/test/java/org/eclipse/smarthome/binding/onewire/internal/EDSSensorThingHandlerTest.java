@@ -54,7 +54,9 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
         thingProperties.put(PROPERTY_SENSORCOUNT, "1");
+        thingProperties.put(PROPERTY_VENDOR, "Embedded Data Systems");
         thingProperties.put(PROPERTY_MODELID, "EDS0064");
+        thingProperties.put(PROPERTY_HW_REVISION, "21");
 
         channels.add(ChannelBuilder.create(CHANNEL_UID_TEMPERATURE, "Number:Temperature").build());
         channels.add(ChannelBuilder.create(CHANNEL_UID_HUMIDITY, "Number:Dimensionless").build());
