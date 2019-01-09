@@ -106,7 +106,7 @@ public class JsonStorageService implements StorageService {
     protected void deactivate() {
         // Since we're using a delayed commit, we need to write out any data
         for (JsonStorage<Object> storage : storageList.values()) {
-            storage.commitDatabase();
+            storage.deactivate();
         }
         logger.debug("Json Storage Service: Deactivated.");
     }

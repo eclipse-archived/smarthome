@@ -295,42 +295,49 @@ public class JsonStorage<T> implements Storage<T> {
             writeDatabaseFile(new File(file.getParent() + File.separator + BACKUP_EXTENSION,
                     System.currentTimeMillis() + SEPARATOR + file.getName()), json);
 
+            cleanupBackups();
             deferredSince = 0;
         }
     }
 
+    private void cleanupBackups() {
+        List<Long> fileTimes = calculateFileTimes();
+
+        // delete the oldest
+        if (fileTimes.size() > maxBackupFiles) {
+            for (int counter = 0; counter < fileTimes.size() - maxBackupFiles; counter++) {
+                File deleter = new File(file.getParent() + File.separator + BACKUP_EXTENSION,
+                        fileTimes.get(counter) + SEPARATOR + file.getName());
+                deleter.delete();
+            }
+        }
+    }
+    
     private class CommitTimerTask extends TimerTask {
         @Override
         public void run() {
             // Save the database
             commitDatabase();
-            List<Long> fileTimes = calculateFileTimes();
-
-            // delete the oldest
-            if (fileTimes.size() > maxBackupFiles) {
-                for (int counter = 0; counter < fileTimes.size() - maxBackupFiles; counter++) {
-                    File deleter = new File(file.getParent() + File.separator + BACKUP_EXTENSION,
-                            fileTimes.get(counter) + SEPARATOR + file.getName());
-                    deleter.delete();
-                }
-            }
         }
     }
 
     public synchronized void deferredCommit() {
-        // Handle a maximum time for deferring the commit.
-        // This stops a pathological loop preventing saving
-        if (deferredSince != 0 && deferredSince < System.nanoTime() - maxDeferredPeriod) {
-            commitDatabase();
-        }
-        if (deferredSince == 0) {
-            deferredSince = System.nanoTime();
-        }
-
         // Stop any existing timer
         if (commitTimerTask != null) {
             commitTimerTask.cancel();
             commitTimerTask = null;
+        }
+        
+        // Handle a maximum time for deferring the commit.
+        // This stops a pathological loop preventing saving
+        if (deferredSince != 0 && deferredSince < System.nanoTime() - (maxDeferredPeriod * 1000L)) {
+            commitDatabase();
+            // as we committed the database now, there is no need to start a new commit timer
+            return;
+        }
+
+        if (deferredSince == 0) {
+            deferredSince = System.nanoTime();
         }
 
         // Create the timer task
@@ -339,5 +346,13 @@ public class JsonStorage<T> implements Storage<T> {
         // Start the timer
         commitTimer.schedule(commitTimerTask, writeDelay);
     }
-
+    
+    public synchronized void deactivate() {
+        commitDatabase();
+        // Stop any existing timer
+        if (commitTimerTask != null) {
+            commitTimerTask.cancel();
+            commitTimerTask = null;
+        }
+    }
 }
