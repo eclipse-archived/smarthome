@@ -13,6 +13,7 @@
 package org.eclipse.smarthome.binding.hue.internal.handler;
 
 import static org.eclipse.smarthome.binding.hue.internal.HueBindingConstants.*;
+import static org.eclipse.smarthome.binding.hue.internal.config.HueBridgeConfig.HTTP;
 import static org.eclipse.smarthome.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
@@ -26,7 +27,6 @@ import org.eclipse.smarthome.binding.hue.internal.HueConfigStatusMessage;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.ApiException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.LinkButtonException;
 import org.eclipse.smarthome.binding.hue.internal.exceptions.UnauthorizedException;
-import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.test.AbstractHueOSGiTest;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
@@ -49,7 +49,7 @@ import org.junit.Test;
  */
 public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
 
-    private final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge");
+    private final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "bridge");
     private static final String TEST_USER_NAME = "eshTestUser";
     private static final String DUMMY_HOST = "1.2.3.4";
 
@@ -76,7 +76,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, 80, HTTP, scheduler) {
             @Override
             public String link(String deviceType) throws IOException, ApiException {
                 return TEST_USER_NAME;
@@ -99,7 +99,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, 80, HTTP, scheduler) {
             @Override
             public void authenticate(String userName) throws IOException, ApiException {
             };
@@ -121,7 +121,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, 80, HTTP, scheduler) {
             @Override
             public void authenticate(String userName) throws IOException, ApiException {
                 throw new UnauthorizedException();
@@ -145,7 +145,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, 80, HTTP, scheduler) {
             @Override
             public String link(String deviceType) throws IOException, ApiException {
                 throw new LinkButtonException();
@@ -169,7 +169,7 @@ public class HueBridgeHandlerOSGiTest extends AbstractHueOSGiTest {
         HueBridgeHandler hueBridgeHandler = getThingHandler(bridge, HueBridgeHandler.class);
         hueBridgeHandler.thingUpdated(bridge);
 
-        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, scheduler) {
+        injectBridge(hueBridgeHandler, new HueBridge(DUMMY_HOST, 80, HTTP, scheduler) {
             @Override
             public String link(String deviceType) throws IOException, ApiException {
                 throw new ApiException();
