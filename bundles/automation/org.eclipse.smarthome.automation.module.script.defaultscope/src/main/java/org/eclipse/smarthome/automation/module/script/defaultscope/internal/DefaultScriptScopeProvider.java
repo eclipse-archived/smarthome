@@ -126,7 +126,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
 
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     synchronized void addThingActions(ThingActions thingActions) {
-        if (thingActions == null) { // bundle may not be active yet
+        if (this.thingActions == null) { // bundle may not be active yet
             queuedBeforeActivation.add(thingActions);
         } else {
             this.thingActions.addThingActions(thingActions);
