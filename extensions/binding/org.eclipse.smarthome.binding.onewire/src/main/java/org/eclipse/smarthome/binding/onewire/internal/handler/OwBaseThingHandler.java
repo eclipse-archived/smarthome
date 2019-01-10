@@ -32,12 +32,16 @@ import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -285,5 +289,79 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      */
     public @Nullable OwDynamicStateDescriptionProvider getDynamicStateDescriptionProvider() {
         return dynamicStateDescriptionProvider;
+    }
+
+    /**
+     * remove a channel during initialization if it exists
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelId id of the channel
+     */
+    protected void removeChannelIfExisting(ThingBuilder thingBuilder, String channelId) {
+        if (thing.getChannel(channelId) != null) {
+            thingBuilder.withoutChannel(new ChannelUID(thing.getUID(), channelId));
+        }
+    }
+
+    /**
+     * add a channel during initialization
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelId id of the channel
+     * @param channelTypeUID ChannelTypeUID of the channel
+     * @return existing or created channel
+     */
+    protected Channel addChannelIfMissing(ThingBuilder thingBuilder, String channelId, ChannelTypeUID channelTypeUID) {
+        Channel channel = thing.getChannel(channelId);
+        if (channel == null) {
+            channel = ChannelBuilder
+                    .create(new ChannelUID(thing.getUID(), channelId), ACCEPTED_ITEM_TYPES_MAP.get(channelId))
+                    .withType(channelTypeUID).build();
+            thingBuilder.withChannel(channel);
+
+        }
+        return channel;
+    }
+
+    /**
+     * add a channel during initialization
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelId id of the channel
+     * @param channelTypeUID ChannelTypeUID of the channel
+     * @param label label string if different from ChannelTypeUID
+     * @return existing or created channel
+     */
+    protected Channel addChannelIfMissing(ThingBuilder thingBuilder, String channelId, ChannelTypeUID channelTypeUID,
+            String label) {
+        Channel channel = thing.getChannel(channelId);
+        if (channel == null) {
+            channel = ChannelBuilder
+                    .create(new ChannelUID(thing.getUID(), channelId), ACCEPTED_ITEM_TYPES_MAP.get(channelId))
+                    .withType(channelTypeUID).withLabel(label).build();
+            thingBuilder.withChannel(channel);
+        }
+        return channel;
+    }
+
+    /**
+     * add a channel during initialization
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelId id of the channel
+     * @param channelTypeUID ChannelTypeUID of the channel
+     * @param configuration Configuration for the channel
+     * @return existing or created channel
+     */
+    protected Channel addChannelIfMissing(ThingBuilder thingBuilder, String channelId, ChannelTypeUID channelTypeUID,
+            Configuration configuration) {
+        Channel channel = thing.getChannel(channelId);
+        if (channel == null) {
+            channel = ChannelBuilder
+                    .create(new ChannelUID(thing.getUID(), channelId), ACCEPTED_ITEM_TYPES_MAP.get(channelId))
+                    .withType(channelTypeUID).withConfiguration(configuration).build();
+            thingBuilder.withChannel(channel);
+        }
+        return channel;
     }
 }

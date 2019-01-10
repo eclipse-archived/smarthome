@@ -97,6 +97,7 @@ public class OwBindingConstants {
     // Maps for Discovery
     public static final Map<OwSensorType, ThingTypeUID> THING_TYPE_MAP;
     public static final Map<ThingTypeUID, String> THING_LABEL_MAP;
+    public static final Map<String, String> ACCEPTED_ITEM_TYPES_MAP;
 
     static {
         Map<OwSensorType, ThingTypeUID> initThingTypeMap = new HashMap<OwSensorType, ThingTypeUID>();
@@ -111,7 +112,6 @@ public class OwBindingConstants {
         initThingTypeMap.put(OwSensorType.DS2408, THING_TYPE_DIGITALIO8);
         initThingTypeMap.put(OwSensorType.DS2413, THING_TYPE_DIGITALIO2);
         initThingTypeMap.put(OwSensorType.DS2438, THING_TYPE_MS_TX);
-        initThingTypeMap.put(OwSensorType.MS_T, THING_TYPE_MS_TX);
         initThingTypeMap.put(OwSensorType.MS_TC, THING_TYPE_MS_TX);
         initThingTypeMap.put(OwSensorType.MS_TH, THING_TYPE_MS_TX);
         initThingTypeMap.put(OwSensorType.MS_TL, THING_TYPE_MS_TX);
@@ -140,13 +140,37 @@ public class OwBindingConstants {
         initThingLabelMap.put(THING_TYPE_COUNTER2, "Dual Counter");
         initThingLabelMap.put(THING_TYPE_EDS_ENV, "EDS Environmental Sensor");
         THING_LABEL_MAP = Collections.unmodifiableMap(initThingLabelMap);
+
+        Map<String, String> initAcceptedItemTypesMap = new HashMap<String, String>();
+        initAcceptedItemTypesMap.put(CHANNEL_HUMIDITY, "Number:Dimensionless");
+        initAcceptedItemTypesMap.put(CHANNEL_ABSOLUTE_HUMIDITY, "Number:Density");
+        initAcceptedItemTypesMap.put(CHANNEL_DEWPOINT, "Number:Temperature");
+        initAcceptedItemTypesMap.put(CHANNEL_TEMPERATURE, "Number:Temperature");
+        initAcceptedItemTypesMap.put(CHANNEL_LIGHT, "Number:Illuminance");
+        initAcceptedItemTypesMap.put(CHANNEL_PRESSURE, "Number:Pressure");
+        initAcceptedItemTypesMap.put(CHANNEL_VOLTAGE, "Number:ElectricPotential");
+        initAcceptedItemTypesMap.put(CHANNEL_SUPPLYVOLTAGE, "Number:ElectricPotential");
+        initAcceptedItemTypesMap.put(CHANNEL_CURRENT, "Number:ElectricCurrent");
+        initAcceptedItemTypesMap.put(CHANNEL_COUNTER, "Number");
+        initAcceptedItemTypesMap.put(CHANNEL_DIGITAL, "Switch");
+        initAcceptedItemTypesMap.put(CHANNEL_PRESENT, "Switch");
+        ACCEPTED_ITEM_TYPES_MAP = initAcceptedItemTypesMap;
     }
 
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_ABSHUMIDITY = new ChannelTypeUID(BINDING_ID, "abshumidity");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_CURRENT = new ChannelTypeUID(BINDING_ID, "current");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_DEWPOINT = new ChannelTypeUID(BINDING_ID, "dewpoint");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_HUMIDITY = new ChannelTypeUID(BINDING_ID, "humidity");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_HUMIDITYCONF = new ChannelTypeUID(BINDING_ID, "humidityconf");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_LIGHT = new ChannelTypeUID(BINDING_ID, "light");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_PRESSURE = new ChannelTypeUID(BINDING_ID, "pressure");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE = new ChannelTypeUID(BINDING_ID, "temperature");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE_POR = new ChannelTypeUID(BINDING_ID,
             "temperature-por");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_TEMPERATURE_POR_RES = new ChannelTypeUID(BINDING_ID,
             "temperature-por-res");
+    public static final ChannelTypeUID CHANNEL_TYPE_UID_VOLTAGE = new ChannelTypeUID(BINDING_ID, "voltage");
+
     public static final ChannelTypeUID CHANNEL_TYPE_UID_OWFS_NUMBER = new ChannelTypeUID(BINDING_ID, "owfs-number");
     public static final ChannelTypeUID CHANNEL_TYPE_UID_OWFS_STRING = new ChannelTypeUID(BINDING_ID, "owfs-string");
 
