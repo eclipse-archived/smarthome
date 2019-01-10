@@ -129,7 +129,7 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         if (thingActions == null) { // bundle may not be active yet
             queuedBeforeActivation.add(thingActions);
         } else {
-            thingActions.addThingActions(thingActions);
+            this.thingActions.addThingActions(thingActions);
             elements.put(thingActions.getClass().getSimpleName(), thingActions.getClass());
         }
     }
