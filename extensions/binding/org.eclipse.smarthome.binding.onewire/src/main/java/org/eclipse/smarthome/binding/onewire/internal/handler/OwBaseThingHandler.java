@@ -32,6 +32,7 @@ import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionP
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.AbstractOwDevice;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwChannelConfig;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -45,7 +46,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -112,10 +112,10 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
     @Override
     public void initialize() {
-        configure();
+        configureThingHandler();
     }
 
-    protected boolean configure() {
+    protected boolean configureThingHandler() {
         Configuration configuration = getConfig();
         Map<String, String> properties = thing.getProperties();
 
@@ -165,6 +165,37 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
         lastRefresh = 0;
         return true;
+    }
+
+    protected void configureThingChannels() {
+        ThingBuilder thingBuilder = editThing();
+
+        logger.debug("configuring sensors for {}", thing.getUID());
+
+        // remove unwanted channels
+        Set<String> existingChannelIds = thing.getChannels().stream().map(channel -> channel.getUID().getId())
+                .collect(Collectors.toSet());
+        Set<String> wantedChannelIds = SENSOR_TYPE_CHANNEL_MAP.get(sensorType).stream()
+                .map(channelConfig -> channelConfig.channelId).collect(Collectors.toSet());
+        existingChannelIds.stream().filter(channelId -> !wantedChannelIds.contains(channelId))
+                .forEach(channelId -> removeChannelIfExisting(thingBuilder, channelId));
+
+        // add or update wanted channels
+        SENSOR_TYPE_CHANNEL_MAP.get(sensorType).stream().forEach(channelConfig -> {
+            addChannelIfMissingAndEnable(thingBuilder, channelConfig);
+        });
+
+        updateThing(thingBuilder.build());
+
+        try {
+            sensors.get(0).configureChannels();
+        } catch (OwException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+            return;
+        }
+
+        validConfig = true;
+        updateStatus(ThingStatus.UNKNOWN, ThingStatusDetail.NONE);
     }
 
     /**
@@ -333,65 +364,55 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
         }
     }
 
-    /**
-     * add a channel during initialization
-     *
-     * @param thingBuilder ThingBuilder of the edited thing
-     * @param channelId id of the channel
-     * @param channelTypeUID ChannelTypeUID of the channel
-     * @return existing or created channel
-     */
-    protected Channel addChannelIfMissing(ThingBuilder thingBuilder, String channelId, ChannelTypeUID channelTypeUID) {
-        Channel channel = thing.getChannel(channelId);
-        if (channel == null) {
-            channel = ChannelBuilder
-                    .create(new ChannelUID(thing.getUID(), channelId), ACCEPTED_ITEM_TYPES_MAP.get(channelId))
-                    .withType(channelTypeUID).build();
-            thingBuilder.withChannel(channel);
-
-        }
-        return channel;
+    protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig) {
+        return addChannelIfMissingAndEnable(thingBuilder, channelConfig, null, 0);
     }
 
-    /**
-     * add a channel during initialization
-     *
-     * @param thingBuilder ThingBuilder of the edited thing
-     * @param channelId id of the channel
-     * @param channelTypeUID ChannelTypeUID of the channel
-     * @param label label string if different from ChannelTypeUID
-     * @return existing or created channel
-     */
-    protected Channel addChannelIfMissing(ThingBuilder thingBuilder, String channelId, ChannelTypeUID channelTypeUID,
-            String label) {
-        Channel channel = thing.getChannel(channelId);
-        if (channel == null) {
-            channel = ChannelBuilder
-                    .create(new ChannelUID(thing.getUID(), channelId), ACCEPTED_ITEM_TYPES_MAP.get(channelId))
-                    .withType(channelTypeUID).withLabel(label).build();
-            thingBuilder.withChannel(channel);
-        }
-        return channel;
-    }
-
-    /**
-     * add a channel during initialization
-     *
-     * @param thingBuilder ThingBuilder of the edited thing
-     * @param channelId id of the channel
-     * @param channelTypeUID ChannelTypeUID of the channel
-     * @param configuration Configuration for the channel
-     * @return existing or created channel
-     */
-    protected Channel addChannelIfMissing(ThingBuilder thingBuilder, String channelId, ChannelTypeUID channelTypeUID,
+    protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig,
             Configuration configuration) {
-        Channel channel = thing.getChannel(channelId);
+        return addChannelIfMissingAndEnable(thingBuilder, channelConfig, configuration, 0);
+    }
+
+    protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig,
+            int sensorNo) {
+        return addChannelIfMissingAndEnable(thingBuilder, channelConfig, null, sensorNo);
+    }
+
+    protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig,
+            @Nullable Configuration configuration, int sensorNo) {
+        Channel channel = thing.getChannel(channelConfig.channelId);
+        Configuration config = configuration;
+        String label = channelConfig.label;
+
+        // remove channel if wrong type uid and preserve config if not overridden
+        if (channel != null && channelConfig.channelTypeUID.equals(channel.getChannelTypeUID())) {
+            removeChannelIfExisting(thingBuilder, channelConfig.channelId);
+            if (config == null) {
+                config = channel.getConfiguration();
+            }
+            channel = null;
+        }
+
+        // create channel if missing
         if (channel == null) {
-            channel = ChannelBuilder
-                    .create(new ChannelUID(thing.getUID(), channelId), ACCEPTED_ITEM_TYPES_MAP.get(channelId))
-                    .withType(channelTypeUID).withConfiguration(configuration).build();
+            ChannelBuilder channelBuilder = ChannelBuilder
+                    .create(new ChannelUID(thing.getUID(), channelConfig.channelId),
+                            ACCEPTED_ITEM_TYPES_MAP.get(channelConfig.channelId))
+                    .withType(channelConfig.channelTypeUID);
+            if (label != null) {
+                channelBuilder.withLabel(label);
+            }
+            if (config != null) {
+                channelBuilder.withConfiguration(config);
+            }
+            channel = channelBuilder.build();
             thingBuilder.withChannel(channel);
         }
+
+        // enable channel in sensor
+        sensors.get(sensorNo).enableChannel(channelConfig.channelId);
+
         return channel;
     }
+
 }

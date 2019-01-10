@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.AbstractOwDevice;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -82,6 +83,19 @@ public abstract class AbstractDeviceTest {
         try {
             Constructor<?> constructor = deviceTestClazz.getConstructor(SensorId.class, OwBaseThingHandler.class);
             testDevice = (AbstractOwDevice) constructor.newInstance(new Object[] { testSensorId, mockThingHandler });
+            return testDevice;
+        } catch (Exception e) {
+            Assert.fail("Couldn't create test device: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public @Nullable AbstractOwDevice instantiateDevice(OwSensorType sensorType) {
+        try {
+            Constructor<?> constructor = deviceTestClazz.getConstructor(SensorId.class, OwSensorType.class,
+                    OwBaseThingHandler.class);
+            testDevice = (AbstractOwDevice) constructor
+                    .newInstance(new Object[] { testSensorId, sensorType, mockThingHandler });
             return testDevice;
         } catch (Exception e) {
             Assert.fail("Couldn't create test device: " + e.getMessage());
