@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple cache for compiled JavaScript files.
  *
- * @author Thomas Kordelle pre compiled scripts
+ * @author Thomas Kordelle - pre compiled scripts
  *
  */
 @NonNullByDefault
@@ -48,12 +48,12 @@ public class JavaScriptEngineManager {
     private final Map<String, CompiledScript> compiledScriptMap = new ConcurrentHashMap<>(4, 0.5f, 2);
 
     /**
-     * Get a pre compiled script {@link CompiledScript } from cache. If it is not in the cache, then load it from
+     * Get a pre compiled script {@link CompiledScript} from cache. If it is not in the cache, then load it from
      * storage and put a pre compiled version into the cache.
      *
      * @param filename name of the JavaScript file to load
-     * @return a pre compiled script {@link CompiledScript }
-     * @throws TransformationException
+     * @return a pre compiled script {@link CompiledScript}
+     * @throws TransformationException if compile of JavaScript failed
      */
     protected CompiledScript getScript(final String filename) throws TransformationException {
         synchronized (compiledScriptMap) {

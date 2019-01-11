@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
  * The implementation of {@link TransformationService} which transforms the
  * input by Java Script.
  *
- * @author Pauli Anttila Initial contribution
- * @author Thomas Kordelle pre compiled scripts
+ * @author Pauli Anttila - Initial contribution
+ * @author Thomas Kordelle - pre compiled scripts
  */
 @NonNullByDefault
 @Component(immediate = true, property = { "smarthome.transform=JS" })

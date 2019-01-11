@@ -29,10 +29,10 @@ import org.osgi.service.component.annotations.Reference;
  * The {@link TransformationScriptWatcher} watches the transformation directory for files. If a deleted/modified file is
  * detected, the script is passed to the {@link JavaScriptEngineManager}.
  *
- * @author Thomas Kordelle pre compiled scripts
+ * @author Thomas Kordelle - pre compiled scripts
  *
  */
-@Component(immediate = true)
+@Component()
 public class TransformationScriptWatcher extends AbstractWatchService {
 
     public static final String TRANSFORM_FOLDER = ConfigConstants.getConfigFolder() + File.separator
