@@ -12,22 +12,14 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal;
 
-import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.CHANNEL_TEMPERATURE;
-
 import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.dimension.Density;
 import org.eclipse.smarthome.core.library.types.QuantityType;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.State;
 
 /**
@@ -75,18 +67,5 @@ public class Util {
                 / (((17.62 * 243.12) / (243.12 + theta) - Math.log(rH))));
         State dewPoint = new QuantityType<Temperature>(dP, SIUnits.CELSIUS);
         return dewPoint;
-    }
-
-    /**
-     * build a temperature channel for things
-     *
-     * @param thingUID the UID of the thing
-     * @param channelTypeUID the channelTypeUID of the channel
-     * @return the channel itself
-     */
-    public static Channel buildTemperatureChannel(ThingUID thingUID, ChannelTypeUID channelTypeUID,
-            Configuration configuration) {
-        return ChannelBuilder.create(new ChannelUID(thingUID, CHANNEL_TEMPERATURE), "Number:Temperature")
-                .withLabel("Temperature").withType(channelTypeUID).withConfiguration(configuration).build();
     }
 }

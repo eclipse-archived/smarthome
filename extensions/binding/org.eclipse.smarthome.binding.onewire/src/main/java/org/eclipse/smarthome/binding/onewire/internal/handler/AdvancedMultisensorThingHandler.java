@@ -26,7 +26,6 @@ import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
-import org.eclipse.smarthome.binding.onewire.internal.Util;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS18x20;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2406_DS2413;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
@@ -34,15 +33,12 @@ import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.LightSensorT
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,72 +155,42 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
         }
     }
 
-    private boolean configureSupplyVoltageChannel(ThingBuilder thingBuilder) {
-        Channel supplyVoltageChannel = thing.getChannel(CHANNEL_SUPPLYVOLTAGE);
-
-        // not present in DS1923
-        if (sensorType == OwSensorType.DS1923) {
-            if (supplyVoltageChannel != null) {
-                thingBuilder.withoutChannel(supplyVoltageChannel.getUID());
-                return true;
-            }
-        } else if (supplyVoltageChannel == null) {
-            thingBuilder.withChannel(ChannelBuilder
-                    .create(new ChannelUID(getThing().getUID(), CHANNEL_SUPPLYVOLTAGE), "Number:ElectricPotential")
-                    .withLabel("Supply Voltage").withType(new ChannelTypeUID(BINDING_ID, "voltage")).build());
-            sensors.get(0).enableChannel(CHANNEL_SUPPLYVOLTAGE);
-            return true;
-        }
-        return false;
-    }
-
     private void configureThingChannels() {
         Configuration configuration = getConfig();
         ThingBuilder thingBuilder = editThing();
-        boolean isEdited = false;
 
         // temperature channel
-        Channel temperatureChannel = thing.getChannel(CHANNEL_TEMPERATURE);
-        if (temperatureChannel == null) {
-            // this is strange - there should always be to be a temperature channel
-            temperatureChannel = Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE,
-                    new Configuration());
-            thingBuilder.withChannel(temperatureChannel);
-            isEdited = true;
+        Channel temperatureChannel = addChannelIfMissing(thingBuilder, CHANNEL_TEMPERATURE,
+                CHANNEL_TYPE_UID_TEMPERATURE);
+        if (configuration.containsKey(CONFIG_TEMPERATURESENSOR)
+                && configuration.get(CONFIG_TEMPERATURESENSOR).equals("DS18B20")) {
+            // use DS18B20 for temperature
+            if (!CHANNEL_TYPE_UID_TEMPERATURE_POR_RES.equals(temperatureChannel.getChannelTypeUID())) {
+                removeChannelIfExisting(thingBuilder, CHANNEL_TEMPERATURE);
+                addChannelIfMissing(thingBuilder, CHANNEL_TEMPERATURE, CHANNEL_TYPE_UID_TEMPERATURE_POR_RES,
+                        temperatureChannel.getConfiguration());
+            }
+            sensors.get(1).enableChannel(CHANNEL_TEMPERATURE);
+        } else {
+            // use standard temperature channel
+            if (!CHANNEL_TYPE_UID_TEMPERATURE.equals(temperatureChannel.getChannelTypeUID())) {
+                removeChannelIfExisting(thingBuilder, CHANNEL_TEMPERATURE);
+                addChannelIfMissing(thingBuilder, CHANNEL_TEMPERATURE, CHANNEL_TYPE_UID_TEMPERATURE,
+                        temperatureChannel.getConfiguration());
+            }
+            sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
         }
 
         // always use HIH-4000 on ElabNet sensors.
         Channel humidityChannel = thing.getChannel(CHANNEL_HUMIDITY);
         if (humidityChannel != null && !humidityChannel.getConfiguration().containsKey(CONFIG_HUMIDITY)) {
-            thingBuilder.withoutChannel(humidityChannel.getUID());
-            thingBuilder.withChannel(ChannelBuilder.create(humidityChannel.getUID(), "Number:Dimensionless")
-                    .withLabel("Humidity").withType(new ChannelTypeUID(BINDING_ID, "humidity"))
-                    .withConfiguration(new Configuration(new HashMap<String, Object>() {
+            removeChannelIfExisting(thingBuilder, CHANNEL_HUMIDITY);
+            addChannelIfMissing(thingBuilder, CHANNEL_HUMIDITY, CHANNEL_TYPE_UID_HUMIDITY,
+                    new Configuration(new HashMap<String, Object>() {
                         {
                             put(CONFIG_HUMIDITY, "/HIH4000/humidity");
                         }
-                    })).build());
-        }
-
-        if (configuration.containsKey(CONFIG_TEMPERATURESENSOR)
-                && configuration.get(CONFIG_TEMPERATURESENSOR).equals("DS18B20")) {
-            // use DS18B20 for temperature
-            sensors.get(1).enableChannel(CHANNEL_TEMPERATURE);
-            if (!CHANNEL_TYPE_UID_TEMPERATURE_POR_RES.equals(temperatureChannel.getChannelTypeUID())) {
-                thingBuilder.withoutChannel(temperatureChannel.getUID());
-                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(),
-                        CHANNEL_TYPE_UID_TEMPERATURE_POR_RES, temperatureChannel.getConfiguration()));
-                isEdited = true;
-            }
-        } else {
-            // use standard temperature channel
-            sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
-            if (!CHANNEL_TYPE_UID_TEMPERATURE.equals(temperatureChannel.getChannelTypeUID())) {
-                thingBuilder.withoutChannel(temperatureChannel.getUID());
-                thingBuilder.withChannel(Util.buildTemperatureChannel(thing.getUID(), CHANNEL_TYPE_UID_TEMPERATURE,
-                        temperatureChannel.getConfiguration()));
-                isEdited = true;
-            }
+                    }));
         }
 
         // standard channels on all AMS/BMS
@@ -235,34 +201,18 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
 
         // light/current sensor
         if (configuration.containsKey(CONFIG_LIGHTSENSOR) && ((Boolean) configuration.get(CONFIG_LIGHTSENSOR))) {
+            removeChannelIfExisting(thingBuilder, CHANNEL_CURRENT);
+            addChannelIfMissing(thingBuilder, CHANNEL_LIGHT, CHANNEL_TYPE_UID_LIGHT);
             sensors.get(0).enableChannel(CHANNEL_LIGHT);
-            if (thing.getChannel(CHANNEL_CURRENT) != null) {
-                thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT));
-                isEdited = true;
-            }
-            if (thing.getChannel(CHANNEL_LIGHT) == null) {
-                thingBuilder.withChannel(
-                        ChannelBuilder.create(new ChannelUID(getThing().getUID(), CHANNEL_LIGHT), "Number:Illuminance")
-                                .withLabel("Light").withType(new ChannelTypeUID(BINDING_ID, "light")).build());
-                isEdited = true;
-            }
             if (hwRevision <= 13) {
                 ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.ELABNET_V1);
             } else {
                 ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.ELABNET_V2);
             }
         } else {
+            removeChannelIfExisting(thingBuilder, CHANNEL_LIGHT);
+            addChannelIfMissing(thingBuilder, CHANNEL_CURRENT, CHANNEL_TYPE_UID_CURRENT);
             sensors.get(0).enableChannel(CHANNEL_CURRENT);
-            if (thing.getChannel(CHANNEL_LIGHT) != null) {
-                thingBuilder.withoutChannel(new ChannelUID(getThing().getUID(), CHANNEL_LIGHT));
-                isEdited = true;
-            }
-            if (thing.getChannel(CHANNEL_CURRENT) == null) {
-                thingBuilder.withChannel(
-                        ChannelBuilder.create(new ChannelUID(getThing().getUID(), CHANNEL_CURRENT), "Number:Current")
-                                .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
-                isEdited = true;
-            }
         }
 
         // additional sensors on AMS
@@ -277,9 +227,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
             }
         }
 
-        if (isEdited) {
-            updateThing(thingBuilder.build());
-        }
+        updateThing(thingBuilder.build());
 
         try {
             for (int i = 0; i < sensorCount; i++) {

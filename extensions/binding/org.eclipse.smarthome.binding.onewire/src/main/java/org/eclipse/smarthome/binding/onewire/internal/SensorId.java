@@ -87,6 +87,11 @@ public class SensorId {
     }
 
     @Override
+    public int hashCode() {
+        return this.fullPath.hashCode();
+    }
+
+    @Override
     public boolean equals(@Nullable Object o) {
         if (o == this) {
             return true;
@@ -96,6 +101,6 @@ public class SensorId {
             return false;
         }
 
-        return ((SensorId) o).getFullPath().equals(getFullPath());
+        return ((SensorId) o).fullPath.equals(fullPath);
     }
 }

@@ -33,8 +33,6 @@ public enum OwSensorType {
     DS2423,
     DS2431,
     DS2438,
-    DS2450,
-    MS_T,
     MS_TC,
     MS_TH,
     MS_TL,

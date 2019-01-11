@@ -30,16 +30,12 @@ import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.CurrentSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.LightSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
-import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,116 +97,88 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
 
     private void configureThingChannels() {
         ThingBuilder thingBuilder = editThing();
-        boolean isEdited = false;
 
         // temperature channel (present on all devices)
         sensors.get(0).enableChannel(CHANNEL_TEMPERATURE);
 
         // supply voltage (all sensors, except DS1923)
-        Channel supplyVoltageChannel = thing.getChannel(CHANNEL_SUPPLYVOLTAGE);
         if (sensorType == OwSensorType.DS1923) {
-            if (supplyVoltageChannel != null) {
-                thingBuilder.withoutChannel(supplyVoltageChannel.getUID());
-                isEdited = true;
-            }
+            removeChannelIfExisting(thingBuilder, CHANNEL_SUPPLYVOLTAGE);
         } else {
+            addChannelIfMissing(thingBuilder, CHANNEL_SUPPLYVOLTAGE, CHANNEL_TYPE_UID_VOLTAGE, "Supply Voltage");
             sensors.get(0).enableChannel(CHANNEL_SUPPLYVOLTAGE);
         }
 
         // analog channel
         switch (sensorType) {
-            case MS_T:
-                // no other channels
-                break;
             case DS2438:
-                if (thing.getChannel(CHANNEL_VOLTAGE) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_VOLTAGE), "Number:ElectricPotential")
-                            .withLabel("Voltage").withType(new ChannelTypeUID(BINDING_ID, "voltage")).build());
-                    isEdited = true;
-                }
-                sensors.get(0).enableChannel(CHANNEL_VOLTAGE);
-                if (thing.getChannel(CHANNEL_CURRENT) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_CURRENT), "Number:ElectricCurrent")
-                            .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
-                    isEdited = true;
-                }
+                addChannelIfMissing(thingBuilder, CHANNEL_VOLTAGE, CHANNEL_TYPE_UID_VOLTAGE);
+                addChannelIfMissing(thingBuilder, CHANNEL_CURRENT, CHANNEL_TYPE_UID_CURRENT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_ABSOLUTE_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_DEWPOINT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_LIGHT);
                 ((DS2438) sensors.get(0)).setCurrentSensorType(CurrentSensorType.INTERNAL);
+                sensors.get(0).enableChannel(CHANNEL_VOLTAGE);
                 sensors.get(0).enableChannel(CHANNEL_CURRENT);
                 break;
             case DS1923:
                 // DS1923 has fixed humidity sensor on-board
-                if (thing.getChannel(CHANNEL_HUMIDITY) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_HUMIDITY), "Number:Dimensionless")
-                            .withLabel("Humidity").withType(new ChannelTypeUID(BINDING_ID, "humidity")).build());
-                    isEdited = true;
-                }
+                addChannelIfMissing(thingBuilder, CHANNEL_HUMIDITY, CHANNEL_TYPE_UID_HUMIDITY);
+                addChannelIfMissing(thingBuilder, CHANNEL_ABSOLUTE_HUMIDITY, CHANNEL_TYPE_UID_ABSHUMIDITY);
+                addChannelIfMissing(thingBuilder, CHANNEL_DEWPOINT, CHANNEL_TYPE_UID_DEWPOINT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_LIGHT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_CURRENT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_VOLTAGE);
                 sensors.get(0).enableChannel(CHANNEL_HUMIDITY);
+                sensors.get(0).enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
+                sensors.get(0).enableChannel(CHANNEL_DEWPOINT);
+
                 break;
             case MS_TC:
-                if (thing.getChannel(CHANNEL_CURRENT) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_CURRENT), "Number:ElectricCurrent")
-                            .withLabel("Current").withType(new ChannelTypeUID(BINDING_ID, "current")).build());
-                    isEdited = true;
-                }
+                addChannelIfMissing(thingBuilder, CHANNEL_CURRENT, CHANNEL_TYPE_UID_CURRENT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_ABSOLUTE_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_DEWPOINT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_LIGHT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_VOLTAGE);
                 ((DS2438) sensors.get(0)).setCurrentSensorType(CurrentSensorType.IBUTTONLINK);
                 sensors.get(0).enableChannel(CHANNEL_CURRENT);
                 break;
             case MS_TH:
                 // DS2438 can have different sensors
-                if (thing.getChannel(CHANNEL_HUMIDITY) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_HUMIDITY), "Number:Dimensionless")
-                            .withLabel("Humidity").withType(new ChannelTypeUID(BINDING_ID, "humidityconf")).build());
-                    isEdited = true;
-                }
+                addChannelIfMissing(thingBuilder, CHANNEL_HUMIDITY, CHANNEL_TYPE_UID_HUMIDITYCONF);
+                addChannelIfMissing(thingBuilder, CHANNEL_ABSOLUTE_HUMIDITY, CHANNEL_TYPE_UID_ABSHUMIDITY);
+                addChannelIfMissing(thingBuilder, CHANNEL_DEWPOINT, CHANNEL_TYPE_UID_DEWPOINT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_LIGHT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_VOLTAGE);
+                removeChannelIfExisting(thingBuilder, CHANNEL_CURRENT);
                 sensors.get(0).enableChannel(CHANNEL_HUMIDITY);
+                sensors.get(0).enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
+                sensors.get(0).enableChannel(CHANNEL_DEWPOINT);
                 break;
             case MS_TL:
-                if (thing.getChannel(CHANNEL_LIGHT) == null) {
-                    thingBuilder.withChannel(
-                            ChannelBuilder.create(new ChannelUID(thing.getUID(), CHANNEL_LIGHT), "Number:Illuminance")
-                                    .withLabel("Light").withType(new ChannelTypeUID(BINDING_ID, "light")).build());
-                    isEdited = true;
-                }
+                addChannelIfMissing(thingBuilder, CHANNEL_LIGHT, CHANNEL_TYPE_UID_LIGHT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_ABSOLUTE_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_DEWPOINT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_CURRENT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_VOLTAGE);
                 sensors.get(0).enableChannel(CHANNEL_LIGHT);
                 ((DS2438) sensors.get(0)).setLightSensorType(LightSensorType.IBUTTONLINK);
                 break;
             default:
                 // use voltage channel as default
-                if (thing.getChannel(CHANNEL_VOLTAGE) == null) {
-                    thingBuilder.withChannel(ChannelBuilder
-                            .create(new ChannelUID(thing.getUID(), CHANNEL_VOLTAGE), "Number:ElectricPotential")
-                            .withLabel("Voltage").withType(new ChannelTypeUID(BINDING_ID, "voltage")).build());
-                    isEdited = true;
-                }
+                addChannelIfMissing(thingBuilder, CHANNEL_VOLTAGE, CHANNEL_TYPE_UID_VOLTAGE);
+                removeChannelIfExisting(thingBuilder, CHANNEL_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_ABSOLUTE_HUMIDITY);
+                removeChannelIfExisting(thingBuilder, CHANNEL_DEWPOINT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_CURRENT);
+                removeChannelIfExisting(thingBuilder, CHANNEL_LIGHT);
                 sensors.get(0).enableChannel(CHANNEL_VOLTAGE);
         }
 
-        // if humidity sensor, add additional channels
-        if (sensorType == OwSensorType.DS1923 || sensorType == OwSensorType.MS_TH) {
-            if (thing.getChannel(CHANNEL_ABSOLUTE_HUMIDITY) == null) {
-                thingBuilder.withChannel(ChannelBuilder
-                        .create(new ChannelUID(thing.getUID(), CHANNEL_ABSOLUTE_HUMIDITY), "Number:Density")
-                        .withLabel("Abs. Humidity").withType(new ChannelTypeUID(BINDING_ID, "abshumidity")).build());
-                isEdited = true;
-            }
-            sensors.get(0).enableChannel(CHANNEL_ABSOLUTE_HUMIDITY);
-            if (thing.getChannel(CHANNEL_DEWPOINT) == null) {
-                thingBuilder.withChannel(
-                        ChannelBuilder.create(new ChannelUID(thing.getUID(), CHANNEL_DEWPOINT), "Number:Temperature")
-                                .withLabel("Dewpoint").withType(new ChannelTypeUID(BINDING_ID, "dewpoint")).build());
-                isEdited = true;
-            }
-            sensors.get(0).enableChannel(CHANNEL_DEWPOINT);
-        }
-
-        if (isEdited) {
-            updateThing(thingBuilder.build());
-        }
+        updateThing(thingBuilder.build());
 
         try {
             sensors.get(0).configureChannels();
