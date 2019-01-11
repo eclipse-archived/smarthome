@@ -6,6 +6,8 @@ This file should be in property syntax, i.e. simple lines with "key=value" pairs
 The file format is documented [here](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html#load-java.io.Reader-).
 To organize the various transformations one might use subfolders.
 
+A default value can be provided if no matching entry is found by using "=value" syntax
+
 ## Example
 
 transform/binary.map:
@@ -16,13 +18,15 @@ key=value
 0=OFF
 ON=1
 OFF=0
+=default
 ```
 
-| input | output  |
-|-------|---------|
-| `1`   | `ON`    |
-| `OFF` | `0`     |
-| `key` | `value` |
+| input      | output    |
+|------------|-----------|
+| `1`        | `ON`      |
+| `OFF`      | `0`       |
+| `key`      | `value`   |
+| `anything` | `default` |
 
 ## Usage as a Profile
 
