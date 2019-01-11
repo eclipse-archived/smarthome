@@ -36,6 +36,7 @@ public class MapTransformationServiceTest {
     private static final String SOURCE_UNKNOWN = "UNKNOWN";
     private static final String EXISTING_FILENAME_DE = "map/doorstatus_de.map";
     private static final String SHOULD_BE_LOCALIZED_FILENAME = "map/doorstatus.map";
+    private static final String DEFAULTED_FILENAME = "map/doorstatus_defaulted.map";
     private static final String INEXISTING_FILENAME = "map/de.map";
     private static final String BASE_FOLDER = "target";
     private static final String SRC_FOLDER = "conf";
@@ -120,6 +121,16 @@ public class MapTransformationServiceTest {
         Assert.assertNotEquals(SOURCE_CLOSED, transformedResponse);
         transformedResponse = processor.transform(SHOULD_BE_LOCALIZED_FILENAME, SOURCE_CLOSED);
         Assert.assertNotEquals(SOURCE_CLOSED, transformedResponse);
+    }
+
+    @Test
+    public void testTransformByMapWithDefault() throws Exception {
+        // Standard behaviour with no default value
+        String transformedResponse = processor.transform(SHOULD_BE_LOCALIZED_FILENAME, "toBeDefaulted");
+        Assert.assertEquals("", transformedResponse);
+        // Modified behaviour with a file containing default value definition
+        transformedResponse = processor.transform(DEFAULTED_FILENAME, "toBeDefaulted");
+        Assert.assertEquals("Default Value", transformedResponse);
     }
 
     protected void waitForAssert(Callable<Void> assertion, int timeout, int sleepTime) throws Exception {

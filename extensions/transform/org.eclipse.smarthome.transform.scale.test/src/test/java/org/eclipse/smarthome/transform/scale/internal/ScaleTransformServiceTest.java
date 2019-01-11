@@ -127,7 +127,7 @@ public class ScaleTransformServiceTest {
     public void testTransformQuantityType() throws TransformationException {
         QuantityType<Dimensionless> airQuality = new QuantityType<>("992 ppm");
         String aqScaleFile = "scale/netatmo_aq.scale";
-        String expected = "Qualité d'air correcte";
+        String expected = "Correcte";
 
         String transformedResponse = processor.transform(aqScaleFile, airQuality.toString());
         Assert.assertEquals(expected, transformedResponse);
