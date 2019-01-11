@@ -1,7 +1,5 @@
 Manifest-Version: 1.0
 Automation-ResourceType: json
-Bundle-Activator: org.eclipse.smarthome.automation.module.timer.internal
- .Activator
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Module Timer
@@ -23,3 +21,5 @@ Import-Package:
  org.osgi.framework,
  org.slf4j
 Automatic-Module-Name: org.eclipse.smarthome.automation.module.timer
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml

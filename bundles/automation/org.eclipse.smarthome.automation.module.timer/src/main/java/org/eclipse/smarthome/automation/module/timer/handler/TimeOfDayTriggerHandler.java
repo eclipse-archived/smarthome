@@ -12,17 +12,15 @@
  */
 package org.eclipse.smarthome.automation.module.timer.handler;
 
-import java.text.ParseException;
+import java.text.MessageFormat;
 
 import org.eclipse.smarthome.automation.ModuleHandlerCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseTriggerModuleHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandlerCallback;
-import org.eclipse.smarthome.automation.module.timer.factory.TimerModuleHandlerFactory;
-import org.eclipse.smarthome.core.scheduler.Expression;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager;
-import org.eclipse.smarthome.core.scheduler.ExpressionThreadPoolManager.ExpressionThreadPoolExecutor;
-import org.eclipse.smarthome.core.scheduler.RecurrenceExpression;
+import org.eclipse.smarthome.core.scheduler.CronScheduler;
+import org.eclipse.smarthome.core.scheduler.SchedulerRunnable;
+import org.eclipse.smarthome.core.scheduler.ScheduledCompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial Contribution
  *
  */
-public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements Runnable {
+public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements SchedulerRunnable {
 
     private final Logger logger = LoggerFactory.getLogger(TimeOfDayTriggerHandler.class);
 
@@ -42,20 +40,21 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
 
     private static final String CFG_TIME = "time";
 
-    private final ExpressionThreadPoolExecutor scheduler;
-    private final Expression expression;
+    private final CronScheduler scheduler;
+    private final String expression;
+    private ScheduledCompletableFuture<Void> schedule;
 
-    public TimeOfDayTriggerHandler(Trigger module) {
+    public TimeOfDayTriggerHandler(Trigger module, CronScheduler scheduler) {
         super(module);
+        this.scheduler = scheduler;
         String time = module.getConfiguration().get(CFG_TIME).toString();
         try {
             String[] parts = time.split(":");
-
-            expression = new RecurrenceExpression("FREQ=DAILY;BYHOUR=" + parts[0] + ";BYMINUTE=" + parts[1]);
-        } catch (ArrayIndexOutOfBoundsException | ParseException e) {
-            throw new IllegalArgumentException("'time' parameter is not in valid format 'hh:mm'.", e);
+            expression = MessageFormat.format("* {1} {0} * * *", Integer.parseInt(parts[0]),
+                    Integer.parseInt(parts[1]));
+        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+            throw new IllegalArgumentException("'time' parameter '" + time + "' is not in valid format 'hh:mm'.", e);
         }
-        scheduler = ExpressionThreadPoolManager.getExpressionScheduledPool(TimerModuleHandlerFactory.THREADPOOLNAME);
     }
 
     @Override
@@ -65,7 +64,7 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
     }
 
     private void scheduleJob() {
-        scheduler.schedule(this, expression);
+        schedule = scheduler.schedule(this, expression);
         logger.debug("Scheduled job for trigger '{}' at '{}' each day.", module.getId(),
                 module.getConfiguration().get(CFG_TIME));
     }
@@ -78,10 +77,9 @@ public class TimeOfDayTriggerHandler extends BaseTriggerModuleHandler implements
     @Override
     public synchronized void dispose() {
         super.dispose();
-        if (scheduler.remove(this)) {
+        if (schedule != null) {
+            schedule.cancel(true);
             logger.debug("cancelled job for trigger '{}'.", module.getId());
-        } else {
-            logger.debug("Failed cancelling job for trigger '{}' - maybe it was never scheduled?", module.getId());
         }
     }
 }
