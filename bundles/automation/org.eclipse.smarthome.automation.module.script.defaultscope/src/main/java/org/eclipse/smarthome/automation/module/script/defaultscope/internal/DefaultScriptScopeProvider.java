@@ -72,7 +72,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(immediate = true)
 public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
 
-    private Queue<ThingActions> queuedBeforeActivation;
+    private final Queue<ThingActions> queuedBeforeActivation = new LinkedList<>();
 
     private Map<String, Object> elements;
 
@@ -127,9 +127,6 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
     @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     synchronized void addThingActions(ThingActions thingActions) {
         if (this.thingActions == null) { // bundle may not be active yet
-            if (this.queuedBeforeActivation == null) {
-                queuedBeforeActivation = new LinkedList<>();
-            }
             queuedBeforeActivation.add(thingActions);
         } else {
             this.thingActions.addThingActions(thingActions);
@@ -218,10 +215,8 @@ public class DefaultScriptScopeProvider implements ScriptExtensionProvider {
         elements.put("actions", thingActions);
 
         // if any thingActions were queued before this got activated, add them now
-        if (queuedBeforeActivation != null) {
-            queuedBeforeActivation.forEach(thingActions -> this.addThingActions(thingActions));
-            queuedBeforeActivation = null;
-        }
+        queuedBeforeActivation.forEach(thingActions -> this.addThingActions(thingActions));
+        queuedBeforeActivation.clear();
     }
 
     @Deactivate
