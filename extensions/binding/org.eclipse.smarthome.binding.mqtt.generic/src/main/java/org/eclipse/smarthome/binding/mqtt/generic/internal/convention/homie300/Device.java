@@ -20,7 +20,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.HomieThingHandler;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.mapping.AbstractMqttAttributeClass.AttributeChanged;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.tools.ChildMap;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -50,7 +49,6 @@ public class Device implements AbstractMqttAttributeClass.AttributeChanged {
     private final Logger logger = LoggerFactory.getLogger(Device.class);
     // The device attributes, statistics and nodes of this device
     public final DeviceAttributes attributes;
-    public final DeviceStatsAttributes stats;
     public final ChildMap<Node> nodes;
 
     // The corresponding ThingUID and callback of this device object
@@ -61,7 +59,6 @@ public class Device implements AbstractMqttAttributeClass.AttributeChanged {
     private String topic = "";
     public String deviceID = "";
     private boolean initialized = false;
-    private final AttributeChanged deviceStatisticsListener;
 
     /**
      * Creates a Homie Device structure. It consists of device attributes, device statistics and nodes.
@@ -69,16 +66,12 @@ public class Device implements AbstractMqttAttributeClass.AttributeChanged {
      * @param thingUID The thing UID
      * @param callback A callback, used to notify about new/removed nodes/properties and more.
      * @param attributes The device attributes object
-     * @param stats The device statistics object
      */
-    public Device(ThingUID thingUID, DeviceCallback callback, DeviceAttributes attributes,
-            DeviceStatsAttributes stats) {
+    public Device(ThingUID thingUID, DeviceCallback callback, DeviceAttributes attributes) {
         this.thingUID = thingUID;
         this.callback = callback;
         this.attributes = attributes;
-        this.stats = stats;
         this.nodes = new ChildMap<>();
-        this.deviceStatisticsListener = createDeviceStatisticsListener(callback);
     }
 
     /**
@@ -87,40 +80,13 @@ public class Device implements AbstractMqttAttributeClass.AttributeChanged {
      * @param thingUID The thing UID
      * @param callback A callback, used to notify about new/removed nodes/properties and more.
      * @param attributes The device attributes object
-     * @param stats The device statistics object
      * @param nodes The nodes map
-     * @param deviceStatisticsListener The AttributeChanged listener for the device statistics. Create the default one
-     *            with {@link #createDeviceStatisticsListener(DeviceCallback)}.
      */
-    public Device(ThingUID thingUID, DeviceCallback callback, DeviceAttributes attributes, DeviceStatsAttributes stats,
-            ChildMap<Node> nodes, AttributeChanged deviceStatisticsListener) {
+    public Device(ThingUID thingUID, DeviceCallback callback, DeviceAttributes attributes, ChildMap<Node> nodes) {
         this.thingUID = thingUID;
         this.callback = callback;
         this.attributes = attributes;
-        this.stats = stats;
         this.nodes = nodes;
-        this.deviceStatisticsListener = deviceStatisticsListener;
-    }
-
-    /**
-     * Create the default listener for the device statistic attributes object.
-     *
-     * <p>
-     * To be used for the
-     * {@link #Device(ThingUID, DeviceCallback, DeviceAttributes, DeviceStatsAttributes, ChildMap, AttributeChanged)}
-     * constructor.
-     * </p>
-     *
-     * @param callback A device callback
-     * @return The listener
-     */
-    public static AttributeChanged createDeviceStatisticsListener(DeviceCallback callback) {
-        return (String name, Object value, MqttBrokerConnection connection, ScheduledExecutorService scheduler,
-                boolean allMandatoryFieldsReceived) -> {
-            if ("interval".equals(name)) {
-                callback.heartbeatIntervalChanged((int) value);
-            }
-        };
     }
 
     /**
@@ -154,14 +120,6 @@ public class Device implements AbstractMqttAttributeClass.AttributeChanged {
     public CompletableFuture<@Nullable Void> attributesReceived(MqttBrokerConnection connection,
             ScheduledExecutorService scheduler, int timeout) {
         callback.readyStateChanged(attributes.state);
-        // Subscribe to statistics attributes
-        stats.subscribeAndReceive(connection, scheduler, topic + "/$stats", deviceStatisticsListener, timeout)
-                .exceptionally(e -> {
-                    logger.warn("Did not receive all required device statistics attributes!");
-                    // Default heartbeat interval assumed
-                    callback.heartbeatIntervalChanged(stats.interval);
-                    return null;
-                });
         return applyNodes(connection, scheduler, timeout);
     }
 
@@ -207,7 +165,7 @@ public class Device implements AbstractMqttAttributeClass.AttributeChanged {
      * Unsubscribe from everything.
      */
     public CompletableFuture<@Nullable Void> stop() {
-        return attributes.unsubscribe().thenCompose(b -> stats.unsubscribe()).thenCompose(
+        return attributes.unsubscribe().thenCompose(
                 b -> CompletableFuture.allOf(nodes.stream().map(n -> n.stop()).toArray(CompletableFuture[]::new)));
     }
 

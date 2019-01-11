@@ -50,7 +50,7 @@ public class ValueFactory {
                 value = new NumberValue(config.min, config.max, config.step);
                 break;
             case MqttBindingConstants.DIMMER:
-                value = new PercentageValue(config.min, config.max, config.step);
+                value = new PercentageValue(config.min, config.max, config.step, config.on, config.off);
                 break;
             case MqttBindingConstants.COLOR_RGB:
                 value = new ColorValue(true, config.on, config.off, config.onBrightness);

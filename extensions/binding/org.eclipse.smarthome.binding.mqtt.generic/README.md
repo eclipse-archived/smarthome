@@ -70,6 +70,8 @@ All things require a configured broker.
 * __transformationPatternOut__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2) that is applied before publishing a value to MQTT.
 * __commandTopic__: The MQTT topic that commands are send to. This can be empty, the thing channel will be read-only then. Transformations are not applied for sending data.
 * __formatBeforePublish__: Format a value before it is published to the MQTT broker. The default is to just pass the channel/item state. If you want to apply a prefix, say "MYCOLOR,", you would use "MYCOLOR,%s". If you want to adjust the precision of a number to for example 4 digits, you would use "%.4f".
+* __postCommand__: If the received MQTT value should not only update the state of linked items, but command them, enable this option. You usually need this enabled if your item is also linked to another channel, say a KNX actor, and you want a received MQTT payload to command that KNX actor. 
+* __retained__: The value will be published to the command topic as retained message. A retained value stays on the broker and can even be seen by MQTT clients that are subscribing at a later point in time. 
 
 ### Channel Type "string"
 
@@ -226,6 +228,13 @@ Here are a few examples:
   - For an output of *23.05.1995* use "%1$**td**.%1$**tm**.%1$**tY**".
   - For an output of *23:15* use "%1$**tH**:%1$**tM**".
 
+## Troubleshooting
+
+* If you get the error "No MQTT client": Please update your installation.
+* If you use the Mosquitto broker: Please be aware that there is a relatively low setting
+  for retained messages. At some point messages will just not being delivered
+  anymore: Change the setting 
+
 ## Examples
 
 Have a look at the following textual examples.
@@ -311,10 +320,14 @@ end
 The conversion is straight forward, but need to be done for each item.
 You do not need to convert everything in one go. MQTT1 and MQTT2 can coexist.
 
+> For mqtt1 make sure you have enabled the Legacy 1.x repository and installed "mqtt1".
+
+### 1 Command / 1 State topic 
+
 Assume you have this item:
 
 ```xtend
-Switch ExampleItem "Heatpump Power" { mqtt=">[mosquitto:heatpump/set:command:*:DEFAULT)],<[mosquitto:heatpump:state:JSONPATH($.power)]" }
+Switch ExampleItem "Heatpump Power" { mqtt=">[mosquitto:heatpump/set:command:*:DEFAULT)],<[mosquitto:heatpump/state:JSONPATH($.power)]" }
 ```
 
 This converts to an entry in your *.things file with a **Broker Thing** and a **Generic MQTT Thing** that uses the bridge:
@@ -335,4 +348,34 @@ Your items change to:
 
 ```xtend
 Switch ExampleItem "Heatpump Power" { channel="mqtt:myUnsecureBroker:topic:mything:heatpumpChannel" }
+```
+
+
+### 1 Command / 2 State topics 
+
+If you receive updates from two different topics, you need to create multiple channels now, 1 for each MQTT receive topic.
+
+```xtend
+Switch ExampleItem "Heatpump Power" { mqtt=">[mosquitto:heatpump/set:command:*:DEFAULT)],<[mosquitto:heatpump/state1:state:*:DEFAULT",<[mosquitto:heatpump/state2:state:*:DEFAULT" }
+```
+
+This converts to:
+
+```xtend
+Bridge mqtt:broker:myUnsecureBroker [ host="192.168.0.42", secure=false ]
+{
+    Thing mqtt:topic:mything {
+    Channels:
+        Type switch : heatpumpChannel "Heatpump Power" [ stateTopic="heatpump/state1", commandTopic="heatpump/set" ]
+        Type switch : heatpumpChannel2 "Heatpump Power" [ stateTopic="heatpump/state2" ]
+    }
+}
+```
+
+Link both channels to one item. That item will publish to "heatpump/set" on a change and
+receive values from "heatpump/state1" and "heatpump/state2".
+
+```xtend
+Switch ExampleItem "Heatpump Power" { channel="mqtt:myUnsecureBroker:topic:mything:heatpumpChannel",
+                                      channel="mqtt:myUnsecureBroker:topic:mything:heatpumpChannel2" }
 ```

@@ -34,7 +34,6 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.MqttBindingConstants;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Device;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Node;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.NodeAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
@@ -132,8 +131,7 @@ public class HomieThingHandlerTests {
         thingHandler = spy(handler);
         thingHandler.setCallback(callback);
         final Device device = new Device(thing.getUID(), thingHandler, spy(new DeviceAttributes()),
-                spy(new DeviceStatsAttributes()), new ChildMap<>(),
-                Device.createDeviceStatisticsListener(thingHandler));
+                spy(new ChildMap<>()));
         thingHandler.setInternalObjects(spy(device),
                 spy(new DelayedBatchProcessing<Object>(500, thingHandler, scheduler)));
 
@@ -365,36 +363,5 @@ public class HomieThingHandlerTests {
         final Map<@NonNull String, @NonNull String> properties = thingHandler.getThing().getProperties();
         assertThat(properties.get(MqttBindingConstants.HOMIE_PROPERTY_VERSION), is("3.0"));
         assertThat(properties.size(), is(1));
-    }
-
-    @Test
-    public void heartBeatInterval()
-            throws InterruptedException, ExecutionException, NoSuchFieldException, SecurityException {
-        thingHandler.device.initialize("homie", "device", new ArrayList<Channel>());
-        thingHandler.connection = connection;
-
-        // Inject spy'ed subscriber object
-        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.stats).createSubscriber(any(), any(), any(),
-                anyBoolean());
-        doAnswer(this::createSubscriberAnswer).when(thingHandler.device.attributes).createSubscriber(any(), any(),
-                any(), anyBoolean());
-
-        thingHandler.device.attributes.state = ReadyState.ready;
-        thingHandler.device.attributes.name = "device";
-        thingHandler.device.attributes.homie = "3.0";
-        thingHandler.device.attributes.nodes = new String[] {};
-
-        thingHandler.initialize();
-
-        assertThat(thingHandler.device.isInitialized(), is(true));
-
-        verify(thingHandler.device).attributesReceived(any(), any(), anyInt());
-        verify(thingHandler.device.stats).subscribeAndReceive(any(), any(), anyString(), any(), anyInt());
-
-        // Emulate a received value for the "interval" topic
-        thingHandler.device.stats.fieldChanged(DeviceStatsAttributes.class.getDeclaredField("interval"), 60);
-
-        verify(thingHandler).heartbeatIntervalChanged(anyInt());
-        verify(callback).thingUpdated(any());
     }
 }

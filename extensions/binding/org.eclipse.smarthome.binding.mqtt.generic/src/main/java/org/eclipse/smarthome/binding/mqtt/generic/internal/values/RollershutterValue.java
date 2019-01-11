@@ -54,9 +54,7 @@ public class RollershutterValue extends Value {
 
     @Override
     public void update(Command command) throws IllegalArgumentException {
-        if (command instanceof UpDownType) {
-            throw new IllegalStateException("Cannot call update() with UpDownType");
-        } else if (command instanceof StopMoveType) {
+        if (command instanceof StopMoveType) {
             throw new IllegalStateException("Cannot call update() with StopMoveType");
         } else if (command instanceof PercentType) {
             state = (PercentType) command;
