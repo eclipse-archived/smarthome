@@ -64,6 +64,7 @@ All things require a configured broker.
 * __transformationPattern__: An optional transformation pattern like [JSONPath](http://goessner.net/articles/JsonPath/index.html#e2).
 * __commandTopic__: The MQTT topic that commands are send to. This can be empty, the thing channel will be read-only then. Transformations are not applied for sending data.
 * __formatBeforePublish__: Format a value before it is published to the MQTT broker. The default is to just pass the channel/item state. If you want to apply a prefix, say "MYCOLOR,", you would use "MYCOLOR,%s". If you want to adjust the precision of a number to for example 4 digits, you would use "%.4f".
+* __postCommand__: "true" or "false" (Defaults to "false") passes an update received from the stateTopic as a command to other bindings attached to the item.
 
 ### Channel Type "string"
 
