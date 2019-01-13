@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -62,7 +62,7 @@ public abstract class AbstractThingHandlerTest extends JavaTest {
     protected ThingHandlerCallback bridgeHandlerCallback;
 
     @Mock
-    protected OwBaseBridgeHandler bridgeHandler;
+    protected OwserverBridgeHandler bridgeHandler;
 
     protected List<Channel> channels = new ArrayList<Channel>();
 

@@ -22,8 +22,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.AbstractOwDevice;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -47,7 +47,7 @@ public abstract class AbstractDeviceTest {
     protected AbstractOwDevice testDevice;
 
     protected OwBaseThingHandler mockThingHandler;
-    protected OwBaseBridgeHandler mockBridgeHandler;
+    protected OwserverBridgeHandler mockBridgeHandler;
 
     protected Thing mockThing;
     protected InOrder inOrder;
@@ -56,7 +56,7 @@ public abstract class AbstractDeviceTest {
 
     public void setupMocks(ThingTypeUID thingTypeUID) {
         mockThingHandler = mock(OwBaseThingHandler.class);
-        mockBridgeHandler = mock(OwBaseBridgeHandler.class);
+        mockBridgeHandler = mock(OwserverBridgeHandler.class);
         mockThing = mock(Thing.class);
 
         inOrder = Mockito.inOrder(mockThingHandler, mockBridgeHandler);
