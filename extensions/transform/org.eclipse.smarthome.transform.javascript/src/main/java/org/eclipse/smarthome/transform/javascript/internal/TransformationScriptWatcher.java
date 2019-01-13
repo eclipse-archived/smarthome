@@ -80,7 +80,7 @@ public class TransformationScriptWatcher extends AbstractWatchService {
         final WatchEvent<Path> ev = (WatchEvent<Path>) event;
         final Path filename = ev.context();
 
-        logger.debug("Reloading javascript file {}.", filename.toString());
+        logger.debug("Reloading javascript file {}.", filename);
 
         manager.removeFromCache(filename.toString());
     }
