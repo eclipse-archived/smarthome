@@ -12,14 +12,11 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal.device;
 
-import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.THING_TYPE_OWSERVER;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DigitalIoConfig;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
-import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
 
 /**
  * The {@link DS2408} class defines an DS2408 device
@@ -38,16 +35,13 @@ public class DS2408 extends AbstractDigitalOwDevice {
         ioConfig.clear();
 
         for (int i = 0; i < 8; i++) {
-            OwDeviceParameterMap inParam = new OwDeviceParameterMap();
-            OwDeviceParameterMap outParam = new OwDeviceParameterMap();
-
-            inParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("uncached/", String.format("/sensed.%d", i)));
-            outParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter(String.format("/PIO.%d", i)));
-            ioConfig.add(new DigitalIoConfig(callback.getThing(), i, inParam, outParam));
+            ioConfig.add(new DigitalIoConfig(callback.getThing(), i,
+                    new OwDeviceParameter("uncached/", String.format("/sensed.%d", i)),
+                    new OwDeviceParameter(String.format("/PIO.%d", i))));
         }
 
-        fullInParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("uncached/", "/sensed.BYTE"));
-        fullOutParam.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/PIO.BYTE"));
+        fullInParam = new OwDeviceParameter("uncached/", "/sensed.BYTE");
+        fullOutParam = new OwDeviceParameter("/PIO.BYTE");
 
         super.configureChannels();
     }

@@ -12,11 +12,56 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal.device;
 
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
+
 /**
  * The {@link OwDeviceParameter} defines a member of the OwDeviceParameterMap
  *
  * @author Jan N. Klug - Initial contribution
  */
-public abstract class OwDeviceParameter {
+public class OwDeviceParameter {
+    private String prefix = "";
+    private String path = "";
 
+    /**
+     * device parameter for owserver bridge handler
+     *
+     * @param prefix path prefix (e.g. "uncached/")
+     * @param path path without sensor id (e.g. "/humidity")
+     */
+    public OwDeviceParameter(String prefix, String path) {
+        if (prefix.endsWith("/")) {
+            this.prefix = prefix.substring(0, prefix.length() - 1);
+        } else {
+            this.prefix = prefix;
+        }
+        if (path.startsWith("/")) {
+            this.path = path;
+        } else {
+            this.path = "/" + path;
+        }
+    }
+
+    /**
+     * device parameter for owserver bridge handler
+     *
+     * @param path path without sensor id (e.g. "/humidity")
+     */
+    public OwDeviceParameter(String path) {
+        this("", path);
+    }
+
+    /**
+     * get the full owfs path for a given sensor id
+     *
+     * @param sensorId
+     */
+    public String getPath(SensorId sensorId) {
+        return prefix + sensorId.getFullPath() + path;
+    }
+
+    @Override
+    public String toString() {
+        return prefix + "/sensorId" + path;
+    }
 }

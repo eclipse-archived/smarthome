@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.onewire.internal.device;
 
-import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
+import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.CHANNEL_COUNTER;
 
 import java.util.List;
 
@@ -21,7 +21,6 @@ import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
-import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +33,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class DS2423 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS2423.class);
-    private final OwDeviceParameterMap counterParameter = new OwDeviceParameterMap() {
-        {
-            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/counters.ALL"));
-        }
-    };
+    private final OwDeviceParameter counterParameter = new OwDeviceParameter("/counters.ALL");
 
     public DS2423(SensorId sensorId, OwBaseThingHandler callback) {
         super(sensorId, callback);

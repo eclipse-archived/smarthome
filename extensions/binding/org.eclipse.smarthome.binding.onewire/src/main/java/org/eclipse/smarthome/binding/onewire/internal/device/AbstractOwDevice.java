@@ -18,7 +18,6 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -125,7 +124,7 @@ public abstract class AbstractOwDevice {
      * @return this sensors type
      * @throws OwException
      */
-    public OwSensorType getSensorType(OwBaseBridgeHandler bridgeHandler) throws OwException {
+    public OwSensorType getSensorType(OwserverBridgeHandler bridgeHandler) throws OwException {
         if (sensorType == OwSensorType.UNKNOWN) {
             sensorType = bridgeHandler.getType(sensorId);
         }

@@ -17,7 +17,7 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 import java.util.Arrays;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameterMap;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameter;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -32,12 +32,12 @@ import org.eclipse.smarthome.core.types.State;
 public class DigitalIoConfig {
     private final String channelID;
     private final ChannelUID channelUID;
-    private final OwDeviceParameterMap inParam;
-    private final OwDeviceParameterMap outParam;
+    private OwDeviceParameter inParam;
+    private OwDeviceParameter outParam;
     private DigitalIoMode ioMode = DigitalIoMode.INPUT;
     private DigitalIoLogic ioLogic = DigitalIoLogic.NORMAL;
 
-    public DigitalIoConfig(Thing thing, Integer channelIndex, OwDeviceParameterMap inParam, OwDeviceParameterMap outParam) {
+    public DigitalIoConfig(Thing thing, Integer channelIndex, OwDeviceParameter inParam, OwDeviceParameter outParam) {
         this.channelUID = new ChannelUID(thing.getUID(), String.format("%s%d", CHANNEL_DIGITAL, channelIndex));
         this.channelID = String.format("%s%d", CHANNEL_DIGITAL, channelIndex);
         this.inParam = inParam;
@@ -64,7 +64,7 @@ public class DigitalIoConfig {
         return channelID;
     }
 
-    public OwDeviceParameterMap getParameter() {
+    public OwDeviceParameter getParameter() {
         return (ioMode == DigitalIoMode.INPUT) ? inParam : outParam;
     }
 

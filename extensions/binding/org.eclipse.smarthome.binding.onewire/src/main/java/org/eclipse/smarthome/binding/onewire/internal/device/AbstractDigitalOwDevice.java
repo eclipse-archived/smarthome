@@ -23,7 +23,6 @@ import org.eclipse.smarthome.binding.onewire.internal.DigitalIoConfig;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -46,8 +45,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDigitalOwDevice extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(AbstractDigitalOwDevice.class);
 
-    protected final OwDeviceParameterMap fullInParam = new OwDeviceParameterMap();
-    protected final OwDeviceParameterMap fullOutParam = new OwDeviceParameterMap();
+    protected @NonNullByDefault({}) OwDeviceParameter fullInParam;
+    protected @NonNullByDefault({}) OwDeviceParameter fullOutParam;
 
     protected final List<DigitalIoConfig> ioConfig = new ArrayList<DigitalIoConfig>();
 
@@ -127,7 +126,7 @@ public abstract class AbstractDigitalOwDevice extends AbstractOwDevice {
         return ioConfig.size();
     }
 
-    public boolean writeChannel(OwBaseBridgeHandler bridgeHandler, Integer ioChannel, Command command) {
+    public boolean writeChannel(OwserverBridgeHandler bridgeHandler, Integer ioChannel, Command command) {
         if (ioChannel < getChannelCount()) {
             try {
                 if (ioConfig.get(ioChannel).isOutput()) {

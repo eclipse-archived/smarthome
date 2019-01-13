@@ -62,7 +62,7 @@ public class DigitalIOThingHandler extends OwBaseThingHandler {
             if (ioChannel != null && ioChannel < ((AbstractDigitalOwDevice) sensors.get(0)).getChannelCount()) {
                 Bridge bridge = getBridge();
                 if (bridge != null) {
-                    OwBaseBridgeHandler bridgeHandler = (OwBaseBridgeHandler) bridge.getHandler();
+                    OwserverBridgeHandler bridgeHandler = (OwserverBridgeHandler) bridge.getHandler();
                     if (bridgeHandler != null) {
                         if (!((AbstractDigitalOwDevice) sensors.get(0)).writeChannel(bridgeHandler, ioChannel,
                                 command)) {

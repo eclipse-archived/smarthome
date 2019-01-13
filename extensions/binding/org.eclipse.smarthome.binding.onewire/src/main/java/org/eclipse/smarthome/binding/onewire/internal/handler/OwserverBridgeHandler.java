@@ -31,12 +31,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
-import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameterMap;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwDeviceParameter;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwfsDirectChannelConfig;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnection;
 import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverConnectionState;
-import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.StringType;
@@ -175,7 +174,7 @@ public class OwserverBridgeHandler extends BaseBridgeHandler {
      * @return a BitSet
      * @throws OwException
      */
-    public BitSet readBitSet(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public BitSet readBitSet(SensorId sensorId, OwDeviceParameter parameter) throws OwException {
         return BitSet.valueOf(new long[] { ((DecimalType) readDecimalType(sensorId, parameter)).longValue() });
     }
 
@@ -186,7 +185,7 @@ public class OwserverBridgeHandler extends BaseBridgeHandler {
      * @param parameter device parameters needed for this request
      * @throws OwException
      */
-    public void writeBitSet(SensorId sensorId, OwDeviceParameterMap parameter, BitSet value) throws OwException {
+    public void writeBitSet(SensorId sensorId, OwDeviceParameter parameter, BitSet value) throws OwException {
         writeDecimalType(sensorId, parameter, new DecimalType(value.toLongArray()[0]));
     }
 
@@ -297,10 +296,9 @@ public class OwserverBridgeHandler extends BaseBridgeHandler {
      * @return a DecimalType
      * @throws OwException
      */
-    public State readDecimalType(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public State readDecimalType(SensorId sensorId, OwDeviceParameter parameter) throws OwException {
         synchronized (owserverConnection) {
-            return owserverConnection
-                    .readDecimalType(((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
+            return owserverConnection.readDecimalType(parameter.getPath(sensorId));
         }
     }
 
@@ -312,10 +310,9 @@ public class OwserverBridgeHandler extends BaseBridgeHandler {
      * @return a list of DecimalType values
      * @throws OwException
      */
-    public List<State> readDecimalTypeArray(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public List<State> readDecimalTypeArray(SensorId sensorId, OwDeviceParameter parameter) throws OwException {
         synchronized (owserverConnection) {
-            return owserverConnection.readDecimalTypeArray(
-                    ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
+            return owserverConnection.readDecimalTypeArray(parameter.getPath(sensorId));
         }
     }
 
@@ -340,10 +337,9 @@ public class OwserverBridgeHandler extends BaseBridgeHandler {
      * @return a String
      * @throws OwException
      */
-    public String readString(SensorId sensorId, OwDeviceParameterMap parameter) throws OwException {
+    public String readString(SensorId sensorId, OwDeviceParameter parameter) throws OwException {
         synchronized (owserverConnection) {
-            return owserverConnection
-                    .readString(((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId));
+            return owserverConnection.readString(parameter.getPath(sensorId));
         }
     }
 
@@ -354,11 +350,9 @@ public class OwserverBridgeHandler extends BaseBridgeHandler {
      * @param parameter device parameters needed for this request
      * @throws OwException
      */
-    public void writeDecimalType(SensorId sensorId, OwDeviceParameterMap parameter, DecimalType value)
-            throws OwException {
+    public void writeDecimalType(SensorId sensorId, OwDeviceParameter parameter, DecimalType value) throws OwException {
         synchronized (owserverConnection) {
-            owserverConnection.writeDecimalType(
-                    ((OwserverDeviceParameter) parameter.get(THING_TYPE_OWSERVER)).getPath(sensorId), value);
+            owserverConnection.writeDecimalType(parameter.getPath(sensorId), value);
         }
     }
 

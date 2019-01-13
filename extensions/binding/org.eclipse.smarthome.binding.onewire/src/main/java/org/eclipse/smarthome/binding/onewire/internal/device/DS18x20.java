@@ -21,7 +21,6 @@ import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
-import org.eclipse.smarthome.binding.onewire.internal.owserver.OwserverDeviceParameter;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.QuantityType;
@@ -40,11 +39,7 @@ import org.slf4j.LoggerFactory;
 public class DS18x20 extends AbstractOwDevice {
     private final Logger logger = LoggerFactory.getLogger(DS18x20.class);
 
-    private final OwDeviceParameterMap temperatureParamater = new OwDeviceParameterMap() {
-        {
-            set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
-        }
-    };
+    private OwDeviceParameter temperatureParamater = new OwDeviceParameter("/temperature");
 
     private boolean ignorePOR = false;
 
@@ -60,10 +55,10 @@ public class DS18x20 extends AbstractOwDevice {
         if (temperatureChannel != null) {
             Configuration channelConfiguration = temperatureChannel.getConfiguration();
             if (channelConfiguration.containsKey(CONFIG_RESOLUTION)) {
-                temperatureParamater.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter(
-                        "/temperature" + (String) channelConfiguration.get(CONFIG_RESOLUTION)));
+                temperatureParamater = new OwDeviceParameter(
+                        "/temperature" + (String) channelConfiguration.get(CONFIG_RESOLUTION));
             } else {
-                temperatureParamater.set(THING_TYPE_OWSERVER, new OwserverDeviceParameter("/temperature"));
+                temperatureParamater = new OwDeviceParameter("/temperature");
             }
             if (channelConfiguration.containsKey(CONFIG_IGNORE_POR)) {
                 ignorePOR = (Boolean) channelConfiguration.get(CONFIG_IGNORE_POR);
