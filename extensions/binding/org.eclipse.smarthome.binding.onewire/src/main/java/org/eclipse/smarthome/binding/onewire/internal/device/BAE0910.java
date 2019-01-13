@@ -371,12 +371,39 @@ public class BAE0910 extends AbstractOwDevice {
                     tpm1cRegister.set(TPMC_POL, ((OnOffType) command).equals(OnOffType.ON));
                     bridgeHandler.writeBitSet(sensorId, tpm1cParameter, tpm1cRegister);
                     break;
-                // TODO: PWM channels
+                case CHANNEL_PWM_FREQ1:
+                    if (command instanceof QuantityType<?>) {
+                        bridgeHandler.writeDecimalType(sensorId, period1Parameter,
+                                convertFrequencyToPeriod(command, resolution1));
+                    }
+                    break;
+                case CHANNEL_PWM_FREQ2:
+                    if (command instanceof QuantityType<?>) {
+                        bridgeHandler.writeDecimalType(sensorId, period2Parameter,
+                                convertFrequencyToPeriod(command, resolution2));
+                    }
+                    break;
+                case CHANNEL_PWM_DUTY1:
+                    if (command instanceof DecimalType) {
+                        double dutyCycle = ((DecimalType) command).doubleValue();
+                        int period = ((DecimalType) bridgeHandler.readDecimalType(sensorId, period1Parameter))
+                                .intValue();
+                        int dutyValue = 0;
+                        if (dutyCycle > 0 && dutyCycle <= 100) {
+                            dutyValue = (int) Math.round(dutyCycle / 100.0 * period);
+                        } else if (dutyCycle > 100) {
+                            dutyValue = 65535;
+                        }
+                        bridgeHandler.writeDecimalType(sensorId, duty1Parameter, new DecimalType(dutyValue));
+                    }
+                    // TODO: PWM-duty2-4 channels
                 default:
                     throw new OwException("unknown or invalid channel");
             }
             return true;
-        } catch (OwException e) {
+        } catch (
+
+        OwException e) {
             logger.info("could not write {} to {}: {}", command, channelId, e.getMessage());
             return false;
         }
@@ -399,5 +426,19 @@ public class BAE0910 extends AbstractOwDevice {
             default:
                 return OwSensorType.UNKNOWN;
         }
+    }
+
+    private DecimalType convertFrequencyToPeriod(Command command, double resolution) throws OwException {
+        @SuppressWarnings("unchecked")
+        QuantityType<Frequency> fHz = ((QuantityType<Frequency>) command).toUnit(SmartHomeUnits.HERTZ);
+        if (fHz == null) {
+            throw new OwException("could not convert command to frequency");
+        }
+        double f = fHz.doubleValue();
+        int period = 0;
+        if (f > 0) {
+            period = (int) Math.min(Math.round(1 / (f * resolution * 1e-6)), 65535);
+        }
+        return new DecimalType(period);
     }
 }
