@@ -114,7 +114,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
+    public void refresh(OwserverBridgeHandler bridgeHandler, long now) {
         try {
             if ((now >= (digitalLastRefresh + digitalRefreshInterval)) && (thingType == THING_TYPE_AMS)) {
                 logger.trace("refreshing digital {}", this.thing.getUID());
@@ -243,7 +243,7 @@ public class AdvancedMultisensorThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
+    public Map<String, String> updateSensorProperties(OwserverBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
         OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
         DS2438Configuration ds2438configuration = new DS2438Configuration(pages);

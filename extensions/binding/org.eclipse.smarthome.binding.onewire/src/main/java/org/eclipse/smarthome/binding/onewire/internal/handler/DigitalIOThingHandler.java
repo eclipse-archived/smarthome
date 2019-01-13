@@ -126,7 +126,7 @@ public class DigitalIOThingHandler extends OwBaseThingHandler {
     }
 
     @Override
-    public void refresh(OwBaseBridgeHandler bridgeHandler, long now) {
+    public void refresh(OwserverBridgeHandler bridgeHandler, long now) {
         try {
             Boolean forcedRefresh = lastRefresh == 0;
 

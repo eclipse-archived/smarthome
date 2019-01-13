@@ -15,8 +15,8 @@ package org.eclipse.smarthome.binding.onewire.internal.device;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 
 /**
  * The {@link DS2401} class defines an DS2401 (iButton) device
@@ -36,6 +36,6 @@ public class DS2401 extends AbstractOwDevice {
     }
 
     @Override
-    public void refresh(OwBaseBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException {
+    public void refresh(OwserverBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException {
     }
 }

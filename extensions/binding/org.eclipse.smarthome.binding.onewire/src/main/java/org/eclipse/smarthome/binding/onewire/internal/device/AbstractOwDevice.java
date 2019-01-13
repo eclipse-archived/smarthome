@@ -20,6 +20,7 @@ import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public abstract class AbstractOwDevice {
      * @param forcedRefresh post update even if state did not change
      * @throws OwException in case of communication error
      */
-    public abstract void refresh(OwBaseBridgeHandler owBridgeHandler, Boolean forcedRefresh) throws OwException;
+    public abstract void refresh(OwserverBridgeHandler bridgeHandler, Boolean forcedRefresh) throws OwException;
 
     /**
      * enables a channel on this device
@@ -105,7 +106,7 @@ public abstract class AbstractOwDevice {
      * @return sensors presence state
      */
 
-    public Boolean checkPresence(OwBaseBridgeHandler bridgeHandler) {
+    public Boolean checkPresence(OwserverBridgeHandler bridgeHandler) {
         try {
             State present = bridgeHandler.checkPresence(sensorId);
             callback.updatePresenceStatus(present);

@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -42,13 +42,13 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(OwDiscoveryService.class);
 
-    private final OwBaseBridgeHandler owBridgeHandler;
+    private final OwserverBridgeHandler owBridgeHandler;
 
     Map<String, OwDiscoveryItem> owDiscoveryItems = new HashMap<>();
     Map<String, String> associationMap = new HashMap<>();
     ThingUID bridgeUID;
 
-    public OwDiscoveryService(OwBaseBridgeHandler owBridgeHandler) {
+    public OwDiscoveryService(OwserverBridgeHandler owBridgeHandler) {
         super(SUPPORTED_THING_TYPES, 60, false);
         this.owBridgeHandler = owBridgeHandler;
         logger.debug("registering discovery service for {}", owBridgeHandler);

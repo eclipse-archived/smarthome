@@ -24,7 +24,7 @@ import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
-import org.eclipse.smarthome.binding.onewire.internal.handler.OwBaseBridgeHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class OwDiscoveryItem {
     private final List<OwSensorType> associatedSensorTypes = new ArrayList<>();
     private final List<OwDiscoveryItem> associatedSensors = new ArrayList<>();
 
-    public OwDiscoveryItem(OwBaseBridgeHandler bridgeHandler, SensorId sensorId) throws OwException {
+    public OwDiscoveryItem(OwserverBridgeHandler bridgeHandler, SensorId sensorId) throws OwException {
         this.sensorId = sensorId;
         sensorType = bridgeHandler.getType(sensorId);
         switch (sensorType) {
