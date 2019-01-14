@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" immediate="true" name="org.eclipse.smarthome.io.json.gson.internal.InternalGsonBindingService">
+   <service servicefactory="false">
+      <provide interface="org.eclipse.smarthome.io.json.JsonBindingService"/>
+   </service>
+   <reference bind="addTypeAdapterProvider" cardinality="0..n" interface="org.eclipse.smarthome.io.json.gson.GsonTypeAdapterProvider" name="TypeAdapterProvider" policy="dynamic" unbind="removeTypeAdapterProvider"/>
+   <implementation class="org.eclipse.smarthome.io.json.gson.internal.InternalGsonBindingService"/>
+</scr:component>

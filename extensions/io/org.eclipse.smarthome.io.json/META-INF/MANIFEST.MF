@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome JSON Data Binding Abstraction Layer
+Bundle-SymbolicName: org.eclipse.smarthome.io.json
+Bundle-Version: 0.11.0.qualifier
+Automatic-Module-Name: org.eclipse.smarthome.io.json
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.smarthome.io.json
+Bundle-Vendor: Eclipse.org/SmartHome

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome JSON Data Binding Gson Implementation
+Bundle-SymbolicName: org.eclipse.smarthome.io.json.gson
+Bundle-Version: 0.11.0.qualifier
+Automatic-Module-Name: org.eclipse.smarthome.io.json.gson
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.gson,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.smarthome.io.json,
+ org.osgi.service.component.annotations;resolution:=optional,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Bundle-ActivationPolicy: lazy
+Export-Package: org.eclipse.smarthome.io.json.gson
