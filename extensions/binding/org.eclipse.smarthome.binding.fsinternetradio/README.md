@@ -7,7 +7,7 @@ This binding integrates internet radios based on the [Frontier Silicon chipset](
 Successfully tested are internet radios:
 
  * [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110)
- * [Medion MD87180, MD86988, MD86955](http://internetradio.medion.com/)
+ * [Medion MD87180, MD86988, MD86955, MD87528](http://internetradio.medion.com/)
  * [Silvercrest SMRS18A1, SMRS30A1, SMRS35A1, SIRD 14 C2](http://www.silvercrest-multiroom.de/en/products/stereo-internet-radio/)
  * [Roberts Stream 83i and 93i](https://www.robertsradio.com/uk/products/radio/smart-radio/)
  * [Auna Connect 150, Auna KR200](https://www.auna.de/Radios/Internetradios/)
