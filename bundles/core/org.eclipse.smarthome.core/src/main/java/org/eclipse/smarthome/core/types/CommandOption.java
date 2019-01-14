@@ -34,19 +34,19 @@ public class CommandOption {
     /**
      * The name of the command which will be displayed in the UI.
      */
-    private final String name;
+    private final String label;
 
-    public CommandOption(String command, String name) {
+    public CommandOption(String command, String label) {
         this.command = command;
-        this.name = name;
+        this.label = label;
     }
 
     public String getCommand() {
         return command;
     }
 
-    public String getName() {
-        return name;
+    public String getLabel() {
+        return label;
     }
 
 }

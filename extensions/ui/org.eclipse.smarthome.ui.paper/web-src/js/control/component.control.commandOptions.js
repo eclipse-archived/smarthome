@@ -22,8 +22,8 @@
         this.$onInit = activate;
 
         function activate() {
-            if (ctrl.channel.channelType) {
-                ctrl.commandOptions = ctrl.channel.channelType.commandOptions;
+            if (ctrl.channel.channelType && ctrl.channel.channelType.commandDescription) {
+                ctrl.commandOptions = ctrl.channel.channelType.commandDescription.commandOptions;
             }
         }
 

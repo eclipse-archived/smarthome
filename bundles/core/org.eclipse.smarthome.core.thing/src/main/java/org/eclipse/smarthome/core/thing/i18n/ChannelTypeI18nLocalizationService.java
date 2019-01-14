@@ -90,12 +90,10 @@ public class ChannelTypeI18nLocalizationService {
                         .state(channelTypeUID, label == null ? defaultLabel : label, channelType.getItemType())
                         .isAdvanced(channelType.isAdvanced()).withCategory(channelType.getCategory())
                         .withConfigDescriptionURI(channelType.getConfigDescriptionURI()).withTags(channelType.getTags())
-                        .withStateDescription(state).withAutoUpdatePolicy(channelType.getAutoUpdatePolicy());
+                        .withStateDescription(state).withAutoUpdatePolicy(channelType.getAutoUpdatePolicy())
+                        .withCommandDescription(channelType.getCommandDescription());
                 if (description != null) {
                     stateBuilder.withDescription(description);
-                }
-                if (state == null && channelType.getCommandOptions() != null) {
-                    stateBuilder.withCommandOptions(channelType.getCommandOptions());
                 }
                 return stateBuilder.build();
             case TRIGGER:

@@ -12,10 +12,9 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
-import java.util.List;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.types.CommandDescription;
 import org.eclipse.smarthome.core.types.CommandOption;
 import org.eclipse.smarthome.core.types.StateDescription;
 
@@ -51,6 +50,6 @@ public interface StateChannelTypeBuilder extends ChannelTypeBuilder<StateChannel
      * @return this builder
      *
      */
-    StateChannelTypeBuilder withCommandOptions(List<CommandOption> commandOptions);
+    StateChannelTypeBuilder withCommandDescription(CommandDescription commandDescription);
 
 }

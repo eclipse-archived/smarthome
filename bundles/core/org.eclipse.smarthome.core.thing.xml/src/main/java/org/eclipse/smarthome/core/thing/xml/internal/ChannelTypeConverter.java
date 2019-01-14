@@ -13,7 +13,6 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +29,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.StateChannelTypeBuilder;
-import org.eclipse.smarthome.core.types.CommandOption;
+import org.eclipse.smarthome.core.types.CommandDescription;
 import org.eclipse.smarthome.core.types.EventDescription;
 import org.eclipse.smarthome.core.types.StateDescription;
 
@@ -143,31 +142,18 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return null;
     }
 
-    private List<CommandOption> readCommandOptions(NodeIterator nodeIterator) throws ConversionException {
-        List<CommandOption> commandOptions = null;
+    private CommandDescription readCommandDescription(NodeIterator nodeIterator) throws ConversionException {
+        Object nextNode = nodeIterator.next();
 
-        List<?> commandOptionsNode = nodeIterator.nextList("command-options", false);
-
-        if (commandOptionsNode != null) {
-            commandOptions = new ArrayList<>(commandOptionsNode.size());
-
-            for (Object coNodeObject : commandOptionsNode) {
-                NodeValue commandOptionNode = (NodeValue) coNodeObject;
-
-                if ("option".equals(commandOptionNode.getNodeName())) {
-                    String name = (String) commandOptionNode.getValue();
-                    String command = commandOptionNode.getAttributes().get("value");
-
-                    if (name != null && command != null) {
-                        commandOptions.add(new CommandOption(command, name));
-                    }
-                } else {
-                    throw new ConversionException("The 'command-options' node must only contain 'option' nodes!");
-                }
+        if (nextNode != null) {
+            if (nextNode instanceof CommandDescription) {
+                return (CommandDescription) nextNode;
             }
+
+            nodeIterator.revert();
         }
 
-        return commandOptions;
+        return null;
     }
 
     @Override
@@ -185,9 +171,9 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String description = super.readDescription(nodeIterator);
         String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
-        List<CommandOption> commandOptions = readCommandOptions(nodeIterator);
 
         StateDescription stateDescription = readStateDescription(nodeIterator);
+        CommandDescription commandDescription = readCommandDescription(nodeIterator);
         EventDescription eventDescription = readEventDescription(nodeIterator);
 
         AutoUpdatePolicy autoUpdatePolicy = readAutoUpdatePolicy(nodeIterator);
@@ -206,10 +192,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, label, itemType)
                     .isAdvanced(advanced).withDescription(description).withCategory(category).withTags(tags)
                     .withConfigDescriptionURI(configDescriptionURI).withStateDescription(stateDescription)
-                    .withAutoUpdatePolicy(autoUpdatePolicy);
-            if (stateDescription == null && commandOptions != null) {
-                builder.withCommandOptions(commandOptions);
-            }
+                    .withAutoUpdatePolicy(autoUpdatePolicy).withCommandDescription(commandDescription);
             channelType = builder.build();
         } else if (cKind == ChannelKind.TRIGGER) {
             channelType = ChannelTypeBuilder.trigger(channelTypeUID, label).isAdvanced(advanced)
