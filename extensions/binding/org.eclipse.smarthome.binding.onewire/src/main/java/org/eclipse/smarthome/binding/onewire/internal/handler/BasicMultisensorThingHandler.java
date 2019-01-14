@@ -24,7 +24,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
-import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS1923;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2438.CurrentSensorType;
@@ -200,8 +199,7 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
             properties.put(PROPERTY_MODELID, sensorType.toString());
             properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
         } else {
-            OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
-            DS2438Configuration ds2438configuration = new DS2438Configuration(pages);
+            DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorIds.get(0));
 
             sensorType = ds2438configuration.getSensorSubType();
             properties.put(PROPERTY_MODELID, sensorType.toString());

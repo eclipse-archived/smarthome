@@ -73,6 +73,15 @@ public class SensorId {
     }
 
     /**
+     * get the path of this sensorId
+     *
+     * @return path without sensor id (including hub parts, separated by "/" characters)
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /**
      * get family id (first to characters of sensor id)
      *
      * @return the family id

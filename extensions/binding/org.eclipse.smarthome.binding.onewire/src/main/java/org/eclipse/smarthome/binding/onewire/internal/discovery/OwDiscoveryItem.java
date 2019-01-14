@@ -16,7 +16,9 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
@@ -41,16 +43,12 @@ public class OwDiscoveryItem {
     private final SensorId sensorId;
     private OwSensorType sensorType = OwSensorType.UNKNOWN;
     private String vendor = "Dallas/Maxim";
-    private String hwRevision = "";
-    private String prodDate = "";
 
     private OwPageBuffer pages = new OwPageBuffer();
 
     private ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, "");
 
-    private final List<String> associatedSensorIds = new ArrayList<>();
-    private final List<OwSensorType> associatedSensorTypes = new ArrayList<>();
-    private final List<OwDiscoveryItem> associatedSensors = new ArrayList<>();
+    private final Map<SensorId, OwSensorType> associatedSensors = new HashMap<>();
 
     public OwDiscoveryItem(OwBaseBridgeHandler bridgeHandler, SensorId sensorId) throws OwException {
         this.sensorId = sensorId;
@@ -58,12 +56,10 @@ public class OwDiscoveryItem {
         switch (sensorType) {
             case DS2438:
                 pages = bridgeHandler.readPages(sensorId);
-                DS2438Configuration config = new DS2438Configuration(pages);
-                associatedSensorIds.addAll(config.getAssociatedSensorIds());
-                logger.trace("found associated sensors: {}", associatedSensorIds);
+                DS2438Configuration config = new DS2438Configuration(bridgeHandler, sensorId);
+                associatedSensors.putAll(config.getAssociatedSensors());
+                logger.trace("found associated sensors: {}", associatedSensors);
                 vendor = config.getVendor();
-                hwRevision = config.getHardwareRevision();
-                prodDate = config.getProductionDate();
                 sensorType = config.getSensorSubType();
                 break;
             case EDS:
@@ -75,10 +71,6 @@ public class OwDiscoveryItem {
                 } catch (IllegalArgumentException e) {
                     sensorType = OwSensorType.UNKNOWN;
                 }
-
-                int fwRevisionLow = pages.getByte(3, 3);
-                int fwRevisionHigh = pages.getByte(3, 4);
-                hwRevision = String.format("%d.%d", fwRevisionHigh, fwRevisionLow);
                 break;
             default:
         }
@@ -121,24 +113,6 @@ public class OwDiscoveryItem {
     }
 
     /**
-     * get production date (available on some multisensors)
-     *
-     * @return production date in format ww/yy
-     */
-    public String getProductionDate() {
-        return prodDate;
-    }
-
-    /**
-     * get hardware revision (available on some multisensors)
-     *
-     * @return hardware revision (where available)
-     */
-    public String getHardwareRevision() {
-        return hwRevision;
-    }
-
-    /**
      * get this sensors ThingTypeUID
      *
      * @return ThingTypeUID if mapping successful
@@ -158,7 +132,7 @@ public class OwDiscoveryItem {
      * @return true if this sensors pages include other sensor ids
      */
     public boolean hasAssociatedSensorIds() {
-        return !associatedSensorIds.isEmpty();
+        return !associatedSensors.isEmpty();
     }
 
     /**
@@ -166,8 +140,8 @@ public class OwDiscoveryItem {
      *
      * @return list of strings
      */
-    public List<String> getAssociatedSensorIds() {
-        return associatedSensorIds;
+    public List<SensorId> getAssociatedSensorIds() {
+        return new ArrayList<>(associatedSensors.keySet());
     }
 
     /**
@@ -180,49 +154,12 @@ public class OwDiscoveryItem {
     }
 
     /**
-     * add a sensor as secondary to this sensor
-     *
-     * @param associatedSensor
-     */
-    public void addAssociatedSensor(OwDiscoveryItem associatedSensor) {
-        associatedSensors.add(associatedSensor);
-        associatedSensorTypes.add(associatedSensor.getSensorType());
-    }
-
-    /**
-     * bulk add secondary sensors
-     *
-     * @param associatedSensors
-     */
-    public void addAssociatedSensors(List<OwDiscoveryItem> associatedSensors) {
-        for (OwDiscoveryItem associatedSensor : associatedSensors) {
-            addAssociatedSensor(associatedSensor);
-        }
-    }
-
-    /**
      * get all secondary sensors
      *
      * @return a list of OwDiscoveryItems
      */
-    public List<OwDiscoveryItem> getAssociatedSensors() {
+    public Map<SensorId, OwSensorType> getAssociatedSensors() {
         return associatedSensors;
-    }
-
-    /**
-     * get all secondary sensors of a given type
-     *
-     * @param sensorType filter for sensors
-     * @return a list of OwDiscoveryItems
-     */
-    public List<OwDiscoveryItem> getAssociatedSensors(OwSensorType sensorType) {
-        List<OwDiscoveryItem> returnList = new ArrayList<>();
-        for (OwDiscoveryItem owDiscoveryItem : associatedSensors) {
-            if (sensorType == owDiscoveryItem.getSensorType()) {
-                returnList.add(owDiscoveryItem);
-            }
-        }
-        return returnList;
     }
 
     /**
@@ -231,15 +168,7 @@ public class OwDiscoveryItem {
      * @return number of sensors
      */
     public int getAssociatedSensorCount() {
-        return associatedSensors.size() + 1;
-    }
-
-    /**
-     * clear all secondary sensors
-     *
-     */
-    public void clearAssociatedSensors() {
-        associatedSensors.clear();
+        return associatedSensors.size();
     }
 
     /**
@@ -251,7 +180,8 @@ public class OwDiscoveryItem {
         switch (sensorType) {
             case MS_TH:
             case MS_TH_S:
-                sensorType = DS2438Configuration.getMultisensorType(sensorType, associatedSensorTypes);
+                sensorType = DS2438Configuration.getMultisensorType(sensorType,
+                        new ArrayList<>(associatedSensors.values()));
                 break;
             default:
         }
