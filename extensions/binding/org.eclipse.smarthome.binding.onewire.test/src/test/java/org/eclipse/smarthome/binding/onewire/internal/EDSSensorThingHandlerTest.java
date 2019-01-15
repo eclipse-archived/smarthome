@@ -17,7 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 
-import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
 import org.eclipse.smarthome.binding.onewire.internal.handler.EDSSensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.test.AbstractThingHandlerTest;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -27,9 +29,9 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
@@ -47,14 +49,12 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
     private static final ChannelUID CHANNEL_UID_DEWPOINT = new ChannelUID(THING_UID, CHANNEL_DEWPOINT);
 
     @Before
-    public void setup() {
+    public void setup() throws OwException {
         MockitoAnnotations.initMocks(this);
 
         initializeBridge();
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
-        thingProperties.put(PROPERTY_SENSORCOUNT, "1");
-        thingProperties.put(PROPERTY_MODELID, "EDS0064");
 
         channels.add(ChannelBuilder.create(CHANNEL_UID_TEMPERATURE, "Number:Temperature").build());
         channels.add(ChannelBuilder.create(CHANNEL_UID_HUMIDITY, "Number:Dimensionless").build());
@@ -65,7 +65,7 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
                 .withConfiguration(new Configuration(thingConfiguration)).withProperties(thingProperties)
                 .withBridge(bridge.getUID()).build();
 
-        thingHandler = new BasicMultisensorThingHandler(thing, stateProvider) {
+        thingHandler = new EDSSensorThingHandler(thing, stateProvider) {
             @Override
             protected Bridge getBridge() {
                 return bridge;
@@ -73,6 +73,10 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
         };
 
         initializeHandlerMocks();
+
+        Mockito.doAnswer(answer -> {
+            return new OwPageBuffer("EDS0065 ".getBytes());
+        }).when(secondBridgeHandler).readPages(any());
     }
 
     @Test
@@ -83,7 +87,7 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
     }
 
     @Test
-    public void testRefresh() {
+    public void testRefresh() throws OwException {
         thingHandler.initialize();
 
         // needed to determine initialization is finished
@@ -91,13 +95,9 @@ public class EDSSensorThingHandlerTest extends AbstractThingHandlerTest {
 
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
 
-        try {
-            inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
-            inOrder.verify(bridgeHandler, times(3)).readDecimalType(eq(new SensorId(TEST_ID)), any());
+        inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
+        inOrder.verify(bridgeHandler, times(2)).readDecimalType(eq(new SensorId(TEST_ID)), any());
 
-            inOrder.verifyNoMoreInteractions();
-        } catch (OwException e) {
-            Assert.fail("caught unexpected OwException");
-        }
+        inOrder.verifyNoMoreInteractions();
     }
 }

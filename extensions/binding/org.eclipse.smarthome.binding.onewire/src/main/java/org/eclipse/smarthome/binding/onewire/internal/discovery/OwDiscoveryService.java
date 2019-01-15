@@ -112,7 +112,6 @@ public class OwDiscoveryService extends AbstractDiscoveryService {
                 Map<String, Object> properties = new HashMap<>();
                 properties.put(PROPERTY_MODELID, owDiscoveryItem.getSensorType().toString());
                 properties.put(PROPERTY_VENDOR, owDiscoveryItem.getVendor());
-                properties.put(PROPERTY_SENSORCOUNT, String.valueOf(owDiscoveryItem.getAssociatedSensorCount() + 1));
                 properties.put(CONFIG_ID, owDiscoveryItem.getSensorId().getFullPath());
 
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)

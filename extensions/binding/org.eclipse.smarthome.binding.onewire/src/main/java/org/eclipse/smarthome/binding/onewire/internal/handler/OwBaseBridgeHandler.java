@@ -17,11 +17,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.binding.onewire.internal.OwException;
 import org.eclipse.smarthome.binding.onewire.internal.OwPageBuffer;
 import org.eclipse.smarthome.binding.onewire.internal.SensorId;
@@ -55,8 +57,7 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
             TimeUnit.MILLISECONDS);
 
     // thing update
-    private final List<Thing> updatePropertiesThingList = new CopyOnWriteArrayList<>();
-    private Iterator<Thing> updatePropertiesThingListIterator = updatePropertiesThingList.iterator();
+    private final Queue<@Nullable Thing> thingPropertiesUpdateQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * refresh all sensors on this bridge
@@ -91,32 +92,29 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
             refreshBridgeChannels(now);
 
             // update thing properties (only one per refresh cycle)
-            if (updatePropertiesThingListIterator.hasNext()) {
-                Thing owThing = updatePropertiesThingListIterator.next();
-                logger.trace("update: getting handler for {} ({} total in list)", owThing.getUID(),
-                        updatePropertiesThingList.size());
-                OwBaseThingHandler owHandler = (OwBaseThingHandler) owThing.getHandler();
+            Thing updateThing = thingPropertiesUpdateQueue.poll();
+            if (updateThing != null) {
+                logger.trace("update: getting handler for {} ({} total in list)", updateThing.getUID(),
+                        thingPropertiesUpdateQueue.size());
+                OwBaseThingHandler owHandler = (OwBaseThingHandler) updateThing.getHandler();
                 if (owHandler != null) {
                     try {
                         Map<String, String> properties = new HashMap<String, String>();
-                        properties.putAll(owThing.getProperties());
+                        properties.putAll(updateThing.getProperties());
                         properties.putAll(owHandler.updateSensorProperties(this));
-                        owThing.setProperties(properties);
+                        updateThing.setProperties(properties);
                         owHandler.initialize();
 
-                        updatePropertiesThingList.remove(owThing);
                         logger.debug("{} sucessfully updated properties, removing from property update list",
-                                owThing.getUID());
+                                updateThing.getUID());
                     } catch (OwException e) {
-                        logger.debug("updating thing properties for {} failed: {}", owThing.getUID(), e.getMessage());
+                        thingPropertiesUpdateQueue.add(updateThing);
+                        logger.debug("updating thing properties for {} failed: {}, adding to end of list",
+                                updateThing.getUID(), e.getMessage());
                     }
                 } else {
-                    updatePropertiesThingList.remove(owThing);
-                    logger.debug("{} is missing handler, removing from property update list", owThing.getUID());
+                    logger.debug("{} is missing handler, removing from property update list", updateThing.getUID());
                 }
-            } else {
-                // old iterator is empty, check if we have new things to update
-                updatePropertiesThingListIterator = updatePropertiesThingList.iterator();
             }
         }
 
@@ -138,12 +136,12 @@ public abstract class OwBaseBridgeHandler extends BaseBridgeHandler {
     }
 
     /**
-     * adds a thing to the property update list
+     * schedules a thing for updating the thing properties
      *
      * @param thing the thing to be updated
      */
-    public void addToUpdatePropertyThingList(Thing thing) {
-        updatePropertiesThingList.add(thing);
+    public void scheduleForPropertiesUpdate(Thing thing) {
+        thingPropertiesUpdateQueue.add(thing);
     }
 
     /**

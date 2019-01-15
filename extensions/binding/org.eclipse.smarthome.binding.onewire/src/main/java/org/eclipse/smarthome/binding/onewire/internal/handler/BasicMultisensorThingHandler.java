@@ -14,11 +14,12 @@ package org.eclipse.smarthome.binding.onewire.internal.handler;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.DS2438Configuration;
@@ -32,12 +33,9 @@ import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link BasicMultisensorThingHandler} is responsible for handling DS2438/DS1923 based multisensors (single
@@ -47,15 +45,15 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class BasicMultisensorThingHandler extends OwBaseThingHandler {
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
-            Arrays.asList(THING_TYPE_MS_TX, THING_TYPE_MS_TH, THING_TYPE_MS_TV));
-
-    private final Logger logger = LoggerFactory.getLogger(BasicMultisensorThingHandler.class);
-    private OwSensorType sensorType = OwSensorType.UNKNOWN;
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(
+            Stream.of(THING_TYPE_MS_TX, THING_TYPE_MS_TH, THING_TYPE_MS_TV).collect(Collectors.toSet()));
+    public static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections
+            .unmodifiableSet(Stream.of(OwSensorType.MS_TH, OwSensorType.MS_TC, OwSensorType.MS_TL, OwSensorType.MS_TV,
+                    OwSensorType.DS1923, OwSensorType.DS2438).collect(Collectors.toSet()));
 
     public BasicMultisensorThingHandler(Thing thing,
             OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
-        super(thing, dynamicStateDescriptionProvider);
+        super(thing, dynamicStateDescriptionProvider, SUPPORTED_SENSOR_TYPES);
     }
 
     @Override
@@ -64,29 +62,15 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
             changeThingType(THING_TYPE_MS_TX, getConfig());
         }
 
-        Map<String, String> properties = editProperties();
-
         if (!super.configure()) {
             return;
         }
 
-        ThingStatusInfo statusInfo = getThing().getStatusInfo();
-        if (statusInfo.getStatus() == ThingStatus.OFFLINE
-                && statusInfo.getStatusDetail() == ThingStatusDetail.CONFIGURATION_ERROR) {
-            return;
-        }
-
-        if (!properties.containsKey(PROPERTY_MODELID)) {
-            updateSensorProperties();
-            return;
-        }
-        sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
-
         // add sensors
         if (sensorType == OwSensorType.DS1923) {
-            sensors.add(new DS1923(sensorIds.get(0), this));
+            sensors.add(new DS1923(sensorId, this));
         } else {
-            sensors.add(new DS2438(sensorIds.get(0), this));
+            sensors.add(new DS2438(sensorId, this));
         }
 
         scheduler.execute(() -> {
@@ -193,13 +177,13 @@ public class BasicMultisensorThingHandler extends OwBaseThingHandler {
     @Override
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
-        sensorType = bridgeHandler.getType(sensorIds.get(0));
+        sensorType = bridgeHandler.getType(sensorId);
 
         if (sensorType == OwSensorType.DS1923) {
             properties.put(PROPERTY_MODELID, sensorType.toString());
             properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
         } else {
-            DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorIds.get(0));
+            DS2438Configuration ds2438configuration = new DS2438Configuration(bridgeHandler, sensorId);
 
             sensorType = ds2438configuration.getSensorSubType();
             properties.put(PROPERTY_MODELID, sensorType.toString());

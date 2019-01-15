@@ -31,7 +31,6 @@ import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -46,43 +45,27 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class EDSSensorThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_EDS_ENV);
-    private static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections
+    public static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections
             .unmodifiableSet(Stream.of(OwSensorType.EDS0064, OwSensorType.EDS0065, OwSensorType.EDS0066,
                     OwSensorType.EDS0067, OwSensorType.EDS0068).collect(Collectors.toSet()));
+    private static final Set<String> REQUIRED_PROPERTIES = Collections.singleton(PROPERTY_HW_REVISION);
 
     private final Logger logger = LoggerFactory.getLogger(EDSSensorThingHandler.class);
 
-    private OwSensorType sensorType = OwSensorType.UNKNOWN;
-
     public EDSSensorThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
-        super(thing, dynamicStateDescriptionProvider);
+        super(thing, dynamicStateDescriptionProvider, SUPPORTED_SENSOR_TYPES, REQUIRED_PROPERTIES);
     }
 
     @Override
     public void initialize() {
-        Map<String, String> properties = editProperties();
-
         if (!super.configure()) {
             return;
         }
 
-        ThingStatusInfo statusInfo = getThing().getStatusInfo();
-        if (statusInfo.getStatus() == ThingStatus.OFFLINE
-                && statusInfo.getStatusDetail() == ThingStatusDetail.CONFIGURATION_ERROR) {
-            return;
-        }
-
         // add sensors
-        sensors.add(new EDS006x(sensorIds.get(0), this));
+        sensors.add(new EDS006x(sensorId, this));
 
-        // check sensors
-        if (!properties.containsKey(PROPERTY_MODELID)) {
-            updateSensorProperties();
-            return;
-        } else {
-            sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
-            ((EDS006x) sensors.get(0)).configureChannels(sensorType);
-        }
+        ((EDS006x) sensors.get(0)).configureChannels(sensorType);
 
         scheduler.execute(() -> {
             configureThingChannels();
@@ -167,7 +150,7 @@ public class EDSSensorThingHandler extends OwBaseThingHandler {
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
 
-        OwPageBuffer pages = bridgeHandler.readPages(sensorIds.get(0));
+        OwPageBuffer pages = bridgeHandler.readPages(sensorId);
 
         OwSensorType sensorType = OwSensorType.UNKNOWN;
         try {

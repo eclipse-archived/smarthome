@@ -17,6 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 
+import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.handler.DigitalIOThingHandler;
 import org.eclipse.smarthome.binding.onewire.test.AbstractThingHandlerTest;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -26,9 +29,9 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
@@ -43,16 +46,12 @@ public class DigitalIOThingHandlerTest extends AbstractThingHandlerTest {
     private static final ChannelUID CHANNEL_UID_DIO = new ChannelUID(THING_UID, CHANNEL_DIGITAL + "0");
 
     @Before
-    public void setup() {
+    public void setup() throws OwException {
         MockitoAnnotations.initMocks(this);
 
         initializeBridge();
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
-
-        thingProperties.put(PROPERTY_SENSORCOUNT, "1");
-        thingProperties.put(PROPERTY_MODELID, "UNKNOWN");
-        thingProperties.put(PROPERTY_VENDOR, "generic");
 
         channels.add(ChannelBuilder.create(CHANNEL_UID_PRESENT, "Switch").build());
         channels.add(ChannelBuilder.create(CHANNEL_UID_DIO, "Switch").build());
@@ -70,27 +69,25 @@ public class DigitalIOThingHandlerTest extends AbstractThingHandlerTest {
 
         initializeHandlerMocks();
 
+        Mockito.doAnswer(answer -> {
+            return OwSensorType.DS2408;
+        }).when(secondBridgeHandler).getType(any());
     }
 
     @Test
     public void testInitializationEndsWithUnknown() {
         thingHandler.initialize();
-
         waitForAssert(() -> assertEquals(ThingStatus.UNKNOWN, thing.getStatusInfo().getStatus()));
     }
 
     @Test
-    public void testRefresh() {
+    public void testRefresh() throws OwException {
         thingHandler.initialize();
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
 
-        try {
-            inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
-            inOrder.verify(bridgeHandler, times(2)).readBitSet(eq(new SensorId(TEST_ID)), any());
+        inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
+        inOrder.verify(bridgeHandler, times(2)).readBitSet(eq(new SensorId(TEST_ID)), any());
 
-            inOrder.verifyNoMoreInteractions();
-        } catch (OwException e) {
-            Assert.fail("caught unexpected OwException");
-        }
+        inOrder.verifyNoMoreInteractions();
     }
 }

@@ -13,9 +13,6 @@
 			<channel id="counter0" typeId="counter" />
 			<channel id="counter1" typeId="counter" />
 		</channels>
-		<properties>
-			<property name="sensorCount">1</property>
-		</properties>
 		<config-description-ref uri="thing-type:onewire:fastthingconfig" />
 	</thing-type>
 </thing:thing-descriptions>

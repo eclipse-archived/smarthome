@@ -16,11 +16,15 @@ import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -61,10 +65,16 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
     protected static final int PROPERTY_UPDATE_INTERVAL = 5000; // in ms
     protected static final int PROPERTY_UPDATE_MAX_RETRY = 5;
 
-    protected int sensorCount;
+    private static final Set<String> REQUIRED_PROPERTIES = Collections
+            .unmodifiableSet(Stream.of(PROPERTY_MODELID, PROPERTY_VENDOR).collect(Collectors.toSet()));
+
+    protected List<String> requiredProperties = new ArrayList<>(REQUIRED_PROPERTIES);
+    protected Set<OwSensorType> supportedSensorTypes;
 
     protected final List<AbstractOwDevice> sensors = new ArrayList<AbstractOwDevice>();
-    protected final List<SensorId> sensorIds = new ArrayList<SensorId>();
+    protected @NonNullByDefault({}) SensorId sensorId;
+    protected @NonNullByDefault({}) OwSensorType sensorType;
+
     protected long lastRefresh = 0;
     protected long refreshInterval = 300 * 1000;
 
@@ -75,9 +85,21 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
     protected @Nullable ScheduledFuture<?> updateTask;
 
-    public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
+    public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider,
+            Set<OwSensorType> supportedSensorTypes) {
         super(thing);
+
         this.dynamicStateDescriptionProvider = dynamicStateDescriptionProvider;
+        this.supportedSensorTypes = supportedSensorTypes;
+    }
+
+    public OwBaseThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider,
+            Set<OwSensorType> supportedSensorTypes, Set<String> requiredProperties) {
+        super(thing);
+
+        this.dynamicStateDescriptionProvider = dynamicStateDescriptionProvider;
+        this.supportedSensorTypes = supportedSensorTypes;
+        this.requiredProperties.addAll(requiredProperties);
     }
 
     @Override
@@ -101,26 +123,19 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "bridge missing");
             return false;
         }
-
-        sensorIds.clear();
         sensors.clear();
 
-        sensorCount = Integer.valueOf(properties.get(PROPERTY_SENSORCOUNT));
-        for (int i = 0; i < sensorCount; i++) {
-            String configKey = (i == 0) ? CONFIG_ID : CONFIG_ID + String.valueOf(i);
-            if (configuration.get(configKey) != null) {
-                String sensorId = (String) configuration.get(configKey);
-                try {
-                    sensorIds.add(new SensorId(sensorId));
-                } catch (IllegalArgumentException e) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                            "sensor id format mismatch");
-                    return false;
-                }
-            } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "sensor id missing");
+        if (configuration.get(CONFIG_ID) != null) {
+            String sensorId = (String) configuration.get(CONFIG_ID);
+            try {
+                this.sensorId = new SensorId(sensorId);
+            } catch (IllegalArgumentException e) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "sensor id format mismatch");
                 return false;
             }
+        } else {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "sensor id missing");
+            return false;
         }
 
         if (configuration.get(CONFIG_REFRESH) != null) {
@@ -131,6 +146,21 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
         if (thing.getChannel(CHANNEL_PRESENT) != null) {
             showPresence = true;
+        }
+
+        // check if all required properties are present. update if not
+        for (String property : requiredProperties) {
+            if (!properties.containsKey(property)) {
+                updateSensorProperties();
+                return false;
+            }
+        }
+
+        sensorType = OwSensorType.valueOf(properties.get(PROPERTY_MODELID));
+        if (!supportedSensorTypes.contains(sensorType)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "sensor type not supported by this thing type");
+            return false;
         }
 
         lastRefresh = 0;
@@ -169,7 +199,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
                     return;
                 }
 
-                for (int i = 0; i < sensorCount; i++) {
+                for (int i = 0; i < sensors.size(); i++) {
                     logger.trace("refreshing sensor {} ({})", i, sensors.get(i).getSensorId());
                     sensors.get(i).refresh(bridgeHandler, forcedRefresh);
                 }
@@ -235,7 +265,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
     @Override
     public void dispose() {
-        dynamicStateDescriptionProvider.removeDescriptionsForThing(getThing().getUID());
+        dynamicStateDescriptionProvider.removeDescriptionsForThing(thing.getUID());
         super.dispose();
     }
 
@@ -260,7 +290,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
             return;
         }
 
-        bridgeHandler.addToUpdatePropertyThingList(thing);
+        bridgeHandler.scheduleForPropertiesUpdate(thing);
     }
 
     /**
@@ -274,7 +304,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
      */
     public Map<String, String> updateSensorProperties(OwBaseBridgeHandler bridgeHandler) throws OwException {
         Map<String, String> properties = new HashMap<String, String>();
-        OwSensorType sensorType = bridgeHandler.getType(sensorIds.get(0));
+        OwSensorType sensorType = bridgeHandler.getType(sensorId);
         properties.put(PROPERTY_MODELID, sensorType.toString());
         properties.put(PROPERTY_VENDOR, "Dallas/Maxim");
         logger.trace("updated modelid/vendor to {} / {}", sensorType.name(), "Dallas/Maxim");

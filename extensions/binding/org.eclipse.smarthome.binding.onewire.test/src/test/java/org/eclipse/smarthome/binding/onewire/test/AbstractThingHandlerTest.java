@@ -35,7 +35,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.test.java.JavaTest;
 import org.junit.After;
-import org.junit.Assert;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -64,6 +63,9 @@ public abstract class AbstractThingHandlerTest extends JavaTest {
     @Mock
     protected OwBaseBridgeHandler bridgeHandler;
 
+    @Mock
+    protected OwBaseBridgeHandler secondBridgeHandler;
+
     protected List<Channel> channels = new ArrayList<Channel>();
 
     protected Bridge bridge;
@@ -89,7 +91,7 @@ public abstract class AbstractThingHandlerTest extends JavaTest {
         inOrder = Mockito.inOrder(bridgeHandler);
     }
 
-    public void initializeBridge() {
+    public void initializeBridge() throws OwException {
         bridgeProperties = new HashMap<>();
         bridge = BridgeBuilder.create(THING_TYPE_OWSERVER, "testbridge").withLabel("Test Bridge")
                 .withConfiguration(new Configuration(bridgeProperties)).build();
@@ -101,22 +103,26 @@ public abstract class AbstractThingHandlerTest extends JavaTest {
             return null;
         }).when(bridgeHandlerCallback).statusUpdated(any(), any());
 
-        try {
-            Mockito.doAnswer(answer -> {
-                return OnOffType.ON;
-            }).when(bridgeHandler).checkPresence(any());
+        Mockito.doAnswer(answer -> {
+            return OnOffType.ON;
+        }).when(bridgeHandler).checkPresence(any());
 
-            Mockito.doAnswer(answer -> {
-                return new DecimalType(10);
-            }).when(bridgeHandler).readDecimalType(any(), any());
+        Mockito.doAnswer(answer -> {
+            return new DecimalType(10);
+        }).when(bridgeHandler).readDecimalType(any(), any());
 
-            Mockito.doAnswer(answer -> {
-                return new BitSet(8);
-            }).when(bridgeHandler).readBitSet(any(), any());
+        Mockito.doAnswer(answer -> {
+            return new BitSet(8);
+        }).when(bridgeHandler).readBitSet(any(), any());
 
-        } catch (OwException e) {
-            Assert.fail("caught unexpected OwException");
-        }
+        Mockito.doAnswer(answer -> {
+            Thing thing = thingHandler.getThing();
+            Map<String, String> properties = new HashMap<String, String>();
+            properties.putAll(thing.getProperties());
+            properties.putAll(thingHandler.updateSensorProperties(secondBridgeHandler));
+            thing.setProperties(properties);
+            thingHandler.initialize();
+            return null;
+        }).when(bridgeHandler).scheduleForPropertiesUpdate(any());
     }
-
 }

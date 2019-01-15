@@ -14,10 +14,10 @@ package org.eclipse.smarthome.binding.onewire.internal.handler;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.binding.onewire.internal.OwDynamicStateDescriptionProvider;
@@ -26,6 +26,7 @@ import org.eclipse.smarthome.binding.onewire.internal.device.AbstractDigitalOwDe
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2405;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2406_DS2413;
 import org.eclipse.smarthome.binding.onewire.internal.device.DS2408;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -33,7 +34,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
@@ -46,13 +46,16 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class DigitalIOThingHandler extends OwBaseThingHandler {
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(
-            Arrays.asList(THING_TYPE_DIGITALIO, THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8));
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(
+            Stream.of(THING_TYPE_DIGITALIO, THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8).collect(Collectors.toSet()));
+    public static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections.unmodifiableSet(
+            Stream.of(OwSensorType.DS2405, OwSensorType.DS2406, OwSensorType.DS2408, OwSensorType.DS2413)
+                    .collect(Collectors.toSet()));
 
     private final Logger logger = LoggerFactory.getLogger(DigitalIOThingHandler.class);
 
     public DigitalIOThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
-        super(thing, dynamicStateDescriptionProvider);
+        super(thing, dynamicStateDescriptionProvider, SUPPORTED_SENSOR_TYPES);
     }
 
     @Override
@@ -83,28 +86,17 @@ public class DigitalIOThingHandler extends OwBaseThingHandler {
     @Override
     public void initialize() {
         Configuration configuration = getConfig();
-        Map<String, String> properties = editProperties();
 
         if (!super.configure()) {
             return;
         }
 
-        ThingStatusInfo statusInfo = getThing().getStatusInfo();
-        if (statusInfo.getStatus() == ThingStatus.OFFLINE
-                && statusInfo.getStatusDetail() == ThingStatusDetail.CONFIGURATION_ERROR) {
-            return;
-        }
-
-        if (!properties.containsKey(PROPERTY_MODELID)) {
-            updateSensorProperties();
-        }
-
         if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO)) {
-            sensors.add(new DS2405(sensorIds.get(0), this));
+            sensors.add(new DS2405(sensorId, this));
         } else if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO2)) {
-            sensors.add(new DS2406_DS2413(sensorIds.get(0), this));
+            sensors.add(new DS2406_DS2413(sensorId, this));
         } else if (this.thing.getThingTypeUID().equals(THING_TYPE_DIGITALIO8)) {
-            sensors.add(new DS2408(sensorIds.get(0), this));
+            sensors.add(new DS2408(sensorId, this));
         }
 
         // sensor configuration

@@ -14,8 +14,12 @@ package org.eclipse.smarthome.binding.onewire.internal;
 
 import static org.eclipse.smarthome.binding.onewire.internal.OwBindingConstants.*;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 
+import org.eclipse.smarthome.binding.onewire.internal.OwException;
+import org.eclipse.smarthome.binding.onewire.internal.SensorId;
+import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.handler.IButtonThingHandler;
 import org.eclipse.smarthome.binding.onewire.test.AbstractThingHandlerTest;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -25,9 +29,9 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
@@ -41,15 +45,12 @@ public class IButtonThingHandlerTest extends AbstractThingHandlerTest {
     private static final ChannelUID CHANNEL_UID_PRESENT = new ChannelUID(THING_UID, CHANNEL_PRESENT);
 
     @Before
-    public void setup() {
+    public void setup() throws OwException {
         MockitoAnnotations.initMocks(this);
 
         initializeBridge();
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
-        thingProperties.put(PROPERTY_SENSORCOUNT, "1");
-        thingProperties.put(PROPERTY_MODELID, "UNKNOWN");
-        thingProperties.put(PROPERTY_VENDOR, "generic");
 
         channels.add(ChannelBuilder.create(CHANNEL_UID_PRESENT, "Switch").build());
 
@@ -65,6 +66,10 @@ public class IButtonThingHandlerTest extends AbstractThingHandlerTest {
         };
 
         initializeHandlerMocks();
+
+        Mockito.doAnswer(answer -> {
+            return OwSensorType.DS2401;
+        }).when(secondBridgeHandler).getType(any());
     }
 
     @Test
@@ -75,16 +80,12 @@ public class IButtonThingHandlerTest extends AbstractThingHandlerTest {
     }
 
     @Test
-    public void testRefresh() {
+    public void testRefresh() throws OwException {
         thingHandler.initialize();
         thingHandler.refresh(bridgeHandler, System.currentTimeMillis());
-        try {
-            inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
 
-            inOrder.verifyNoMoreInteractions();
-        } catch (OwException e) {
-            Assert.fail("caught unexpected OwException");
-        }
+        inOrder.verify(bridgeHandler, times(1)).checkPresence(new SensorId(TEST_ID));
 
+        inOrder.verifyNoMoreInteractions();
     }
 }

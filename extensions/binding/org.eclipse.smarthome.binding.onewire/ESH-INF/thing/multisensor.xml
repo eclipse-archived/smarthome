@@ -13,9 +13,6 @@
 			<channel id="temperature" typeId="temperature" />
 			<channel id="supplyvoltage" typeId="voltage" />
 		</channels>
-		<properties>
-			<property name="sensorCount">1</property>
-		</properties>
 		<config-description-ref uri="thing-type:onewire:basethingconfig" />
 	</thing-type>
 	<thing-type id="ms-th" listed="false">
@@ -47,9 +44,6 @@
 			<channel id="voltage" typeId="voltage" />
 			<channel id="supplyvoltage" typeId="voltage" />
 		</channels>
-		<properties>
-			<property name="sensorCount">1</property>
-		</properties>
 		<config-description-ref uri="thing-type:onewire:basethingconfig" />
 	</thing-type>
 	<thing-type id="bms">
@@ -65,26 +59,23 @@
 			<channel id="dewpoint" typeId="dewpoint" />
 			<channel id="supplyvoltage" typeId="voltage" />
 		</channels>
-		<properties>
-			<property name="sensorCount">2</property>
-		</properties>
 		<config-description>
 			<parameter name="id" type="text">
 				<label>TH(S) sensor ID</label>
 				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
-			<parameter name="lightsensor" type="boolean">
-				<label>Ambient light</label>
-				<description>Ambient light connected</description>
-				<default>false</default>
-				<required>false</required>
-			</parameter>
 			<parameter name="refresh" type="integer" min="1">
 				<label>Refresh Time</label>
 				<description>Time in seconds after which the thing is refreshed</description>
 				<default>300</default>
 				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+			<parameter name="lightsensor" type="boolean">
+				<label>Ambient light</label>
+				<description>Ambient light connected</description>
+				<default>false</default>
 				<required>false</required>
 			</parameter>
 			<parameter name="temperaturesensor" type="text">
@@ -119,26 +110,23 @@
 				<label>Digital I/O 1</label>
 			</channel>
 		</channels>
-		<properties>
-			<property name="sensorCount">4</property>
-		</properties>
 		<config-description>
 			<parameter name="id" type="text">
 				<label>TH(S) sensor ID</label>
 				<description>Sensor ID of the DS2438 sensor in format: xx.xxxxxxxxxxxx or a full path including hubs/branches</description>
 				<required>true</required>
 			</parameter>
-			<parameter name="lightsensor" type="boolean">
-				<label>Ambient light</label>
-				<description>Ambient light connected</description>
-				<default>false</default>
-				<required>false</required>
-			</parameter>
 			<parameter name="refresh" type="integer" min="1">
 				<label>Refresh Time for analog channels</label>
 				<description>Time in seconds after which the thing is refreshed</description>
 				<default>300</default>
 				<unitLabel>s</unitLabel>
+				<required>false</required>
+			</parameter>
+			<parameter name="lightsensor" type="boolean">
+				<label>Ambient light</label>
+				<description>Ambient light connected</description>
+				<default>false</default>
 				<required>false</required>
 			</parameter>
 			<parameter name="refreshdigital" type="integer" min="1">
