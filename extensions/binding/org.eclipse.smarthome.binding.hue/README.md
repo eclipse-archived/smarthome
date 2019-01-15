@@ -228,7 +228,7 @@ Number:Temperature TemperatureSensorTemperature { channel="hue:0302:temperature-
 ```
 
 Note: The bridge ID is in this example **1** but can be different in each system.
-Also, if you are doing all your configuration through files and don't use PaperUI and the Inbox, you may add the full bridge id to the channel definitions (e.g. `channel="hue:0210:00178810d0dc:bulb1:color`) instead of the short version (e.g. `channel="hue:0210:1:bulb1:color`) to prevent frequent discovery messages in the log file.
+Also, if you are doing all your configuration through files and do not use Paper UI and the Inbox, you may add the full bridge id to the channel definitions (e.g. `channel="hue:0210:00178810d0dc:bulb1:color`) instead of the short version (e.g. `channel="hue:0210:1:bulb1:color`) to prevent frequent discovery messages in the log file.
 
 ### demo.sitemap:
 
