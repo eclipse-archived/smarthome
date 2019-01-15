@@ -259,6 +259,11 @@
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery.usbserial.linuxsysfs/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-core-ephemeris" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.ephemeris/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-io-console-karaf" description="Karaf Console support for SmartHome stuff" version="${project.version}">
     <feature>esh-base</feature>
     <feature>shell</feature>
@@ -476,6 +481,7 @@
 
   <feature name="esh-model-script" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-core-ephemeris</feature>
     <feature>esh-model-persistence</feature>
     <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script/${project.version}</bundle>
   </feature>
