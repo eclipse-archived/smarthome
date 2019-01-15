@@ -7,7 +7,8 @@ The integration happens through the Hue bridge, which acts as an IP gateway to t
 
 ## Supported Things
 
-The Hue bridge is required as a "bridge" for accessing any other Hue devices. It supports the ZigBee LightLink protocol as well as the upwards compatible ZigBee 3.0 protocol.
+The Hue bridge is required as a "bridge" for accessing any other Hue device.
+It supports the ZigBee LightLink protocol as well as the upwards compatible ZigBee 3.0 protocol.
 There are two types of Hue bridges, generally refered to as v1 (the rounded version) and v2 (the squared version).
 Only noticable difference between the two generation of bridges is the added support for Apple HomeKit in v2.
 Both bridges are fully supported by this binding.
