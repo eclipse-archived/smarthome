@@ -24,7 +24,7 @@ import org.eclipse.smarthome.binding.onewire.internal.discovery.OwDiscoveryServi
 import org.eclipse.smarthome.binding.onewire.internal.handler.AdvancedMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.EDSSensorThingHandler;
-import org.eclipse.smarthome.binding.onewire.internal.handler.GenericThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.BasicThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.OwserverBridgeHandler;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -71,8 +71,8 @@ public class OwHandlerFactory extends BaseThingHandlerFactory {
             return new BasicMultisensorThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (AdvancedMultisensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new AdvancedMultisensorThingHandler(thing, dynamicStateDescriptionProvider);
-        } else if (GenericThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            return new GenericThingHandler(thing, dynamicStateDescriptionProvider);
+        } else if (BasicThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            return new BasicThingHandler(thing, dynamicStateDescriptionProvider);
         } else if (EDSSensorThingHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new EDSSensorThingHandler(thing, dynamicStateDescriptionProvider);
         }

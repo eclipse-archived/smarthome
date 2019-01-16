@@ -18,7 +18,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 
 import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
-import org.eclipse.smarthome.binding.onewire.internal.handler.GenericThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.BasicThingHandler;
 import org.eclipse.smarthome.binding.onewire.test.AbstractThingHandlerTest;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -30,11 +30,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Tests cases for {@link DigitalIOThingeHandler}.
+ * Tests cases for {@link BasicThingeHandler}.
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class GenericThingHandlerTest extends AbstractThingHandlerTest {
+public class BasicThingHandlerTest extends AbstractThingHandlerTest {
     private static final String TEST_ID = "00.000000000000";
 
     @Before
@@ -45,11 +45,11 @@ public class GenericThingHandlerTest extends AbstractThingHandlerTest {
 
         thingConfiguration.put(CONFIG_ID, TEST_ID);
 
-        thing = ThingBuilder.create(THING_TYPE_GENERIC, "testthing").withLabel("Test thing")
+        thing = ThingBuilder.create(THING_TYPE_BASIC, "testthing").withLabel("Test thing")
                 .withConfiguration(new Configuration(thingConfiguration)).withProperties(thingProperties)
                 .withBridge(bridge.getUID()).build();
 
-        thingHandler = new GenericThingHandler(thing, stateProvider) {
+        thingHandler = new BasicThingHandler(thing, stateProvider) {
             @Override
             protected Bridge getBridge() {
                 return bridge;

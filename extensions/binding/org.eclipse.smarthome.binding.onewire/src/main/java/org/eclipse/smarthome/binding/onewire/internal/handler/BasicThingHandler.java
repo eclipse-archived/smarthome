@@ -41,14 +41,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link GenericThingHandler} is responsible for handling counter sensors
+ * The {@link BasicThingHandler} is responsible for handling simple sensors
  *
  * @author Jan N. Klug - Initial contribution
  */
 @NonNullByDefault
-public class GenericThingHandler extends OwBaseThingHandler {
+public class BasicThingHandler extends OwBaseThingHandler {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.unmodifiableSet(Stream
-            .of(THING_TYPE_DIGITALIO, THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8, THING_TYPE_GENERIC,
+            .of(THING_TYPE_DIGITALIO, THING_TYPE_DIGITALIO2, THING_TYPE_DIGITALIO8, THING_TYPE_BASIC,
                     THING_TYPE_TEMPERATURE, THING_TYPE_IBUTTON, THING_TYPE_COUNTER, THING_TYPE_COUNTER2)
             .collect(Collectors.toSet()));
     public static final Set<OwSensorType> SUPPORTED_SENSOR_TYPES = Collections
@@ -56,17 +56,17 @@ public class GenericThingHandler extends OwBaseThingHandler {
                     OwSensorType.DS1822, OwSensorType.DS2401, OwSensorType.DS2405, OwSensorType.DS2406,
                     OwSensorType.DS2408, OwSensorType.DS2413, OwSensorType.DS2423).collect(Collectors.toSet()));
 
-    private final Logger logger = LoggerFactory.getLogger(GenericThingHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(BasicThingHandler.class);
 
-    public GenericThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
+    public BasicThingHandler(Thing thing, OwDynamicStateDescriptionProvider dynamicStateDescriptionProvider) {
         super(thing, dynamicStateDescriptionProvider, SUPPORTED_SENSOR_TYPES);
     }
 
     @Override
     public void initialize() {
         // TODO: remove after 0.11.0 release
-        if (!thing.getThingTypeUID().equals(THING_TYPE_GENERIC)) {
-            changeThingType(THING_TYPE_GENERIC, getConfig());
+        if (!thing.getThingTypeUID().equals(THING_TYPE_BASIC)) {
+            changeThingType(THING_TYPE_BASIC, getConfig());
         }
         Configuration configuration = getConfig();
 

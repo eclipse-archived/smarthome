@@ -51,7 +51,7 @@ public class OwBindingConstants {
     public static final ThingTypeUID THING_TYPE_MS_TX = new ThingTypeUID(BINDING_ID, "ms-tx");
     public static final ThingTypeUID THING_TYPE_BMS = new ThingTypeUID(BINDING_ID, "bms");
     public static final ThingTypeUID THING_TYPE_AMS = new ThingTypeUID(BINDING_ID, "ams");
-    public static final ThingTypeUID THING_TYPE_GENERIC = new ThingTypeUID(BINDING_ID, "generic");
+    public static final ThingTypeUID THING_TYPE_BASIC = new ThingTypeUID(BINDING_ID, "basic");
     public static final ThingTypeUID THING_TYPE_EDS_ENV = new ThingTypeUID(BINDING_ID, "edsenv");
 
     // TODO: remove after 0.11.0 release & cleanup
@@ -68,7 +68,7 @@ public class OwBindingConstants {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = new HashSet<>(Arrays.asList(THING_TYPE_OWSERVER,
             THING_TYPE_TEMPERATURE, THING_TYPE_IBUTTON, THING_TYPE_DIGITALIO, THING_TYPE_DIGITALIO2,
             THING_TYPE_DIGITALIO8, THING_TYPE_AMS, THING_TYPE_BMS, THING_TYPE_MS_TH, THING_TYPE_MS_TX, THING_TYPE_MS_TV,
-            THING_TYPE_EDS_ENV, THING_TYPE_COUNTER, THING_TYPE_COUNTER2, THING_TYPE_GENERIC));
+            THING_TYPE_EDS_ENV, THING_TYPE_COUNTER, THING_TYPE_COUNTER2, THING_TYPE_BASIC));
 
     // List of all config options
     public static final String CONFIG_ADDRESS = "network-address";
@@ -139,17 +139,17 @@ public class OwBindingConstants {
 
     // Maps for Discovery
     public static final Map<OwSensorType, ThingTypeUID> THING_TYPE_MAP = Collections.unmodifiableMap(Stream
-            .of(new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS1420, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS18B20, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS18S20, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS1822, THING_TYPE_GENERIC),
+            .of(new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS1420, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS18B20, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS18S20, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS1822, THING_TYPE_BASIC),
                     new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS1923, THING_TYPE_MS_TX),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2401, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2405, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2406, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2408, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2413, THING_TYPE_GENERIC),
-                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2423, THING_TYPE_GENERIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2401, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2405, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2406, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2408, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2413, THING_TYPE_BASIC),
+                    new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2423, THING_TYPE_BASIC),
                     new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.DS2438, THING_TYPE_MS_TX),
                     new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.AMS, THING_TYPE_AMS),
                     new SimpleEntry<OwSensorType, ThingTypeUID>(OwSensorType.AMS_S, THING_TYPE_AMS),

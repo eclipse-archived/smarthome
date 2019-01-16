@@ -25,7 +25,7 @@ import org.eclipse.smarthome.binding.onewire.internal.device.OwSensorType;
 import org.eclipse.smarthome.binding.onewire.internal.handler.AdvancedMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.BasicMultisensorThingHandler;
 import org.eclipse.smarthome.binding.onewire.internal.handler.EDSSensorThingHandler;
-import org.eclipse.smarthome.binding.onewire.internal.handler.GenericThingHandler;
+import org.eclipse.smarthome.binding.onewire.internal.handler.BasicThingHandler;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class CompletenessTest {
             .unmodifiableSet(Stream
                     .of(AdvancedMultisensorThingHandler.SUPPORTED_SENSOR_TYPES,
                             BasicMultisensorThingHandler.SUPPORTED_SENSOR_TYPES,
-                            GenericThingHandler.SUPPORTED_SENSOR_TYPES, EDSSensorThingHandler.SUPPORTED_SENSOR_TYPES)
+                            BasicThingHandler.SUPPORTED_SENSOR_TYPES, EDSSensorThingHandler.SUPPORTED_SENSOR_TYPES)
                     .flatMap(Set::stream).collect(Collectors.toSet()));
 
     private static final Set<ThingTypeUID> DEPRECATED_THING_TYPES = Collections.unmodifiableSet(Stream

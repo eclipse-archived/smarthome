@@ -15,14 +15,14 @@ The `owserver` is the bridge that connects to an existing OWFS installation.
 
 ### Things
 
-There are different types of things: the generic ones (`generic`, `digitalio`), multisensors built around the DS1923/DS2438 chip (`ms-tx`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`) and Embedded Data System (`edsenv`). 
+There are different types of things: the simple one (`basic`), multisensors built around the DS1923/DS2438 chip (`ms-tx`) and more advanced sensors from Elaborated Networks (www.wiregate.de) (`ams`, `bms`) and Embedded Data System (`edsenv`). 
 
 ** Important: Breaking Change with next release **
  
 The thing types `ms-th` and `ms-tv` have been marked deprecated and will be updated to `ms-tx`automatically. 
 Manually (via textual configuration) defined things should be changed to `ms-tx`. 
 
-The thing types `counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature` have been marked deprecated and will be updated to `generic` automatically. 
+The thing types `counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature` have been marked deprecated and will be updated to `basic` automatically. 
 Manually (via textual configuration) defined things should be changed to `generic`. 
 
 Deprecated thing types will will be removed with the next official release.
@@ -58,9 +58,9 @@ It defaults to `4304`, which is the default of each OWFS installation.
 
 Bridges of type `owserver` are extensible with channels of type `owfs-number` and `owfs-string`. 
   
-### Generic (`generic`)
+### Generic (`basic`)
 
-The `generic` thing supports iButton-like chips (DS1420, DS2401/DS1990A), temperature sensors (DS18B20, DS18S20, DS1822), digital i/o chips (DS2405, DS2406, DS2408, DS2413) and counter chips (DS2423).
+The `basic` thing supports iButton-like chips (DS1420, DS2401/DS1990A), temperature sensors (DS18B20, DS18S20, DS1822), digital i/o chips (DS2405, DS2406, DS2408, DS2413) and counter chips (DS2423).
 
 It has two parameters: sensor id `id` and refresh time `refresh`.
 
@@ -192,7 +192,7 @@ For best performance it is recommended to set the resolution only as high as nee
 ** Attention: Adding channels with UIDs different from the ones mentioned in the thing description will not work and may cause problems.
 Please use the pre-defined channel names only. **
 
-This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) as well as a temperature sensor, a BMS and a 2-port Digital I/O as things (`onewire:temperature:mybridge:mysensor`, `onewire:bms:mybridge:mybms`, `onewire:digitalio:mybridge:mydio`). 
+This is the configuration for a OneWire network consisting of an owserver as bridge (`onewire:owserver:mybridge`) as well as a temperature sensor, a BMS and a 2-port Digital I/O as things (`onewire:basic:mybridge:mysensor`, `onewire:bms:mybridge:mybms`, `onewire:basic:mybridge:mydio`). 
 
 ### demo.things:
 
@@ -201,7 +201,7 @@ Bridge onewire:owserver:mybridge [
     network-address="192.168.0.51" 
     ] {
     
-    Thing generic mysensor [
+    Thing basic mysensor [
         id="28.505AF0020000", 
         refresh=60
         ] {
@@ -223,7 +223,7 @@ Bridge onewire:owserver:mybridge [
                 ]
         } 
 
-    Thing digitalio mydio [
+    Thing basic mydio [
         id="3A.134E47DB60000"
         ] {
             Channels:
@@ -245,11 +245,11 @@ Bridge onewire:owserver:mybridge [
 ### demo.items:
 
 ```
-Number:Temperature      MySensor    "MySensor [%.1f °C]"            { channel="onewire:temperature:mybridge:mysensor:temperature" }
+Number:Temperature      MySensor    "MySensor [%.1f °C]"            { channel="onewire:basic:mybridge:mysensor:temperature" }
 Number:Temperature      MyBMS_T     "MyBMS Temperature [%.1f °F]"   { channel="onewire:bms:mybridge:mybms:temperature" }
 Number:Dimensionless    MyBMS_H     "MyBMS Humidity [%.1f %unit%]"  { channel="onewire:bms:mybridge:mybms:humidity" }
-Switch                  Digital0    "Digital 0"                     { channel="onewire:digitalio:mybridge:mydio:digital0" }
-Switch                  Digital1    "Digital 1"                     { channel="onewire:digitalio:mybridge:mydio:digital1" }
+Switch                  Digital0    "Digital 0"                     { channel="onewire:basic:mybridge:mydio:digital0" }
+Switch                  Digital1    "Digital 1"                     { channel="onewire:basic:mybridge:mydio:digital1" }
 Number                  CRC8Errors  "Bus-Errors [%d]"               { channel="onewire:owserver:mybridge:crc8errors" }
 ```
 
