@@ -27,7 +27,7 @@ public class HueBridgeConfig {
     public static final String HTTPS = "https";
 
     private @NonNullByDefault({}) String ipAddress;
-    private int port = 80;
+    private @Nullable Integer port;
     private String protocol = HTTP;
     private @Nullable String userName;
     private int pollingInterval = 10;
@@ -42,7 +42,7 @@ public class HueBridgeConfig {
     }
 
     public int getPort() {
-        return HTTPS.equals(protocol) && port == 80 ? 443 : port;
+        return (port != null) ? port : HTTPS.equals(protocol) ? 443 : 80;
     }
 
     public void setPort(int port) {
