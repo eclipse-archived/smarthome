@@ -31,8 +31,10 @@ import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.UnitProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.service.CommandDescriptionService;
 import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.CommandDescription;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -77,6 +79,8 @@ public abstract class GenericItem implements ActiveItem {
     protected @Nullable String category;
 
     private @Nullable StateDescriptionService stateDescriptionService;
+
+    private @Nullable CommandDescriptionService commandDescriptionService;
 
     protected @Nullable UnitProvider unitProvider;
 
@@ -170,6 +174,7 @@ public abstract class GenericItem implements ActiveItem {
         this.listeners.clear();
         this.eventPublisher = null;
         this.stateDescriptionService = null;
+        this.commandDescriptionService = null;
         this.unitProvider = null;
         this.itemStateConverter = null;
     }
@@ -180,6 +185,10 @@ public abstract class GenericItem implements ActiveItem {
 
     public void setStateDescriptionService(@Nullable StateDescriptionService stateDescriptionService) {
         this.stateDescriptionService = stateDescriptionService;
+    }
+
+    public void setCommandDescriptionService(@Nullable CommandDescriptionService commandDescriptionService) {
+        this.commandDescriptionService = commandDescriptionService;
     }
 
     public void setUnitProvider(@Nullable UnitProvider unitProvider) {
@@ -397,6 +406,14 @@ public abstract class GenericItem implements ActiveItem {
     public @Nullable StateDescription getStateDescription(@Nullable Locale locale) {
         if (stateDescriptionService != null) {
             return stateDescriptionService.getStateDescription(this.name, locale);
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable CommandDescription getCommandDescription(@Nullable Locale locale) {
+        if (commandDescriptionService != null) {
+            return commandDescriptionService.getCommandDescription(this.name, locale);
         }
         return null;
     }

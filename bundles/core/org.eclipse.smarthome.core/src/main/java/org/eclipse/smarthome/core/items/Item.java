@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.common.registry.Identifiable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.CommandDescription;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -151,5 +152,17 @@ public interface Item extends Identifiable<String> {
      * @return state description (can be null)
      */
     public @Nullable StateDescription getStateDescription(@Nullable Locale locale);
+
+    public default @Nullable CommandDescription getCommandDescription() {
+        return getCommandDescription(null);
+    }
+
+    /**
+     * Returns the {@link CommandDescription} for the given locale.
+     *
+     * @param locale locale (can be null)
+     * @return command description (can be null)
+     */
+    public @Nullable CommandDescription getCommandDescription(@Nullable Locale locale);
 
 }

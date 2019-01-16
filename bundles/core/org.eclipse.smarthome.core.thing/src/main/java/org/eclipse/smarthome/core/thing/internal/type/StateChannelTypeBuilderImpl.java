@@ -61,7 +61,7 @@ public class StateChannelTypeBuilderImpl extends AbstractChannelTypeBuilder<Stat
     }
 
     @Override
-    public StateChannelTypeBuilder withCommandDescription(CommandDescription commandDescription) {
+    public StateChannelTypeBuilder withCommandDescription(@Nullable CommandDescription commandDescription) {
         this.commandDescription = commandDescription;
         return this;
     }
