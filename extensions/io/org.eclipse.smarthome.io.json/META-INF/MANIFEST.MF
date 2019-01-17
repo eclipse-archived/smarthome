@@ -7,3 +7,4 @@ Automatic-Module-Name: org.eclipse.smarthome.io.json
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.smarthome.io.json
 Bundle-Vendor: Eclipse.org/SmartHome
+Import-Package: org.eclipse.smarthome.io.json
