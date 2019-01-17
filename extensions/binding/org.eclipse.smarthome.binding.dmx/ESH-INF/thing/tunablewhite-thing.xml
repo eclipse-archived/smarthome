@@ -33,13 +33,13 @@
 			</parameter>
 			<parameter name="turnonvalue" type="text">
 				<label>Turn-On value(s)</label>
-				<description>Format is "value[, value, ...]". If less values than channels are defined, they are reused from the beginning. </description>
+				<description>Format is "value[, value, ...]", has to be a multiple of two. If less values than channels are defined, they are reused from the beginning. </description>
 				<required>false</required>
 				<advanced>true</advanced>
 			</parameter>
 			<parameter name="turnoffvalue" type="text">
 				<label>Turn-Off value(s)</label>
-				<description>Format is "value[, value, ...]". If less values than channels are defined, they are reused from the beginning. </description>
+				<description>Format is "value[, value, ...]", has to be a multiple of two. If less values than channels are defined, they are reused from the beginning. </description>
 				<advanced>true</advanced>
 			</parameter>
 			<parameter name="dynamicturnonvalue" type="boolean">

@@ -12,16 +12,16 @@
  */
 package org.eclipse.smarthome.binding.dmx.handler;
 
-import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.THING_TYPE_ARTNET_BRIDGE;
 
 import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.smarthome.binding.dmx.internal.config.ArtnetBridgeHandlerConfiguration;
 import org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet.ArtnetNode;
 import org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet.ArtnetPacket;
 import org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet.DmxOverEthernetHandler;
 import org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet.IpNode;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
@@ -48,13 +48,13 @@ public class ArtnetBridgeHandler extends DmxOverEthernetHandler {
 
     @Override
     protected void updateConfiguration() {
-        Configuration configuration = getConfig();
+        ArtnetBridgeHandlerConfiguration configuration = getConfig().as(ArtnetBridgeHandlerConfiguration.class);
 
-        setUniverse(configuration.get(CONFIG_UNIVERSE), MIN_UNIVERSE_ID, MAX_UNIVERSE_ID);
+        setUniverse(configuration.universe, MIN_UNIVERSE_ID, MAX_UNIVERSE_ID);
         packetTemplate.setUniverse(universe.getUniverseId());
 
         receiverNodes.clear();
-        if (configuration.get(CONFIG_ADDRESS) == null) {
+        if (configuration.address.isEmpty()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "Could not initialize sender (address not set)");
             uninstallScheduler();
@@ -62,7 +62,7 @@ public class ArtnetBridgeHandler extends DmxOverEthernetHandler {
             return;
         } else {
             try {
-                receiverNodes = IpNode.fromString((String) configuration.get(CONFIG_ADDRESS), ArtnetNode.DEFAULT_PORT);
+                receiverNodes = IpNode.fromString(configuration.address, ArtnetNode.DEFAULT_PORT);
                 logger.debug("using unicast mode to {} for {}", receiverNodes.toString(), this.thing.getUID());
             } catch (IllegalArgumentException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
@@ -70,14 +70,13 @@ public class ArtnetBridgeHandler extends DmxOverEthernetHandler {
             }
         }
 
-        if (configuration.get(CONFIG_LOCAL_ADDRESS) != null) {
-            senderNode = new IpNode((String) configuration.get(CONFIG_LOCAL_ADDRESS));
+        if (!configuration.localaddress.isEmpty()) {
+            senderNode = new IpNode(configuration.localaddress);
         }
         logger.debug("originating address is {} for {}", senderNode, this.thing.getUID());
 
-        if (configuration.get(CONFIG_REFRESH_MODE) != null) {
-            refreshAlways = (((String) configuration.get(CONFIG_REFRESH_MODE)).equals("always"));
-        }
+        refreshAlways = configuration.refreshmode.equals("always");
+
         logger.debug("refresh mode set to always: {}", refreshAlways);
 
         updateStatus(ThingStatus.UNKNOWN);

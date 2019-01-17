@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.internal;
 
-import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.CHANNEL_MUTE;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.smarthome.binding.dmx.action.DmxActions;
 import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
 import org.eclipse.smarthome.binding.dmx.internal.action.ResumeAction;
+import org.eclipse.smarthome.binding.dmx.internal.config.DmxBridgeHandlerConfiguration;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -195,21 +195,19 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * get the configuration and update the bridge
      */
     protected void updateConfiguration() {
-        Configuration configuration = getConfig();
+        DmxBridgeHandlerConfiguration configuration = getConfig().as(DmxBridgeHandlerConfiguration.class);
 
-        if (configuration.get(CONFIG_APPLY_CURVE) != null) {
-            universe.setDimCurveChannels((String) configuration.get(CONFIG_APPLY_CURVE));
+        if (!configuration.applycurve.isEmpty()) {
+            universe.setDimCurveChannels(configuration.applycurve);
         }
-        if (configuration.get(CONFIG_REFRESH_RATE) != null) {
-            float refreshRate = ((BigDecimal) configuration.get(CONFIG_REFRESH_RATE)).floatValue();
-            if (refreshRate > 0) {
-                refreshTime = (int) (1000.0 / refreshRate);
-            } else {
-                refreshTime = 0;
-            }
+
+        int refreshRate = configuration.refreshrate;
+        if (refreshRate > 0) {
+            refreshTime = (int) (1000.0 / refreshRate);
         } else {
-            refreshTime = 1000 / DEFAULT_REFRESH_RATE;
+            refreshTime = 0;
         }
+
         logger.debug("set refreshTime to {} ms in thing {}", refreshTime, this.thing.getUID());
 
         installScheduler();
