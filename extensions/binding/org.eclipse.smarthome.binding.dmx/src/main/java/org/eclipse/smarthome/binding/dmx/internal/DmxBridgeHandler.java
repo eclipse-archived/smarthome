@@ -14,7 +14,6 @@ package org.eclipse.smarthome.binding.dmx.internal;
 
 import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.CHANNEL_MUTE;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +83,7 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * get a DMX channel from the bridge
      *
      * @param channel a BaseChannel that identifies the requested channel
-     * @param thing   the Thing that requests the channel to track channel usage
+     * @param thing the Thing that requests the channel to track channel usage
      * @return a Channel object
      */
     public DmxChannel getDmxChannel(BaseDmxChannel channel, Thing thing) {
@@ -137,7 +136,7 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * close the connection to send DMX data and update thing Status
      *
      * @param statusDetail ThingStatusDetail for thingStatus OFFLINE
-     * @param description  string giving the reason for closing the connection
+     * @param description string giving the reason for closing the connection
      */
     protected void closeConnection(ThingStatusDetail statusDetail, String description) {
         updateStatus(ThingStatus.OFFLINE, statusDetail, description);
@@ -222,15 +221,12 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * set the universe id and make sure it observes the limits
      *
      * @param universeConfig ConfigurationObject
-     * @param minUniverseId  the minimum id allowed by the bridge
-     * @param maxUniverseId  the maximum id allowed by the bridge
+     * @param minUniverseId the minimum id allowed by the bridge
+     * @param maxUniverseId the maximum id allowed by the bridge
      **/
-    protected void setUniverse(Object universeConfig, int minUniverseId, int maxUniverseId) {
+    protected void setUniverse(int universeConfig, int minUniverseId, int maxUniverseId) {
         int universeId = minUniverseId;
-        if (universeConfig != null) {
-            universeId = Util.coerceToRange(((BigDecimal) universeConfig).intValue(), minUniverseId, maxUniverseId,
-                    logger, "universeId");
-        }
+        universeId = Util.coerceToRange(universeConfig, minUniverseId, maxUniverseId, logger, "universeId");
 
         if (universe == null) {
             universe = new Universe(universeId);
@@ -243,8 +239,8 @@ public abstract class DmxBridgeHandler extends BaseBridgeHandler {
      * sends an immediate fade to the DMX output (for rule actions)
      *
      * @param channelString a String containing the channels
-     * @param fadeString    a String containing the fade definition
-     * @param resumeAfter   a boolean if the previous state should be restored
+     * @param fadeString a String containing the fade definition
+     * @param resumeAfter a boolean if the previous state should be restored
      */
     public void immediateFade(String channelString, String fadeString, Boolean resumeAfter) {
         // parse channel config

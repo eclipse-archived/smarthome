@@ -142,7 +142,6 @@ public class ChaserThingHandler extends DmxThingHandler {
 
     @Override
     public void initialize() {
-
         Bridge bridge = getBridge();
         DmxBridgeHandler bridgeHandler;
         if (bridge == null) {
