@@ -12,8 +12,10 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -22,11 +24,14 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.DynamicCommandDescriptionProvider;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.CommandDescription;
 import org.eclipse.smarthome.core.types.CommandDescriptionProvider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * Provides the {@link ChannelType} specific {@link CommandDescription} for the given item name and locale.
@@ -41,6 +46,8 @@ public class ChannelCommandDescriptionProvider implements CommandDescriptionProv
     private @NonNullByDefault({}) ItemChannelLinkRegistry itemChannelLinkRegistry;
     private @NonNullByDefault({}) ThingTypeRegistry thingTypeRegistry;
     private @NonNullByDefault({}) ThingRegistry thingRegistry;
+
+    private final List<DynamicCommandDescriptionProvider> dynamicCommandDescriptionProviders = new CopyOnWriteArrayList<>();
 
     @Override
     public @Nullable CommandDescription getCommandDescription(String itemName, @Nullable Locale locale) {
@@ -62,12 +69,20 @@ public class ChannelCommandDescriptionProvider implements CommandDescriptionProv
                 return commandDescription;
             }
         }
+
         return null;
     }
 
     private @Nullable CommandDescription getDynamicCommandDescription(Channel channel,
-            @Nullable CommandDescription commandDescription, @Nullable Locale locale) {
-        // TODO add DynamicCommandDescriptionProvider
+            @Nullable CommandDescription originalCommandDescription, @Nullable Locale locale) {
+        for (DynamicCommandDescriptionProvider dynamicCommandDescriptionProvider : dynamicCommandDescriptionProviders) {
+            CommandDescription dynamicCommandDescription = dynamicCommandDescriptionProvider
+                    .getCommandDescription(channel, originalCommandDescription, locale);
+            if (dynamicCommandDescription != null) {
+                return dynamicCommandDescription;
+            }
+        }
+
         return null;
     }
 
@@ -96,5 +111,16 @@ public class ChannelCommandDescriptionProvider implements CommandDescriptionProv
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addDynamicCommandDescriptionProvider(
+            DynamicCommandDescriptionProvider dynamicCommandDescriptionProvider) {
+        this.dynamicCommandDescriptionProviders.add(dynamicCommandDescriptionProvider);
+    }
+
+    protected void removeDynamicCommandDescriptionProvider(
+            DynamicCommandDescriptionProvider dynamicCommandDescriptionProvider) {
+        this.dynamicCommandDescriptionProviders.remove(dynamicCommandDescriptionProvider);
     }
 }

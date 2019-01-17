@@ -55,8 +55,8 @@
         }
 
         function isCommandOptions() {
-            var channelType = ctrl.channel.channelType;
-            return channelType && channelType.commandDescription && channelType.commandDescription.commandOptions && channelType.commandDescription.commandOptions.length > 0;
+            var commandDescription = ctrl.item.commandDescription;
+            return commandDescription && commandDescription.commandOptions && commandDescription.commandOptions.length > 0;
         }
     }
 

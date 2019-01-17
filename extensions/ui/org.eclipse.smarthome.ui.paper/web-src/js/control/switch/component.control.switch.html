@@ -17,4 +17,4 @@
 <div layout="row" layout-align="start center" ng-if="::($ctrl.isOptionList($ctrl.item) && !$ctrl.item.readOnly)">
     <item-state-dropdown item="$ctrl.item" on-change="$ctrl.updateState()"></item-state-dropdown>
 </div>
-<item-command-options item-name="$ctrl.item.name" channel="$ctrl.channel" ng-if="::$ctrl.isCommandOptions()"></item-command-options>
+<item-command-options item="$ctrl.item" ng-if="::$ctrl.isCommandOptions()"></item-command-options>

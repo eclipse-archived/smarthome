@@ -12,16 +12,12 @@
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.config.xml.util.GenericUnmarshaller;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeList;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.types.CommandDescription;
+import org.eclipse.smarthome.core.types.CommandDescriptionBuilder;
 import org.eclipse.smarthome.core.types.CommandOption;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -45,8 +41,6 @@ public class CommandDescriptionConverter extends GenericUnmarshaller<CommandDesc
 
     @Override
     public final CommandDescription unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        CommandDescriptionImpl commandDescription = null;
-
         NodeList nodes = (NodeList) context.convertAnother(context, NodeList.class);
         NodeIterator nodeIterator = new NodeIterator(nodes.getList());
 
@@ -54,7 +48,7 @@ public class CommandDescriptionConverter extends GenericUnmarshaller<CommandDesc
         if (commandOptionsNode != null) {
             if ("options".equals(commandOptionsNode.getNodeName())) {
 
-                commandDescription = new CommandDescriptionImpl();
+                CommandDescriptionBuilder commandDescriptionBuilder = CommandDescriptionBuilder.create();
                 for (Object coNodeObject : commandOptionsNode.getList()) {
                     NodeValue optionsNode = (NodeValue) coNodeObject;
 
@@ -63,48 +57,20 @@ public class CommandDescriptionConverter extends GenericUnmarshaller<CommandDesc
                         String command = optionsNode.getAttributes().get("value");
 
                         if (name != null && command != null) {
-                            commandDescription.addCommandOption(new CommandOption(command, name));
+                            commandDescriptionBuilder.withCommandOption(new CommandOption(command, name));
                         }
                     } else {
                         throw new ConversionException("The 'options' node must only contain 'option' nodes!");
                     }
                 }
+
+                nodeIterator.assertEndOfType();
+                return commandDescriptionBuilder.build();
             }
         }
 
         nodeIterator.assertEndOfType();
-
-        return commandDescription;
-    }
-
-    /**
-     * The {@link CommandDescriptionImpl} groups state command properties.
-     *
-     * @author Henning Treu - initial contribution
-     *
-     */
-    @NonNullByDefault
-    private class CommandDescriptionImpl implements CommandDescription {
-
-        private final List<CommandOption> commandOptions;
-
-        public CommandDescriptionImpl() {
-            commandOptions = new ArrayList<>();
-        }
-
-        /**
-         * Adds a {@link CommandOption} to this {@link CommandDescriptionImpl}.
-         *
-         * @param commandOption a commandOption to be added to this {@link CommandDescriptionImpl}.
-         */
-        public void addCommandOption(CommandOption commandOption) {
-            commandOptions.add(commandOption);
-        }
-
-        @Override
-        public List<CommandOption> getCommandOptions() {
-            return Collections.unmodifiableList(commandOptions);
-        }
+        return null;
     }
 
 }

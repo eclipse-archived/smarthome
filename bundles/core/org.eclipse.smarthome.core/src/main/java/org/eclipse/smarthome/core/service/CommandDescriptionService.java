@@ -14,6 +14,8 @@ package org.eclipse.smarthome.core.service;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.types.CommandDescription;
 
 /**
@@ -22,6 +24,7 @@ import org.eclipse.smarthome.core.types.CommandDescription;
  * @author Henning Treu - Initial contribution
  *
  */
+@NonNullByDefault
 public interface CommandDescriptionService {
 
     /**
@@ -31,5 +34,6 @@ public interface CommandDescriptionService {
      * @param locale the locale for translated command labels
      * @return the locale specific {@link CommandDescription} for the given item name
      */
-    CommandDescription getCommandDescription(String itemName, Locale locale);
+    @Nullable
+    CommandDescription getCommandDescription(String itemName, @Nullable Locale locale);
 }
