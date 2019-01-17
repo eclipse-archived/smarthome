@@ -83,7 +83,7 @@ public class ValueTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void illegalPercentCommand() {
-        PercentageValue v = new PercentageValue(null, null, null);
+        PercentageValue v = new PercentageValue(null, null, null, null, null);
         v.update(OnOffType.OFF);
     }
 
@@ -95,7 +95,7 @@ public class ValueTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void illegalPercentUpdate() {
-        PercentageValue v = new PercentageValue(null, null, null);
+        PercentageValue v = new PercentageValue(null, null, null, null, null);
         v.update(new DecimalType(101.0));
     }
 
@@ -180,16 +180,35 @@ public class ValueTests {
 
     @Test
     public void percentCalc() {
-        PercentageValue v = new PercentageValue(new BigDecimal(10.0), new BigDecimal(110.0), new BigDecimal(1.0));
+        PercentageValue v = new PercentageValue(new BigDecimal(10.0), new BigDecimal(110.0), new BigDecimal(1.0), null,
+                null);
         v.update(new DecimalType(110.0));
         assertThat((PercentType) v.getChannelState(), is(new PercentType(100)));
+        assertThat(v.getMQTTpublishValue(), is("110"));
         v.update(new DecimalType(10.0));
+        assertThat((PercentType) v.getChannelState(), is(new PercentType(0)));
+        assertThat(v.getMQTTpublishValue(), is("10"));
+
+        v.update(OnOffType.ON);
+        assertThat((PercentType) v.getChannelState(), is(new PercentType(100)));
+        v.update(OnOffType.OFF);
+        assertThat((PercentType) v.getChannelState(), is(new PercentType(0)));
+    }
+
+    @Test
+    public void percentCustomOnOff() {
+        PercentageValue v = new PercentageValue(new BigDecimal(0.0), new BigDecimal(100.0), new BigDecimal(1.0), "on",
+                "off");
+        v.update(new StringType("on"));
+        assertThat((PercentType) v.getChannelState(), is(new PercentType(100)));
+        v.update(new StringType("off"));
         assertThat((PercentType) v.getChannelState(), is(new PercentType(0)));
     }
 
     @Test
     public void decimalCalc() {
-        PercentageValue v = new PercentageValue(new BigDecimal(0.1), new BigDecimal(1.0), new BigDecimal(0.1));
+        PercentageValue v = new PercentageValue(new BigDecimal(0.1), new BigDecimal(1.0), new BigDecimal(0.1), null,
+                null);
         v.update(new DecimalType(1.0));
         assertThat((PercentType) v.getChannelState(), is(new PercentType(100)));
         v.update(new DecimalType(0.1));
@@ -200,7 +219,8 @@ public class ValueTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void percentCalcInvalid() {
-        PercentageValue v = new PercentageValue(new BigDecimal(10.0), new BigDecimal(110.0), new BigDecimal(1.0));
+        PercentageValue v = new PercentageValue(new BigDecimal(10.0), new BigDecimal(110.0), new BigDecimal(1.0), null,
+                null);
         v.update(new DecimalType(9.0));
     }
 }

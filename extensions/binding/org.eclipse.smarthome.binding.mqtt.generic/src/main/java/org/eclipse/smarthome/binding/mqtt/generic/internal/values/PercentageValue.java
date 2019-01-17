@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
@@ -52,9 +53,9 @@ public class PercentageValue extends Value {
 
     public PercentageValue(@Nullable BigDecimal min, @Nullable BigDecimal max, @Nullable BigDecimal step,
             @Nullable String onValue, @Nullable String offValue) {
-        super(CoreItemFactory.DIMMER,
-                Stream.of(DecimalType.class, IncreaseDecreaseType.class, UpDownType.class, StringType.class)
-                        .collect(Collectors.toList()));
+        super(CoreItemFactory.DIMMER, Stream
+                .of(DecimalType.class, IncreaseDecreaseType.class, OnOffType.class, UpDownType.class, StringType.class)
+                .collect(Collectors.toList()));
         this.onValue = onValue;
         this.offValue = offValue;
         this.min = min == null ? 0.0 : min.doubleValue();
@@ -82,6 +83,8 @@ public class PercentageValue extends Value {
                 double v = oldvalue.doubleValue() - step;
                 state = new PercentType(new BigDecimal(v >= min ? v : min));
             }
+        } else if (command instanceof OnOffType) {
+            state = ((OnOffType) command) == OnOffType.ON ? PercentType.HUNDRED : PercentType.ZERO;
         } else if (command instanceof UpDownType) {
             if (((UpDownType) command) == UpDownType.UP) {
                 final double v = oldvalue.doubleValue() + step;
