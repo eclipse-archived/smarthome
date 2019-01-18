@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.handler.GenericThingHandler;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -39,8 +39,12 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * </p>
  *
  * <p>
- * This abstract class allows the handler class {@link GenericThingHandler} to treat all MQTT topics the same.
- * {@link #getCache()} is used to retrieve the topic state and a call to {@link #update(Command)} sets the value.
+ * This class and the encapsulated (cached) state are necessary, because MQTT can't be queried,
+ * but we still need to be able to respond to framework requests for a value.
+ * </p>
+ *
+ * <p>
+ * {@link #getCache()} is used to retrieve a topic state and a call to {@link #update(Command)} sets the value.
  * </p>
  *
  * @author David Graeff - Initial contribution
@@ -117,6 +121,17 @@ public abstract class Value {
      * @exception IllegalArgumentException Thrown if for example a text is assigned to a number type.
      */
     public abstract void update(Command command) throws IllegalArgumentException;
+
+    /**
+     * Returns the given command if it cannot be handled by {@link #update(Command)}
+     * or {@link #update(byte[])} and need to be posted straight to the framework instead.
+     * Returns null otherwise.
+     *
+     * @param command The command to decide about
+     */
+    public @Nullable Command isPostOnly(Command command) {
+        return null;
+    }
 
     /**
      * Updates the internal value state with the given binary payload.

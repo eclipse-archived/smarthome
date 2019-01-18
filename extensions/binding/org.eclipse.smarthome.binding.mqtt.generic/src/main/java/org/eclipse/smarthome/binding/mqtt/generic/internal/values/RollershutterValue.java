@@ -54,30 +54,39 @@ public class RollershutterValue extends Value {
 
     @Override
     public void update(Command command) throws IllegalArgumentException {
-        if (command instanceof UpDownType) {
-            PercentType newState = ((UpDownType) command).as(PercentType.class);
-            if (newState == null) { // Never happens
-                return;
-            }
-            state = newState;
-        } else if (command instanceof StopMoveType) {
-            if (command.equals(StopMoveType.STOP)) {
-                state = UnDefType.UNDEF;
-            }
+        if (command instanceof StopMoveType) {
+            throw new IllegalStateException("Cannot call update() with StopMoveType");
         } else if (command instanceof PercentType) {
             state = (PercentType) command;
         } else {
+            throw new IllegalStateException("Cannot call update() with custom stop/move/up/down");
+        }
+    }
+
+    /**
+     * The stop command will not update the internal state and is posted to the framework.
+     * <p>
+     * The Up/Down commands (100%/0%) are not updating the state directly and are also
+     * posted as percent value to the framework. It is up to the user if the posted values
+     * are applied to the item state immediately (autoupdate=true) or not.
+     */
+    @Override
+    public @Nullable Command isPostOnly(Command command) {
+        if (command instanceof UpDownType) {
+            return command;
+        } else if (command instanceof StopMoveType) {
+            return command;
+        } else if (command instanceof StringType) {
             final String updatedValue = command.toString();
             if (updatedValue.equals(upString)) {
-                state = PercentType.ZERO;
+                return UpDownType.UP.as(PercentType.class);
             } else if (updatedValue.equals(downString)) {
-                state = PercentType.HUNDRED;
+                return UpDownType.DOWN.as(PercentType.class);
             } else if (updatedValue.equals(stopString)) {
-                state = UnDefType.UNDEF;
-            } else {
-                state = PercentType.valueOf(updatedValue);
+                return StopMoveType.STOP;
             }
         }
+        return null;
     }
 
     @Override

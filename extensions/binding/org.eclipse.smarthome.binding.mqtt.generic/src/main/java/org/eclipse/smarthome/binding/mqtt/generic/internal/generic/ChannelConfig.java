@@ -41,6 +41,7 @@ public class ChannelConfig {
     public String unit = "";
 
     public String transformationPattern = "";
+    public String transformationPatternOut = "";
     public String formatBeforePublish = "%s";
     public String allowedStates = "";
 

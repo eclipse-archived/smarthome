@@ -192,7 +192,8 @@ public class ChannelStateTests {
 
     @Test
     public void receivePercentageTest() throws InterruptedException, ExecutionException, TimeoutException {
-        PercentageValue value = new PercentageValue(new BigDecimal(-100), new BigDecimal(100), new BigDecimal(10));
+        PercentageValue value = new PercentageValue(new BigDecimal(-100), new BigDecimal(100), new BigDecimal(10), null,
+                null);
         ChannelState c = spy(new ChannelState(config, channelUID, value, channelStateUpdateListener));
         c.start(connection, mock(ScheduledExecutorService.class), 100);
 

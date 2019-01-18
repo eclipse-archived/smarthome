@@ -26,9 +26,13 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements a number value.
+ *
+ * If min / max limits are set, values below / above are (almost) silently ignored.
  *
  * <p>
  * Accepts user updates and MQTT state updates from a DecimalType, IncreaseDecreaseType and UpDownType.
@@ -38,6 +42,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  */
 @NonNullByDefault
 public class NumberValue extends Value {
+    private final Logger logger = LoggerFactory.getLogger(NumberValue.class);
     private final @Nullable BigDecimal min;
     private final @Nullable BigDecimal max;
     private final BigDecimal step;
@@ -50,19 +55,44 @@ public class NumberValue extends Value {
         this.step = step == null ? new BigDecimal(1.0) : step;
     }
 
+    protected boolean checkConditions(BigDecimal newValue, DecimalType oldvalue) {
+        if (min != null && newValue.compareTo(min) == -1) {
+            logger.trace("Number not accepted as it is below the configured minimum");
+            return false;
+        }
+        if (max != null && newValue.compareTo(max) == 1) {
+            logger.trace("Number not accepted as it is above the configured maximum");
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public void update(Command command) throws IllegalArgumentException {
         DecimalType oldvalue = (state == UnDefType.UNDEF) ? new DecimalType() : (DecimalType) state;
+        BigDecimal newValue;
         if (command instanceof DecimalType) {
+            if (!checkConditions(((DecimalType) command).toBigDecimal(), oldvalue)) {
+                return;
+            }
             state = (DecimalType) command;
         } else if (command instanceof IncreaseDecreaseType || command instanceof UpDownType) {
             if (command == IncreaseDecreaseType.INCREASE || command == UpDownType.UP) {
-                state = new DecimalType(oldvalue.toBigDecimal().add(step));
+                newValue = oldvalue.toBigDecimal().add(step);
             } else {
-                state = new DecimalType(oldvalue.toBigDecimal().subtract(step));
+                newValue = oldvalue.toBigDecimal().subtract(step);
             }
+            if (!checkConditions(newValue, oldvalue)) {
+                return;
+            }
+            state = new DecimalType(newValue);
         } else {
-            state = DecimalType.valueOf(command.toString());
+            newValue = new BigDecimal(command.toString());
+            if (!checkConditions(newValue, oldvalue)) {
+                return;
+            }
+            state = new DecimalType(newValue);
         }
     }
 

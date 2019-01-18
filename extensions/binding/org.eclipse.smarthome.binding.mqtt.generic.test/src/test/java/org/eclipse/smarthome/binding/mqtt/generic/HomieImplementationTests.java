@@ -35,7 +35,6 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.D
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceCallback;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Node;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.NodeAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
@@ -248,8 +247,8 @@ public class HomieImplementationTests extends JavaOSGiTest {
         // Create a Homie Device object. Because spied Nodes are required for call verification,
         // the full Device constructor need to be used and a ChildMap object need to be created manually.
         ChildMap<Node> nodeMap = new ChildMap<>();
-        Device device = spy(new Device(ThingChannelConstants.testHomieThing, callback, new DeviceAttributes(),
-                new DeviceStatsAttributes(), nodeMap, Device.createDeviceStatisticsListener(handler)));
+        Device device = spy(
+                new Device(ThingChannelConstants.testHomieThing, callback, new DeviceAttributes(), nodeMap));
 
         // Intercept creating a node in initialize()->start() and inject a spy'ed node.
         doAnswer(this::createSpyNode).when(device).createNode(any());

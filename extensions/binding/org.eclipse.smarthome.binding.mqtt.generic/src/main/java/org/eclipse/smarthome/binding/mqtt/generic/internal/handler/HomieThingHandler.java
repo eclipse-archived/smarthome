@@ -13,11 +13,8 @@
 package org.eclipse.smarthome.binding.mqtt.generic.internal.handler;
 
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -28,7 +25,6 @@ import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.D
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceAttributes.ReadyState;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceCallback;
-import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.DeviceStatsAttributes;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.HandlerConfiguration;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Node;
 import org.eclipse.smarthome.binding.mqtt.generic.internal.convention.homie300.Property;
@@ -80,7 +76,7 @@ public class HomieThingHandler extends AbstractMQTTThingHandler implements Devic
         this.subscribeTimeout = subscribeTimeout;
         this.attributeReceiveTimeout = attributeReceiveTimeout;
         this.delayedProcessing = new DelayedBatchProcessing<Object>(subscribeTimeout, this, scheduler);
-        this.device = new Device(this.thing.getUID(), this, new DeviceAttributes(), new DeviceStatsAttributes());
+        this.device = new Device(this.thing.getUID(), this, new DeviceAttributes());
     }
 
     /**
@@ -161,13 +157,6 @@ public class HomieThingHandler extends AbstractMQTTThingHandler implements Devic
     }
 
     @Override
-    public void statisticAttributesChanged(DeviceStatsAttributes stats) {
-        Map<String, String> properties = new TreeMap<>();
-        properties.put("interval", String.valueOf(stats.interval));
-        updateProperties(properties);
-    }
-
-    @Override
     public void nodeRemoved(Node node) {
         channelTypeProvider.removeChannelGroupType(node.channelGroupTypeUID);
         delayedProcessing.accept(node);
@@ -211,29 +200,6 @@ public class HomieThingHandler extends AbstractMQTTThingHandler implements Devic
             device.startChannels(connection, scheduler, attributeReceiveTimeout, this).thenRun(() -> {
                 logger.trace("Homie device {} fully attached", device.attributes.name);
             });
-        }
-    }
-
-    protected void heartbeatFailed() {
-        readyStateChanged(ReadyState.lost);
-    }
-
-    @Override
-    public void heartbeatIntervalChanged(int intervalInSec) {
-        // Cancel existing timeout
-        final ScheduledFuture<?> scheduledFuture = this.heartBeatTimer;
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(false);
-            this.heartBeatTimer = null;
-        }
-        // Schedule new one
-        if (intervalInSec > 0) {
-            this.heartBeatTimer = scheduler.schedule(this::heartbeatFailed, intervalInSec, TimeUnit.SECONDS);
-        }
-        updateProperty(MqttBindingConstants.HOMIE_PROPERTY_HEARTBEAT_INTERVAL, String.valueOf(device.stats.interval));
-        // if heart beat missed last time -> set online again
-        if (thing.getStatus() == ThingStatus.OFFLINE) {
-            readyStateChanged(device.attributes.state);
         }
     }
 }
