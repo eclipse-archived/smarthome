@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.binding.dmx.handler;
 
-import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.*;
+import static org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.THING_TYPE_LIB485_BRIDGE;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
+import org.eclipse.smarthome.binding.dmx.internal.config.Lib485BridgeHandlerConfiguration;
 import org.eclipse.smarthome.binding.dmx.internal.dmxoverethernet.IpNode;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.Universe;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
@@ -125,18 +125,17 @@ public class Lib485BridgeHandler extends DmxBridgeHandler {
 
     @Override
     protected void updateConfiguration() {
-        Configuration configuration = getConfig();
+        Lib485BridgeHandlerConfiguration configuration = getConfig().as(Lib485BridgeHandlerConfiguration.class);
 
         universe = new Universe(MIN_UNIVERSE_ID);
 
         receiverNodes.clear();
-        if (configuration.get(CONFIG_ADDRESS) == null) {
+        if (configuration.address.isEmpty()) {
             receiverNodes.put(new IpNode("localhost:9020"), null);
             logger.debug("sending to {} for {}", receiverNodes, this.thing.getUID());
         } else {
             try {
-                for (IpNode receiverNode : IpNode.fromString((String) configuration.get(CONFIG_ADDRESS),
-                        DEFAULT_PORT)) {
+                for (IpNode receiverNode : IpNode.fromString(configuration.address, DEFAULT_PORT)) {
                     receiverNodes.put(receiverNode, null);
                     logger.debug("sending to {} for {}", receiverNode, this.thing.getUID());
                 }

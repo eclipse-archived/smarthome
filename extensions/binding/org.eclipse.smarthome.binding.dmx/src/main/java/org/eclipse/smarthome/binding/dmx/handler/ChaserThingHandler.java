@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.DmxBridgeHandler;
 import org.eclipse.smarthome.binding.dmx.internal.DmxThingHandler;
 import org.eclipse.smarthome.binding.dmx.internal.ValueSet;
-import org.eclipse.smarthome.binding.dmx.internal.DmxBindingConstants.ListenerType;
 import org.eclipse.smarthome.binding.dmx.internal.action.FadeAction;
 import org.eclipse.smarthome.binding.dmx.internal.action.ResumeAction;
+import org.eclipse.smarthome.binding.dmx.internal.config.ChaserThingHandlerConfiguration;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.BaseDmxChannel;
 import org.eclipse.smarthome.binding.dmx.internal.multiverse.DmxChannel;
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -142,7 +142,6 @@ public class ChaserThingHandler extends DmxThingHandler {
 
     @Override
     public void initialize() {
-        Configuration configuration = getConfig();
         Bridge bridge = getBridge();
         DmxBridgeHandler bridgeHandler;
         if (bridge == null) {
@@ -158,7 +157,9 @@ public class ChaserThingHandler extends DmxThingHandler {
             }
         }
 
-        if (configuration.get(CONFIG_DMX_ID) == null) {
+        ChaserThingHandlerConfiguration configuration = getConfig().as(ChaserThingHandlerConfiguration.class);
+
+        if (configuration.dmxid.isEmpty()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "DMX channel configuration missing");
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
@@ -166,7 +167,7 @@ public class ChaserThingHandler extends DmxThingHandler {
         }
 
         try {
-            List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString((String) configuration.get(CONFIG_DMX_ID),
+            List<BaseDmxChannel> configChannels = BaseDmxChannel.fromString(configuration.dmxid,
                     bridgeHandler.getUniverseId());
             logger.trace("found {} channels in {}", configChannels.size(), this.thing.getUID());
             for (BaseDmxChannel channel : configChannels) {
@@ -177,8 +178,8 @@ public class ChaserThingHandler extends DmxThingHandler {
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
             return;
         }
-        if (configuration.get(CONFIG_CHASER_STEPS) != null) {
-            if (parseChaserConfig((String) configuration.get(CONFIG_CHASER_STEPS))) {
+        if (!configuration.steps.isEmpty()) {
+            if (parseChaserConfig(configuration.steps)) {
                 if (bridge.getStatus().equals(ThingStatus.ONLINE)) {
                     updateStatus(ThingStatus.ONLINE);
                     dmxHandlerStatus = ThingStatusDetail.NONE;
@@ -194,10 +195,9 @@ public class ChaserThingHandler extends DmxThingHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Chase configuration missing");
             dmxHandlerStatus = ThingStatusDetail.CONFIGURATION_ERROR;
         }
-        if (configuration.get(CONFIG_CHASER_RESUME_AFTER) != null) {
-            resumeAfter = (Boolean) configuration.get(CONFIG_CHASER_RESUME_AFTER);
-            logger.trace("set resumeAfter to {}", resumeAfter);
-        }
+
+        resumeAfter = configuration.resumeafter;
+        logger.trace("set resumeAfter to {}", resumeAfter);
     }
 
     @Override
