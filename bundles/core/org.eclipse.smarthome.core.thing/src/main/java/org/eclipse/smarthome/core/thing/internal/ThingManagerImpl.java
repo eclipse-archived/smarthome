@@ -1248,6 +1248,20 @@ public class ThingManagerImpl
                 // Only set the correct status to the thing. There is no handler to be disposed
                 setThingStatus(thing, buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.DISABLED));
             }
+
+            if (isBridge(thing)) {
+                updateChildThingStatusForDisabledBridges((Bridge) thing);
+            }
+        }
+    }
+
+    private void updateChildThingStatusForDisabledBridges(Bridge bridge) {
+        for (Thing childThing : bridge.getThings()) {
+            ThingStatusDetail statusDetail = childThing.getStatusInfo().getStatusDetail();
+            if (childThing.getStatus() == ThingStatus.UNINITIALIZED && statusDetail != ThingStatusDetail.DISABLED) {
+                setThingStatus(childThing,
+                        buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.BRIDGE_UNINITIALIZED));
+            }
         }
     }
 
