@@ -129,6 +129,18 @@ XML file (thing-types.xml):
             </parameter>
         </config-description>
     </channel-type>
+    <channel-type id="cmd-channel">
+        <item-type>String</item-type>
+        <label>Device Commands</label>
+        <description>Send one of the defined command options to the device.</description>
+        <command>
+            <options>
+                <option value="RESET">Reset</option>
+                <option value="CMD_1">Command 1</option>
+                <option value="CMD_2">Command 2</option>
+            </options>
+        </command>
+    </channel-type>
 </thing:thing-descriptions>
 
 ```
@@ -159,6 +171,10 @@ channel-type.config.yahooweather.temperature.unit.label = Temperatur Einheit
 channel-type.config.yahooweather.temperature.unit.description = Auswahl der gewünschten Temperatur Einheit.
 channel-type.config.yahooweather.temperature.unit.option.C = Grad Celsius
 channel-type.config.yahooweather.temperature.unit.option.F = Grad Fahrenheit
+
+channel-type.yahooweather.cmd-channel.command.option.RESET = Reset Device
+channel-type.yahooweather.cmd-channel.command.option.CMD1 = Command one
+channel-type.yahooweather.cmd-channel.command.option.CMD2 = Command two
 ```
 
 So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`.
