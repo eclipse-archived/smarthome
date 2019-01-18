@@ -913,7 +913,7 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testStorageEntryRemovedOnThingRemoval() throws Exception {
+    public void testStorageEntryIsRetainedOnThingRemoval() throws Exception {
         registerThingTypeProvider();
 
         AtomicReference<ThingHandlerCallback> thingHandlerCallback = new AtomicReference<>();
@@ -981,8 +981,10 @@ public class ThingManagerOSGiJavaTest extends JavaOSGiTest {
         new Thread((Runnable) () -> managedThingProvider.remove(THING.getUID())).start();
 
         waitForAssert(() -> {
-            assertThat(storage.containsKey(THING_UID.getAsString()), is(false));
+            assertThat(THING.getStatus(), is(ThingStatus.REMOVED));
         }, SafeCaller.DEFAULT_TIMEOUT - 100, 50);
+
+        assertThat(storage.containsKey(THING_UID.getAsString()), is(true));
     }
 
     private void assertThingStatus(Map<String, Object> propsThing, Map<String, Object> propsChannel, ThingStatus status,
