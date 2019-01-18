@@ -341,8 +341,10 @@ public final class FirmwareUpdateServiceImpl implements FirmwareUpdateService, E
                 } catch (Exception e) {
                     logger.error("Exception occurred during background firmware transfer.", e);
                     synchronized (this) {
-                        if (previousFirmwareStatusInfo != null) {
-                            // restore previous firmware status info in order that transfer can be re-triggered
+                        // restore previous firmware status info in order that transfer can be re-triggered
+                        if (previousFirmwareStatusInfo == null) {
+                            firmwareStatusInfoMap.remove(fubtHandler.getThing().getUID());
+                        } else {
                             firmwareStatusInfoMap.put(fubtHandler.getThing().getUID(), previousFirmwareStatusInfo);
                         }
                     }
