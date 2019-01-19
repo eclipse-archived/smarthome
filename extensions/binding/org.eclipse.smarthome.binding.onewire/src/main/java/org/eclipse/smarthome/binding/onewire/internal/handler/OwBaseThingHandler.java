@@ -385,7 +385,7 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
         String label = channelConfig.label;
 
         // remove channel if wrong type uid and preserve config if not overridden
-        if (channel != null && channelConfig.channelTypeUID.equals(channel.getChannelTypeUID())) {
+        if (channel != null && !channelConfig.channelTypeUID.equals(channel.getChannelTypeUID())) {
             removeChannelIfExisting(thingBuilder, channelConfig.channelId);
             if (config == null) {
                 config = channel.getConfiguration();

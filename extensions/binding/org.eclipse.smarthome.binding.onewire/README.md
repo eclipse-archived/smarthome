@@ -19,15 +19,13 @@ There are different types of things: the simple one (`basic`), multisensors buil
 
 ** Important: Breaking Change with next release **
  
-The thing types `ms-th` and `ms-tv` have been marked deprecated and will be updated to `ms-tx`automatically. 
-Manually (via textual configuration) defined things should be changed to `ms-tx`. 
-
+The thing types `ms-th` and `ms-tv` have been marked deprecated and will be updated to `ms-tx` automatically. 
 The thing types `counter2`, `digitalio`, `digitalio2`, `digitalio8`, `ibutton`, `temperature` have been marked deprecated and will be updated to `basic` automatically. 
-Manually (via textual configuration) defined things should be changed to `generic`. 
+Please note that auto-upgraded things keep their thing UID _including the deprecated thing type_.
+
+Manually (via textual configuration) defined things need to be changed to `ms-tx` or `basic` respectively. 
 
 Deprecated thing types will will be removed with the next official release.
-
-Please note that auto-upgraded things keep their thing UID _including the deprecated thing type_.
 
 ## Discovery
 
@@ -215,7 +213,7 @@ Bridge onewire:owserver:mybridge [
         id="26.CD497C010000",
         refresh=60, 
         lightsensor=true, 
-        temperaturesensor="DS18B20", 
+        temperaturesensor="DS18B20" 
         ] {
             Channels:
                 Type temperature-por-res : temperature [
@@ -224,7 +222,7 @@ Bridge onewire:owserver:mybridge [
         } 
 
     Thing basic mydio [
-        id="3A.134E47DB60000"
+        id="3A.67F113000000"
         ] {
             Channels:
                 Type dio : digital0 [
