@@ -364,20 +364,52 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
         }
     }
 
+    /**
+     * adds (or replaces) a channel and enables it within the sensor (configuration preserved, default sensor)
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelConfig a OwChannelConfig for the new channel
+     * @return the newly created channel
+     */
     protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig) {
         return addChannelIfMissingAndEnable(thingBuilder, channelConfig, null, 0);
     }
 
+    /**
+     * adds (or replaces) a channel and enables it within the sensor (configuration overridden, default sensor)
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelConfig a OwChannelConfig for the new channel
+     * @param configuration the new Configuration for this channel
+     * @return the newly created channel
+     */
     protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig,
             Configuration configuration) {
         return addChannelIfMissingAndEnable(thingBuilder, channelConfig, configuration, 0);
     }
 
+    /**
+     * adds (or replaces) a channel and enables it within the sensor (configuration preserved)
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelConfig a OwChannelConfig for the new channel
+     * @param sensorNo number of sensor that provides this channel
+     * @return the newly created channel
+     */
     protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig,
             int sensorNo) {
         return addChannelIfMissingAndEnable(thingBuilder, channelConfig, null, sensorNo);
     }
 
+    /**
+     * adds (or replaces) a channel and enables it within the sensor (configuration overridden)
+     *
+     * @param thingBuilder ThingBuilder of the edited thing
+     * @param channelConfig a OwChannelConfig for the new channel
+     * @param configuration the new Configuration for this channel
+     * @param sensorNo number of sensor that provides this channel
+     * @return the newly created channel
+     */
     protected Channel addChannelIfMissingAndEnable(ThingBuilder thingBuilder, OwChannelConfig channelConfig,
             @Nullable Configuration configuration, int sensorNo) {
         Channel channel = thing.getChannel(channelConfig.channelId);
@@ -414,5 +446,4 @@ public abstract class OwBaseThingHandler extends BaseThingHandler {
 
         return channel;
     }
-
 }
