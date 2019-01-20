@@ -67,6 +67,7 @@ public class HueBindingConstants {
     public static final String CHANNEL_LIGHT_LEVEL = "light_level";
     public static final String CHANNEL_DARK = "dark";
     public static final String CHANNEL_DAYLIGHT = "daylight";
+    public static final String CHANNEL_FADETIME = "fadetime";
 
     // List all triggers
     public static final String EVENT_DIMMER_SWITCH = "dimmer_switch_event";
@@ -81,6 +82,6 @@ public class HueBindingConstants {
     public static final String SENSOR_ID = "sensorId";
     public static final String PRODUCT_NAME = "productName";
     public static final String UNIQUE_ID = "uniqueId";
-
     public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
+    public static final String FADETIME = "fadetime";
 }

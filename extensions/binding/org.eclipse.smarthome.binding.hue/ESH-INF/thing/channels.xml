@@ -199,4 +199,12 @@
 		<description>The effect channel allows putting the bulb in a color looping mode.</description>
 		<category>ColorLight</category>
 	</channel-type>
+
+	<!-- Fade Time Channel -->
+	<channel-type id="fadetime" advanced="true">
+		<item-type>Number</item-type>
+		<label>Fade Time</label>
+		<description>Current fade time.</description>
+	</channel-type>
+
 </thing:thing-descriptions>
