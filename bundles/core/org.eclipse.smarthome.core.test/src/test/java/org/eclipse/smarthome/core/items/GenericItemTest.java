@@ -30,9 +30,12 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.service.CommandDescriptionService;
+import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.types.CommandDescription;
 import org.eclipse.smarthome.core.types.CommandOption;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
+import org.eclipse.smarthome.core.types.StateOption;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -42,6 +45,7 @@ import org.mockito.ArgumentCaptor;
  * @author Christoph Knauf - Initial contribution, event tests
  * @author Simon Kaufmann - migrated from Groovy to Java
  */
+@SuppressWarnings("null")
 public class GenericItemTest {
 
     @Test
@@ -172,6 +176,20 @@ public class GenericItemTest {
         item.setCommandDescriptionService(commandDescriptionService);
 
         assertThat(item.getCommandDescription(Locale.getDefault()).getCommandOptions(), hasSize(3));
+    }
+
+    @Test
+    public void commandDescriptionShouldHaveStateOptionsAsCommands() {
+        TestItem item = new TestItem("test");
+
+        StateDescriptionService stateDescriptionService = mock(StateDescriptionService.class);
+        List<@NonNull StateOption> stateOptions = Arrays.asList(new StateOption("STATE1", "State 1"),
+                new StateOption("STATE2", "State 2"));
+        when(stateDescriptionService.getStateDescription("test", null)).thenReturn(
+                StateDescriptionFragmentBuilder.create().withOptions(stateOptions).build().toStateDescription());
+        item.setStateDescriptionService(stateDescriptionService);
+
+        assertThat(item.getCommandDescription().getCommandOptions(), hasSize(2));
     }
 
     /**

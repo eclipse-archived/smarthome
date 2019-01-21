@@ -35,6 +35,8 @@ import org.eclipse.smarthome.core.service.CommandDescriptionService;
 import org.eclipse.smarthome.core.service.StateDescriptionService;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.CommandDescription;
+import org.eclipse.smarthome.core.types.CommandDescriptionBuilder;
+import org.eclipse.smarthome.core.types.CommandOption;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -413,8 +415,17 @@ public abstract class GenericItem implements ActiveItem {
     @Override
     public @Nullable CommandDescription getCommandDescription(@Nullable Locale locale) {
         if (commandDescriptionService != null) {
-            return commandDescriptionService.getCommandDescription(this.name, locale);
+            CommandDescription commandDescription = commandDescriptionService.getCommandDescription(this.name, locale);
+            if (commandDescription != null) {
+                return commandDescription;
+            }
         }
+
+        StateDescription stateDescription = getStateDescription(locale);
+        if (stateDescription != null && !stateDescription.getOptions().isEmpty()) {
+            return stateOptions2CommandOptions(stateDescription);
+        }
+
         return null;
     }
 
@@ -433,6 +444,14 @@ public abstract class GenericItem implements ActiveItem {
     protected void logSetTypeError(State state) {
         logger.error("Tried to set invalid state {} ({}) on item {} of type {}, ignoring it", state,
                 state.getClass().getSimpleName(), getName(), getClass().getSimpleName());
+    }
+
+    private @Nullable CommandDescription stateOptions2CommandOptions(StateDescription stateDescription) {
+        CommandDescriptionBuilder builder = CommandDescriptionBuilder.create();
+        stateDescription.getOptions()
+                .forEach(so -> builder.withCommandOption(new CommandOption(so.getValue(), so.getLabel())));
+
+        return builder.build();
     }
 
 }
