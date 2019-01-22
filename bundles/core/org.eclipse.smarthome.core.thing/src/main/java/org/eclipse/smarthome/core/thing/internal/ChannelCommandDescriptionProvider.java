@@ -32,6 +32,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides the {@link ChannelType} specific {@link CommandDescription} for the given item name and locale.
@@ -42,6 +44,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @NonNullByDefault
 @Component(immediate = true)
 public class ChannelCommandDescriptionProvider implements CommandDescriptionProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(ChannelCommandDescriptionProvider.class);
 
     private @NonNullByDefault({}) ItemChannelLinkRegistry itemChannelLinkRegistry;
     private @NonNullByDefault({}) ThingTypeRegistry thingTypeRegistry;
@@ -76,10 +80,15 @@ public class ChannelCommandDescriptionProvider implements CommandDescriptionProv
     private @Nullable CommandDescription getDynamicCommandDescription(Channel channel,
             @Nullable CommandDescription originalCommandDescription, @Nullable Locale locale) {
         for (DynamicCommandDescriptionProvider dynamicCommandDescriptionProvider : dynamicCommandDescriptionProviders) {
-            CommandDescription dynamicCommandDescription = dynamicCommandDescriptionProvider
-                    .getCommandDescription(channel, originalCommandDescription, locale);
-            if (dynamicCommandDescription != null) {
-                return dynamicCommandDescription;
+            try {
+                CommandDescription dynamicCommandDescription = dynamicCommandDescriptionProvider
+                        .getCommandDescription(channel, originalCommandDescription, locale);
+                if (dynamicCommandDescription != null) {
+                    return dynamicCommandDescription;
+                }
+            } catch (Exception e) {
+                logger.error("Error evaluating {}#getCommandDescription: {}",
+                        dynamicCommandDescriptionProvider.getClass(), e.getLocalizedMessage(), e);
             }
         }
 
