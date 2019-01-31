@@ -20,7 +20,7 @@
 						</div>
 						<div ng-repeat="channel in ::group.channels track by channel.id">
 							<div ng-repeat="itemName in ::channel.linkedItems">
-								<item-control item-name="itemName"></item-control>
+								<item-control item-name="itemName" channel="channel"></item-control>
 							</div>
 						</div>
 					</div>

@@ -35,6 +35,11 @@
 		<item-type>Switch</item-type>
 		<label>Clear Queue</label>
 		<description>Suppress all songs from the current queue</description>
+		<command>
+			<options>
+				<option value="clear">Clear Queue</option>
+			</options>
+		</command>
 	</channel-type>
 
 	<channel-type id="coordinator" advanced="true">

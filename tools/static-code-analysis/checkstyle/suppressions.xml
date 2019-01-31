@@ -42,4 +42,7 @@
 	<suppress files=".+org.eclipse.smarthome.automation.sample.rest.api.internal.Activator.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
 	<suppress files=".+org.eclipse.smarthome.core.common.registry.AbstractRegistry.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
 	<suppress files=".+org.eclipse.smarthome.core.transform.AbstractFileTransformationService.java" checks="DeclarativeServicesDependencyInjectionCheck"/>
+
+    <!-- Remove this after thing-description-1.0.0.xsd is published from https://github.com/eclipse/smarthome/pull/5131 -->
+    <suppress files=".+xml" checks="EshInfXmlValidationCheck" />
 </suppressions>

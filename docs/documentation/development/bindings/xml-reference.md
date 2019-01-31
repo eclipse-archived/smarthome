@@ -410,6 +410,15 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
         ...
       </options>
     </event>
+    
+    <command>
+      <options>
+        <option value="String" />
+        OR
+        <option value="String">String</option>
+        ...
+      </options>
+    </command>
 
     <config-description>
       ...
@@ -486,6 +495,10 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>options</td><td>A list restricting all possible values (optional).</td></tr>
   <tr><td>option</td><td>The description for the option (optional).</td></tr>
   <tr><td>option.value</td><td>The value for the option (mandatory). Note that the value may be outside of the range specified in the min/max if this is specified.</td></tr>
+  <tr><td>command</td><td>Commands this channel will send to the binding. This is used to model "write-only" channels and gives UIs a hint to display push-buttons without state (optional).</td></tr>
+  <tr><td>options</td><td>A list defining the possible commands (optional).</td></tr>
+  <tr><td>option</td><td>The description for the option (optional).</td></tr>
+  <tr><td>option.value</td><td>The value for the option (mandatory). This is the actual command send to the channel.</td></tr>
   <tr><td>event</td><td>The restrictions of an trigger event which gives information how to interpret it (optional).</td></tr>
   <tr><td>autoUpdatePolicy</td><td>The auto update policy to use (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
