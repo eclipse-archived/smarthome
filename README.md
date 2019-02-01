@@ -38,8 +38,3 @@ To build Eclipse SmartHome from the sources, Maven takes care of everything:
 If there are tests that are failing occasionally on your local build, run `mvn -DskipTests=true clean install` instead to skip them.
 
 The p2 repository that contains all bundles as a build result will be available in the folder `products/org.eclipse.smarthome.repo/target`.
-
-# How to contribute
-
-If you want to become a contributor to the project, please read about [contributing](https://www.eclipse.org/smarthome/documentation/community/contributing.html) and check our [guidelines](https://www.eclipse.org/smarthome/documentation/development/guidelines.html) first. If you can't wait to get your hands dirty have a look at the open issues where we [need your help](https://github.com/eclipse/smarthome/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) or one of the [open bugs](https://github.com/eclipse/smarthome/issues?q=is%3Aissue+is%3Aopen+label%3Abug).
-
