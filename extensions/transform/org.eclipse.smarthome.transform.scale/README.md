@@ -21,6 +21,27 @@ A range consists of two bounds. Both are optional, the range is then open. Both 
 These expressions are evaluated from top to bottom.
 The first range that includes the value is selected.
 
+## Special entries
+Note that scale transform is evaluated in the order of appearance of matching conditions.
+If you define given ranges, you can use :
+
+### Catchall Entry
+`[..]=Catchall`
+
+This entry will match all numeric values not met by a previous range.
+
+### Not A Number
+Scale transform is designed to work with numeric or quantity states. When the value presented to scale transform doest not match this, it will not be handled, a warning will be raised in the openhab.log file. This can happen with NULL or UNDEF states. This case can be smoothly be handled with a 
+
+`NaN=Non Numeric State presented`
+
+### Formatting output
+At last, Scale transform takes care of formatting an output with this entry :
+
+`format=%label% (%value%) !`
+
+Where `%label` will be replaced by transformed value and `%value%` is the numeric value presented.
+
 ## Example
 
 The following example shows how to break down numeric UV values into fixed UV index categories.
