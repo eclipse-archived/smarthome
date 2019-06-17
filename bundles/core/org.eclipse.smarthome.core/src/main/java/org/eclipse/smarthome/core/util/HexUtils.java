@@ -107,7 +107,7 @@ public class HexUtils {
     /**
      * Convert an upper case hex character to a byte
      *
-     * @param chacacter an upper case hex character
+     * @param character an upper case hex character
      * @return the byte value of the character
      * @throws IllegalArgumentException if a value is found which is not an upper case hex character
      */
