@@ -32,7 +32,7 @@ public class SetColorZonesRequest extends Packet {
     public static final Field<Integer> FIELD_START_INDEX = new UInt8Field();
     public static final Field<Integer> FIELD_END_INDEX = new UInt8Field();
     public static final HSBKField FIELD_COLOR = new HSBKField();
-    public static final Field<Long> FIELD_FADE_TIME = new UInt32Field().little();
+    public static final Field<Long> FIELD_FADE_TIME = new UInt32Field().getLittleField();
     public static final Field<Integer> FIELD_APPLY = new UInt8Field();
 
     private int startIndex = MIN_ZONE_INDEX;

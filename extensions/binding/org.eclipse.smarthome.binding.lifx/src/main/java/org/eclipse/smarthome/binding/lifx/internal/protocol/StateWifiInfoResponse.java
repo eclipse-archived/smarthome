@@ -27,9 +27,9 @@ public class StateWifiInfoResponse extends Packet {
 
     public static final int TYPE = 0x11;
 
-    public static final Field<Float> FIELD_SIGNAL = new FloatField().little();
-    public static final Field<Long> FIELD_RX = new UInt32Field().little();
-    public static final Field<Long> FIELD_TX = new UInt32Field().little();
+    public static final Field<Float> FIELD_SIGNAL = new FloatField().getLittleField();
+    public static final Field<Long> FIELD_RX = new UInt32Field().getLittleField();
+    public static final Field<Long> FIELD_TX = new UInt32Field().getLittleField();
     public static final Field<Integer> FIELD_TEMP = new UInt16Field();
 
     private float signal;

@@ -30,7 +30,7 @@ public class StateResponse extends Packet {
     public static final int TYPE = 0x6B;
 
     public static final HSBKField FIELD_COLOR = new HSBKField();
-    public static final Field<Integer> FIELD_DIM = new UInt16Field().little();
+    public static final Field<Integer> FIELD_DIM = new UInt16Field().getLittleField();
     public static final Field<Integer> FIELD_POWER = new UInt16Field();
     public static final Field<String> FIELD_LABEL = new StringField(32);
     public static final Field<Long> FIELD_TAGS = new UInt64Field();

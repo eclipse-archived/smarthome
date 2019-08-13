@@ -29,7 +29,7 @@ public class StateGroupResponse extends Packet {
 
     public static final Field<ByteBuffer> FIELD_GROUP = new ByteField(16);
     public static final Field<String> FIELD_LABEL = new StringField(32).utf8();
-    public static final Field<Long> FIELD_UPDATED_AT = new UInt64Field().little();
+    public static final Field<Long> FIELD_UPDATED_AT = new UInt64Field().getLittleField();
 
     private ByteBuffer group;
     private String label;

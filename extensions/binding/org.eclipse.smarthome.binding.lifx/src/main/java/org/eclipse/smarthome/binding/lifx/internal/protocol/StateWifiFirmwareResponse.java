@@ -27,9 +27,9 @@ public class StateWifiFirmwareResponse extends Packet {
 
     public static final int TYPE = 0x13;
 
-    public static final Field<Long> FIELD_BUILD = new UInt64Field().little();
-    public static final Field<Long> FIELD_RESERVED = new UInt64Field().little();
-    public static final Field<Version> FIELD_VERSION = new VersionField().little();
+    public static final Field<Long> FIELD_BUILD = new UInt64Field().getLittleField();
+    public static final Field<Long> FIELD_RESERVED = new UInt64Field().getLittleField();
+    public static final Field<Version> FIELD_VERSION = new VersionField().getLittleField();
 
     private long build;
     private long reserved;

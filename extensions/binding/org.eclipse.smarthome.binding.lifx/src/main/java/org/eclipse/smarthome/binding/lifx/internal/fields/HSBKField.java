@@ -22,10 +22,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class HSBKField extends Field<HSBK> {
 
-    public static final Field<Integer> FIELD_HUE = new UInt16Field().little();
-    public static final Field<Integer> FIELD_SATURATION = new UInt16Field().little();
-    public static final Field<Integer> FIELD_BRIGHTNESS = new UInt16Field().little();
-    public static final Field<Integer> FIELD_KELVIN = new UInt16Field().little();
+    public static final Field<Integer> FIELD_HUE = new UInt16Field().getLittleField();
+    public static final Field<Integer> FIELD_SATURATION = new UInt16Field().getLittleField();
+    public static final Field<Integer> FIELD_BRIGHTNESS = new UInt16Field().getLittleField();
+    public static final Field<Integer> FIELD_KELVIN = new UInt16Field().getLittleField();
 
     @Override
     public int defaultLength() {

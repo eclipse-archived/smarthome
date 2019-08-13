@@ -41,15 +41,15 @@ import org.eclipse.smarthome.binding.lifx.internal.fields.UInt8Field;
  */
 public abstract class Packet {
 
-    public static final Field<Integer> FIELD_SIZE = new UInt16Field().little();
-    public static final Field<Integer> FIELD_PROTOCOL = new UInt16Field().little();
-    public static final Field<Long> FIELD_SOURCE = new UInt32Field().little();
+    public static final Field<Integer> FIELD_SIZE = new UInt16Field().getLittleField();
+    public static final Field<Integer> FIELD_PROTOCOL = new UInt16Field().getLittleField();
+    public static final Field<Long> FIELD_SOURCE = new UInt32Field().getLittleField();
     public static final Field<MACAddress> FIELD_TARGET = new MACAddressField();
     public static final Field<ByteBuffer> FIELD_RESERVED_1 = new ByteField(6);
     public static final Field<Integer> FIELD_ACK = new UInt8Field();
-    public static final Field<Integer> FIELD_SEQUENCE = new UInt8Field().little();
+    public static final Field<Integer> FIELD_SEQUENCE = new UInt8Field().getLittleField();
     public static final Field<ByteBuffer> FIELD_RESERVED_2 = new ByteField(8);
-    public static final Field<Integer> FIELD_PACKET_TYPE = new UInt16Field().little();
+    public static final Field<Integer> FIELD_PACKET_TYPE = new UInt16Field().getLittleField();
     public static final Field<ByteBuffer> FIELD_RESERVED_3 = new ByteField(2);
 
     /**
