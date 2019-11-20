@@ -10,7 +10,7 @@
     "dev": "gulp serve --development --noMinify"
   },
   "dependencies": {
-    "angular": "1.5.7",
+    "angular": "1.7.9",
     "angular-animate": "1.5.7",
     "angular-aria": "1.5.7",
     "angular-messages": "1.5.7",
