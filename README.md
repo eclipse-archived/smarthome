@@ -1,3 +1,5 @@
+#THIS PROJECT IS ARCHIVED
+
 # Eclipse SmartHome Build Instructions
 
 Thanks for your interest in the Eclipse SmartHome project!
