@@ -391,7 +391,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
             return cachedEntry;
         }
 
-        ChannelType localizedChannelType = localize(bundle, channelType, locale);
+        ChannelType localizedChannelType = createChannelType(bundle, channelType, locale);
         if (localizedChannelType != null) {
             localizedChannelTypeCache.put(localizedChannelTypeKey, localizedChannelType);
             return localizedChannelType;
@@ -400,7 +400,7 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
         }
     }
 
-    private @Nullable ChannelType localize(Bundle bundle, ChannelType channelType, Locale locale) {
+    private @Nullable ChannelType createChannelType(Bundle bundle, ChannelType channelType, Locale locale) {
         if (channelTypeI18nLocalizationService == null) {
             return null;
         }
