@@ -27,7 +27,7 @@ public class SetLightPowerRequest extends Packet {
     public static final int TYPE = 0x75;
 
     public static final Field<Integer> FIELD_STATE = new UInt16Field();
-    public static final Field<Long> FIELD_DURATION = new UInt32Field().little();
+    public static final Field<Long> FIELD_DURATION = new UInt32Field().getLittleField();
 
     private PowerState state;
     private long duration;

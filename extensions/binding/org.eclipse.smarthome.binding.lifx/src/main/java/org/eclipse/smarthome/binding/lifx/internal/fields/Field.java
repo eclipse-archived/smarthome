@@ -96,7 +96,7 @@ public abstract class Field<T> {
      *
      * @return a little-endian version of this field
      */
-    public Field<T> little() {
+    public Field<T> getLittleField() {
         return new LittleField<>(this);
     }
 

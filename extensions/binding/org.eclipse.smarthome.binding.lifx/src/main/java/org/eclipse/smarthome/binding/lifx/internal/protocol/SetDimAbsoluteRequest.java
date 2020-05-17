@@ -26,8 +26,8 @@ public class SetDimAbsoluteRequest extends Packet {
 
     public static final int TYPE = 0x68;
 
-    public static final Field<Integer> FIELD_DIM = new UInt16Field().little();
-    public static final Field<Long> FIELD_DURATION = new UInt32Field().little();
+    public static final Field<Integer> FIELD_DIM = new UInt16Field().getLittleField();
+    public static final Field<Long> FIELD_DURATION = new UInt32Field().getLittleField();
 
     private int dim;
     private long duration;

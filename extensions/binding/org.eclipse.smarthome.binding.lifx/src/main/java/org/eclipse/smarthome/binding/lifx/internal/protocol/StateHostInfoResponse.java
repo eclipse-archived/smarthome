@@ -27,9 +27,9 @@ public class StateHostInfoResponse extends Packet {
 
     public static final int TYPE = 0x0D;
 
-    public static final Field<Float> FIELD_SIGNAL = new FloatField().little();
-    public static final Field<Long> FIELD_TX = new UInt32Field().little();
-    public static final Field<Long> FIELD_RX = new UInt32Field().little();
+    public static final Field<Float> FIELD_SIGNAL = new FloatField().getLittleField();
+    public static final Field<Long> FIELD_TX = new UInt32Field().getLittleField();
+    public static final Field<Long> FIELD_RX = new UInt32Field().getLittleField();
     public static final Field<ByteBuffer> FIELD_RESERVED_5 = new ByteField(2);
 
     private float signal;

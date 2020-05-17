@@ -25,9 +25,9 @@ public class StateVersionResponse extends Packet {
 
     public static final int TYPE = 0x21;
 
-    public static final Field<Long> FIELD_VENDOR = new UInt32Field().little();
-    public static final Field<Long> FIELD_PRODUCT = new UInt32Field().little();
-    public static final Field<Long> FIELD_VERSION = new UInt32Field().little();
+    public static final Field<Long> FIELD_VENDOR = new UInt32Field().getLittleField();
+    public static final Field<Long> FIELD_PRODUCT = new UInt32Field().getLittleField();
+    public static final Field<Long> FIELD_VERSION = new UInt32Field().getLittleField();
 
     private long vendor;
     private long product;

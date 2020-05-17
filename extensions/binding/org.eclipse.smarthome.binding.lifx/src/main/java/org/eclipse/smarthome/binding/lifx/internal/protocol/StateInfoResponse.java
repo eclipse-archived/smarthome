@@ -25,9 +25,9 @@ public class StateInfoResponse extends Packet {
 
     public static final int TYPE = 0x23;
 
-    public static final Field<Long> FIELD_TIME = new UInt64Field().little();
-    public static final Field<Long> FIELD_UPTIME = new UInt64Field().little();
-    public static final Field<Long> FIELD_DOWNTIME = new UInt64Field().little();
+    public static final Field<Long> FIELD_TIME = new UInt64Field().getLittleField();
+    public static final Field<Long> FIELD_UPTIME = new UInt64Field().getLittleField();
+    public static final Field<Long> FIELD_DOWNTIME = new UInt64Field().getLittleField();
 
     private long time;
     private long uptime;

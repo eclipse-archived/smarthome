@@ -24,7 +24,7 @@ public class SetLightInfraredRequest extends Packet {
 
     public static final int TYPE = 0x7A;
 
-    public static final Field<Integer> FIELD_STATE = new UInt16Field().little();
+    public static final Field<Integer> FIELD_STATE = new UInt16Field().getLittleField();
 
     private int infrared;
 
